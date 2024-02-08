@@ -1,13 +1,13 @@
-package mappers
+package request
 
 import (
 	"errors"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/resources"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/url"
 	"strconv"
 )
 
-func GetSearchRequest(qs url.Values) (*resources.SearchRequestDto, error) {
+func GetSearchRequest(qs url.Values) (*request.SearchRequestDto, error) {
 	q, err := url.QueryUnescape(qs.Get("q"))
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func GetSearchRequest(qs url.Values) (*resources.SearchRequestDto, error) {
 		}
 	}
 
-	return &resources.SearchRequestDto{
+	return &request.SearchRequestDto{
 		Query:  q,
 		Count:  count,
 		Offset: offset,

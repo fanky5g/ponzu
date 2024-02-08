@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"log"
 	"net/http"
 )
@@ -12,7 +12,7 @@ var AuthMiddleware Token = "AuthMiddleware"
 func NewAuthMiddleware(authService auth.Service) func(next http.HandlerFunc) http.HandlerFunc {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(res http.ResponseWriter, req *http.Request) {
-			authToken := mappers.GetAuthToken(req)
+			authToken := request.GetAuthToken(req)
 			isValid, err := authService.IsTokenValid(authToken)
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)

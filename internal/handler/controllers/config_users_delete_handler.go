@@ -4,7 +4,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/application/auth"
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/users"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -34,7 +34,7 @@ func NewConfigUsersDeleteHandler(
 			}
 
 			// do not allow current user to delete themselves
-			user, err := authService.GetUserFromAuthToken(mappers.GetAuthToken(req))
+			user, err := authService.GetUserFromAuthToken(request.GetAuthToken(req))
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return

@@ -1,4 +1,4 @@
-package resources
+package request
 
 type SearchRequestDto struct {
 	Query  string `json:"query"`

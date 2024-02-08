@@ -100,7 +100,7 @@ func NewInitHandler(configService config.Service, userService users.Service, aut
 				return
 			}
 
-			token, expires, err := authService.NewToken(user)
+			authToken, err := authService.NewToken(user)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -109,8 +109,8 @@ func NewInitHandler(configService config.Service, userService users.Service, aut
 
 			http.SetCookie(res, &http.Cookie{
 				Name:    "_token",
-				Value:   token,
-				Expires: expires,
+				Value:   authToken.Token,
+				Expires: authToken.Expires,
 				Path:    "/",
 			})
 

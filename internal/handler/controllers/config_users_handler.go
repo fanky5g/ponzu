@@ -7,7 +7,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/users"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -64,7 +64,7 @@ func NewConfigUsersHandler(
 
 		switch req.Method {
 		case http.MethodGet:
-			currentUser, err := authService.GetUserFromAuthToken(mappers.GetAuthToken(req))
+			currentUser, err := authService.GetUserFromAuthToken(request.GetAuthToken(req))
 			if err != nil {
 				LogAndFail(res, fmt.Errorf("failed to get current user: %v", err), appName)
 				return
