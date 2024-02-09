@@ -21,10 +21,10 @@ type service struct {
 type Service interface {
 	IsTokenValid(token string) (bool, error)
 	GetUserFromAuthToken(token string) (*entities.User, error)
-	NewToken(user *entities.User) (string, time.Time, error)
+	NewToken(user *entities.User) (*entities.AuthToken, error)
 	SetCredential(userId string, credential *entities.Credential) error
 	VerifyCredential(userId string, credential *entities.Credential) error
-	LoginByEmail(email string, credential *entities.Credential) (string, time.Time, error)
+	LoginByEmail(email string, credential *entities.Credential) (*entities.AuthToken, error)
 	GetRecoveryKey(email string) (string, error)
 	SetRecoveryKey(email string) (string, error)
 }
@@ -52,7 +52,7 @@ func (s *service) GetUserFromAuthToken(token string) (*entities.User, error) {
 	return s.userRepository.GetUserByEmail(email.(string))
 }
 
-func (s *service) NewToken(user *entities.User) (string, time.Time, error) {
+func (s *service) NewToken(user *entities.User) (*entities.AuthToken, error) {
 	// create new token
 	expires := time.Now().Add(time.Hour * 24 * 7)
 	claims := map[string]interface{}{
@@ -62,10 +62,13 @@ func (s *service) NewToken(user *entities.User) (string, time.Time, error) {
 
 	token, err := jwt.New(claims)
 	if err != nil {
-		return "", time.Time{}, err
+		return nil, err
 	}
 
-	return token, expires, nil
+	return &entities.AuthToken{
+		Expires: expires,
+		Token:   token,
+	}, nil
 }
 
 func (s *service) GetRecoveryKey(email string) (string, error) {

@@ -6,22 +6,20 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
-func (s *service) LoginByEmail(email string, credential *entities.Credential) (string, time.Time, error) {
-	var tokenExpires time.Time
+func (s *service) LoginByEmail(email string, credential *entities.Credential) (*entities.AuthToken, error) {
 	user, err := s.userRepository.GetUserByEmail(email)
 	if err != nil {
-		return "", tokenExpires, fmt.Errorf("failed to get user by email: %v", err)
+		return nil, fmt.Errorf("failed to get user by email: %v", err)
 	}
 
 	if user == nil {
-		return "", tokenExpires, errors.New("invalid user")
+		return nil, errors.New("invalid user")
 	}
 
 	if err = s.VerifyCredential(user.ID, credential); err != nil {
-		return "", tokenExpires, errors.New("invalid credentials")
+		return nil, errors.New("invalid credentials")
 	}
 
 	return s.NewToken(user)

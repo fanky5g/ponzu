@@ -6,7 +6,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/manager"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -79,7 +79,7 @@ func NewEditUploadHandler(configService config.Service, storageService storage.S
 			}
 
 			t := req.FormValue("type")
-			post, err := mappers.GetFileUploadFromFormData(req.Form)
+			post, err := request.GetFileUploadFromFormData(req.Form)
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return
@@ -105,7 +105,7 @@ func NewEditUploadHandler(configService config.Service, storageService storage.S
 			}
 
 			// StoreFiles has the SetUpload call (which is equivalent of CreateContent in other controllers)
-			files, err := mappers.GetRequestFiles(req)
+			files, err := request.GetRequestFiles(req)
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return
@@ -133,7 +133,7 @@ func NewEditUploadHandler(configService config.Service, storageService storage.S
 			http.Redirect(res, req, redir, http.StatusFound)
 
 		case http.MethodPut:
-			files, err := mappers.GetRequestFiles(req)
+			files, err := request.GetRequestFiles(req)
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return

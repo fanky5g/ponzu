@@ -6,7 +6,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/users"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -42,7 +42,7 @@ func NewConfigUsersEditHandler(
 				return
 			}
 
-			user, err := authService.GetUserFromAuthToken(mappers.GetAuthToken(req))
+			user, err := authService.GetUserFromAuthToken(request.GetAuthToken(req))
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return
@@ -93,7 +93,7 @@ func NewConfigUsersEditHandler(
 			}
 
 			// create new token
-			token, expires, err := authService.NewToken(user)
+			authToken, err := authService.NewToken(user)
 			if err != nil {
 				LogAndFail(res, fmt.Errorf("failed to generate token: %v", err), appName)
 				return
@@ -101,8 +101,8 @@ func NewConfigUsersEditHandler(
 
 			cookie := &http.Cookie{
 				Name:    "_token",
-				Value:   token,
-				Expires: expires,
+				Value:   authToken.Token,
+				Expires: authToken.Expires,
 				Path:    "/",
 			}
 

@@ -1,4 +1,4 @@
-package mappers
+package request
 
 import (
 	"github.com/fanky5g/ponzu/internal/domain/entities"

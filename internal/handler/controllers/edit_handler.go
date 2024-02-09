@@ -9,7 +9,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/domain/services/content"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/manager"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -93,7 +93,7 @@ func NewEditHandler(configService config.Service, contentService content.Service
 
 			cid := req.FormValue("id")
 			t := req.FormValue("type")
-			files, err := mappers.GetRequestFiles(req)
+			files, err := request.GetRequestFiles(req)
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return
@@ -114,7 +114,7 @@ func NewEditHandler(configService config.Service, contentService content.Service
 				pt = strings.Split(t, "__")[0]
 			}
 
-			entity, err := mappers.GetEntityFromFormData(pt, req.PostForm)
+			entity, err := request.GetEntityFromFormData(pt, req.PostForm)
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return

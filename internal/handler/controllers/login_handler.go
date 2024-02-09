@@ -5,7 +5,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/users"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"log"
 	"net/http"
@@ -39,7 +39,7 @@ func NewLoginHandler(
 			return
 		}
 
-		isValid, err := authService.IsTokenValid(mappers.GetAuthToken(req))
+		isValid, err := authService.IsTokenValid(request.GetAuthToken(req))
 		if err != nil {
 			res.WriteHeader(http.StatusInternalServerError)
 			log.Printf("Failed to check token validity: %v\n", err)
@@ -80,12 +80,12 @@ func NewLoginHandler(
 
 			email := strings.ToLower(req.FormValue("email"))
 			password := req.FormValue("password")
-			authToken, tokenExpiry, err := authService.LoginByEmail(email, &entities.Credential{
+			authToken, err := authService.LoginByEmail(email, &entities.Credential{
 				Type:  entities.CredentialTypePassword,
 				Value: password,
 			})
 
-			if err != nil || authToken == "" {
+			if err != nil || authToken == nil {
 				log.Println("Failed to login user", err)
 				http.Redirect(res, req, req.URL.String(), http.StatusFound)
 				return
@@ -93,8 +93,8 @@ func NewLoginHandler(
 
 			http.SetCookie(res, &http.Cookie{
 				Name:    "_token",
-				Value:   authToken,
-				Expires: tokenExpiry,
+				Value:   authToken.Token,
+				Expires: authToken.Expires,
 				Path:    "/",
 			})
 

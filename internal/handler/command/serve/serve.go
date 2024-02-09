@@ -12,6 +12,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/application/tls"
 	"github.com/fanky5g/ponzu/internal/application/users"
 	"github.com/fanky5g/ponzu/internal/handler/controllers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/api"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/middleware"
 	analyticsRepositoryFactory "github.com/fanky5g/ponzu/internal/infrastructure/db/repository/analytics"
 	configRepositoryFactory "github.com/fanky5g/ponzu/internal/infrastructure/db/repository/config"
@@ -172,6 +173,7 @@ var serveCmd = &cobra.Command{
 
 		// Initialize Handlers
 		controllers.RegisterRoutes(services, middlewares)
+		api.RegisterRoutes(services, middlewares)
 		// End Initialize Handlers
 
 		// Initialize Application

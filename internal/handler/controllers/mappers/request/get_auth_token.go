@@ -1,4 +1,4 @@
-package mappers
+package request
 
 import "net/http"
 

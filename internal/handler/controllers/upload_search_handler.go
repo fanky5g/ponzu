@@ -6,7 +6,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/application/search"
 	"github.com/fanky5g/ponzu/internal/application/storage"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -27,7 +27,7 @@ func NewUploadSearchHandler(
 			return
 		}
 
-		searchRequest, err := mappers.GetSearchRequest(req.URL.Query())
+		searchRequest, err := request.GetSearchRequest(req.URL.Query())
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusBadRequest)

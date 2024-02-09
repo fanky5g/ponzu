@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 type CredentialType string
 
 var CredentialTypePassword CredentialType = "password"
@@ -19,4 +21,9 @@ type CredentialHash struct {
 	UserId string         `json:"user_id"`
 	Type   CredentialType `json:"type"`
 	Value  []byte         `json:"value"`
+}
+
+type AuthToken struct {
+	Expires time.Time
+	Token   string
 }
