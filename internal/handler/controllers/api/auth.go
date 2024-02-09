@@ -14,27 +14,17 @@ func NewAuthHandler(authService auth.Service) http.HandlerFunc {
 		case http.MethodPost:
 			accountId, credential, err := request.MapAuthRequest(req)
 			if err != nil {
-				writeJSONResponse(res, http.StatusBadRequest, map[string]interface{}{
-					"error": map[string]string{
-						"message": err.Error(),
-					},
-				})
+				writeJSONError(res, http.StatusBadRequest, err)
 				return
 			}
 
 			authToken, err := authService.LoginByEmail(accountId, credential)
 			if err != nil {
-				writeJSONResponse(res, http.StatusBadRequest, map[string]interface{}{
-					"error": map[string]string{
-						"message": err.Error(),
-					},
-				})
+				writeJSONError(res, http.StatusBadRequest, err)
 				return
 			}
 
-			writeJSONResponse(res, http.StatusOK, map[string]interface{}{
-				"data": response.MapAuthTokenResponse(authToken),
-			})
+			writeJSONData(res, http.StatusOK, response.MapAuthTokenResponse(authToken))
 			return
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)

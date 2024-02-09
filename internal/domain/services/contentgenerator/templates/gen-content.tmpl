@@ -56,9 +56,9 @@ func ({{ .Initial }} *{{ .Name }}) IndexContent() bool {
 func ({{ .Initial }} *{{ .Name }}) GetSearchableAttributes() map[string]reflect.Type {
 	searchableAttributes := make(map[string]reflect.Type)
 	idField := "ID"
-	searchableAttributes[idField] = reflect.ValueOf({{ .Initial }}).FieldByName(idField).Type()
+	v := reflect.Indirect(reflect.ValueOf({{ .Initial }}))
+    searchableAttributes[idField] = v.FieldByName(idField).Type()
 
-	v := reflect.ValueOf({{ .Initial }})
 	t := v.Type()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)

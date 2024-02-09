@@ -48,6 +48,13 @@ func New(
 		if err := contentRepository.CreateEntityStore(itemName, itemType()); err != nil {
 			return nil, err
 		}
+
+		if _, err := searchClient.GetIndex(itemName); err != nil {
+			err = searchClient.CreateIndex(itemName, itemType())
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	contentDomainService, err := content.New(contentRepository, configRepository, searchClient)

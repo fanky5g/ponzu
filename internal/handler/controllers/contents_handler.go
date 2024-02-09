@@ -16,13 +16,6 @@ import (
 	"strings"
 )
 
-// Createable accepts or rejects external POST requests to endpoints such as:
-// /api/content/create?type=Review
-type Createable interface {
-	// Create enables external clients to submit content of a specific type
-	Create(http.ResponseWriter, *http.Request) error
-}
-
 func NewContentsHandler(configService config.Service, contentService content.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		appName, err := configService.GetAppName()
@@ -67,11 +60,6 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 		if _, ok := pt.(editor.Editable); !ok {
 			LogAndFail(res, fmt.Errorf("item %s does not implement editable interface", t), appName)
 			return
-		}
-
-		var hasExt bool
-		if _, ok := pt.(Createable); ok {
-			hasExt = true
 		}
 
 		count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
@@ -160,85 +148,19 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 						</div>
                     </form>	
 					</div>`
-		if hasExt {
-			if status == "" {
-				q.Set("status", "public")
-			}
 
-			// always start from top of results when changing public/pending
-			q.Del("count")
-			q.Del("offset")
+		total, posts, err = contentService.Query(t+specifier, opts)
+		if err != nil {
+			LogAndFail(res, err, appName)
+			return
+		}
 
-			q.Set("status", "public")
-			publicURL := req.URL.Path + "?" + q.Encode()
-
-			q.Set("status", "pending")
-			pendingURL := req.URL.Path + "?" + q.Encode()
-
-			switch status {
-			case "public", "":
-				// get __sorted posts of type t from the db
-				total, posts, err = contentService.Query(t+specifier, opts)
-				if err != nil {
-					LogAndFail(res, err, appName)
-					return
-				}
-
-				html += `<div class="row externalable">
-					<span class="description">Status:</span> 
-					<span class="active">Public</span>
-					&nbsp;&vert;&nbsp;
-					<a href="` + pendingURL + `">Pending</a>
-				</div>`
-
-				for _, entity := range posts {
-					post := PostListItem(entity.(editor.Editable), t, status)
-					_, err = b.Write(post)
-					if err != nil {
-						LogAndFail(res, err, appName)
-						return
-					}
-				}
-
-			case "pending":
-				// get __pending posts of type t from the db
-				total, posts, err = contentService.Query(t+"__pending", opts)
-				if err != nil {
-					LogAndFail(res, err, appName)
-					return
-				}
-
-				html += `<div class="row externalable">
-					<span class="description">Status:</span> 
-					<a href="` + publicURL + `">Public</a>
-					&nbsp;&vert;&nbsp;
-					<span class="active">Pending</span>					
-				</div>`
-
-				for i := len(posts) - 1; i >= 0; i-- {
-					post := PostListItem(posts[i].(editor.Editable), t, status)
-					_, err = b.Write(post)
-					if err != nil {
-						LogAndFail(res, err, appName)
-						return
-					}
-				}
-			}
-
-		} else {
-			total, posts, err = contentService.Query(t+specifier, opts)
+		for _, entity := range posts {
+			post := PostListItem(entity.(editor.Editable), t, status)
+			_, err = b.Write(post)
 			if err != nil {
 				LogAndFail(res, err, appName)
 				return
-			}
-
-			for _, entity := range posts {
-				post := PostListItem(entity.(editor.Editable), t, status)
-				_, err = b.Write(post)
-				if err != nil {
-					LogAndFail(res, err, appName)
-					return
-				}
 			}
 		}
 
