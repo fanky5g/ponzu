@@ -51,7 +51,7 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 	var index interfaces.SearchIndexInterface
 	index, err = s.searchClient.GetIndex(s.getEntityType(entityType))
 	if err != nil {
-		return "", fmt.Errorf("failed to index %s for search", entityType)
+		return "", fmt.Errorf("failed to index %s for search: %v", entityType, err)
 	}
 
 	if err = index.Update(id, entity); err != nil {

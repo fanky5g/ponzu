@@ -8,6 +8,11 @@ import (
 )
 
 func GetRequestFiles(req *http.Request) (map[string]*multipart.FileHeader, error) {
+	contentType := getContentType(req)
+	if contentType != "multipart/form-data" {
+		return nil, nil
+	}
+
 	err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 	if err != nil {
 		return nil, err

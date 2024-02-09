@@ -90,28 +90,31 @@ func New(contentRepository interfaces.ContentRepositoryInterface) (interfaces.Se
 		searchPath:        searchPath,
 	}
 
-	managedTypes := contentRepository.Types()
-	searchDirItems, err := os.ReadDir(searchPath)
-	if err != nil {
-		return nil, err
-	}
+	if contentRepository != nil {
+		// Load existing types
+		managedTypes := contentRepository.Types()
+		searchDirItems, err := os.ReadDir(searchPath)
+		if err != nil {
+			return nil, err
+		}
 
-	if len(searchDirItems) > 0 {
-		for _, searchDirItem := range searchDirItems {
-			if searchDirItem.IsDir() {
-				entityName := strings.TrimSuffix(searchDirItem.Name(), IndexSuffix)
-				if _, ok := managedTypes[entityName]; ok {
-					searchIndex, err := c.getExistingIndex(path.Join(searchPath, searchDirItem.Name()), false)
-					if err != nil {
-						return nil, err
+		if len(searchDirItems) > 0 {
+			for _, searchDirItem := range searchDirItems {
+				if searchDirItem.IsDir() {
+					entityName := strings.TrimSuffix(searchDirItem.Name(), IndexSuffix)
+					if _, ok := managedTypes[entityName]; ok {
+						searchIndex, err := c.getExistingIndex(path.Join(searchPath, searchDirItem.Name()), false)
+						if err != nil {
+							return nil, err
+						}
+
+						if searchIndex != nil {
+							log.Printf("Search index %s initialized\n", entityName)
+							c.indexes[entityName] = searchIndex
+						}
 					}
 
-					if searchIndex != nil {
-						log.Printf("Search index %s initialized\n", entityName)
-						c.indexes[entityName] = searchIndex
-					}
 				}
-
 			}
 		}
 	}

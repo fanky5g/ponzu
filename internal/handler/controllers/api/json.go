@@ -52,3 +52,17 @@ func writeJSONResponse(res http.ResponseWriter, statusCode int, response map[str
 		return
 	}
 }
+
+func writeJSONError(res http.ResponseWriter, statusCode int, err error) {
+	writeJSONResponse(res, statusCode, map[string]interface{}{
+		"error": map[string]string{
+			"message": err.Error(),
+		},
+	})
+}
+
+func writeJSONData(res http.ResponseWriter, statusCode int, data interface{}) {
+	writeJSONResponse(res, statusCode, map[string]interface{}{
+		"data": data,
+	})
+}

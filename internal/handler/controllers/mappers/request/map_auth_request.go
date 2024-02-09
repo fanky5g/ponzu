@@ -7,17 +7,13 @@ import (
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 var ErrInvalidRequest = errors.New("invalid request")
 
 func MapAuthRequest(req *http.Request) (string, *entities.Credential, error) {
 	var authRequest *request.AuthRequest
-	contentType := req.Header.Get("Content-Type")
-	if strings.Contains(contentType, ";") {
-		contentType = strings.TrimSpace(contentType[:strings.Index(contentType, ";")])
-	}
+	contentType := getContentType(req)
 
 	if contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data" {
 		if err := req.ParseMultipartForm(1024 * 1024 * 4); err != nil {
