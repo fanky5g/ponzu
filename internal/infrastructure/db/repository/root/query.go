@@ -3,23 +3,26 @@ package root
 import (
 	"bytes"
 	"github.com/boltdb/bolt"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/internal/domain/enum"
 )
 
-// Query retrieves a set of content from the db based on options
+// FindAllWithOptions retrieves a set of content from the db based on options
 // and returns the total number of content in the namespace and the content
-func (repo *repository) Query(namespace string, opts interfaces.QueryOptions) (int, []interface{}, error) {
+func (repo *repository) FindAllWithOptions(namespace string,
+	order enum.SortOrder,
+	pagination *entities.Pagination) (int, []interface{}, error) {
 	var posts []interface{}
 	var total int
 
 	// correct bad input rather than return nil or error
 	// similar to default case for opts.Order switch below
-	if opts.Count < 0 {
-		opts.Count = -1
+	if pagination.Count < 0 {
+		pagination.Count = -1
 	}
 
-	if opts.Offset < 0 {
-		opts.Offset = 0
+	if pagination.Offset < 0 {
+		pagination.Offset = 0
 	}
 
 	err := repo.db.View(func(tx *bolt.Tx) error {
@@ -38,19 +41,19 @@ func (repo *repository) Query(namespace string, opts interfaces.QueryOptions) (i
 		}
 
 		var start, end int
-		switch opts.Count {
+		switch pagination.Count {
 		case -1:
 			start = 0
 			end = n
 
 		default:
-			start = opts.Count * opts.Offset
-			end = start + opts.Count
+			start = pagination.Count * pagination.Offset
+			end = start + pagination.Count
 		}
 
 		// bounds check on posts given the start & end count
 		if start > n {
-			start = n - opts.Count
+			start = n - pagination.Count
 		}
 		if end > n {
 			end = n
@@ -58,7 +61,7 @@ func (repo *repository) Query(namespace string, opts interfaces.QueryOptions) (i
 
 		i := 0   // count of num posts added
 		cur := 0 // count of num cursor moves
-		switch opts.Order {
+		switch order {
 		case "desc", "":
 			for k, v := c.Last(); k != nil; k, v = c.Prev() {
 				if cur < start {

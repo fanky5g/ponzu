@@ -21,11 +21,6 @@ var (
 	// ErrTypeNotRegistered means content type isn't registered (not found in Types map)
 	ErrTypeNotRegistered = errors.New(typeNotRegistered)
 
-	// ErrAllowHiddenItem should be used as an error to tell a caller of Hideable#Hide
-	// that this type is hidden, but should be shown in a particular case, i.e.
-	// if requested by a valid controllers or user
-	ErrAllowHiddenItem = errors.New(`Allow hidden item`)
-
 	// Types is a map used to reference a type name to its actual Editable type
 	// mainly for lookups in /admin route based utilities
 	Types map[string]EntityBuilder

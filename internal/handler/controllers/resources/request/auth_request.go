@@ -17,12 +17,12 @@ type Credential struct {
 	Value interface{}             `json:"value"`
 }
 
-type AuthRequest struct {
+type AuthRequestDto struct {
 	AccountID  string     `json:"account_id"`
 	Credential Credential `json:"credential"`
 }
 
-func (auth *AuthRequest) Validate() error {
+func (auth *AuthRequestDto) Validate() error {
 	if auth.AccountID == "" {
 		return ErrInvalidAccountID
 	}
@@ -38,7 +38,7 @@ func (auth *AuthRequest) Validate() error {
 	return nil
 }
 
-func (auth *AuthRequest) ToCredential() (*entities.Credential, error) {
+func (auth *AuthRequestDto) ToCredential() (*entities.Credential, error) {
 	switch auth.Credential.Type {
 	case entities.CredentialTypePassword:
 		password, ok := auth.Credential.Value.(string)

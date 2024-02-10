@@ -13,11 +13,6 @@ import (
 
 func NewCreateContentHandler(contentService content.Service, storageService storage.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		if req.Method != http.MethodPost {
-			res.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
 		t := req.URL.Query().Get("type")
 		if t == "" {
 			res.WriteHeader(http.StatusBadRequest)

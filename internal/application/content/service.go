@@ -26,8 +26,8 @@ func (s *service) GetContent(entityType, entityId string) (interface{}, error) {
 	return s.contentDomainService.GetContent(entityType, entityId)
 }
 
-func (s *service) Query(entityType string, options interfaces.QueryOptions) (int, []interface{}, error) {
-	return s.contentDomainService.Query(entityType, options)
+func (s *service) GetAllWithOptions(entityType string, search *entities.Search) (int, []interface{}, error) {
+	return s.contentDomainService.GetAllWithOptions(entityType, search)
 }
 
 func (s *service) GetAll(entityType string) ([]interface{}, error) {

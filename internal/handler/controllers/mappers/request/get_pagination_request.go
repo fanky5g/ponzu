@@ -1,23 +1,12 @@
 package request
 
 import (
-	"errors"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/url"
 	"strconv"
 )
 
-func GetSearchRequest(qs url.Values) (*request.SearchRequestDto, error) {
-	q, err := url.QueryUnescape(qs.Get("q"))
-	if err != nil {
-		return nil, err
-	}
-
-	// q must be set
-	if q == "" {
-		return nil, errors.New("query is required")
-	}
-
+func GetPaginationRequest(qs url.Values) (*request.PaginationRequestDto, error) {
 	count, err := strconv.Atoi(qs.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
 	if err != nil {
 		if qs.Get("count") == "" {
@@ -36,8 +25,7 @@ func GetSearchRequest(qs url.Values) (*request.SearchRequestDto, error) {
 		}
 	}
 
-	return &request.SearchRequestDto{
-		Query:  q,
+	return &request.PaginationRequestDto{
 		Count:  count,
 		Offset: offset,
 	}, nil

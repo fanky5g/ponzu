@@ -8,6 +8,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/fanky5g/ponzu/internal/domain/services/content"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -82,10 +83,16 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 			}
 		}
 
-		opts := interfaces.QueryOptions{
-			Count:  count,
-			Offset: offset,
-			Order:  order,
+		searchRequestDto, err := request.GetSearchRequestDto(req.URL.Query())
+		if err != nil {
+			LogAndFail(res, err, appName)
+			return
+		}
+
+		search, err := request.MapSearchRequest(searchRequestDto)
+		if err != nil {
+			LogAndFail(res, err, appName)
+			return
 		}
 
 		var specifier string
@@ -149,7 +156,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
                     </form>	
 					</div>`
 
-		total, posts, err = contentService.Query(t+specifier, opts)
+		total, posts, err = contentService.GetAllWithOptions(t+specifier, search)
 		if err != nil {
 			LogAndFail(res, err, appName)
 			return

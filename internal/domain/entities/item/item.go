@@ -66,8 +66,8 @@ type Sortable interface {
 // to the different lifecycles/events a struct may encounter. Item implements
 // Hookable with no-ops so our user can override only whichever ones necessary.
 type Hookable interface {
-	BeforeAPIResponse(http.ResponseWriter, *http.Request, []byte) ([]byte, error)
-	AfterAPIResponse(http.ResponseWriter, *http.Request, []byte) error
+	BeforeAPIResponse(http.ResponseWriter, *http.Request, []interface{}) ([]interface{}, error)
+	AfterAPIResponse(http.ResponseWriter, *http.Request, []interface{}) error
 
 	BeforeAPICreate(http.ResponseWriter, *http.Request) error
 	AfterAPICreate(http.ResponseWriter, *http.Request) error
@@ -106,25 +106,12 @@ type Hookable interface {
 	AfterDisable(http.ResponseWriter, *http.Request) error
 }
 
-// Hideable lets a user keep items hidden
-type Hideable interface {
-	Hide(http.ResponseWriter, *http.Request) error
-}
-
 // Pushable lets a user define which values of certain struct fields are
 // 'pushed' down to  a client via HTTP/2 Server Push. All items in the slice
 // should be the json tag names of the struct fields to which they correspond.
 type Pushable interface {
 	// the values contained by fields returned by Push must strictly be URL paths
 	Push(http.ResponseWriter, *http.Request) ([]string, error)
-}
-
-// Omittable lets a user define certin fields within a content struct to remove
-// from an API response. Helpful when you want data in the CMS, but not entirely
-// shown or available from the content API. All items in the slice should be the
-// json tag names of the struct fields to which they correspond.
-type Omittable interface {
-	Omit(http.ResponseWriter, *http.Request) ([]string, error)
 }
 
 // Item should only be embedded into content type structs.
@@ -200,12 +187,12 @@ func (i *Item) String() string {
 }
 
 // BeforeAPIResponse is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) ([]byte, error) {
+func (i *Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data []interface{}) ([]interface{}, error) {
 	return data, nil
 }
 
 // AfterAPIResponse is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data []byte) error {
+func (i *Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data []interface{}) error {
 	return nil
 }
 
