@@ -6,13 +6,11 @@ import (
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/storage"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 func NewUploadContentsHandler(configService config.Service, contentService storage.Service) http.HandlerFunc {
@@ -24,13 +22,6 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 			return
 		}
 
-		q := req.URL.Query()
-
-		order := strings.ToLower(q.Get("order"))
-		if order != "asc" {
-			order = "desc"
-		}
-
 		pt := interface{}(&item.FileUpload{})
 		_, ok := pt.(editor.Editable)
 		if !ok {
@@ -38,30 +29,16 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 			return
 		}
 
-		count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
+		searchRequestDto, err := request.GetSearchRequestDto(req.URL.Query())
 		if err != nil {
-			if q.Get("count") == "" {
-				count = 10
-			} else {
-				LogAndFail(res, err, appName)
-				return
-			}
+			LogAndFail(res, err, appName)
+			return
 		}
 
-		offset, err := strconv.Atoi(q.Get("offset")) // int: multiplier of count for pagination (0 default)
+		search, err := request.MapSearchRequest(searchRequestDto)
 		if err != nil {
-			if q.Get("offset") == "" {
-				offset = 0
-			} else {
-				LogAndFail(res, err, appName)
-				return
-			}
-		}
-
-		opts := interfaces.QueryOptions{
-			Count:  count,
-			Offset: offset,
-			Order:  order,
+			LogAndFail(res, err, appName)
+			return
 		}
 
 		b := &bytes.Buffer{}
@@ -112,7 +89,7 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 					</div>`
 
 		status := ""
-		total, posts, err = contentService.Query(storage.UploadsEntityName, opts)
+		total, posts, err = contentService.GetAllWithOptions(storage.UploadsEntityName, search)
 		if err != nil {
 			LogAndFail(res, err, appName)
 			return
@@ -153,24 +130,24 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 		prevStatus := ""
 		nextStatus := ""
 		// total may be less than 10 (default count), so reset count to match total
-		if total < count {
-			count = total
+		if total < search.Pagination.Count {
+			search.Pagination.Count = total
 		}
 		// nothing previous to current list
-		if offset == 0 {
+		if search.Pagination.Offset == 0 {
 			prevStatus = statusDisabled
 		}
 		// nothing after current list
-		if (offset+1)*count >= total {
+		if (search.Pagination.Offset+1)*search.Pagination.Count >= total {
 			nextStatus = statusDisabled
 		}
 
 		// set up pagination values
 		urlFmt := req.URL.Path + "?count=%d&offset=%d&&order=%s"
-		prevURL := fmt.Sprintf(urlFmt, count, offset-1, order)
-		nextURL := fmt.Sprintf(urlFmt, count, offset+1, order)
-		start := 1 + count*offset
-		end := start + count - 1
+		prevURL := fmt.Sprintf(urlFmt, search.Pagination.Count, search.Pagination.Offset-1, search.SortOrder)
+		nextURL := fmt.Sprintf(urlFmt, search.Pagination.Count, search.Pagination.Offset+1, search.SortOrder)
+		start := 1 + search.Pagination.Count*search.Pagination.Offset
+		end := start + search.Pagination.Count - 1
 
 		if total < end {
 			end = total

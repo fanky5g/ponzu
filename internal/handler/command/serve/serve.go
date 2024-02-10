@@ -166,9 +166,14 @@ var serveCmd = &cobra.Command{
 
 		// Initialize Middlewares
 		middlewares := make(middleware.Middlewares)
-		middlewares[middleware.CacheControlMiddleware] = middleware.NewCacheControlMiddleware(configRepository)
+		CacheControlMiddleware := middleware.NewCacheControlMiddleware(configRepository)
+
+		middlewares[middleware.CacheControlMiddleware] = CacheControlMiddleware
 		middlewares[middleware.AnalyticsRecorderMiddleware] = middleware.NewAnalyticsRecorderMiddleware(analyticsService)
 		middlewares[middleware.AuthMiddleware] = middleware.NewAuthMiddleware(authService)
+		middlewares[middleware.GzipMiddleware] = middleware.NewGzipMiddleware(configService)
+		middlewares[middleware.CorsMiddleware] = middleware.NewCORSMiddleware(configService, CacheControlMiddleware)
+
 		// End initialize middlewares
 
 		// Initialize Handlers

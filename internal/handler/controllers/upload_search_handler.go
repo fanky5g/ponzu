@@ -27,7 +27,7 @@ func NewUploadSearchHandler(
 			return
 		}
 
-		searchRequest, err := request.GetSearchRequest(req.URL.Query())
+		searchRequest, err := request.GetSearchRequestDto(req.URL.Query())
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusBadRequest)

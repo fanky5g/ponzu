@@ -1,6 +1,7 @@
 package content
 
 import (
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 )
 
@@ -14,7 +15,7 @@ type Service interface {
 	DeleteContent(entityType, entityId string) error
 	CreateContent(entityType string, content interface{}) (string, error)
 	GetContent(entityType, entityId string) (interface{}, error)
-	Query(entityType string, options interfaces.QueryOptions) (int, []interface{}, error)
+	GetAllWithOptions(entityType string, search *entities.Search) (int, []interface{}, error)
 	GetAll(entityType string) ([]interface{}, error)
 }
 

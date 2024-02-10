@@ -1,23 +1,23 @@
 package interfaces
 
-import "github.com/fanky5g/ponzu/internal/domain/entities/item"
-
-// QueryOptions holds options for a query
-type QueryOptions struct {
-	Count  int
-	Offset int
-	Order  string
-}
+import (
+	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/enum"
+)
 
 type CRUDInterface interface {
-	// SetEntity performs both Create and Update function
 	SetEntity(entityType string, entity interface{}) (string, error)
 	DeleteEntity(entityId string) error
 	FindByTarget(targets []string) ([]interface{}, error)
 	FindOneByTarget(target string) (interface{}, error)
 	FindOneBySlug(slug string) (string, interface{}, error)
 	FindAll(namespace string) ([]interface{}, error)
-	Query(namespace string, opts QueryOptions) (int, []interface{}, error)
+	FindAllWithOptions(
+		namespace string,
+		order enum.SortOrder,
+		pagination *entities.Pagination,
+	) (int, []interface{}, error)
 }
 
 type EntityIdentifierInterface interface {

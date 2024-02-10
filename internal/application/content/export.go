@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/enum"
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/tidwall/gjson"
 	"io"
@@ -91,10 +92,12 @@ func (s *service) ExportCSV(entityName string) (*entities.ResponseStream, error)
 	var size int
 	var err error
 	// get content data and loop through creating a csv row per result
-	size, data, err = s.Query(entityName, interfaces.QueryOptions{
-		Count:  chunkSize,
-		Offset: offset,
-		Order:  "desc",
+	size, data, err = s.GetAllWithOptions(entityName, &entities.Search{
+		SortOrder: enum.Descending,
+		Pagination: &entities.Pagination{
+			Count:  chunkSize,
+			Offset: offset,
+		},
 	})
 
 	if err != nil {
@@ -116,10 +119,12 @@ func (s *service) ExportCSV(entityName string) (*entities.ResponseStream, error)
 		w:         w,
 		read:      len(data),
 		loadMore: func(offset int) ([]interface{}, error) {
-			_, d, e := s.Query(entityName, interfaces.QueryOptions{
-				Count:  chunkSize,
-				Offset: offset,
-				Order:  "desc",
+			_, d, e := s.GetAllWithOptions(entityName, &entities.Search{
+				SortOrder: enum.Descending,
+				Pagination: &entities.Pagination{
+					Count:  chunkSize,
+					Offset: offset,
+				},
 			})
 
 			return d, e

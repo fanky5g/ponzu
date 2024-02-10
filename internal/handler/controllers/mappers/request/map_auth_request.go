@@ -12,7 +12,7 @@ import (
 var ErrInvalidRequest = errors.New("invalid request")
 
 func MapAuthRequest(req *http.Request) (string, *entities.Credential, error) {
-	var authRequest *request.AuthRequest
+	var authRequest *request.AuthRequestDto
 	contentType := getContentType(req)
 
 	if contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data" {
@@ -43,8 +43,8 @@ func MapAuthRequest(req *http.Request) (string, *entities.Credential, error) {
 	return authRequest.AccountID, credential, nil
 }
 
-func mapAuthRequestFromFormData(values url.Values) *request.AuthRequest {
-	return &request.AuthRequest{
+func mapAuthRequestFromFormData(values url.Values) *request.AuthRequestDto {
+	return &request.AuthRequestDto{
 		AccountID: values.Get("account_id"),
 		Credential: request.Credential{
 			Type:  entities.CredentialType(values.Get("credential_type")),
