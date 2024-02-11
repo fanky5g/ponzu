@@ -15,6 +15,7 @@ type Service interface {
 	DeleteContent(entityType, entityId string) error
 	CreateContent(entityType string, content interface{}) (string, error)
 	GetContent(entityType, entityId string) (interface{}, error)
+	GetContentBySlug(slug string) (string, interface{}, error)
 	GetAllWithOptions(entityType string, search *entities.Search) (int, []interface{}, error)
 	GetAll(entityType string) ([]interface{}, error)
 }
