@@ -66,8 +66,8 @@ type Sortable interface {
 // to the different lifecycles/events a struct may encounter. Item implements
 // Hookable with no-ops so our user can override only whichever ones necessary.
 type Hookable interface {
-	BeforeAPIResponse(http.ResponseWriter, *http.Request, []interface{}) ([]interface{}, error)
-	AfterAPIResponse(http.ResponseWriter, *http.Request, []interface{}) error
+	BeforeAPIResponse(http.ResponseWriter, *http.Request, interface{}) (interface{}, error)
+	AfterAPIResponse(http.ResponseWriter, *http.Request, interface{}) error
 
 	BeforeAPICreate(http.ResponseWriter, *http.Request) error
 	AfterAPICreate(http.ResponseWriter, *http.Request) error
@@ -187,12 +187,12 @@ func (i *Item) String() string {
 }
 
 // BeforeAPIResponse is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data []interface{}) ([]interface{}, error) {
+func (i *Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data interface{}) (interface{}, error) {
 	return data, nil
 }
 
 // AfterAPIResponse is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data []interface{}) error {
+func (i *Item) AfterAPIResponse(res http.ResponseWriter, req *http.Request, data interface{}) error {
 	return nil
 }
 

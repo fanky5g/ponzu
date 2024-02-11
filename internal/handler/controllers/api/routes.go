@@ -27,7 +27,7 @@ func RegisterRoutes(services application.Services, middlewares middleware.Middle
 
 	http.HandleFunc("/api/auth", AnalyticsRecorderMiddleware(CORSMiddleware(NewAuthHandler(authService))))
 	http.HandleFunc(
-		"/api/content",
+		"/api/content/",
 		AnalyticsRecorderMiddleware(
 			CORSMiddleware(Auth(GzipMiddleware(NewContentHandler(contentService, storageService)))),
 		),
