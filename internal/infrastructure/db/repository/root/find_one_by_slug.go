@@ -18,9 +18,9 @@ func (repo *repository) FindOneBySlug(slug string) (string, interface{}, error) 
 		if b == nil {
 			return bolt.ErrBucketNotFound
 		}
-		idx := b.Get([]byte(slug))
 
-		if idx != nil {
+		idx := b.Get([]byte(slug))
+		if idx != nil && len(idx) > 0 {
 			tid := strings.Split(string(idx), ":")
 
 			if len(tid) < 2 {
@@ -28,6 +28,10 @@ func (repo *repository) FindOneBySlug(slug string) (string, interface{}, error) 
 			}
 
 			t, id = tid[0], tid[1]
+		}
+
+		if t == "" {
+			return nil
 		}
 
 		c := tx.Bucket([]byte(t))
@@ -41,6 +45,7 @@ func (repo *repository) FindOneBySlug(slug string) (string, interface{}, error) 
 
 		return nil
 	})
+
 	if err != nil {
 		return t, nil, err
 	}
@@ -49,7 +54,7 @@ func (repo *repository) FindOneBySlug(slug string) (string, interface{}, error) 
 		return "", nil, nil
 	}
 
-	entity, err := repo.MarshalEntity(slug, val)
+	entity, err := repo.MarshalEntity(t, val)
 	if err != nil {
 		return "", nil, err
 	}

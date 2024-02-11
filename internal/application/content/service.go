@@ -26,6 +26,10 @@ func (s *service) GetContent(entityType, entityId string) (interface{}, error) {
 	return s.contentDomainService.GetContent(entityType, entityId)
 }
 
+func (s *service) GetContentBySlug(slug string) (string, interface{}, error) {
+	return s.contentDomainService.GetContentBySlug(slug)
+}
+
 func (s *service) GetAllWithOptions(entityType string, search *entities.Search) (int, []interface{}, error) {
 	return s.contentDomainService.GetAllWithOptions(entityType, search)
 }

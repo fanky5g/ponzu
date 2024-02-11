@@ -6,9 +6,12 @@ import (
 )
 
 func (s *service) GetContent(entityType, entityId string) (interface{}, error) {
-	// TODO: repository layer accept entityType and entityId
 	target := fmt.Sprintf("%s:%s", entityType, entityId)
 	return s.repository.FindOneByTarget(target)
+}
+
+func (s *service) GetContentBySlug(slug string) (string, interface{}, error) {
+	return s.repository.FindOneBySlug(slug)
 }
 
 func (s *service) GetAll(namespace string) ([]interface{}, error) {

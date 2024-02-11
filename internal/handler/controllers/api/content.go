@@ -8,12 +8,14 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 )
 
 func NewContentHandler(contentService content.Service, storageService storage.Service) http.HandlerFunc {
 	handleCreateContent := NewCreateContentHandler(contentService, storageService)
 	handleListContent := NewListContentHandler(contentService)
 	handleGetContentById := NewContentByIdHandler(contentService)
+	handleGetContentBySlug := NewContentBySlugHandler(contentService)
 
 	r := regexp.MustCompile("/api/content/(?P<identifier>[^/]+)")
 
@@ -25,7 +27,14 @@ func NewContentHandler(contentService content.Service, storageService storage.Se
 		case http.MethodGet:
 			if matches := r.FindStringSubmatch(req.URL.Path); len(matches) > 0 {
 				if index := r.SubexpIndex("identifier"); index != -1 && index < len(matches) {
-					handleGetContentById(matches[index], res, req)
+					identifier := matches[index]
+					isSlug, _ := strconv.ParseBool(req.URL.Query().Get("slug"))
+					if isSlug {
+						handleGetContentBySlug(identifier, res, req)
+						return
+					}
+
+					handleGetContentById(identifier, res, req)
 					return
 				}
 			}
@@ -117,6 +126,54 @@ func NewContentByIdHandler(contentService content.Service) func(string, http.Res
 		if err != nil {
 			log.Printf("Failed to get content: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// assert hookable
+		get := pt()
+		hook, ok := get.(item.Hookable)
+		if !ok {
+			log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// hook before response
+		post, err = hook.BeforeAPIResponse(res, req, post)
+		if err != nil {
+			log.Println("[Response] error calling BeforeAPIResponse:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		writeJSONData(res, http.StatusOK, post)
+
+		// hook after response
+		err = hook.AfterAPIResponse(res, req, post)
+		if err != nil {
+			log.Println("[Response] error calling AfterAPIResponse:", err)
+			return
+		}
+	}
+}
+
+func NewContentBySlugHandler(contentService content.Service) func(string, http.ResponseWriter, *http.Request) {
+	return func(contentId string, res http.ResponseWriter, req *http.Request) {
+		t, post, err := contentService.GetContentBySlug(contentId)
+		if err != nil {
+			log.Printf("Failed to get content: %v\n", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if post == nil {
+			writeJSONData(res, http.StatusNotFound, nil)
+			return
+		}
+
+		pt, ok := item.Types[t]
+		if !ok {
+			writeJSONError(res, http.StatusBadRequest, item.ErrTypeNotRegistered)
 			return
 		}
 
