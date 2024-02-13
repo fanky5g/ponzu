@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// SetEntity inserts/replaces values in the database.
+// SetEntity inserts/overwrites values in the database.
 // The `target` argument is a string made up of namespace:id (string:int)
 func (repo *repository) SetEntity(ns string, data interface{}) (string, error) {
 	var specifier string // i.e. __pending, __sorted, etc.

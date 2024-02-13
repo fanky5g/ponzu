@@ -22,6 +22,10 @@ func (s *service) CreateContent(entityType string, content interface{}) (string,
 	return s.contentDomainService.CreateContent(entityType, content)
 }
 
+func (s *service) UpdateContent(entityType, entityId string, update map[string]interface{}) (interface{}, error) {
+	return s.contentDomainService.UpdateContent(entityType, entityId, update)
+}
+
 func (s *service) GetContent(entityType, entityId string) (interface{}, error) {
 	return s.contentDomainService.GetContent(entityType, entityId)
 }

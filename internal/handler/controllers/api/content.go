@@ -7,8 +7,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"log"
 	"net/http"
-	"regexp"
-	"strconv"
 )
 
 func NewContentHandler(contentService content.Service, storageService storage.Service) http.HandlerFunc {
@@ -16,27 +14,31 @@ func NewContentHandler(contentService content.Service, storageService storage.Se
 	handleListContent := NewListContentHandler(contentService)
 	handleGetContentById := NewContentByIdHandler(contentService)
 	handleGetContentBySlug := NewContentBySlugHandler(contentService)
-
-	r := regexp.MustCompile("/api/content/(?P<identifier>[^/]+)")
+	handleUpdateContent := NewUpdateContentHandler(contentService, storageService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
+		isSlug, identifier := request.GetRequestContentId(req)
+
 		switch req.Method {
 		case http.MethodPost:
+			fallthrough
+		case http.MethodPut:
+			if identifier != "" {
+				handleUpdateContent(res, req)
+				return
+			}
+
 			handleCreateContent(res, req)
 			return
 		case http.MethodGet:
-			if matches := r.FindStringSubmatch(req.URL.Path); len(matches) > 0 {
-				if index := r.SubexpIndex("identifier"); index != -1 && index < len(matches) {
-					identifier := matches[index]
-					isSlug, _ := strconv.ParseBool(req.URL.Query().Get("slug"))
-					if isSlug {
-						handleGetContentBySlug(identifier, res, req)
-						return
-					}
-
-					handleGetContentById(identifier, res, req)
+			if identifier != "" {
+				if isSlug {
+					handleGetContentBySlug(identifier, res, req)
 					return
 				}
+
+				handleGetContentById(identifier, res, req)
+				return
 			}
 
 			handleListContent(res, req)

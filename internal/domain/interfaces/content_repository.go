@@ -8,6 +8,7 @@ import (
 
 type CRUDInterface interface {
 	SetEntity(entityType string, entity interface{}) (string, error)
+	UpdateEntity(entityType, entityId string, update map[string]interface{}) (interface{}, error)
 	DeleteEntity(entityId string) error
 	FindByTarget(targets []string) ([]interface{}, error)
 	FindOneByTarget(target string) (interface{}, error)
