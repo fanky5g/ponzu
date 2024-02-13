@@ -1,7 +1,7 @@
 package api
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	"github.com/fanky5g/ponzu/internal/application/content"
 	"github.com/fanky5g/ponzu/internal/application/storage"
@@ -11,8 +11,18 @@ import (
 	"net/http"
 )
 
-func NewCreateContentHandler(contentService content.Service, storageService storage.Service) http.HandlerFunc {
+func NewUpdateContentHandler(contentService content.Service, storageService storage.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
+		isSlug, identifier := request.GetRequestContentId(req)
+		if identifier == "" {
+			writeJSONError(res, http.StatusBadRequest, errors.New("content id is required"))
+			return
+		}
+
+		if isSlug {
+			writeJSONError(res, http.StatusBadRequest, errors.New("slug not supported for update"))
+		}
+
 		t := req.URL.Query().Get("type")
 		if t == "" {
 			res.WriteHeader(http.StatusBadRequest)
@@ -21,7 +31,7 @@ func NewCreateContentHandler(contentService content.Service, storageService stor
 
 		files, err := request.GetRequestFiles(req)
 		if err != nil {
-			log.Println("[Create] error:", err)
+			log.Println("[Update] error:", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -30,7 +40,7 @@ func NewCreateContentHandler(contentService content.Service, storageService stor
 			var urlPaths map[string]string
 			urlPaths, err = storageService.StoreFiles(files)
 			if err != nil {
-				log.Println("[Create] error:", err)
+				log.Println("[Update] error:", err)
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -40,22 +50,28 @@ func NewCreateContentHandler(contentService content.Service, storageService stor
 			}
 		}
 
-		post, err := request.GetEntity(t, req)
+		pt, ok := item.Types[t]
+		if !ok {
+			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(item.ErrTypeNotRegistered.Error(), t))
+			return
+		}
+
+		hook, ok := pt().(item.Hookable)
+		if !ok {
+			log.Println("[Update] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		update, err := request.MapRequestToContentUpdate(req)
 		if err != nil {
 			writeJSONError(res, http.StatusBadRequest, err)
 			return
 		}
 
-		hook, ok := post.(item.Hookable)
-		if !ok {
-			log.Println("[Create] error: Type", t, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		err = hook.BeforeAPICreate(res, req)
+		err = hook.BeforeAPIUpdate(res, req)
 		if err != nil {
-			log.Println("[Create] error calling BeforeCreate:", err)
+			log.Println("[Update] error calling BeforeUpdate:", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -67,16 +83,12 @@ func NewCreateContentHandler(contentService content.Service, storageService stor
 			return
 		}
 
-		id, err := contentService.CreateContent(t, post)
+		u, err := contentService.UpdateContent(t, identifier, update)
 		if err != nil {
-			log.Println("[Create] error:", err)
+			log.Printf("[Update] error: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
-		// set the target in the context so user can get saved value in hooks
-		ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%s", t, id))
-		req = req.WithContext(ctx)
 
 		err = hook.AfterSave(res, req)
 		if err != nil {
@@ -85,17 +97,13 @@ func NewCreateContentHandler(contentService content.Service, storageService stor
 			return
 		}
 
-		err = hook.AfterAPICreate(res, req)
+		err = hook.AfterAPIUpdate(res, req)
 		if err != nil {
-			log.Println("[Create] error calling AfterAccept:", err)
+			log.Println("[Update] error calling AfterUpdate:", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		// create JSON response to send data back to client
-		writeJSONData(res, http.StatusOK, map[string]interface{}{
-			"id":   id,
-			"type": t,
-		})
+		writeJSONData(res, http.StatusOK, u)
 	}
 }

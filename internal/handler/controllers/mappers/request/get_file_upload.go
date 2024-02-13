@@ -6,7 +6,7 @@ import (
 )
 
 func GetFileUploadFromFormData(data url.Values) (interface{}, error) {
-	return getGenericEntity(func() interface{} {
+	return mapPayloadToGenericEntity(func() interface{} {
 		return new(item.FileUpload)
 	}, data)
 }

@@ -9,11 +9,11 @@ import (
 	"testing"
 )
 
-type GetEntityTestSuite struct {
+type ContentMapperHelpersTestSuite struct {
 	suite.Suite
 }
 
-func (suite *GetEntityTestSuite) TestMapJSONContentToURLValues() {
+func (suite *ContentMapperHelpersTestSuite) TestMapJSONContentToURLValues() {
 	request := map[string]interface{}{
 		"title":     "API Content Title",
 		"body":      "API Content Value",
@@ -44,6 +44,6 @@ func (suite *GetEntityTestSuite) TestMapJSONContentToURLValues() {
 	}
 }
 
-func TestGetEntity(t *testing.T) {
-	suite.Run(t, new(GetEntityTestSuite))
+func TestContentMapperHelpers(t *testing.T) {
+	suite.Run(t, new(ContentMapperHelpersTestSuite))
 }
