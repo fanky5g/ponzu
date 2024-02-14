@@ -1,0 +1,82 @@
+package api
+
+import (
+	"errors"
+	"github.com/fanky5g/ponzu/internal/application/content"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"log"
+	"net/http"
+)
+
+func NewDeleteContentHandler(contentService content.Service) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		isSlug, identifier := request.GetRequestContentId(req)
+		if identifier == "" {
+			writeJSONError(res, http.StatusBadRequest, errors.New("content id is required"))
+			return
+		}
+
+		if isSlug {
+			writeJSONError(res, http.StatusBadRequest, errors.New("slug not supported for delete"))
+		}
+
+		t := req.URL.Query().Get("type")
+		if t == "" {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		p, found := item.Types[t]
+		if !found {
+			log.Println("[Delete] attempt to delete content of unknown type:", t, "from:", req.RemoteAddr)
+			res.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		hook, ok := p().(item.Hookable)
+		if !ok {
+			log.Println("[Delete] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err := hook.BeforeAPIDelete(res, req)
+		if err != nil {
+			log.Println("[Delete] error calling BeforeAPIDelete:", err)
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err = hook.BeforeDelete(res, req)
+		if err != nil {
+			log.Println("[Delete] error calling BeforeDelete:", err)
+			return
+		}
+
+		err = contentService.DeleteContent(t, identifier)
+		if err != nil {
+			log.Printf("[Delete] error: %v\n", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		err = hook.AfterDelete(res, req)
+		if err != nil {
+			log.Println("[Delete] error calling AfterDelete:", err)
+			return
+		}
+
+		err = hook.AfterAPIDelete(res, req)
+		if err != nil {
+			log.Println("[Delete] error calling AfterAPIDelete:", err)
+			return
+		}
+
+		writeJSONData(res, http.StatusOK, map[string]interface{}{
+			"id":     identifier,
+			"status": "deleted",
+			"type":   t,
+		})
+	}
+}

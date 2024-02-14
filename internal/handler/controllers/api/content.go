@@ -15,6 +15,7 @@ func NewContentHandler(contentService content.Service, storageService storage.Se
 	handleGetContentById := NewContentByIdHandler(contentService)
 	handleGetContentBySlug := NewContentBySlugHandler(contentService)
 	handleUpdateContent := NewUpdateContentHandler(contentService, storageService)
+	handleDeleteContent := NewDeleteContentHandler(contentService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)
@@ -42,6 +43,9 @@ func NewContentHandler(contentService content.Service, storageService storage.Se
 			}
 
 			handleListContent(res, req)
+			return
+		case http.MethodDelete:
+			handleDeleteContent(res, req)
 			return
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
