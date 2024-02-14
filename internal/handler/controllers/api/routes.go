@@ -4,6 +4,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/application"
 	"github.com/fanky5g/ponzu/internal/application/auth"
 	"github.com/fanky5g/ponzu/internal/application/content"
+	"github.com/fanky5g/ponzu/internal/application/search"
 	"github.com/fanky5g/ponzu/internal/application/storage"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/middleware"
 	"net/http"
@@ -15,6 +16,7 @@ func RegisterRoutes(services application.Services, middlewares middleware.Middle
 	authService := services.Get(auth.ServiceToken).(auth.Service)
 	contentService := services.Get(content.ServiceToken).(content.Service)
 	storageService := services.Get(storage.ServiceToken).(storage.Service)
+	contentSearchService := services.Get(search.ContentSearchService).(search.Service)
 	// End Services
 
 	// Middlewares
@@ -30,6 +32,12 @@ func RegisterRoutes(services application.Services, middlewares middleware.Middle
 		"/api/content/",
 		AnalyticsRecorderMiddleware(
 			CORSMiddleware(Auth(GzipMiddleware(NewContentHandler(contentService, storageService)))),
+		),
+	)
+
+	http.HandleFunc("/api/search",
+		AnalyticsRecorderMiddleware(
+			Auth(CORSMiddleware(GzipMiddleware(NewSearchContentHandler(contentSearchService)))),
 		),
 	)
 }

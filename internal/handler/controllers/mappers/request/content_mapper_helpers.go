@@ -15,37 +15,10 @@ import (
 
 var ErrUnsupportedContentType = errors.New("unsupported content type")
 
-func getRequestPayload(req *http.Request) (map[string][]string, error) {
-	payload := make(map[string][]string)
-	var err error
-
-	switch getContentType(req) {
-	case "application/x-www-form-urlencoded":
-		fallthrough
-	case "multipart/form-data":
-		if err = req.ParseMultipartForm(1024 * 1024 * 4); err != nil {
-			return nil, err
-		}
-
-		payload = req.PostForm
-		break
-	case "application/json":
-		payload, err = mapJSONContentToURLValues(req)
-		if err != nil {
-			return nil, err
-		}
-		break
-	default:
-		return nil, ErrUnsupportedContentType
-	}
-
-	addContentMetadata(payload)
-	applyFieldTransforms(payload)
-	return payload, nil
-}
-
 func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string) (interface{}, error) {
 	entity := t()
+	addContentMetadata(payload)
+	applyContentFieldTransforms(payload)
 
 	dec := schema.NewDecoder()
 	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
@@ -82,7 +55,7 @@ func addContentMetadata(payload url.Values) {
 	}
 }
 
-func applyFieldTransforms(payload url.Values) {
+func applyContentFieldTransforms(payload url.Values) {
 	// check for any multi-value fields (ex. checkbox fields)
 	// and correctly format for storage. Essentially, we need
 	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}

@@ -14,8 +14,6 @@ func GetEntityFromFormData(entityType string, data url.Values) (interface{}, err
 		return nil, fmt.Errorf(item.ErrTypeNotRegistered.Error(), entityType)
 	}
 
-	addContentMetadata(data)
-	applyFieldTransforms(data)
 	return mapPayloadToGenericEntity(t, data)
 }
 
@@ -26,7 +24,7 @@ func GetEntity(entityType string, req *http.Request) (interface{}, error) {
 		return nil, fmt.Errorf(item.ErrTypeNotRegistered.Error(), entityType)
 	}
 
-	payload, err := getRequestPayload(req)
+	payload, err := getRequestAsURLValues(req)
 	if err != nil {
 		return nil, err
 	}

@@ -1,11 +1,14 @@
 package request
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/enum"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"net/http"
 	"net/url"
 	"testing"
 )
@@ -25,7 +28,11 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoWithEmptyQueryVal
 		},
 	}
 
-	searchRequestDto, err := GetSearchRequestDto(q)
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.URL.RawQuery = q.Encode()
+
+	searchRequestDto, err := GetSearchRequestDto(req)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedSearchRequestDto, searchRequestDto)
 	}
@@ -48,7 +55,45 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDto() {
 		},
 	}
 
-	searchRequestDto, err := GetSearchRequestDto(q)
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.URL.RawQuery = q.Encode()
+
+	searchRequestDto, err := GetSearchRequestDto(req)
+	if assert.NoError(suite.T(), err) {
+		assert.Equal(suite.T(), expectedSearchRequestDto, searchRequestDto)
+	}
+}
+
+func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoFromJSONRequest() {
+	payload := &request.SearchRequestDto{
+		Query:     "Alpaka",
+		SortOrder: "asc",
+		PaginationRequestDto: request.PaginationRequestDto{
+			Offset: 5,
+			Count:  100,
+		},
+	}
+
+	expectedSearchRequestDto := &request.SearchRequestDto{
+		Query:     "Alpaka",
+		SortOrder: enum.Ascending,
+		PaginationRequestDto: request.PaginationRequestDto{
+			Count:  100,
+			Offset: 5,
+		},
+	}
+
+	body := &bytes.Buffer{}
+	if err := json.NewEncoder(body).Encode(payload); err != nil {
+		assert.FailNow(suite.T(), err.Error())
+		return
+	}
+
+	req, _ := http.NewRequest(http.MethodPost, "/", body)
+	req.Header.Set("Content-Type", "application/json")
+
+	searchRequestDto, err := GetSearchRequestDto(req)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedSearchRequestDto, searchRequestDto)
 	}

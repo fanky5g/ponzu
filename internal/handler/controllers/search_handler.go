@@ -25,7 +25,7 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 			return
 		}
 
-		searchRequest, err := request.GetSearchRequestDto(req.URL.Query())
+		searchRequest, err := request.GetSearchRequestDto(req)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusBadRequest)
@@ -38,7 +38,7 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 			return
 		}
 
-		// FindAllWithOptions must be set
+		// Query must be set
 		if searchRequest.Query == "" {
 			res.WriteHeader(http.StatusBadRequest)
 			return

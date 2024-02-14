@@ -5,10 +5,13 @@ import (
 )
 
 func MapRequestToContentUpdate(req *http.Request) (map[string]interface{}, error) {
-	payload, err := getRequestPayload(req)
+	payload, err := getRequestAsURLValues(req)
 	if err != nil {
 		return nil, err
 	}
+
+	addContentMetadata(payload)
+	applyContentFieldTransforms(payload)
 
 	update := make(map[string]interface{})
 	for k, v := range payload {
