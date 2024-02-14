@@ -83,7 +83,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 			}
 		}
 
-		searchRequestDto, err := request.GetSearchRequestDto(req.URL.Query())
+		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
 			LogAndFail(res, err, appName)
 			return

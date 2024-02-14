@@ -69,7 +69,7 @@ func NewListContentHandler(contentService content.Service) http.HandlerFunc {
 			return
 		}
 
-		searchRequestDto, err := request.GetSearchRequestDto(req.URL.Query())
+		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
 			writeJSONError(res, http.StatusBadRequest, err)
 			return

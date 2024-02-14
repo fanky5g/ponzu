@@ -29,7 +29,7 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 			return
 		}
 
-		searchRequestDto, err := request.GetSearchRequestDto(req.URL.Query())
+		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
 			LogAndFail(res, err, appName)
 			return
