@@ -2,27 +2,28 @@ package generate
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/domain/enum"
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/fanky5g/ponzu/internal/domain/services/contentgenerator"
 	"github.com/spf13/cobra"
 	"log"
 )
 
-func generateContentType(args []string, generators []interfaces.ContentGenerator) error {
+func generateType(contentType enum.ContentType, args []string, generators []interfaces.ContentGenerator) error {
 	// parse type info from args
-	gt, err := parseType(args)
+	typeDefinition, err := parseType(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse type args: %s", err.Error())
 	}
 
 	for _, generator := range generators {
-		for _, field := range gt.Fields {
+		for _, field := range typeDefinition.Fields {
 			if err = generator.ValidateField(&field); err != nil {
 				return err
 			}
 		}
 
-		if err = generator.Generate(gt); err != nil {
+		if err = generator.Generate(contentType, typeDefinition); err != nil {
 			return err
 		}
 	}
@@ -63,7 +64,23 @@ var contentCmd = &cobra.Command{
 			log.Fatalf("Failed to initialize domain content generator: %v", err)
 		}
 
-		return generateContentType(args, []interfaces.ContentGenerator{
+		return generateType(enum.TypeContent, args, []interfaces.ContentGenerator{
+			domainContentGenerator,
+		})
+	},
+}
+
+var plainTypeCmd = &cobra.Command{
+	Use:     "type <namespace> <field> <field>...",
+	Aliases: []string{"t"},
+	Short:   "generates a new type",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		domainContentGenerator, err := contentgenerator.New()
+		if err != nil {
+			log.Fatalf("Failed to initialize domain content generator: %v", err)
+		}
+
+		return generateType(enum.TypePlain, args, []interfaces.ContentGenerator{
 			domainContentGenerator,
 		})
 	},
@@ -71,5 +88,6 @@ var contentCmd = &cobra.Command{
 
 func RegisterCommandRecursive(parent *cobra.Command) {
 	generateCmd.AddCommand(contentCmd)
+	generateCmd.AddCommand(plainTypeCmd)
 	parent.AddCommand(generateCmd)
 }
