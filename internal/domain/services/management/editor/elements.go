@@ -520,3 +520,17 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 
 	return []byte(html + script)
 }
+
+func Nested(fieldName string, p interface{}, fields ...Field) []byte {
+	tmpl := `
+		<fieldset class="col s12" name=` + fieldName + `>
+			<label class="active">` + fieldName + `</label>
+	`
+
+	for _, field := range fields {
+		tmpl += string(field.View)
+	}
+
+	tmpl += `</fieldset>`
+	return []byte(tmpl)
+}

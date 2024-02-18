@@ -3,7 +3,8 @@ package contentgenerator
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/enum"
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"go/format"
 	"log"
@@ -19,9 +20,9 @@ type generator struct {
 	contentDir  string
 }
 
-func (gt *generator) Generate(definition *entities.TypeDefinition) error {
+func (gt *generator) Generate(contentType enum.ContentType, definition *item.TypeDefinition) error {
 	for i := range definition.Fields {
-		if err := gt.setFieldView(&definition.Fields[i]); err != nil {
+		if err := gt.setFieldView(definition, i); err != nil {
 			return err
 		}
 	}
@@ -34,7 +35,11 @@ func (gt *generator) Generate(definition *entities.TypeDefinition) error {
 		return fmt.Errorf("please remove '%s' before executing this command", localFile)
 	}
 
-	tmplPath := filepath.Join(gt.templateDir, "gen-content.tmpl")
+	tmplPath := filepath.Join(gt.templateDir, "gen-type.tmpl")
+	if contentType == enum.TypeContent {
+		tmplPath = filepath.Join(gt.templateDir, "gen-content.tmpl")
+	}
+
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %s", err.Error())

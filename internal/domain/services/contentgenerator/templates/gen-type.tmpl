@@ -1,0 +1,38 @@
+package content
+
+import (
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+)
+
+type {{ .Name }} struct {
+    {{ range .Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`    
+    {{ end }}	
+}
+
+func init() {
+	item.Definitions["{{ .Name }}"] = item.TypeDefinition {
+        Name:          "{{ .Name }}",
+        Label:         "{{ .Label }}",
+        Initial:       "{{ .Initial }}",
+        Fields:        []item.Field{
+            {{- range .Fields }}
+                {
+                    Name:  "{{ .Name }}",
+                    Label: "{{ .Name }}",
+                    Initial: "{{ .Initial }}",
+                    TypeName: "{{ .TypeName }}",
+                    JSONName: "{{ .JSONName }}",
+                    ViewType: "{{ .ViewType }}",
+                    IsReference: {{ .IsReference }},
+                    IsNested: {{ .IsNested }},
+                    ReferenceName: "{{ .ReferenceName }}",
+                    ReferenceJSONTags: []string{
+                        {{ range .ReferenceJSONTags }}{{ . }}
+                        {{ end }}
+                    },
+                },
+            {{- end }}
+        },
+        HasReferences: {{ .HasReferences }},
+	}
+}

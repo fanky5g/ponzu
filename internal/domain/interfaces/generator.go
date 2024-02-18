@@ -1,10 +1,11 @@
 package interfaces
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/enum"
 )
 
 type ContentGenerator interface {
-	Generate(typeDefinition *entities.TypeDefinition) error
-	ValidateField(field *entities.Field) error
+	Generate(contentType enum.ContentType, typeDefinition *item.TypeDefinition) error
+	ValidateField(field *item.Field) error
 }

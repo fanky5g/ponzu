@@ -2,11 +2,11 @@ package generate
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"strings"
 )
 
-func parseField(raw string, gt *entities.TypeDefinition) (*entities.Field, error) {
+func parseField(raw string, gt *item.TypeDefinition) (*item.Field, error) {
 	// contents:string
 	// contents:string:richtext
 	// author:@author,name,age
@@ -18,7 +18,7 @@ func parseField(raw string, gt *entities.TypeDefinition) (*entities.Field, error
 
 	data := strings.Split(raw, ":")
 
-	field := &entities.Field{
+	field := &item.Field{
 		Name:     fieldName(data[0]),
 		Initial:  gt.Initial,
 		JSONName: fieldJSONName(data[0]),
@@ -37,7 +37,7 @@ func parseField(raw string, gt *entities.TypeDefinition) (*entities.Field, error
 // parse the field's type name and check if it is a special reference type, or
 // a slice of reference types, which we'll set their underlying type to string
 // or []string respectively
-func setFieldTypeName(field *entities.Field, fieldType string, gt *entities.TypeDefinition) {
+func setFieldTypeName(field *item.Field, fieldType string, gt *item.TypeDefinition) {
 	if !strings.Contains(fieldType, "@") {
 		// not a reference, set as-is downcased
 		field.TypeName = strings.ToLower(fieldType)
@@ -70,8 +70,15 @@ func setFieldTypeName(field *entities.Field, fieldType string, gt *entities.Type
 
 	field.TypeName = strings.ToLower(fieldType)
 	field.ReferenceName = fieldName(referenceType)
-	field.IsReference = true
-	gt.HasReferences = true
+
+	if _, ok := item.Types[field.Name]; ok {
+		field.IsReference = true
+		gt.HasReferences = true
+	} else {
+		field.IsNested = true
+		field.TypeName = field.ReferenceName
+	}
+
 	return
 }
 

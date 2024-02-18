@@ -15,14 +15,34 @@ func TagNameFromStructField(name string, post interface{}) string {
 		return name
 	}
 
-	field, ok := reflect.TypeOf(post).Elem().FieldByName(name)
+	parts := strings.Split(name, ".")
+	fieldName := parts[0]
+	t := reflect.TypeOf(post)
+	if t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
+
+	if t.Kind() == reflect.Slice || t.Kind() == reflect.Array {
+		t = t.Elem()
+	}
+
+	field, ok := t.FieldByName(fieldName)
 	if !ok {
-		panic("Couldn't get struct field for: " + name + ". Make sure you pass the right field name to editor field elements.")
+		panic("Couldn't get struct field for: " + parts[0] + ". Make sure you pass the right field name to editor field elements.")
+	}
+
+	nestedName := ""
+	if len(parts) > 1 {
+		nestedName = TagNameFromStructField(strings.Join(parts[1:], "."), reflect.New(field.Type).Interface())
 	}
 
 	tag, ok := field.Tag.Lookup("json")
 	if !ok {
 		panic("Couldn't get json struct tag for: " + name + ". Struct fields for content types must have 'json' tags.")
+	}
+
+	if nestedName != "" {
+		return strings.Join([]string{tag, nestedName}, ".")
 	}
 
 	return tag
@@ -39,9 +59,29 @@ func TagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 	return fmt.Sprintf("%s.%d", tag, i)
 }
 
+func ValueByName(name string, post interface{}) reflect.Value {
+	parts := strings.Split(name, ".")
+	fieldName := parts[0]
+	v := reflect.ValueOf(post)
+	if v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+
+	if v.Kind() == reflect.Slice || v.Kind() == reflect.Array {
+		v = v.Elem()
+	}
+
+	value := v.FieldByName(fieldName)
+	if len(parts) > 1 {
+		return ValueByName(strings.Join(parts[1:], "."), value.Interface())
+	}
+
+	return value
+}
+
 // ValueFromStructField returns the string value of a field in a struct
 func ValueFromStructField(name string, post interface{}) string {
-	field := reflect.Indirect(reflect.ValueOf(post)).FieldByName(name)
+	field := ValueByName(name, post)
 
 	switch field.Kind() {
 	case reflect.String:
@@ -63,7 +103,7 @@ func ValueFromStructField(name string, post interface{}) string {
 		return fmt.Sprintf("%v", field.Float())
 
 	case reflect.Slice:
-		s := []string{}
+		s := make([]string, 0)
 
 		for i := 0; i < field.Len(); i++ {
 			pos := field.Index(i)

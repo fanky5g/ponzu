@@ -186,8 +186,7 @@ func NewEditHandler(configService config.Service, contentService content.Service
 			scheme := req.URL.Scheme
 			host := req.URL.Host
 			path := req.URL.Path
-			sid := fmt.Sprintf("%s", id)
-			redir := scheme + host + path + "?type=" + pt + "&id=" + sid
+			redir := scheme + host + path + "?type=" + pt + "&id=" + id
 
 			if req.URL.Query().Get("status") == "pending" {
 				redir += "&status=pending"

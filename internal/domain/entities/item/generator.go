@@ -1,8 +1,9 @@
-package entities
+package item
 
 type (
 	TypeDefinition struct {
 		Name          string
+		Label         string
 		Initial       string
 		Fields        []Field
 		HasReferences bool
@@ -10,6 +11,7 @@ type (
 
 	Field struct {
 		Name     string
+		Label    string
 		Initial  string
 		TypeName string
 		JSONName string
@@ -17,6 +19,7 @@ type (
 		View     string
 
 		IsReference       bool
+		IsNested          bool
 		ReferenceName     string
 		ReferenceJSONTags []string
 	}

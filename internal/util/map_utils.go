@@ -7,6 +7,7 @@ import (
 	"reflect"
 )
 
+// TODO: support for nested arrays
 func JSONMapToURLValues(payload map[string]interface{}) url.Values {
 	if payload == nil || len(payload) == 0 {
 		return nil
@@ -21,8 +22,6 @@ func JSONMapToURLValues(payload map[string]interface{}) url.Values {
 			for i := 0; i < v.Len(); i++ {
 				setInterface(key, v.Index(i).Interface(), data)
 			}
-
-			break
 		default:
 			setInterface(key, value, data)
 		}
@@ -37,13 +36,15 @@ func setInterface(k string, v interface{}, data url.Values) {
 	switch kind {
 	case reflect.String:
 		str = v.(string)
-		break
 	case reflect.Bool:
 		str = fmt.Sprint(v.(bool))
-		break
 	case reflect.Float64:
 		str = fmt.Sprint(v.(float64))
-		break
+	case reflect.Map:
+		for key, value := range v.(map[string]interface{}) {
+			setInterface(fmt.Sprintf("%s.%s", k, key), value, data)
+		}
+		return
 	default:
 		log.Println("Unsupported field", k, kind)
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/schema"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -18,7 +19,7 @@ var ErrUnsupportedContentType = errors.New("unsupported content type")
 func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string) (interface{}, error) {
 	entity := t()
 	addContentMetadata(payload)
-	applyContentFieldTransforms(payload)
+	transformArrayFields(payload)
 
 	dec := schema.NewDecoder()
 	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
@@ -55,7 +56,7 @@ func addContentMetadata(payload url.Values) {
 	}
 }
 
-func applyContentFieldTransforms(payload url.Values) {
+func transformArrayFields(payload url.Values) {
 	// check for any multi-value fields (ex. checkbox fields)
 	// and correctly format for storage. Essentially, we need
 	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
@@ -67,17 +68,19 @@ func applyContentFieldTransforms(payload url.Values) {
 			// put the order and the field value into map
 			field := fo[0]
 			order := fo[1]
-			if len(fieldOrderValue[field]) == 0 {
-				fieldOrderValue[field] = make(map[string][]string)
+			if _, err := strconv.ParseInt(order, 10, 64); err == nil {
+				if len(fieldOrderValue[field]) == 0 {
+					fieldOrderValue[field] = make(map[string][]string)
+				}
+
+				// orderValue is 0:[?type=Thing&id=1]
+				orderValue := fieldOrderValue[field]
+				orderValue[order] = v
+				fieldOrderValue[field] = orderValue
+
+				// discard the entity form value with name.N
+				payload.Del(k)
 			}
-
-			// orderValue is 0:[?type=Thing&id=1]
-			orderValue := fieldOrderValue[field]
-			orderValue[order] = v
-			fieldOrderValue[field] = orderValue
-
-			// discard the entity form value with name.N
-			payload.Del(k)
 		}
 	}
 

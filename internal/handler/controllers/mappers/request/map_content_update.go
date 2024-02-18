@@ -11,7 +11,7 @@ func MapRequestToContentUpdate(req *http.Request) (map[string]interface{}, error
 	}
 
 	addContentMetadata(payload)
-	applyContentFieldTransforms(payload)
+	transformArrayFields(payload)
 
 	update := make(map[string]interface{})
 	for k, v := range payload {

@@ -45,7 +45,9 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	}
 
 	for _, f := range fields {
-		addFieldToEditorView(editor, f)
+		if err = addFieldToEditorView(editor, f); err != nil {
+			return nil, err
+		}
 	}
 
 	_, err = editor.ViewBuf.WriteString(`</td></tr>`)

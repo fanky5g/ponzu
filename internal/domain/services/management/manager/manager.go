@@ -12,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// TODO: move this to static template
 const managerHTML = `
 <div class="card editor">
     <form method="post" action="/edit" enctype="multipart/form-data">
