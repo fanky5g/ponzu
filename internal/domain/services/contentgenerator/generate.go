@@ -3,7 +3,7 @@ package contentgenerator
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/enum"
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"go/format"
@@ -20,9 +20,9 @@ type generator struct {
 	contentDir  string
 }
 
-func (gt *generator) Generate(contentType enum.ContentType, definition *entities.TypeDefinition) error {
+func (gt *generator) Generate(contentType enum.ContentType, definition *item.TypeDefinition) error {
 	for i := range definition.Fields {
-		if err := gt.setFieldView(&definition.Fields[i]); err != nil {
+		if err := gt.setFieldView(definition, i); err != nil {
 			return err
 		}
 	}

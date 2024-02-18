@@ -3,10 +3,10 @@ package contentgenerator
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"log"
 	"path/filepath"
 	"strings"
-
 	"text/template"
 )
 
@@ -21,7 +21,7 @@ var (
 	}
 )
 
-func (gt *generator) ValidateField(field *entities.Field) error {
+func (gt *generator) ValidateField(field *item.Field) error {
 	for jsonName, fieldName := range reservedFieldNames {
 		if field.JSONName == jsonName || field.Name == fieldName {
 			return fmt.Errorf("reserved field name: %s (%s)", jsonName, fieldName)
@@ -32,10 +32,12 @@ func (gt *generator) ValidateField(field *entities.Field) error {
 }
 
 // set the specified view inside the editor field for a generated field for a type
-func (gt *generator) setFieldView(field *entities.Field) error {
+func (gt *generator) setFieldView(definition *item.TypeDefinition, index int) error {
 	var err error
 	var tmpl *template.Template
 	buf := &bytes.Buffer{}
+	field := &definition.Fields[index]
+	var templateArg interface{} = field
 
 	tmplFromWithDelims := func(filename string, delim [2]string) (*template.Template, error) {
 		if delim[0] == "" || delim[1] == "" {
@@ -85,10 +87,28 @@ func (gt *generator) setFieldView(field *entities.Field) error {
 		if err != nil {
 			return err
 		}
+	case "nested":
+		tmpl, err = tmplFromWithDelims("gen-nested.tmpl", [2]string{})
+		t, ok := item.Definitions[field.Name]
+		if !ok {
+			return fmt.Errorf("no definition matched for %s type", field.Name)
+		}
 
+		for i := range t.Fields {
+			t.Fields[i].Name = fmt.Sprintf("%s.%s", t.Name, t.Fields[i].Name)
+			t.Fields[i].Initial = definition.Initial
+			if err = gt.setFieldView(&t, i); err != nil {
+				return err
+			}
+		}
+
+		templateArg = struct {
+			*item.Field
+			Fields []item.Field
+		}{Field: field, Fields: t.Fields}
 	default:
 		msg := fmt.Sprintf("'%s' is not a recognized view type. Using 'input' instead.", field.ViewType)
-		fmt.Println(msg)
+		log.Println(msg)
 		tmpl, err = tmplFromWithDelims("gen-input.tmpl", [2]string{})
 	}
 
@@ -96,7 +116,7 @@ func (gt *generator) setFieldView(field *entities.Field) error {
 		return err
 	}
 
-	err = tmpl.Execute(buf, field)
+	err = tmpl.Execute(buf, templateArg)
 	if err != nil {
 		return err
 	}
@@ -106,16 +126,19 @@ func (gt *generator) setFieldView(field *entities.Field) error {
 	return nil
 }
 
-func optimizeFieldView(field *entities.Field) {
+func optimizeFieldView(field *item.Field) {
 	field.ViewType = strings.ToLower(field.ViewType)
 
 	if field.IsReference {
 		field.ViewType = "reference"
+	} else if field.IsNested {
+		field.ViewType = "nested"
+		field.TypeName = field.ReferenceName
 	}
 
 	// if we have a []T field type, automatically make the input view a repeater
 	// as long as a repeater exists for the input type
-	repeaterElements := []string{"input", "select", "file", "reference"}
+	repeaterElements := []string{"input", "select", "file", "reference", "nested"}
 	if strings.HasPrefix(field.TypeName, "[]") {
 		for _, el := range repeaterElements {
 			// if the viewType already is declared to be a -repeater

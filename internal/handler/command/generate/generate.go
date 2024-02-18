@@ -37,7 +37,7 @@ var generateCmd = &cobra.Command{
 	Short:   "generate boilerplate code for various Ponzu components",
 	Long: `Generate boilerplate code for various Ponzu components, such as 'content'.
 
-The command above will generate a file 'content/review.go' with boilerplate
+The command above will generate a file 'content/review.go.bak' with boilerplate
 methods, as well as struct definition, and corresponding field tags like:
 
 type Review struct {

@@ -1,5 +1,5 @@
 View: reference.SelectRepeater("[[ .Name ]]", [[ .Initial ]], map[string]string{
-        "label": "[[ .Name ]]",
+        "label": "[[ .Label ]]",
     }, 
     "[[ .ReferenceName ]]", 
     `[[ range .ReferenceJSONTags ]]{{ .[[ . ]] }} [[ else ]][[ .ReferenceName ]]: {{ .id }}[[ end ]]`,

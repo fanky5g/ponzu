@@ -1,3 +1,38 @@
+html {
+    min-height: 100%;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: normal;
+    line-height: 16px;
+    overflow: auto;
+    color: rgba(0,0,0,0.87);
+    overflow-x: hidden;
+}
+
+fieldset {
+    min-width: 0;
+    border: 0;
+}
+
+fieldset, legend {
+    margin: 0;
+    padding: 0;
+}
+
+:focus {
+    outline: 0;
+}
+
 .navbar-fixed {
     z-index: 10000 !important;
 }
@@ -110,7 +145,7 @@ select.browser-default {
 .iso-texteditor {
     position: relative;
     margin: 20px 0;
-    padding: 0px !important;
+    padding: 0 !important;
 }
 
 .file-input .preview {
@@ -246,4 +281,8 @@ select {
 
 .note-editor * {
     max-width: 100%;
+}
+
+fieldset > label {
+    font-size: 14px;
 }

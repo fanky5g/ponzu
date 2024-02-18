@@ -1,6 +1,8 @@
 package item
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	typeNotRegistered = `Error:
@@ -23,11 +25,13 @@ var (
 
 	// Types is a map used to reference a type name to its actual Editable type
 	// mainly for lookups in /admin route based utilities
-	Types map[string]EntityBuilder
+	Types       map[string]EntityBuilder
+	Definitions map[string]TypeDefinition
 )
 
 type EntityBuilder func() interface{}
 
 func init() {
 	Types = make(map[string]EntityBuilder)
+	Definitions = make(map[string]TypeDefinition)
 }

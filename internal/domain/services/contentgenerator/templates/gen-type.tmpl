@@ -1,11 +1,7 @@
 package content
 
 import (
-	"fmt"
-	{{- if .HasReferences }}
-	"github.com/bosssauce/reference"
-	{{- end }}
-	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 )
 
 type {{ .Name }} struct {
@@ -13,22 +9,30 @@ type {{ .Name }} struct {
     {{ end }}	
 }
 
-// MarshalEditor writes a buffer of html to edit a {{ .Name }} within the CMS
-// and implements editor.Editable
-func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
-	view, err := editor.Form({{ .Initial }},
-        // Take note that the first argument to these Input-like functions 
-        // is the string version of each {{ .Name }} field, and must follow 
-        // this pattern for auto-decoding and auto-encoding reasons:
-        {{ range .Fields }}editor.Field{
-			{{ .View }}
-		},
-		{{ end }}
-	)
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to render {{ .Name }} editor view: %s", err.Error())
+func init() {
+	item.Definitions["{{ .Name }}"] = item.TypeDefinition {
+        Name:          "{{ .Name }}",
+        Label:         "{{ .Label }}",
+        Initial:       "{{ .Initial }}",
+        Fields:        []item.Field{
+            {{- range .Fields }}
+                {
+                    Name:  "{{ .Name }}",
+                    Label: "{{ .Name }}",
+                    Initial: "{{ .Initial }}",
+                    TypeName: "{{ .TypeName }}",
+                    JSONName: "{{ .JSONName }}",
+                    ViewType: "{{ .ViewType }}",
+                    IsReference: {{ .IsReference }},
+                    IsNested: {{ .IsNested }},
+                    ReferenceName: "{{ .ReferenceName }}",
+                    ReferenceJSONTags: []string{
+                        {{ range .ReferenceJSONTags }}{{ . }}
+                        {{ end }}
+                    },
+                },
+            {{- end }}
+        },
+        HasReferences: {{ .HasReferences }},
 	}
-
-	return view, nil
 }

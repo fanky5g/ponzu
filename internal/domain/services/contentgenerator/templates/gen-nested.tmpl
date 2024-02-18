@@ -1,0 +1,6 @@
+View: editor.Nested("{{ .Name }}", {{ .Initial }},
+    {{ range .Fields }}editor.Field{
+        {{ .View }}
+    },
+    {{ end }}
+),
