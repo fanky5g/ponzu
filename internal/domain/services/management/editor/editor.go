@@ -1,4 +1,4 @@
-// Package editor enables users to create edit views from their content
+// Package editor enables users to create edit html from their content
 // structs so that admins can manage content
 package editor
 
@@ -30,6 +30,11 @@ type Editor struct {
 // within a particular content struct
 type Field struct {
 	View []byte
+}
+
+type FieldArgs struct {
+	Parent   string
+	TypeName string
 }
 
 // Form takes editable content and any number of Field funcs to describe the edit
@@ -236,7 +241,7 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) error {
 				"type":        "text",
 				"disabled":    "true",
 				"placeholder": "Will be set automatically",
-			}),
+			}, nil),
 		},
 		{
 			View: Timestamp("Timestamp", p, map[string]string{

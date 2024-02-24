@@ -2,23 +2,28 @@ package editor
 
 import (
 	"fmt"
+	"log"
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
-// TagNameFromStructField does a lookup on the `json` struct tag for a given
-// field of a struct
-func TagNameFromStructField(name string, post interface{}) string {
-	// sometimes elements in these environments will not have a name,
-	// and thus no tag name in the struct which correlates to it.
+var positionalPlaceholderRegexp = regexp.MustCompile("^%.*%$")
+
+func TagNameFromStructField(name string, post interface{}, args *FieldArgs) string {
 	if name == "" {
 		return name
+	}
+
+	if args != nil && args.Parent != "" {
+		name = strings.Join([]string{args.Parent, name}, ".")
 	}
 
 	parts := strings.Split(name, ".")
 	fieldName := parts[0]
 	t := reflect.TypeOf(post)
-	if t.Kind() == reflect.Pointer {
+	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
 
@@ -26,19 +31,42 @@ func TagNameFromStructField(name string, post interface{}) string {
 		t = t.Elem()
 	}
 
+	if _, err := strconv.Atoi(fieldName); err == nil || positionalPlaceholderRegexp.MatchString(fieldName) {
+		if len(parts) > 1 {
+			nestedName := TagNameFromStructField(strings.Join(parts[1:], "."), post, nil)
+			return strings.Join([]string{fieldName, nestedName}, ".")
+		}
+
+		return fieldName
+	}
+
 	field, ok := t.FieldByName(fieldName)
 	if !ok {
-		panic("Couldn't get struct field for: " + parts[0] + ". Make sure you pass the right field name to editor field elements.")
+		log.Println(post)
+		log.Println(args)
+		panic(
+			"Couldn't get struct field for: " +
+				fieldName +
+				". Make sure you pass the right field name to editor field elements.",
+		)
 	}
 
 	nestedName := ""
 	if len(parts) > 1 {
-		nestedName = TagNameFromStructField(strings.Join(parts[1:], "."), reflect.New(field.Type).Interface())
+		nestedName = TagNameFromStructField(
+			strings.Join(parts[1:], "."),
+			reflect.New(field.Type).Interface(),
+			nil,
+		)
 	}
 
 	tag, ok := field.Tag.Lookup("json")
 	if !ok {
-		panic("Couldn't get json struct tag for: " + name + ". Struct fields for content types must have 'json' tags.")
+		panic(
+			"Couldn't get json struct tag for: " +
+				name +
+				". Struct fields for content types must have 'json' tags.",
+		)
 	}
 
 	if nestedName != "" {
@@ -54,12 +82,16 @@ func TagNameFromStructField(name string, post interface{}) string {
 // one is associated with multiple values, we need to output the name as such.
 // Ex. 'category.0', 'category.1', 'category.2' and so on.
 func TagNameFromStructFieldMulti(name string, i int, post interface{}) string {
-	tag := TagNameFromStructField(name, post)
+	tag := TagNameFromStructField(name, post, nil)
 
 	return fmt.Sprintf("%s.%d", tag, i)
 }
 
-func ValueByName(name string, post interface{}) reflect.Value {
+func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
+	if args != nil && args.Parent != "" {
+		name = strings.Join([]string{args.Parent, name}, ".")
+	}
+
 	parts := strings.Split(name, ".")
 	fieldName := parts[0]
 	v := reflect.ValueOf(post)
@@ -68,20 +100,39 @@ func ValueByName(name string, post interface{}) reflect.Value {
 	}
 
 	if v.Kind() == reflect.Slice || v.Kind() == reflect.Array {
-		v = v.Elem()
+		if index, err := strconv.Atoi(fieldName); err == nil {
+			v = v.Index(index)
+			if len(parts) > 1 {
+				fieldName = parts[1]
+				parts = parts[1:]
+			} else {
+				return v
+			}
+		} else if positionalPlaceholderRegexp.MatchString(fieldName) {
+			arrayEntityType := reflect.TypeOf(v.Interface()).Elem()
+			v = reflect.New(arrayEntityType).Elem()
+			if len(parts) > 1 {
+				fieldName = parts[1]
+				parts = parts[1:]
+			} else {
+				return v
+			}
+		} else {
+			v = v.Elem()
+		}
 	}
 
 	value := v.FieldByName(fieldName)
 	if len(parts) > 1 {
-		return ValueByName(strings.Join(parts[1:], "."), value.Interface())
+		return ValueByName(strings.Join(parts[1:], "."), value.Interface(), nil)
 	}
 
 	return value
 }
 
 // ValueFromStructField returns the string value of a field in a struct
-func ValueFromStructField(name string, post interface{}) string {
-	field := ValueByName(name, post)
+func ValueFromStructField(name string, post interface{}, args *FieldArgs) interface{} {
+	field := ValueByName(name, post, args)
 
 	switch field.Kind() {
 	case reflect.String:
@@ -103,14 +154,20 @@ func ValueFromStructField(name string, post interface{}) string {
 		return fmt.Sprintf("%v", field.Float())
 
 	case reflect.Slice:
-		s := make([]string, 0)
+		t := reflect.TypeOf(field.Interface()).Elem()
+		// this is how string repeaters currently works in ponzu. Improve later
+		if t.Kind() == reflect.String {
+			s := make([]string, 0)
 
-		for i := 0; i < field.Len(); i++ {
-			pos := field.Index(i)
-			s = append(s, fmt.Sprintf("%v", pos))
+			for i := 0; i < field.Len(); i++ {
+				pos := field.Index(i)
+				s = append(s, fmt.Sprintf("%v", pos))
+			}
+
+			return strings.Join(s, "__ponzu")
 		}
 
-		return strings.Join(s, "__ponzu")
+		return field.Interface()
 
 	default:
 		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", field.Type(), name))

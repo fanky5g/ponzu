@@ -3,42 +3,18 @@ package editor
 import (
 	"bytes"
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/util"
 	"log"
+	"reflect"
 	"strings"
 )
 
-// InputRepeater returns the []byte of an <input> HTML element with a label.
-// It also includes repeat controllers (+ / -) so the element can be
-// dynamically multiplied or reduced.
-// IMPORTANT:
-// The `fieldName` argument will cause a panic if it is not exactly the string
-// form of the struct field that this editor input is representing
-//
-//	type Person struct {
-//		item.Item
-//		editor editor.Editor
-//
-//		Names []string `json:"names"`
-//		//...
-//	}
-//
-//	func (p *Person) MarshalEditor() ([]byte, error) {
-//		view, err := editor.Form(p,
-//			editor.Field{
-//				View: editor.InputRepeater("Names", p, map[string]string{
-//					"label":       "Names",
-//					"type":        "text",
-//					"placeholder": "Enter a Name here",
-//				}),
-//			}
-//		)
-//	}
 func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []byte {
 	// find the field values in p to determine pre-filled inputs
-	fieldVals := ValueFromStructField(fieldName, p)
+	fieldVals := ValueFromStructField(fieldName, p, nil).(string)
 	vals := strings.Split(fieldVals, "__ponzu")
 
-	scope := TagNameFromStructField(fieldName, p)
+	scope := TagNameFromStructField(fieldName, p, nil)
 	html := bytes.Buffer{}
 
 	_, err := html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
@@ -85,7 +61,7 @@ func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []b
 func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]string) []byte {
 	// options are the value attr and the display value, i.e.
 	// <option value="{map key}">{map value}</option>
-	scope := TagNameFromStructField(fieldName, p)
+	scope := TagNameFromStructField(fieldName, p, nil)
 	html := bytes.Buffer{}
 	_, err := html.WriteString(`<span class="__ponzu-repeat ` + scope + `">`)
 	if err != nil {
@@ -94,7 +70,7 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 	}
 
 	// find the field values in p to determine if an option is pre-selected
-	fieldVals := ValueFromStructField(fieldName, p)
+	fieldVals := ValueFromStructField(fieldName, p, nil).(string)
 	vals := strings.Split(fieldVals, "__ponzu")
 
 	if _, ok := attrs["class"]; ok {
@@ -103,7 +79,7 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 		attrs["class"] = "browser-default"
 	}
 
-	// loop through vals and create selects and options for each, adding to views
+	// loop through vals and create selects and options for each, adding to html
 	if len(vals) > 0 {
 		for i, val := range vals {
 			sel := &Element{
@@ -179,7 +155,7 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 // form of the struct field that this editor input is representing
 func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []byte {
 	// find the field values in p to determine if an option is pre-selected
-	fieldVals := ValueFromStructField(fieldName, p)
+	fieldVals := ValueFromStructField(fieldName, p, nil).(string)
 	vals := strings.Split(fieldVals, "__ponzu")
 
 	addLabelFirst := func(i int, label string) string {
@@ -312,7 +288,7 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 		</script>`
 	// 1=nameidx, 2=className
 
-	name := TagNameFromStructField(fieldName, p)
+	name := TagNameFromStructField(fieldName, p, nil)
 
 	html := bytes.Buffer{}
 	_, err := html.WriteString(`<span class="__ponzu-repeat ` + name + `">`)
@@ -349,7 +325,7 @@ func FileRepeater(fieldName string, p interface{}, attrs map[string]string) []by
 // RepeatController generates the javascript to control any repeatable form
 // element in an editor based on its type, field name and HTML tag name
 func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelector string) []byte {
-	scope := TagNameFromStructField(fieldName, p)
+	scope := TagNameFromStructField(fieldName, p, nil)
 	script := `
     <script>
         $(function() {
@@ -496,4 +472,59 @@ func RepeatController(fieldName string, p interface{}, inputSelector, cloneSelec
     `
 
 	return []byte(script)
+}
+
+func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *FieldArgs) (string, []Field)) []byte {
+	value := ValueByName(fieldName, p, nil)
+	if value.Kind() != reflect.Slice && value.Kind() != reflect.Array {
+		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", value.Type(), fieldName))
+	}
+
+	scope := TagNameFromStructField(fieldName, p, nil)
+
+	tmpl := `
+		<div class="col s12 __ponzu-repeat ` + scope + `" name="` + fieldName + `">
+			<label class="active">` + fieldName + `</label>
+	`
+
+	positionalPlaceHolder := "%pos%"
+	fieldArgs := &FieldArgs{
+		Parent: fmt.Sprintf("%s.%s", fieldName, positionalPlaceHolder),
+	}
+
+	arrayTypeName, fields := m(p, fieldArgs)
+	fieldArgs.TypeName = arrayTypeName
+	emptyEntryTemplate := Nested("", p, fieldArgs, fields...)
+
+	script := &bytes.Buffer{}
+	scriptTmpl := util.MakeScript("nested_repeater")
+	if err := scriptTmpl.Execute(script, struct {
+		Template              string
+		NumItems              int
+		Scope                 string
+		InputSelector         string
+		CloneSelector         string
+		PositionalPlaceholder string
+	}{
+		Template:              string(emptyEntryTemplate),
+		NumItems:              value.Len(),
+		Scope:                 scope,
+		CloneSelector:         fmt.Sprintf(".%s", arrayTypeName),
+		InputSelector:         "input",
+		PositionalPlaceholder: positionalPlaceHolder,
+	}); err != nil {
+		panic(err)
+	}
+
+	for i := 0; i < value.Len(); i++ {
+		_, fields = m(p, &FieldArgs{
+			Parent: fmt.Sprintf("%s.%d", fieldName, i),
+		})
+
+		fieldTemplate := Nested("", nil, fieldArgs, fields...)
+		tmpl += string(fieldTemplate)
+	}
+
+	tmpl += `</div>`
+	return append([]byte(tmpl), script.Bytes()...)
 }

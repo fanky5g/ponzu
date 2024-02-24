@@ -1963,7 +1963,7 @@ var dom = (function() {
 
 
       /**
-       * insert views at current cursor
+       * insert html at current cursor
        */
       this.pasteHTML = function(markup) {
         var self = this;
@@ -2240,7 +2240,7 @@ var dom = (function() {
     * @property {Number} options.tabsize
     * @property {Boolean} options.styleWithSpan
     * @property {Object} options.codemirror
-    * @property {Object} [options.codemirror.mode='text/views']
+    * @property {Object} [options.codemirror.mode='text/html']
     * @property {Object} [options.codemirror.htmlMode=true]
     * @property {Object} [options.codemirror.lineNumbers=true]
     * @property {String} [options.lang=en-US] language 'en-US', 'ko-KR', ...
@@ -2276,7 +2276,7 @@ var dom = (function() {
       shortcuts: true,              // enable keyboard shortcuts
 
       placeholder: false,           // enable placeholder text
-      prettifyHtml: true,           // enable prettifying views while toggling codeview
+      prettifyHtml: true,           // enable prettifying html while toggling codeview
 
       iconPrefix: '',               // prefix for css icon classes
       icons: {
@@ -2347,7 +2347,7 @@ var dom = (function() {
       },
 
       codemirror: {                 // codemirror options
-        mode: 'text/views',
+        mode: 'text/html',
         htmlMode: true,
         indentWithTabs: true,
         tabSize: 4,
@@ -4704,7 +4704,7 @@ var dom = (function() {
 
   var Fullscreen = function(handler) {
     var $window = $(window);
-    var $scrollbar = $('views, body');
+    var $scrollbar = $('html, body');
 
     /**
      * toggle fullscreen
@@ -5940,7 +5940,7 @@ var dom = (function() {
      * @param {String} [options.className] button's class name
      * @param {String} [options.value] data-value
      * @param {String} [options.title] button's title for popup
-     * @param {String} [options.dropdown] dropdown views
+     * @param {String} [options.dropdown] dropdown html
      * @param {String} [options.hide] data-hide
      */
 
@@ -7405,7 +7405,7 @@ var dom = (function() {
      * * set contents
      *
      * ```
-     * $("#materialnote").code(views);
+     * $("#materialnote").code(html);
      * ```
      *
      * @member $.fn

@@ -31,7 +31,7 @@ func UsersList(
 		}
 	}
 
-	// make buffer to execute views into then pass buffer's bytes to Admin
+	// make buffer to execute html into then pass buffer's bytes to Admin
 	buf := &bytes.Buffer{}
 	tmpl := util.MakeTemplate("users_list")
 	data := map[string]interface{}{

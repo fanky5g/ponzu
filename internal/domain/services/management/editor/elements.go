@@ -30,8 +30,8 @@ import (
 //			}
 //		)
 //	}
-func Input(fieldName string, p interface{}, attrs map[string]string) []byte {
-	e := NewElement("input", attrs["label"], fieldName, p, attrs)
+func Input(fieldName string, p interface{}, attrs map[string]string, args *FieldArgs) []byte {
+	e := NewElement("input", attrs["label"], fieldName, p, attrs, args)
 
 	return DOMElementSelfClose(e)
 }
@@ -50,7 +50,7 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 		attrs["class"] = className
 	}
 
-	e := NewElement("textarea", attrs["label"], fieldName, p, attrs)
+	e := NewElement("textarea", attrs["label"], fieldName, p, attrs, nil)
 
 	return DOMElement(e)
 }
@@ -61,17 +61,17 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 // form of the struct field that this editor input is representing
 func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte {
 	var data string
-	val := ValueFromStructField(fieldName, p)
+	val := ValueFromStructField(fieldName, p, nil)
 	if val == "0" {
 		data = ""
 	} else {
-		data = val
+		data = val.(string)
 	}
 
 	e := &Element{
 		TagName: "input",
 		Attrs:   attrs,
-		Name:    TagNameFromStructField(fieldName, p),
+		Name:    TagNameFromStructField(fieldName, p, nil),
 		Label:   attrs["label"],
 		Data:    data,
 		ViewBuf: &bytes.Buffer{},
@@ -85,8 +85,8 @@ func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte 
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func File(fieldName string, p interface{}, attrs map[string]string) []byte {
-	name := TagNameFromStructField(fieldName, p)
-	value := ValueFromStructField(fieldName, p)
+	name := TagNameFromStructField(fieldName, p, nil)
+	value := ValueFromStructField(fieldName, p, nil).(string)
 	tmpl :=
 		`<div class="file-input ` + name + ` input-field col s12">
 			<label class="active">` + attrs["label"] + `</label>
@@ -243,9 +243,9 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 	}
 
 	// create a hidden input to store the value from the struct
-	val := ValueFromStructField(fieldName, p)
-	name := TagNameFromStructField(fieldName, p)
-	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + html.EscapeString(val) + `"/>`
+	val := ValueFromStructField(fieldName, p, nil)
+	name := TagNameFromStructField(fieldName, p, nil)
+	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + html.EscapeString(val.(string)) + `"/>`
 
 	// build the dom tree for the entire richtext component
 	iso = append(iso, DOMElement(div)...)
@@ -327,7 +327,7 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 	// <option value="{map key}">{map value}</option>
 
 	// find the field value in p to determine if an option is pre-selected
-	fieldVal := ValueFromStructField(fieldName, p)
+	fieldVal := ValueFromStructField(fieldName, p, nil)
 
 	if _, ok := attrs["class"]; ok {
 		attrs["class"] += " browser-default"
@@ -335,7 +335,7 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 		attrs["class"] = "browser-default"
 	}
 
-	sel := NewElement("select", attrs["label"], fieldName, p, attrs)
+	sel := NewElement("select", attrs["label"], fieldName, p, attrs, nil)
 	var opts []*Element
 
 	// provide a call to action for the select element
@@ -386,13 +386,13 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 		attrs["class"] = "input-field col s12"
 	}
 
-	div := NewElement("div", attrs["label"], fieldName, p, attrs)
+	div := NewElement("div", attrs["label"], fieldName, p, attrs, nil)
 
 	var opts []*Element
 
 	// get the pre-checked options if this is already an existing post
-	checkedVals := ValueFromStructField(fieldName, p)
-	checked := strings.Split(checkedVals, "__ponzu")
+	checkedVals := ValueFromStructField(fieldName, p, nil)
+	checked := strings.Split(checkedVals.(string), "__ponzu")
 
 	i := 0
 	for k, v := range options {
@@ -432,10 +432,10 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
-	name := TagNameFromStructField(fieldName, p)
+	name := TagNameFromStructField(fieldName, p, nil)
 
 	// get the saved tags if this is already an existing post
-	values := ValueFromStructField(fieldName, p)
+	values := ValueFromStructField(fieldName, p, nil).(string)
 	var tags []string
 	if strings.Contains(values, "__ponzu") {
 		tags = strings.Split(values, "__ponzu")
@@ -521,9 +521,14 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	return []byte(html + script)
 }
 
-func Nested(fieldName string, p interface{}, fields ...Field) []byte {
+func Nested(fieldName string, p interface{}, args *FieldArgs, fields ...Field) []byte {
+	name := fieldName
+	if name == "" && args != nil {
+		name = args.TypeName
+	}
+
 	tmpl := `
-		<fieldset class="col s12" name=` + fieldName + `>
+		<fieldset class="col s12 ` + name + `" name="` + name + `">
 			<label class="active">` + fieldName + `</label>
 	`
 

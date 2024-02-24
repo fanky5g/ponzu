@@ -29,62 +29,62 @@ type Config struct {
 // String partially implements item.Identifiable and overrides Item's String()
 func (c *Config) String() string { return c.Name }
 
-// MarshalEditor writes a buffer of views to edit a Post and partially implements editor.Editable
+// MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
 func (c *Config) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form(c,
 		editor.Field{
 			View: editor.Input("Name", c, map[string]string{
 				"label":       "Site Name",
 				"placeholder": "Add a name to this site (internal use only)",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("Domain", c, map[string]string{
 				"label":       "Domain Name (required for SSL certificate)",
 				"placeholder": "e.g. www.example.com or example.com",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("BindAddress", c, map[string]string{
 				"type": "hidden",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("HTTPPort", c, map[string]string{
 				"type": "hidden",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("HTTPSPort", c, map[string]string{
 				"type": "hidden",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("AdminEmail", c, map[string]string{
 				"label": "Administrator Email (notified of internal system information)",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("ClientSecret", c, map[string]string{
 				"label":    "Client Secret (used to validate requests, DO NOT SHARE)",
 				"disabled": "true",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("ClientSecret", c, map[string]string{
 				"type": "hidden",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("Etag", c, map[string]string{
 				"label":    "Etag Header (used to cache resources)",
 				"disabled": "true",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("Etag", c, map[string]string{
 				"type": "hidden",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Checkbox("DisableCORS", c, map[string]string{
@@ -111,7 +111,7 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 			View: editor.Input("CacheMaxAge", c, map[string]string{
 				"label": "Max-Age value for HTTP caching (in seconds, 0 = 2592000)",
 				"type":  "text",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Checkbox("CacheInvalidate", c, map[string]string{
@@ -125,14 +125,14 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 				"label":       "HTTP Basic Auth GetUserByEmail",
 				"placeholder": "Enter a user name for Basic Auth access",
 				"type":        "text",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Input("BackupBasicAuthPassword", c, map[string]string{
 				"label":       "HTTP Basic Auth Password",
 				"placeholder": "Enter a password for Basic Auth access",
 				"type":        "password",
-			}),
+			}, nil),
 		},
 	)
 	if err != nil {

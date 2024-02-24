@@ -286,3 +286,12 @@ select {
 fieldset > label {
     font-size: 14px;
 }
+
+.__ponzu-repeat > label:first-of-type {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.__ponzu-repeat > .parent.controls {
+    padding-top: 16px;
+}

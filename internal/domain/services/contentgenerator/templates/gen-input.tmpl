@@ -2,4 +2,4 @@ View: editor.Input("{{ .Name }}", {{ .Initial }}, map[string]string{
     "label":       "{{ .Label }}",
     "type":        "text",
     "placeholder": "Enter the {{ .Label }} here",
-}),
+}, {{ .FieldGeneratorArgsVar }}),

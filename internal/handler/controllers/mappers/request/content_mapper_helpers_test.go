@@ -216,6 +216,87 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 	}
 }
 
+func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedStruct2() {
+	type Author struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+
+	type Review struct {
+		item.Item
+
+		Title  string   `json:"title"`
+		Body   string   `json:"body"`
+		Rating int      `json:"rating"`
+		Tags   []string `json:"tags"`
+		Author []Author `json:"authors"`
+	}
+
+	payload := url.Values{
+		"id":                              []string{"6"},
+		"uuid":                            []string{"183a4535-f015-4660-bb8f-6541522e9afb"},
+		"body":                            []string{"API Content Body"},
+		"rating":                          []string{"20"},
+		"slug":                            []string{"review-183a4535-f015-4660-bb8f-6541522e9afb"},
+		"tags.0":                          []string{"API"},
+		"tags.1":                          []string{"Ponzu"},
+		"timestamp":                       []string{"1707647434000"},
+		"updated":                         []string{"1707647434000"},
+		"title":                           []string{"API Content Title"},
+		"authors.0.age":                   []string{"25"},
+		"authors.0.name":                  []string{"Foo Bar"},
+		"authors.3.age":                   []string{"30"},
+		"authors.3.name":                  []string{"Foo Bar 3"},
+		"authors.5.age":                   []string{"50"},
+		"authors.5.name":                  []string{"Foo Bar 5"},
+		".__ponzu-repeat.authors.length":  []string{"3"},
+		".__ponzu-repeat.authors.removed": []string{"1,2,4"},
+	}
+
+	var t item.EntityBuilder = func() interface{} {
+		return new(Review)
+	}
+
+	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
+	if err != nil {
+		suite.FailNow(err.Error())
+		return
+	}
+
+	expectedEntity := &Review{
+		Item: item.Item{
+			ID:        "6",
+			UUID:      uid,
+			Slug:      "review-183a4535-f015-4660-bb8f-6541522e9afb",
+			Timestamp: 1707647434000,
+			Updated:   1707647434000,
+		},
+		Title:  "API Content Title",
+		Body:   "API Content Body",
+		Rating: 20,
+		Tags:   []string{"API", "Ponzu"},
+		Author: []Author{
+			{
+				Name: "Foo Bar",
+				Age:  25,
+			},
+			{
+				Name: "Foo Bar 3",
+				Age:  30,
+			},
+			{
+				Name: "Foo Bar 5",
+				Age:  50,
+			},
+		},
+	}
+
+	entity, err := mapPayloadToGenericEntity(t, payload)
+	if assert.NoError(suite.T(), err) {
+		assert.Equal(suite.T(), expectedEntity, entity)
+	}
+}
+
 func TestContentMapperHelpers(t *testing.T) {
 	suite.Run(t, new(ContentMapperHelpersTestSuite))
 }
