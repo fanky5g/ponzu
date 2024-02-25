@@ -17,9 +17,11 @@ func parseField(raw string, gt *item.TypeDefinition) (*item.Field, error) {
 	}
 
 	data := strings.Split(raw, ":")
+	name := fieldName(data[0])
 
 	field := &item.Field{
-		Name:     fieldName(data[0]),
+		Name:     name,
+		Label:    name,
 		Initial:  gt.Initial,
 		JSONName: fieldJSONName(data[0]),
 	}

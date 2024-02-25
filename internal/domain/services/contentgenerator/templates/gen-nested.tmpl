@@ -1,4 +1,4 @@
-View: editor.Nested("{{ .Name }}", {{ .Initial }},
+View: editor.Nested("{{ .Name }}", {{ .Initial }}, {{ .FieldGeneratorArgsVar }},
     {{ range .Fields }}editor.Field{
         {{ .View }}
     },
