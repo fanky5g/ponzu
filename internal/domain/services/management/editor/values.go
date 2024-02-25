@@ -2,7 +2,6 @@ package editor
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -42,8 +41,6 @@ func TagNameFromStructField(name string, post interface{}, args *FieldArgs) stri
 
 	field, ok := t.FieldByName(fieldName)
 	if !ok {
-		log.Println(post)
-		log.Println(args)
 		panic(
 			"Couldn't get struct field for: " +
 				fieldName +

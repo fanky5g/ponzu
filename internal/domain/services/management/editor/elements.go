@@ -61,11 +61,11 @@ func Textarea(fieldName string, p interface{}, attrs map[string]string) []byte {
 // form of the struct field that this editor input is representing
 func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte {
 	var data string
-	val := ValueFromStructField(fieldName, p, nil)
+	val := ValueFromStructField(fieldName, p, nil).(string)
 	if val == "0" {
 		data = ""
 	} else {
-		data = val.(string)
+		data = val
 	}
 
 	e := &Element{
@@ -243,9 +243,9 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string) []byte {
 	}
 
 	// create a hidden input to store the value from the struct
-	val := ValueFromStructField(fieldName, p, nil)
+	val := ValueFromStructField(fieldName, p, nil).(string)
 	name := TagNameFromStructField(fieldName, p, nil)
-	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + html.EscapeString(val.(string)) + `"/>`
+	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + html.EscapeString(val) + `"/>`
 
 	// build the dom tree for the entire richtext component
 	iso = append(iso, DOMElement(div)...)
@@ -391,8 +391,8 @@ func Checkbox(fieldName string, p interface{}, attrs, options map[string]string)
 	var opts []*Element
 
 	// get the pre-checked options if this is already an existing post
-	checkedVals := ValueFromStructField(fieldName, p, nil)
-	checked := strings.Split(checkedVals.(string), "__ponzu")
+	checkedVals := ValueFromStructField(fieldName, p, nil).(string)
+	checked := strings.Split(checkedVals, "__ponzu")
 
 	i := 0
 	for k, v := range options {
@@ -446,7 +446,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 		tags = append(tags, values)
 	}
 
-	html := `
+	tmpl := `
 	<div class="col s12 __ponzu-tags ` + name + `">
 		<label class="active">` + attrs["label"] + ` (Type and press "Enter")</label>
 		<div class="chips ` + name + `"></div>
@@ -456,7 +456,7 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	i := 0
 	for _, tag := range tags {
 		tagName := TagNameFromStructFieldMulti(fieldName, i, p)
-		html += `<input type="hidden" class="__ponzu-tag ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
+		tmpl += `<input type="hidden" class="__ponzu-tag ` + tag + `" name=` + tagName + ` value="` + tag + `"/>`
 		initial = append(initial, `{tag: '`+tag+`'}`)
 		i++
 	}
@@ -516,9 +516,9 @@ func Tags(fieldName string, p interface{}, attrs map[string]string) []byte {
 	</script>
 	`
 
-	html += `</div>`
+	tmpl += `</div>`
 
-	return []byte(html + script)
+	return []byte(tmpl + script)
 }
 
 func Nested(fieldName string, p interface{}, args *FieldArgs, fields ...Field) []byte {

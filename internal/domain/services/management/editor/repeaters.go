@@ -79,7 +79,7 @@ func SelectRepeater(fieldName string, p interface{}, attrs, options map[string]s
 		attrs["class"] = "browser-default"
 	}
 
-	// loop through vals and create selects and options for each, adding to html
+	// loop through vals and create selects and options for each, adding to views
 	if len(vals) > 0 {
 		for i, val := range vals {
 			sel := &Element{
@@ -521,7 +521,7 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 			Parent: fmt.Sprintf("%s.%d", fieldName, i),
 		})
 
-		fieldTemplate := Nested("", nil, fieldArgs, fields...)
+		fieldTemplate := Nested("", p, fieldArgs, fields...)
 		tmpl += string(fieldTemplate)
 	}
 

@@ -196,7 +196,6 @@ func optimizeFieldView(field *item.Field) {
 		// ex. authors:string:select-repeater
 		// ex. authors:@author:select-repeater
 		if strings.HasSuffix(field.ViewType, "-repeater") {
-			fmt.Println("this is where we're setting the repeater", field.ViewType)
 			field.TypeName = "[]" + field.TypeName
 		}
 	}

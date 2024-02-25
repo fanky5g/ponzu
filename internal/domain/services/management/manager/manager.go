@@ -147,7 +147,7 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 		Editor: template.HTML(v),
 	}
 
-	// execute html template into buffer for func return val
+	// execute views template into buffer for func return val
 	buf := &bytes.Buffer{}
 	if err := managerTmpl.Execute(buf, m); err != nil {
 		return nil, err

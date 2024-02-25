@@ -1963,7 +1963,7 @@ var dom = (function() {
 
 
       /**
-       * insert html at current cursor
+       * insert views at current cursor
        */
       this.pasteHTML = function(markup) {
         var self = this;

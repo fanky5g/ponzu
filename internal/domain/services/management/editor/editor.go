@@ -1,4 +1,4 @@
-// Package editor enables users to create edit html from their content
+// Package editor enables users to create edit views from their content
 // structs so that admins can manage content
 package editor
 

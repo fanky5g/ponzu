@@ -29,7 +29,7 @@ type Config struct {
 // String partially implements item.Identifiable and overrides Item's String()
 func (c *Config) String() string { return c.Name }
 
-// MarshalEditor writes a buffer of html to edit a Post and partially implements editor.Editable
+// MarshalEditor writes a buffer of views to edit a Post and partially implements editor.Editable
 func (c *Config) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form(c,
 		editor.Field{
