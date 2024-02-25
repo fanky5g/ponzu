@@ -17,7 +17,7 @@ type {{ .Name }} struct {
     {{ end }}	
 }
 
-// MarshalEditor writes a buffer of html to edit a {{ .Name }} within the CMS
+// MarshalEditor writes a buffer of views to edit a {{ .Name }} within the CMS
 // and implements editor.Editable
 func ({{ .Initial }} *{{ .Name }}) MarshalEditor() ([]byte, error) {
 	view, err := editor.Form({{ .Initial }},

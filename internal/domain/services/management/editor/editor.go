@@ -32,6 +32,11 @@ type Field struct {
 	View []byte
 }
 
+type FieldArgs struct {
+	Parent   string
+	TypeName string
+}
+
 // Form takes editable content and any number of Field funcs to describe the edit
 // page for any content struct added by a user
 func Form(post Editable, fields ...Field) ([]byte, error) {
@@ -236,7 +241,7 @@ func addPostDefaultFieldsToEditorView(p Editable, e *Editor) error {
 				"type":        "text",
 				"disabled":    "true",
 				"placeholder": "Will be set automatically",
-			}),
+			}, nil),
 		},
 		{
 			View: Timestamp("Timestamp", p, map[string]string{

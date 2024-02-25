@@ -17,9 +17,11 @@ func parseField(raw string, gt *item.TypeDefinition) (*item.Field, error) {
 	}
 
 	data := strings.Split(raw, ":")
+	name := fieldName(data[0])
 
 	field := &item.Field{
-		Name:     fieldName(data[0]),
+		Name:     name,
+		Label:    name,
 		Initial:  gt.Initial,
 		JSONName: fieldJSONName(data[0]),
 	}
@@ -60,7 +62,8 @@ func setFieldTypeName(field *item.Field, fieldType string, gt *item.TypeDefiniti
 	}
 
 	var referenceType string
-	if strings.HasPrefix(fieldType, "[]") {
+	isArrayType := strings.HasPrefix(fieldType, "[]")
+	if isArrayType {
 		referenceType = strings.TrimPrefix(fieldType, "[]@")
 		fieldType = "[]string"
 	} else {
@@ -77,6 +80,9 @@ func setFieldTypeName(field *item.Field, fieldType string, gt *item.TypeDefiniti
 	} else {
 		field.IsNested = true
 		field.TypeName = field.ReferenceName
+		if isArrayType {
+			field.TypeName = fmt.Sprintf("[]%s", field.TypeName)
+		}
 	}
 
 	return

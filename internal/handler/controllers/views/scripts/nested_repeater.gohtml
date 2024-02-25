@@ -1,0 +1,127 @@
+<script>
+    $(function() {
+        const template = '{{ .Template }}';
+        let n = {{ .NumItems }};
+        let size = {{ .NumItems }};
+
+        const scope = $('.__ponzu-repeat.{{ .Scope }}');
+        const getChildren = function() {
+            return scope.find('{{ .CloneSelector }}');
+        };
+
+        const createChild = function(i) {
+            const child = template.replace(new RegExp('{{ .PositionalPlaceholder }}', 'g'), i);
+            const el = $('<div/>').html(child).contents();
+
+            const parentControls = $('.__ponzu-repeat.{{ .Scope }} .parent.controls');
+            if (parentControls.length) {
+                el.insertBefore(parentControls);
+            } else {
+                scope.append(el);
+            }
+
+            const controls = createChildControls(i);
+            $(el).append(controls);
+
+            n++; size++;
+            setHiddenInputValue("length", size);
+        };
+
+        const setHiddenInputValue = function (name, value) {
+            const selectorName= '.__ponzu-repeat.{{ .Scope }}.' + name;
+            let input = scope.find(`input[name="${selectorName}"]`).first();
+            if (!input.length) {
+                input = $(`<input name="${selectorName}" type="hidden" value="" />`);
+                $(scope).append(input);
+            }
+
+            input.val(value);
+        }
+
+        const deleteChild = function (el) {
+            // pass label onto next input-like element if del 0 index
+            const wrapper = $(el).parent().closest('{{ .CloneSelector }}');
+            wrapper.remove();
+
+            size = size - 1;
+            setHiddenInputValue("length", size);
+        };
+
+        const addRepeater = function (e) {
+            e.preventDefault();
+            createChild(n);
+        };
+
+        const delRepeater = function (e, elementIndex) {
+            e.preventDefault();
+            let removedElementsInput = scope.find('input[name=".__ponzu-repeat.{{ .Scope }}.removed"]').first();
+            if (!removedElementsInput.length) {
+                removedElementsInput = $('<input name=".__ponzu-repeat.{{ .Scope }}.removed" type="hidden" value="" />');
+                $(scope).append(removedElementsInput);
+            }
+
+            deleteChild(e.target);
+
+            const currentValue = removedElementsInput.val();
+            removedElementsInput.val([currentValue, elementIndex].filter(el => el.toString().trim() !== "").join(','));
+        };
+
+        const createChildControls = function (elementIndex) {
+            const del = $('<button>-</button>');
+            del.addClass('repeater-del');
+            del.addClass('btn-flat waves-effect waves-red');
+
+            const controls = $('<span></span>');
+            controls.addClass('controls');
+            controls.addClass('right');
+
+            // bind listeners to child's controls
+            del.on('click', function (e) {
+                delRepeater(e, elementIndex);
+            });
+
+            controls.append(del);
+
+            return controls;
+        };
+
+        const createParentControls = function() {
+            const container = $('<div></div>');
+            container.addClass('controls');
+            container.addClass('parent');
+            container.addClass('col');
+            container.addClass('s12');
+
+            const add = $('<button>+</button>');
+            add.addClass('repeater-add');
+            add.addClass('btn-flat waves-effect waves-green');
+
+            const controls = $('<span></span>');
+            controls.addClass('right');
+
+            add.on('click', addRepeater);
+            controls.append(add);
+            container.append(controls);
+            $(scope).append(container);
+        };
+
+        function initialize() {
+            const children = getChildren();
+
+            for (let i = 0; i < children.length; i++) {
+                const el = children[i];
+
+                const controls = createChildControls(i);
+                $(el).append(controls);
+            }
+
+            if (!n) {
+                createChild(0);
+            }
+
+            createParentControls();
+        }
+
+        initialize();
+    });
+</script>

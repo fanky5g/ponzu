@@ -1,0 +1,9 @@
+View: editor.NestedRepeater("{{ .Name }}", {{ .Initial }}, func({{ .FieldGeneratorDataVar }} interface{}, {{ .FieldGeneratorArgsVar }} *editor.FieldArgs) (string, []editor.Field)   {
+        return "{{ .ReferenceName }}", []editor.Field {
+            {{ range .Fields }} {
+                {{ .View }}
+            },
+            {{ end }}
+        }
+    },
+),

@@ -9,12 +9,14 @@ import (
 	"github.com/gorilla/schema"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
 )
 
 var ErrUnsupportedContentType = errors.New("unsupported content type")
+var PonzuRepeatPrefix = ".__ponzu-repeat"
 
 func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string) (interface{}, error) {
 	entity := t()
@@ -27,6 +29,31 @@ func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string
 	err := dec.Decode(entity, payload)
 	if err != nil {
 		return nil, err
+	}
+
+	repeatLengthIdentifier, removedItemsIdentifier := getRepeatFieldIdentifiers(payload)
+	for jsonFieldName, length := range repeatLengthIdentifier {
+		fieldName := fieldNameByJSONTag(entity, jsonFieldName)
+		if fieldName == "" {
+			continue
+		}
+
+		v := reflect.Indirect(reflect.ValueOf(entity))
+		field := v.FieldByName(fieldName)
+		if !field.IsValid() || field.Len() == length {
+			continue
+		}
+
+		cleanedArray := reflect.MakeSlice(field.Type(), 0, length)
+		if removedItems, ok := removedItemsIdentifier[jsonFieldName]; ok {
+			for i := 0; i < field.Len(); i++ {
+				if !contains(removedItems, i) {
+					cleanedArray = reflect.Append(cleanedArray, field.Index(i))
+				}
+			}
+		}
+
+		field.Set(cleanedArray)
 	}
 
 	return entity, nil
@@ -64,10 +91,13 @@ func transformArrayFields(payload url.Values) {
 	for k, v := range payload {
 		if strings.Contains(k, ".") {
 			fo := strings.Split(k, ".")
+			if len(fo) < 2 {
+				continue
+			}
 
 			// put the order and the field value into map
-			field := fo[0]
-			order := fo[1]
+			order := fo[len(fo)-1]
+			field := strings.Join(fo[:len(fo)-1], ".")
 			if _, err := strconv.ParseInt(order, 10, 64); err == nil {
 				if len(fieldOrderValue[field]) == 0 {
 					fieldOrderValue[field] = make(map[string][]string)
@@ -105,5 +135,77 @@ func transformArrayFields(payload url.Values) {
 			}
 		}
 	}
+}
 
+func getRepeatFieldIdentifiers(payload url.Values) (map[string]int, map[string][]int) {
+	repeatLengthIdentifier := make(map[string]int)
+	repeatRemovedItemsIdentifier := make(map[string][]int)
+
+	for k, v := range payload {
+		if strings.HasPrefix(k, PonzuRepeatPrefix) {
+			ponzuRepeatIdentifier := strings.TrimPrefix(k, PonzuRepeatPrefix)
+			if strings.HasSuffix(ponzuRepeatIdentifier, ".length") {
+				if len(v) > 0 {
+					if length, err := strconv.Atoi(v[0]); err == nil {
+						mapKey := strings.TrimPrefix(
+							strings.TrimSuffix(ponzuRepeatIdentifier, ".length"), ".",
+						)
+						repeatLengthIdentifier[mapKey] = length
+					}
+				}
+			}
+
+			if strings.HasSuffix(ponzuRepeatIdentifier, ".removed") {
+				if len(v) > 0 {
+					removedIndexesArray := strings.Split(v[0], ",")
+					removedIndexesIntArray := make([]int, 0)
+					for _, removedIndex := range removedIndexesArray {
+						if index, err := strconv.Atoi(strings.TrimSpace(removedIndex)); err == nil {
+							removedIndexesIntArray = append(removedIndexesIntArray, index)
+						}
+					}
+
+					if len(removedIndexesIntArray) > 0 {
+						mapKey := strings.TrimPrefix(
+							strings.TrimSuffix(ponzuRepeatIdentifier, ".removed"), ".",
+						)
+						repeatRemovedItemsIdentifier[mapKey] = removedIndexesIntArray
+					}
+				}
+			}
+
+			payload.Del(k)
+		}
+	}
+
+	return repeatLengthIdentifier, repeatRemovedItemsIdentifier
+}
+
+func fieldNameByJSONTag(p interface{}, jsonTagName string) string {
+	v := reflect.ValueOf(p)
+	if v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+
+	for i := 0; i < v.NumField(); i++ {
+		typeField := v.Type().Field(i)
+		tag := typeField.Tag
+
+		if jsonTag, ok := tag.Lookup("json"); ok {
+			if jsonTag == jsonTagName {
+				return typeField.Name
+			}
+		}
+	}
+
+	return ""
+}
+
+func contains(slice []int, val int) bool {
+	for _, entry := range slice {
+		if entry == val {
+			return true
+		}
+	}
+	return false
 }

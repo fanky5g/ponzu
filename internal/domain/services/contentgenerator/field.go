@@ -32,12 +32,33 @@ func (gt *generator) ValidateField(field *item.Field) error {
 }
 
 // set the specified view inside the editor field for a generated field for a type
-func (gt *generator) setFieldView(definition *item.TypeDefinition, index int) error {
+func (gt *generator) setFieldView(definition *item.TypeDefinition, index int, args ...string) error {
 	var err error
 	var tmpl *template.Template
 	buf := &bytes.Buffer{}
 	field := &definition.Fields[index]
-	var templateArg interface{} = field
+
+	fieldGeneratorDataVar := "v"
+	fieldGeneratorArgsVar := "nil"
+
+	if len(args) > 0 {
+		fieldGeneratorDataVar = args[0]
+	}
+
+	if len(args) > 1 {
+		fieldGeneratorArgsVar = args[1]
+	}
+
+	var templateArg = struct {
+		*item.Field
+		FieldGeneratorDataVar string
+		FieldGeneratorArgsVar string
+		Fields                []item.Field
+	}{
+		Field:                 field,
+		FieldGeneratorDataVar: fieldGeneratorDataVar,
+		FieldGeneratorArgsVar: fieldGeneratorArgsVar,
+	}
 
 	tmplFromWithDelims := func(filename string, delim [2]string) (*template.Template, error) {
 		if delim[0] == "" || delim[1] == "" {
@@ -75,7 +96,7 @@ func (gt *generator) setFieldView(definition *item.TypeDefinition, index int) er
 	case "file-repeater":
 		tmpl, err = tmplFromWithDelims("gen-file-repeater.tmpl", [2]string{})
 
-	// use [[ and ]] as delimiters since reference views need to generate
+	// use [[ and ]] as delimiters since reference html need to generate
 	// display names containing {{ and }}
 	case "reference":
 		tmpl, err = tmplFromWithDelims("gen-reference.tmpl", [2]string{"[[", "]]"})
@@ -89,23 +110,42 @@ func (gt *generator) setFieldView(definition *item.TypeDefinition, index int) er
 		}
 	case "nested":
 		tmpl, err = tmplFromWithDelims("gen-nested.tmpl", [2]string{})
-		t, ok := item.Definitions[field.Name]
+		t, ok := item.Definitions[field.ReferenceName]
 		if !ok {
 			return fmt.Errorf("no definition matched for %s type", field.Name)
 		}
 
 		for i := range t.Fields {
-			t.Fields[i].Name = fmt.Sprintf("%s.%s", t.Name, t.Fields[i].Name)
+			t.Fields[i].Name = fmt.Sprintf("%s.%s", field.Name, t.Fields[i].Name)
 			t.Fields[i].Initial = definition.Initial
 			if err = gt.setFieldView(&t, i); err != nil {
 				return err
 			}
 		}
 
-		templateArg = struct {
-			*item.Field
-			Fields []item.Field
-		}{Field: field, Fields: t.Fields}
+		templateArg.Fields = t.Fields
+	case "nested-repeater":
+		tmpl, err = tmplFromWithDelims("gen-nested-repeater.tmpl", [2]string{})
+		t, ok := item.Definitions[field.ReferenceName]
+		if !ok {
+			return fmt.Errorf("no definition matched for %s type", field.Name)
+		}
+
+		templateArg.FieldGeneratorArgsVar = "args"
+		for i := range t.Fields {
+			t.Fields[i].Initial = templateArg.FieldGeneratorDataVar
+
+			if err = gt.setFieldView(
+				&t,
+				i,
+				templateArg.FieldGeneratorDataVar,
+				templateArg.FieldGeneratorArgsVar,
+			); err != nil {
+				return err
+			}
+		}
+
+		templateArg.Fields = t.Fields
 	default:
 		msg := fmt.Sprintf("'%s' is not a recognized view type. Using 'input' instead.", field.ViewType)
 		log.Println(msg)
@@ -133,7 +173,6 @@ func optimizeFieldView(field *item.Field) {
 		field.ViewType = "reference"
 	} else if field.IsNested {
 		field.ViewType = "nested"
-		field.TypeName = field.ReferenceName
 	}
 
 	// if we have a []T field type, automatically make the input view a repeater

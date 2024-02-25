@@ -19,13 +19,13 @@ type Element struct {
 
 // NewElement returns an Element with Name and Data already processed from the
 // fieldName and content interface provided
-func NewElement(tagName, label, fieldName string, p interface{}, attrs map[string]string) *Element {
+func NewElement(tagName, label, fieldName string, p interface{}, attrs map[string]string, args *FieldArgs) *Element {
 	return &Element{
 		TagName: tagName,
 		Attrs:   attrs,
-		Name:    TagNameFromStructField(fieldName, p),
+		Name:    TagNameFromStructField(fieldName, p, args),
 		Label:   label,
-		Data:    ValueFromStructField(fieldName, p),
+		Data:    ValueFromStructField(fieldName, p, args).(string),
 		ViewBuf: &bytes.Buffer{},
 	}
 }
