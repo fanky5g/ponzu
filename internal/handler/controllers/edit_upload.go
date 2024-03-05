@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/storage"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/manager"
@@ -27,7 +28,7 @@ func NewEditUploadHandler(configService config.Service, storageService storage.S
 			q := req.URL.Query()
 			i := q.Get("id")
 
-			var fileUpload *item.FileUpload
+			var fileUpload *entities.FileUpload
 			if i != "" {
 				fileUpload, err = storageService.GetFileUpload(i)
 				if err != nil {
@@ -52,7 +53,7 @@ func NewEditUploadHandler(configService config.Service, storageService storage.S
 					return
 				}
 
-				fileUpload = &item.FileUpload{}
+				fileUpload = &entities.FileUpload{}
 			}
 
 			m, err := manager.Manage(interface{}(fileUpload).(editor.Editable), storage.UploadsEntityName)

@@ -11,7 +11,7 @@ import (
 
 func generateType(contentType enum.ContentType, args []string, generators []interfaces.ContentGenerator) error {
 	// parse type info from args
-	typeDefinition, err := parseType(args)
+	typeDefinition, err := parseType(contentType, args)
 	if err != nil {
 		return fmt.Errorf("failed to parse type args: %s", err.Error())
 	}
@@ -37,7 +37,7 @@ var generateCmd = &cobra.Command{
 	Short:   "generate boilerplate code for various Ponzu components",
 	Long: `Generate boilerplate code for various Ponzu components, such as 'content'.
 
-The command above will generate a file 'content/review.go.bak' with boilerplate
+The command above will generate a file 'content/review.go' with boilerplate
 methods, as well as struct definition, and corresponding field tags like:
 
 type Review struct {
@@ -86,8 +86,23 @@ var plainTypeCmd = &cobra.Command{
 	},
 }
 
+var fieldCollectionTypeCmd = &cobra.Command{
+	Use:     "field-collection <namespace> <field> <field>...",
+	Aliases: []string{"fc"},
+	Short:   "generates a new field-collection type",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		domainContentGenerator, err := contentgenerator.New()
+		if err != nil {
+			log.Fatalf("Failed to initialize domain content generator: %v", err)
+		}
+
+		return generateType(enum.TypeFieldCollection, args, []interfaces.ContentGenerator{
+			domainContentGenerator,
+		})
+	},
+}
+
 func RegisterCommandRecursive(parent *cobra.Command) {
-	generateCmd.AddCommand(contentCmd)
-	generateCmd.AddCommand(plainTypeCmd)
+	generateCmd.AddCommand(contentCmd, plainTypeCmd, fieldCollectionTypeCmd)
 	parent.AddCommand(generateCmd)
 }

@@ -1,10 +1,10 @@
 package storage
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 )
 
-func (s *service) GetFileUpload(key string) (*item.FileUpload, error) {
+func (s *service) GetFileUpload(key string) (*entities.FileUpload, error) {
 	file, err := s.Service.GetContent(UploadsEntityName, key)
 	if err != nil {
 		return nil, err
@@ -14,18 +14,18 @@ func (s *service) GetFileUpload(key string) (*item.FileUpload, error) {
 		return nil, nil
 	}
 
-	return file.(*item.FileUpload), nil
+	return file.(*entities.FileUpload), nil
 }
 
-func (s *service) GetAllUploads() ([]item.FileUpload, error) {
+func (s *service) GetAllUploads() ([]entities.FileUpload, error) {
 	files, err := s.Service.GetAll(UploadsEntityName)
 	if err != nil {
 		return nil, err
 	}
 
-	f := make([]item.FileUpload, len(files))
+	f := make([]entities.FileUpload, len(files))
 	for i, file := range files {
-		f[i] = file.(item.FileUpload)
+		f[i] = file.(entities.FileUpload)
 	}
 
 	return f, nil

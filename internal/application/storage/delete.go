@@ -2,7 +2,7 @@ package storage
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 )
 
 func (s *service) DeleteFile(target string) error {
@@ -11,7 +11,7 @@ func (s *service) DeleteFile(target string) error {
 		return err
 	}
 
-	f, ok := fileUpload.(*item.FileUpload)
+	f, ok := fileUpload.(*entities.FileUpload)
 	if !ok {
 		return fmt.Errorf("failed to delete file: invalid item matched: %T", fileUpload)
 	}

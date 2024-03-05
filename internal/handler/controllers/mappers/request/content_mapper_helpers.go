@@ -24,6 +24,7 @@ func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string
 	transformArrayFields(payload)
 
 	dec := schema.NewDecoder()
+
 	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
 	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
 	err := dec.Decode(entity, payload)
@@ -31,30 +32,12 @@ func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string
 		return nil, err
 	}
 
-	repeatLengthIdentifier, removedItemsIdentifier := getRepeatFieldIdentifiers(payload)
-	for jsonFieldName, length := range repeatLengthIdentifier {
-		fieldName := fieldNameByJSONTag(entity, jsonFieldName)
-		if fieldName == "" {
-			continue
-		}
-
-		v := reflect.Indirect(reflect.ValueOf(entity))
-		field := v.FieldByName(fieldName)
-		if !field.IsValid() || field.Len() == length {
-			continue
-		}
-
-		cleanedArray := reflect.MakeSlice(field.Type(), 0, length)
-		if removedItems, ok := removedItemsIdentifier[jsonFieldName]; ok {
-			for i := 0; i < field.Len(); i++ {
-				if !contains(removedItems, i) {
-					cleanedArray = reflect.Append(cleanedArray, field.Index(i))
-				}
-			}
-		}
-
-		field.Set(cleanedArray)
+	// we have to manually process field collections since gorilla/schema doesn't directly work with field collections
+	if err = buildFieldCollections(entity, payload, dec); err != nil {
+		return nil, err
 	}
+
+	cleanArrayFields(entity, payload)
 
 	return entity, nil
 }
@@ -137,7 +120,7 @@ func transformArrayFields(payload url.Values) {
 	}
 }
 
-func getRepeatFieldIdentifiers(payload url.Values) (map[string]int, map[string][]int) {
+func cleanArrayFields(entity interface{}, payload url.Values) {
 	repeatLengthIdentifier := make(map[string]int)
 	repeatRemovedItemsIdentifier := make(map[string][]int)
 
@@ -178,7 +161,97 @@ func getRepeatFieldIdentifiers(payload url.Values) (map[string]int, map[string][
 		}
 	}
 
-	return repeatLengthIdentifier, repeatRemovedItemsIdentifier
+	for jsonFieldName, length := range repeatLengthIdentifier {
+		fieldName := fieldNameByJSONTag(entity, jsonFieldName)
+		if fieldName == "" {
+			continue
+		}
+
+		v := reflect.Indirect(reflect.ValueOf(entity))
+		field := v.FieldByName(fieldName)
+
+		fieldCollections, isFieldCollections := (field.Interface()).(item.FieldCollections)
+		if isFieldCollections {
+			field = reflect.ValueOf(fieldCollections.Data())
+		}
+
+		if !field.IsValid() || util.SizeOfV(field) == length {
+			continue
+		}
+
+		cleanedArray := reflect.MakeSlice(field.Type(), 0, length)
+		if removedItems, ok := repeatRemovedItemsIdentifier[jsonFieldName]; ok {
+			for i := 0; i < field.Len(); i++ {
+				if !contains(removedItems, i) {
+					cleanedArray = reflect.Append(cleanedArray, field.Index(i))
+				}
+			}
+		}
+
+		if isFieldCollections {
+			fieldCollections.SetData(cleanedArray.Interface().([]item.FieldCollection))
+		} else {
+			field.Set(cleanedArray)
+		}
+	}
+}
+
+func buildFieldCollections(entity interface{}, payload map[string][]string, dec *schema.Decoder) error {
+	v := reflect.ValueOf(entity)
+	t := reflect.TypeOf(entity)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+		t = t.Elem()
+	}
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		sField := t.Field(i)
+
+		if field.IsValid() {
+			fieldValue := field.Interface()
+			fieldCollections, isFieldCollection := fieldValue.(item.FieldCollections)
+			if !isFieldCollection {
+				continue
+			}
+
+			jsonField, hasJsonField := sField.Tag.Lookup("json")
+			if !hasJsonField {
+				continue
+			}
+
+			allowedTypes := fieldCollections.AllowedTypes()
+			for j, fieldCollection := range fieldCollections.Data() {
+				valuePrefix := fmt.Sprintf("%s.%v.value", jsonField, j)
+				values := make(map[string][]string)
+
+				for entryKey, entryValue := range payload {
+					if strings.HasPrefix(entryKey, valuePrefix) {
+						key := strings.TrimPrefix(entryKey, valuePrefix)
+						if strings.HasPrefix(key, ".") {
+							key = strings.TrimPrefix(key, ".")
+						}
+
+						values[key] = entryValue
+					}
+				}
+
+				if len(values) == 0 {
+					continue
+				}
+
+				fieldCollection.Value = allowedTypes[fieldCollection.Type]()
+				if err := dec.Decode(fieldCollection.Value, values); err != nil {
+					return err
+				}
+
+				data := fieldCollections.Data()
+				data[j] = fieldCollection
+			}
+		}
+	}
+
+	return nil
 }
 
 func fieldNameByJSONTag(p interface{}, jsonTagName string) string {

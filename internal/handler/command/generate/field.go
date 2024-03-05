@@ -17,11 +17,11 @@ func parseField(raw string, gt *item.TypeDefinition) (*item.Field, error) {
 	}
 
 	data := strings.Split(raw, ":")
-	name := fieldName(data[0])
+	name, label := fieldName(data[0])
 
 	field := &item.Field{
 		Name:     name,
-		Label:    name,
+		Label:    label,
 		Initial:  gt.Initial,
 		JSONName: fieldJSONName(data[0]),
 	}
@@ -72,11 +72,15 @@ func setFieldTypeName(field *item.Field, fieldType string, gt *item.TypeDefiniti
 	}
 
 	field.TypeName = strings.ToLower(fieldType)
-	field.ReferenceName = fieldName(referenceType)
+	referenceName, _ := fieldName(referenceType)
+	field.ReferenceName = referenceName
 
-	if _, ok := item.Types[field.Name]; ok {
+	if _, ok := item.Types[field.ReferenceName]; ok {
 		field.IsReference = true
 		gt.HasReferences = true
+	} else if _, ok = item.FieldCollectionTypes[field.ReferenceName]; ok {
+		field.IsFieldCollection = true
+		field.TypeName = field.ReferenceName
 	} else {
 		field.IsNested = true
 		field.TypeName = field.ReferenceName
@@ -91,7 +95,14 @@ func setFieldTypeName(field *item.Field, fieldType string, gt *item.TypeDefiniti
 // get the initial field name passed and check it for all possible cases
 // MyTitle:string myTitle:string my_title:string -> MyTitle
 // error-message:string -> ErrorMessage
-func fieldName(name string) string {
+func fieldName(rawName string) (string, string) {
+	parts := strings.Split(rawName, ":")
+	name := parts[0]
+	label := parts[0]
+	if len(parts) > 1 {
+		label = parts[1]
+	}
+
 	// remove _ or - if first character
 	if name[0] == '-' || name[0] == '_' {
 		name = name[1:]
@@ -114,7 +125,7 @@ func fieldName(name string) string {
 		}
 	}
 
-	return name
+	return name, label
 }
 
 // get the initial field name passed and convert to json-like name

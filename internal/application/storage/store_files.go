@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"mime/multipart"
 	"strings"
@@ -39,7 +40,7 @@ func (s *service) StoreFiles(files map[string]*multipart.FileHeader) (map[string
 
 func (s *service) storeFileInfo(size int64, filename, urlPath string, file *multipart.FileHeader) error {
 	ts := int64(time.Nanosecond) * time.Now().UTC().UnixNano() / int64(time.Millisecond)
-	entity := &item.FileUpload{
+	entity := &entities.FileUpload{
 		Name:          filename,
 		Path:          urlPath,
 		ContentLength: size,

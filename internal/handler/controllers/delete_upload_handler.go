@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/storage"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
@@ -36,7 +37,7 @@ func NewDeleteUploadHandler(configService config.Service, storageService storage
 			return
 		}
 
-		post := interface{}(&item.FileUpload{})
+		post := interface{}(&entities.FileUpload{})
 		hook, ok := post.(item.Hookable)
 		if !ok {
 			log.Println("Type", storage.UploadsEntityName, "does not implement item.Hookable or embed item.Item.")
