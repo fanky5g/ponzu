@@ -53,7 +53,6 @@ func RegisterRoutes(services application.Services, middlewares middleware.Middle
 
 	http.HandleFunc("/edit", Auth(NewEditHandler(configService, contentService, storageService)))
 	http.HandleFunc("/edit/delete", Auth(NewDeleteHandler(configService, contentService)))
-	http.HandleFunc("/edit/approve", Auth(NewApproveContentHandler(configService, contentService)))
 	http.HandleFunc("/edit/upload", Auth(NewEditUploadHandler(configService, storageService)))
 	http.HandleFunc("/edit/upload/delete", Auth(NewDeleteUploadHandler(configService, storageService)))
 

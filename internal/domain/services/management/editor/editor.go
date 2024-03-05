@@ -5,20 +5,11 @@ package editor
 import (
 	"bytes"
 	"log"
-	"net/http"
 )
 
 // Editable ensures data is editable
 type Editable interface {
 	MarshalEditor() ([]byte, error)
-}
-
-// Mergeable allows external post content to be approved and published through
-// the public-facing API
-type Mergeable interface {
-	// Approve copies an external post to the internal collection and triggers
-	// a re-sort of its content type posts
-	Approve(http.ResponseWriter, *http.Request) error
 }
 
 // Editor is a view containing fields to manage content
@@ -134,19 +125,6 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
 </div>
 `
-	_, ok := post.(Mergeable)
-	if ok {
-		submit +=
-			`
-<div class="row external post-controls">
-	<div class="col s12 input-field">
-		<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
-		<button class="right waves-effect waves-light btn grey darken-2 reject-post" type="submit">Reject</button>
-	</div>	
-	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published. By clicking 'Reject', it will be deleted.</label> 
-</div>
-`
-	}
 
 	script := `
 <script>
