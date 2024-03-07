@@ -225,7 +225,7 @@ li:hover .quick-delete-post, li:hover .delete-user {
     top: -10px;
 }
 
-tr.default-fields, tr.editor-fields {
+div.editor-content, div.editor-metadata {
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -311,4 +311,16 @@ div.col.s6:has(select.block-select) {
 
 .block-select + .controls {
     margin-top: 20px;
+}
+
+.tabs .tab a, .tabs .tab a:hover {
+    color: #039be5;
+}
+
+.tabs .indicator {
+    background-color: #039be5;
+}
+
+.tabs {
+    border-bottom: 1px solid #e0e0e0;
 }
