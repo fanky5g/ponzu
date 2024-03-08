@@ -52,6 +52,7 @@ func New(
 	configRepository interfaces.ConfigRepositoryInterface,
 	searchClient interfaces.SearchClientInterface,
 ) (Service, error) {
+	// TODO: move index initialization to search client
 	for itemName, itemType := range item.Types {
 		if _, err := searchClient.GetIndex(itemName); err != nil {
 			err = searchClient.CreateIndex(itemName, itemType())
