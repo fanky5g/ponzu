@@ -8,6 +8,26 @@
         const templatesString = "{{ .FieldCollectionTemplates }}";
         let templates = {};
 
+        const getChildren = function() {
+            // TODO: add a better child selector
+            const children = [];
+            const p = scope.find('fieldset.col.s12');
+            const scopeSelector = "{{ .Scope }}";
+            for (let i = 0; i < p.length; i++) {
+                const el = p[i];
+                const inputName = `input[name="${scopeSelector}.${i}.type"]`;
+                const fieldCollectionTypeInput = $(el).find(inputName);
+                if (fieldCollectionTypeInput.length) {
+                    children.push({
+                        blockType: $(fieldCollectionTypeInput).val(),
+                        child: el,
+                    });
+                }
+            }
+
+            return children;
+        };
+
         if (templatesString) {
             try {
                 templates = JSON.parse("{{ .FieldCollectionTemplates }}");
@@ -67,7 +87,7 @@
             removedElementsInput.val([currentValue, elementIndex].filter(el => el.toString().trim() !== "").join(','));
         }
 
-        const createChildControls = function (elementIndex) {
+        const createChildControls = function (elementIndex, blockType = activeBlock) {
             const del = $('<button>-</button>');
             del.addClass('repeater-del');
             del.addClass('btn-flat waves-effect waves-red');
@@ -77,7 +97,7 @@
             controls.addClass('right');
 
             // bind listeners to child's controls
-            const deleteOperation = delRepeater.bind(this, elementIndex, activeBlock);
+            const deleteOperation = delRepeater.bind(this, elementIndex, blockType);
             del.on('click', function (e) {
                 e.preventDefault();
 
@@ -133,13 +153,20 @@
         }
 
         function initialize() {
+            const children = getChildren();
+            for (let i = 0; i < children.length; i++) {
+                const el = children[i].child;
+
+                const controls = createChildControls(i, children[i].blockType);
+                $(el).append(controls);
+            }
+
             const select = scope.find('select.{{ .BlockSelector }}');
             if (select.length) {
                 select.on("change", onSelect);
                 const selectorControls = createSelectorControls();
                 selectorControls.insertAfter(select);
             }
-
         }
 
         initialize();
