@@ -15,8 +15,11 @@ import (
 	"time"
 )
 
-var ErrUnsupportedContentType = errors.New("unsupported content type")
-var PonzuRepeatPrefix = ".__ponzu-repeat"
+var (
+	ErrUnsupportedContentType  = errors.New("unsupported content type")
+	PonzuRepeatPrefix          = ".__ponzu-repeat"
+	PonzuFieldCollectionPrefix = ".__ponzu-field-collection"
+)
 
 func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string) (interface{}, error) {
 	entity := t()
@@ -125,8 +128,16 @@ func cleanArrayFields(entity interface{}, payload url.Values) {
 	repeatRemovedItemsIdentifier := make(map[string][]int)
 
 	for k, v := range payload {
+		repeatPrefix := ""
 		if strings.HasPrefix(k, PonzuRepeatPrefix) {
-			ponzuRepeatIdentifier := strings.TrimPrefix(k, PonzuRepeatPrefix)
+			repeatPrefix = PonzuRepeatPrefix
+		} else if strings.HasPrefix(k, PonzuFieldCollectionPrefix) {
+			repeatPrefix = PonzuFieldCollectionPrefix
+		}
+
+		if repeatPrefix != "" {
+			ponzuRepeatIdentifier := strings.TrimPrefix(k, repeatPrefix)
+
 			if strings.HasSuffix(ponzuRepeatIdentifier, ".length") {
 				if len(v) > 0 {
 					if length, err := strconv.Atoi(v[0]); err == nil {

@@ -141,7 +141,7 @@ var serveCmd = &cobra.Command{
 
 		contentService, err := content.New(contentRepository, configRepository, contentSearchClient)
 		if err != nil {
-			log.Fatalf("Failed to initialize content services: %v", err)
+			log.Fatalf("Failed to initialize content service: %v", err)
 		}
 		services[content.ServiceToken] = contentService
 

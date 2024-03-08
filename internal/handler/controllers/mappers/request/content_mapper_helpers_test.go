@@ -382,21 +382,21 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 
 func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCollections2() {
 	payload := url.Values{
-		"id":                                     []string{"6"},
-		"uuid":                                   []string{"183a4535-f015-4660-bb8f-6541522e9afb"},
-		"slug":                                   []string{"page-183a4535-f015-4660-bb8f-6541522e9afb"},
-		"timestamp":                              []string{"1707647434000"},
-		"updated":                                []string{"1707647434000"},
-		"title":                                  []string{"Home"},
-		"url":                                    []string{"https://ponzu.domain"},
-		"content_blocks.0.type":                  []string{"TextBlock"},
-		"content_blocks.0.value.text":            []string{"This is some WYSIWYG content"},
-		"content_blocks.3.type":                  []string{"TextBlock"},
-		"content_blocks.3.value.text":            []string{"This is some WYSIWYG content 3"},
-		"content_blocks.5.type":                  []string{"TextBlock"},
-		"content_blocks.5.value.text":            []string{"This is some WYSIWYG content 5"},
-		".__ponzu-repeat.content_blocks.length":  []string{"3"},
-		".__ponzu-repeat.content_blocks.removed": []string{"1,2,4"},
+		"id":                          []string{"6"},
+		"uuid":                        []string{"183a4535-f015-4660-bb8f-6541522e9afb"},
+		"slug":                        []string{"page-183a4535-f015-4660-bb8f-6541522e9afb"},
+		"timestamp":                   []string{"1707647434000"},
+		"updated":                     []string{"1707647434000"},
+		"title":                       []string{"Home"},
+		"url":                         []string{"https://ponzu.domain"},
+		"content_blocks.0.type":       []string{"TextBlock"},
+		"content_blocks.0.value.text": []string{"This is some WYSIWYG content"},
+		"content_blocks.3.type":       []string{"TextBlock"},
+		"content_blocks.3.value.text": []string{"This is some WYSIWYG content 3"},
+		"content_blocks.5.type":       []string{"TextBlock"},
+		"content_blocks.5.value.text": []string{"This is some WYSIWYG content 5"},
+		".__ponzu-field-collection.content_blocks.length":  []string{"3"},
+		".__ponzu-field-collection.content_blocks.removed": []string{"1,2,4"},
 	}
 
 	var t item.EntityBuilder = func() interface{} {
