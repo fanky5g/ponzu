@@ -1,4 +1,4 @@
 View: editor.Richtext("{{ .Name }}", {{ .Initial }}, map[string]string{
     "label":       "{{ .Label }}",
     "placeholder": "Enter the {{ .Label }} here",
-}),
+}, {{ .FieldGeneratorArgsVar }}),

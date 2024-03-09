@@ -48,14 +48,16 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 		return "", err
 	}
 
-	var index interfaces.SearchIndexInterface
-	index, err = s.searchClient.GetIndex(s.getEntityType(entityType))
-	if err != nil {
-		return "", fmt.Errorf("failed to index %s for search: %v", entityType, err)
-	}
+	if searchable, ok := entity.(interfaces.Searchable); ok && searchable.IndexContent() {
+		var index interfaces.SearchIndexInterface
+		index, err = s.searchClient.GetIndex(s.getEntityType(entityType))
+		if err != nil {
+			return "", fmt.Errorf("failed to index %s for search: %v", entityType, err)
+		}
 
-	if err = index.Update(id, entity); err != nil {
-		return "", err
+		if err = index.Update(id, entity); err != nil {
+			return "", err
+		}
 	}
 
 	return fmt.Sprint(id), nil

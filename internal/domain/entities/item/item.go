@@ -93,9 +93,6 @@ type Hookable interface {
 	BeforeDelete(http.ResponseWriter, *http.Request) error
 	AfterDelete(http.ResponseWriter, *http.Request) error
 
-	BeforeApprove(http.ResponseWriter, *http.Request) error
-	AfterApprove(http.ResponseWriter, *http.Request) error
-
 	BeforeReject(http.ResponseWriter, *http.Request) error
 	AfterReject(http.ResponseWriter, *http.Request) error
 
@@ -273,16 +270,6 @@ func (i *Item) BeforeDelete(res http.ResponseWriter, req *http.Request) error {
 
 // AfterDelete is a no-op to ensure structs which embed Item implement Hookable
 func (i *Item) AfterDelete(res http.ResponseWriter, req *http.Request) error {
-	return nil
-}
-
-// BeforeApprove is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) BeforeApprove(res http.ResponseWriter, req *http.Request) error {
-	return nil
-}
-
-// AfterApprove is a no-op to ensure structs which embed Item implement Hookable
-func (i *Item) AfterApprove(res http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 

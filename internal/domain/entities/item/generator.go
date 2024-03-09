@@ -6,6 +6,7 @@ type (
 		Label         string
 		Initial       string
 		Fields        []Field
+		ContentBlocks []ContentBlock
 		HasReferences bool
 	}
 
@@ -20,7 +21,13 @@ type (
 
 		IsReference       bool
 		IsNested          bool
+		IsFieldCollection bool
 		ReferenceName     string
 		ReferenceJSONTags []string
+	}
+
+	ContentBlock struct {
+		TypeName string
+		Label    string
 	}
 )

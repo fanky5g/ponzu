@@ -127,6 +127,8 @@ textarea {
 
 .material-icons {
     line-height: 1.4;
+    vertical-align: middle;
+    margin-right: 8px;
 }
 
 .clear {
@@ -225,7 +227,7 @@ li:hover .quick-delete-post, li:hover .delete-user {
     top: -10px;
 }
 
-tr.default-fields, tr.editor-fields {
+div.editor-content, div.editor-metadata {
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -283,15 +285,44 @@ select {
     max-width: 100%;
 }
 
-fieldset > label {
+fieldset > label, .__ponzu-field-collection > label {
     font-size: 14px;
 }
 
-.__ponzu-repeat > label:first-of-type {
+fieldset.col.s12 {
+    padding-top: 16px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+fieldset.col.s12:last-of-type {
+    border-bottom: 0;
+}
+
+.__ponzu-repeat > label:first-of-type, .__ponzu-field-collection > label:first-of-type {
     display: block;
     margin-bottom: 16px;
 }
 
 .__ponzu-repeat > .parent.controls {
     padding-top: 16px;
+}
+
+div.col.s6:has(select.block-select) {
+    margin-top: 2.5rem;
+}
+
+.block-select + .controls {
+    margin-top: 20px;
+}
+
+.tabs .tab a, .tabs .tab a:hover {
+    color: #039be5;
+}
+
+.tabs .indicator {
+    background-color: #039be5;
+}
+
+.tabs {
+    border-bottom: 1px solid #e0e0e0;
 }

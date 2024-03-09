@@ -1,7 +1,8 @@
-package item
+package entities
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"reflect"
 	"time"
@@ -9,7 +10,7 @@ import (
 
 // FileUpload represents the file uploaded to the system
 type FileUpload struct {
-	Item
+	item.Item
 
 	Name          string `json:"name"`
 	Path          string `json:"path"`

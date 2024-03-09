@@ -12,6 +12,50 @@ import (
 	"testing"
 )
 
+type page struct {
+	item.Item
+
+	Title         string             `json:"title"`
+	URL           string             `json:"url"`
+	ContentBlocks *pageContentBlocks `json:"content_blocks"`
+}
+
+type pageContentBlocks []item.FieldCollection
+
+type textBlock struct {
+	Text string `json:"text"`
+}
+
+func (p *pageContentBlocks) Name() string {
+	return "Page Content Blocks"
+}
+
+func (p *pageContentBlocks) Data() []item.FieldCollection {
+	return *p
+}
+
+func (p *pageContentBlocks) Add(fieldCollection item.FieldCollection) {
+	*p = append(*p, fieldCollection)
+}
+
+func (p *pageContentBlocks) Set(i int, fieldCollection item.FieldCollection) {
+	data := p.Data()
+	data[i] = fieldCollection
+	*p = data
+}
+
+func (p *pageContentBlocks) SetData(data []item.FieldCollection) {
+	*p = data
+}
+
+func (p *pageContentBlocks) AllowedTypes() map[string]item.EntityBuilder {
+	return map[string]item.EntityBuilder{
+		"TextBlock": func() interface{} {
+			return new(textBlock)
+		},
+	}
+}
+
 type ContentMapperHelpersTestSuite struct {
 	suite.Suite
 }
@@ -141,14 +185,6 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntity() {
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedEntity, entity)
 	}
-
-	//type Author struct {
-	//	Name string `json:"name"`
-	//	Age  int    `json:"age"`
-	//}
-	//"author.age": []string{"25"},
-	//	"author.name": []string{"Foo Bar"},
-
 }
 
 func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedStruct() {
@@ -287,6 +323,114 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 			{
 				Name: "Foo Bar 5",
 				Age:  50,
+			},
+		},
+	}
+
+	entity, err := mapPayloadToGenericEntity(t, payload)
+	if assert.NoError(suite.T(), err) {
+		assert.Equal(suite.T(), expectedEntity, entity)
+	}
+}
+
+func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCollections() {
+	payload := url.Values{
+		"id":                          []string{"6"},
+		"uuid":                        []string{"183a4535-f015-4660-bb8f-6541522e9afb"},
+		"slug":                        []string{"page-183a4535-f015-4660-bb8f-6541522e9afb"},
+		"timestamp":                   []string{"1707647434000"},
+		"updated":                     []string{"1707647434000"},
+		"title":                       []string{"Home"},
+		"url":                         []string{"https://ponzu.domain"},
+		"content_blocks.0.type":       []string{"TextBlock"},
+		"content_blocks.0.value.text": []string{"This is some WYSIWYG content"},
+	}
+
+	var t item.EntityBuilder = func() interface{} {
+		return new(page)
+	}
+
+	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
+	if err != nil {
+		suite.FailNow(err.Error())
+		return
+	}
+
+	expectedEntity := &page{
+		Item: item.Item{
+			ID:        "6",
+			UUID:      uid,
+			Slug:      "page-183a4535-f015-4660-bb8f-6541522e9afb",
+			Timestamp: 1707647434000,
+			Updated:   1707647434000,
+		},
+		Title: "Home",
+		URL:   "https://ponzu.domain",
+		ContentBlocks: &pageContentBlocks{
+			{
+				Type:  "TextBlock",
+				Value: &textBlock{Text: "This is some WYSIWYG content"},
+			},
+		},
+	}
+
+	entity, err := mapPayloadToGenericEntity(t, payload)
+	if assert.NoError(suite.T(), err) {
+		assert.Equal(suite.T(), expectedEntity, entity)
+	}
+}
+
+func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCollections2() {
+	payload := url.Values{
+		"id":                          []string{"6"},
+		"uuid":                        []string{"183a4535-f015-4660-bb8f-6541522e9afb"},
+		"slug":                        []string{"page-183a4535-f015-4660-bb8f-6541522e9afb"},
+		"timestamp":                   []string{"1707647434000"},
+		"updated":                     []string{"1707647434000"},
+		"title":                       []string{"Home"},
+		"url":                         []string{"https://ponzu.domain"},
+		"content_blocks.0.type":       []string{"TextBlock"},
+		"content_blocks.0.value.text": []string{"This is some WYSIWYG content"},
+		"content_blocks.3.type":       []string{"TextBlock"},
+		"content_blocks.3.value.text": []string{"This is some WYSIWYG content 3"},
+		"content_blocks.5.type":       []string{"TextBlock"},
+		"content_blocks.5.value.text": []string{"This is some WYSIWYG content 5"},
+		".__ponzu-field-collection.content_blocks.length":  []string{"3"},
+		".__ponzu-field-collection.content_blocks.removed": []string{"1,2,4"},
+	}
+
+	var t item.EntityBuilder = func() interface{} {
+		return new(page)
+	}
+
+	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
+	if err != nil {
+		suite.FailNow(err.Error())
+		return
+	}
+
+	expectedEntity := &page{
+		Item: item.Item{
+			ID:        "6",
+			UUID:      uid,
+			Slug:      "page-183a4535-f015-4660-bb8f-6541522e9afb",
+			Timestamp: 1707647434000,
+			Updated:   1707647434000,
+		},
+		Title: "Home",
+		URL:   "https://ponzu.domain",
+		ContentBlocks: &pageContentBlocks{
+			{
+				Type:  "TextBlock",
+				Value: &textBlock{Text: "This is some WYSIWYG content"},
+			},
+			{
+				Type:  "TextBlock",
+				Value: &textBlock{Text: "This is some WYSIWYG content 3"},
+			},
+			{
+				Type:  "TextBlock",
+				Value: &textBlock{Text: "This is some WYSIWYG content 5"},
 			},
 		},
 	}

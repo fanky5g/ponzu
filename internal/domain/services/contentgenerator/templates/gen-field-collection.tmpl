@@ -1,0 +1,86 @@
+package content
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+)
+
+type {{ .Name }} []item.FieldCollection
+
+func ({{ .Initial }} *{{ .Name }}) Name() string {
+	return "{{ .Label }}"
+}
+
+func ({{ .Initial }} *{{ .Name }}) Data() []item.FieldCollection {
+	if p == nil {
+		return nil
+	}
+
+	return *p
+}
+
+func ({{ .Initial }} *{{ .Name }}) AllowedTypes() map[string]item.EntityBuilder {
+	return map[string]item.EntityBuilder{
+	    {{- range .ContentBlocks }}
+	        "{{ .TypeName }}": func() interface{} {
+                return new({{ .TypeName }})
+            },
+	    {{- end }}
+	}
+}
+
+func ({{ .Initial }} *{{ .Name }}) Add(fieldCollection item.FieldCollection) {
+	*p = append(*p, fieldCollection)
+}
+
+func ({{ .Initial }} *{{ .Name }}) Set(i int, fieldCollection item.FieldCollection) {
+	data := p.Data()
+	data[i] = fieldCollection
+	*p = data
+}
+
+func ({{ .Initial }} *{{ .Name }}) SetData(data []item.FieldCollection) {
+	*p = data
+}
+
+func ({{ .Initial }} *{{ .Name }}) UnmarshalJSON(b []byte) error {
+	if p == nil {
+		*p = make([]item.FieldCollection, 0)
+	}
+
+	allowedTypes := p.AllowedTypes()
+
+	var value []item.FieldCollection
+	if err := json.Unmarshal(b, &value); err != nil {
+		return err
+	}
+
+	for i, t := range value {
+		builder, ok := allowedTypes[t.Type]
+		if !ok {
+			return fmt.Errorf("type %s not implemented", t.Type)
+		}
+
+		entity := builder()
+		byteRepresentation, err := json.Marshal(t.Value)
+		if err != nil {
+			return err
+		}
+
+		if err = json.Unmarshal(byteRepresentation, entity); err != nil {
+			return err
+		}
+
+		value[i].Value = entity
+	}
+
+	*p = value
+	return nil
+}
+
+func init() {
+	item.FieldCollectionTypes["{{ .Name }}"] = func() interface{} {
+		return new({{ .Name }})
+	}
+}

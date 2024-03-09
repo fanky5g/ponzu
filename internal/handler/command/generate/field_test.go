@@ -1,26 +1,6 @@
 package generate
 
-import (
-	"testing"
-)
-
-func TestParseType(t *testing.T) {
-	// blog title:string Author:string PostCategory:string content:string some_thing:int
-	args := []string{
-		"blog", "title:string", "Author:string",
-		"PostCategory:string", "content:string",
-		"some_thing:int", "Some_otherThing:float64",
-	}
-
-	gt, err := parseType(args)
-	if err != nil {
-		t.Errorf("Failed: %s", err.Error())
-	}
-
-	if gt.Name != "Blog" {
-		t.Errorf("Expected %s, got: %s", "Blog", gt.Name)
-	}
-}
+import "testing"
 
 func TestFieldJSONName(t *testing.T) {
 	cases := map[string]string{
@@ -59,9 +39,9 @@ func TestFieldName(t *testing.T) {
 	}
 
 	for input, expected := range cases {
-		output := fieldName(input)
-		if output != expected {
-			t.Errorf("Expected: %s, got: %s", expected, output)
+		name, _ := fieldName(input)
+		if name != expected {
+			t.Errorf("Expected: %s, got: %s", expected, name)
 		}
 	}
 }

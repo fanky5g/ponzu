@@ -1,0 +1,174 @@
+<script>
+    $(function() {
+        let n = {{ .NumItems }};
+        let size = {{ .NumItems }};
+
+        const scope = $('.__ponzu-field-collection.{{ .Scope }}');
+        let activeBlock = "";
+        const templatesString = "{{ .FieldCollectionTemplates }}";
+        let templates = {};
+
+        const getChildren = function() {
+            // TODO: add a better child selector
+            const children = [];
+            const p = scope.find('fieldset.col.s12');
+            const scopeSelector = "{{ .Scope }}";
+            for (let i = 0; i < p.length; i++) {
+                const el = p[i];
+                const inputName = `input[name="${scopeSelector}.${i}.type"]`;
+                const fieldCollectionTypeInput = $(el).find(inputName);
+                if (fieldCollectionTypeInput.length) {
+                    children.push({
+                        blockType: $(fieldCollectionTypeInput).val(),
+                        child: el,
+                    });
+                }
+            }
+
+            return children;
+        };
+
+        if (templatesString) {
+            try {
+                templates = JSON.parse("{{ .FieldCollectionTemplates }}");
+            } catch (e) {
+                console.error("Failed to parse templates", e);
+            }
+        }
+
+        const onSelect = function(e) {
+            e.preventDefault();
+            activeBlock = e.target.value;
+
+            const addButton = scope.find('button.add-block');
+            addButton.prop('disabled', false);
+        };
+
+        const resetSelectBlock = function () {
+            const select = scope.find('select.{{ .BlockSelector }}');
+            if (select.length) {
+                select.val('');
+            }
+
+            const addButton = scope.find('button.add-block');
+            addButton.prop('disabled', true);
+        }
+
+        const setHiddenInputValue = function (name, value) {
+            const selectorName= '.__ponzu-field-collection.{{ .Scope }}.' + name;
+            let input = scope.find(`input[name="${selectorName}"]`).first();
+            if (!input.length) {
+                input = $(`<input name="${selectorName}" type="hidden" value="" />`);
+                $(scope).append(input);
+            }
+
+            input.val(value);
+        }
+
+        const deleteChild = function (el, elementType) {
+            const wrapper = $(el).parent().closest('.' + elementType);
+            wrapper.remove();
+
+            size = size - 1;
+            setHiddenInputValue("length", size);
+        }
+
+        const delRepeater = function (elementIndex, elementType, e) {
+            e.preventDefault();
+            let removedElementsInput = scope.find('input[name=".__ponzu-field-collection.{{ .Scope }}.removed"]').first();
+            if (!removedElementsInput.length) {
+                removedElementsInput = $('<input name=".__ponzu-field-collection.{{ .Scope }}.removed" type="hidden" value="" />');
+                $(scope).append(removedElementsInput);
+            }
+
+            deleteChild(e.target, elementType);
+
+            const currentValue = removedElementsInput.val();
+            removedElementsInput.val([currentValue, elementIndex].filter(el => el.toString().trim() !== "").join(','));
+        }
+
+        const createChildControls = function (elementIndex, blockType = activeBlock) {
+            const del = $('<button>-</button>');
+            del.addClass('repeater-del');
+            del.addClass('btn-flat waves-effect waves-red');
+
+            const controls = $('<span></span>');
+            controls.addClass('controls');
+            controls.addClass('right');
+
+            // bind listeners to child's controls
+            const deleteOperation = delRepeater.bind(this, elementIndex, blockType);
+            del.on('click', function (e) {
+                e.preventDefault();
+
+                deleteOperation(e);
+            });
+
+            controls.append(del);
+
+            return controls;
+        }
+
+        const addBlock = function(e, i) {
+            e.preventDefault();
+
+            const template = templates[activeBlock];
+            const child = template.replace(new RegExp('{{ .PositionalPlaceholder }}', 'g'), i);
+            const el = $('<div/>').html(child).contents();
+
+            const selectControl = $('.__ponzu-field-collection.{{ .Scope }} select.{{ .BlockSelector }}').parent();
+            if (selectControl.length) {
+                el.insertBefore(selectControl);
+            } else {
+                scope.append(el);
+            }
+
+            const controls = createChildControls(i);
+            $(el).append(controls);
+
+            n++; size++;
+            setHiddenInputValue("length", size);
+            resetSelectBlock();
+        }
+
+        const createSelectorControls = function() {
+            const container = $('<div></div>');
+            container.addClass('selector');
+            container.addClass('controls');
+
+            const add = $('<button disabled>Add</button>');
+            add.addClass('add-block');
+            add.addClass('right waves-effect waves-light btn green');
+
+            const controls = $('<span></span>');
+            controls.addClass('right');
+
+            add.on('click', function (e) {
+                addBlock(e, n);
+            });
+            controls.append(add);
+            container.append(controls);
+
+            return container;
+        }
+
+        function initialize() {
+            const children = getChildren();
+            for (let i = 0; i < children.length; i++) {
+                const el = children[i].child;
+
+                const controls = createChildControls(i, children[i].blockType);
+                $(el).append(controls);
+            }
+
+            const select = scope.find('select.{{ .BlockSelector }}');
+            if (select.length) {
+                select.on("change", onSelect);
+                const selectorControls = createSelectorControls();
+                selectorControls.insertAfter(select);
+            }
+        }
+
+        initialize();
+    });
+</script>

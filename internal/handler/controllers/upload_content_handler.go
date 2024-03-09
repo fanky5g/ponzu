@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/internal/application/config"
 	"github.com/fanky5g/ponzu/internal/application/storage"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
@@ -22,7 +22,7 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 			return
 		}
 
-		pt := interface{}(&item.FileUpload{})
+		pt := interface{}(&entities.FileUpload{})
 		_, ok := pt.(editor.Editable)
 		if !ok {
 			LogAndFail(res, err, appName)

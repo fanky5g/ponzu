@@ -4,21 +4,13 @@ package editor
 
 import (
 	"bytes"
+	"github.com/fanky5g/ponzu/internal/util"
 	"log"
-	"net/http"
 )
 
 // Editable ensures data is editable
 type Editable interface {
 	MarshalEditor() ([]byte, error)
-}
-
-// Mergeable allows external post content to be approved and published through
-// the public-facing API
-type Mergeable interface {
-	// Approve copies an external post to the internal collection and triggers
-	// a re-sort of its content type posts
-	Approve(http.ResponseWriter, *http.Request) error
 }
 
 // Editor is a view containing fields to manage content
@@ -43,7 +35,17 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 	editor := &Editor{}
 
 	editor.ViewBuf = &bytes.Buffer{}
-	_, err := editor.ViewBuf.WriteString(`<table><tbody class="row"><tr class="col s8 editor-fields"><td class="col s12">`)
+	_, err := editor.ViewBuf.WriteString(`
+		<div class="row">
+			<div class="col s12">
+			  <ul class="tabs">
+				<li class="tab col s3"><a class="active" href="#content"><i class="material-icons">edit</i>Edit</a></li>
+				<li class="tab col s3"><a href="#properties"><i class="material-icons">tune</i>Properties</a></li>
+			  </ul>
+			</div>
+			<div id="content" class="col s12 editor-content">
+	`)
+
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
@@ -55,69 +57,22 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		}
 	}
 
-	_, err = editor.ViewBuf.WriteString(`</td></tr>`)
+	_, err = editor.ViewBuf.WriteString(`</div>`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
 	}
 
 	// content items with Item embedded have some default fields we need to render
-	_, err = editor.ViewBuf.WriteString(`<tr class="col s4 default-fields"><td class="col s12">`)
+	_, err = editor.ViewBuf.WriteString(`<div id="properties" class="col s12 editor-metadata">`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
 	}
 
-	publishTime := `
-<div class="row content-only __ponzu">
-	<div class="input-field col s6">
-		<label class="active">MM</label>
-		<select class="month __ponzu browser-default">
-			<option value="1">Jan - 01</option>
-			<option value="2">Feb - 02</option>
-			<option value="3">Mar - 03</option>
-			<option value="4">Apr - 04</option>
-			<option value="5">May - 05</option>
-			<option value="6">Jun - 06</option>
-			<option value="7">Jul - 07</option>
-			<option value="8">Aug - 08</option>
-			<option value="9">Sep - 09</option>
-			<option value="10">Oct - 10</option>
-			<option value="11">Nov - 11</option>
-			<option value="12">Dec - 12</option>
-		</select>
-	</div>
-	<div class="input-field col s2">
-		<label class="active">DD</label>
-		<input value="" class="day __ponzu" maxlength="2" type="text" placeholder="DD" />
-	</div>
-	<div class="input-field col s4">
-		<label class="active">YYYY</label>
-		<input value="" class="year __ponzu" maxlength="4" type="text" placeholder="YYYY" />
-	</div>
-</div>
+	contentMetadata := util.Html("editor_content_metadata")
 
-<div class="row content-only __ponzu">
-	<div class="input-field col s3">
-		<label class="active">HH</label>
-		<input value="" class="hour __ponzu" maxlength="2" type="text" placeholder="HH" />
-	</div>
-	<div class="col s1">:</div>
-	<div class="input-field col s3">
-		<label class="active">MM</label>
-		<input value="" class="minute __ponzu" maxlength="2" type="text" placeholder="MM" />
-	</div>
-	<div class="input-field col s4">
-		<label class="active">Period</label>
-		<select class="period __ponzu browser-default">
-			<option value="AM">AM</option>
-			<option value="PM">PM</option>
-		</select>
-	</div>
-</div>
-	`
-
-	_, err = editor.ViewBuf.WriteString(publishTime)
+	_, err = editor.ViewBuf.WriteString(contentMetadata)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
@@ -128,97 +83,20 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		return nil, err
 	}
 
-	submit := `
-<div class="input-field post-controls">
-	<button class="right waves-effect waves-light btn green save-post" type="submit">Save</button>
-	<button class="right waves-effect waves-light btn red delete-post" type="submit">Delete</button>
-</div>
-`
-	_, ok := post.(Mergeable)
-	if ok {
-		submit +=
-			`
-<div class="row external post-controls">
-	<div class="col s12 input-field">
-		<button class="right waves-effect waves-light btn blue approve-post" type="submit">Approve</button>
-		<button class="right waves-effect waves-light btn grey darken-2 reject-post" type="submit">Reject</button>
-	</div>	
-	<label class="approve-details right-align col s12">This content is pending approval. By clicking 'Approve', it will be immediately published. By clicking 'Reject', it will be deleted.</label> 
-</div>
-`
-	}
-
-	script := `
-<script>
-	$(function() {
-		var form = $('form'),
-			save = form.find('button.save-post'),
-			del = form.find('button.delete-post'),
-			external = form.find('.post-controls.external'),
-			id = form.find('input[name=id]'),
-			timestamp = $('.__ponzu.content-only'),
-			slug = $('input[name=slug]');
-		
-		// hide if this is a new post, or a non-post editor page
-		if (id.val() === '-1' || form.attr('action') !== '/edit') {
-			del.hide();
-			external.hide();
-		}
-
-		// hide approval if not on a pending content item
-		if (getParam('status') !== 'pending') {
-			external.hide();
-		}
-
-		save.on('click', function(e) {
-			e.preventDefault();
-
-			if (getParam('status') === 'pending') {
-				var action = form.attr('action');
-				form.attr('action', action + '?status=pending')
-			}
-
-			form.submit();
-		});
-
-		del.on('click', function(e) {
-			e.preventDefault();
-			var action = form.attr('action');
-			action = action + '/delete';
-			form.attr('action', action);
-			
-			if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
-				form.submit();
-			}
-		});
-
-		external.find('button.approve-post').on('click', function(e) {
-			e.preventDefault();
-			var action = form.attr('action');
-			action = action + '/approve';
-			form.attr('action', action);
-
-			form.submit();
-		});
-
-		external.find('button.reject-post').on('click', function(e) {
-			e.preventDefault();
-			var action = form.attr('action');
-			action = action + '/delete?reject=true';
-			form.attr('action', action);
-
-			if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to reject this post?\nDoing so will delete it, and cannot be undone.")) {
-				form.submit();
-			}
-		});
-	});
-</script>
-`
-	_, err = editor.ViewBuf.WriteString(submit + script + `</td></tr></tbody></table>`)
+	_, err = editor.ViewBuf.WriteString(`</div>`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
 	}
+
+	script := &bytes.Buffer{}
+	scriptTmpl := util.MakeScript("editor")
+	if err = scriptTmpl.Execute(script, nil); err != nil {
+		panic(err)
+	}
+
+	editorControls := util.Html("editor_controls")
+	_, err = editor.ViewBuf.WriteString(editorControls + script.String() + `</div>`)
 
 	return editor.ViewBuf.Bytes(), nil
 }

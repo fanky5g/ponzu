@@ -2,6 +2,7 @@ package editor
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/util"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -21,22 +22,47 @@ func TagNameFromStructField(name string, post interface{}, args *FieldArgs) stri
 
 	parts := strings.Split(name, ".")
 	fieldName := parts[0]
-	t := reflect.TypeOf(post)
+	v := reflect.ValueOf(post)
+	t := v.Type()
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
 
 	if t.Kind() == reflect.Slice || t.Kind() == reflect.Array {
 		t = t.Elem()
-	}
 
-	if _, err := strconv.Atoi(fieldName); err == nil || positionalPlaceholderRegexp.MatchString(fieldName) {
-		if len(parts) > 1 {
-			nestedName := TagNameFromStructField(strings.Join(parts[1:], "."), post, nil)
-			return strings.Join([]string{fieldName, nestedName}, ".")
+		arrayEntityType := reflect.TypeOf(v.Interface()).Elem()
+		if i, err := strconv.Atoi(fieldName); err == nil {
+			if len(parts) > 1 {
+				size := util.SizeOfV(v)
+				var value interface{}
+				if i < size {
+					value = util.IndexAt(v, i)
+				} else {
+					value = util.MakeType(arrayEntityType)
+				}
+
+				nestedName := TagNameFromStructField(strings.Join(parts[1:], "."), value, nil)
+				return strings.Join([]string{fieldName, nestedName}, ".")
+			}
+
+			return fieldName
+		} else if positionalPlaceholderRegexp.MatchString(fieldName) {
+			if len(parts) > 1 {
+				var value interface{}
+				size := util.SizeOfV(v)
+				if size > 0 {
+					value = util.IndexAt(v, 0)
+				} else {
+					value = util.MakeType(t)
+				}
+
+				nestedName := TagNameFromStructField(strings.Join(parts[1:], "."), value, nil)
+				return strings.Join([]string{fieldName, nestedName}, ".")
+			}
+
+			return fieldName
 		}
-
-		return fieldName
 	}
 
 	field, ok := t.FieldByName(fieldName)
@@ -52,7 +78,7 @@ func TagNameFromStructField(name string, post interface{}, args *FieldArgs) stri
 	if len(parts) > 1 {
 		nestedName = TagNameFromStructField(
 			strings.Join(parts[1:], "."),
-			reflect.New(field.Type).Interface(),
+			ValueByName(fieldName, post, nil).Interface(),
 			nil,
 		)
 	}
@@ -106,8 +132,13 @@ func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
 				return v
 			}
 		} else if positionalPlaceholderRegexp.MatchString(fieldName) {
-			arrayEntityType := reflect.TypeOf(v.Interface()).Elem()
-			v = reflect.New(arrayEntityType).Elem()
+			if v.Len() == 0 {
+				arrayEntityType := reflect.TypeOf(v.Interface()).Elem()
+				v = reflect.New(arrayEntityType).Elem()
+			} else {
+				v = v.Index(0)
+			}
+
 			if len(parts) > 1 {
 				fieldName = parts[1]
 				parts = parts[1:]

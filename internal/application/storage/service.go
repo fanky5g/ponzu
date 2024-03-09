@@ -4,7 +4,7 @@ package storage
 
 import (
 	"github.com/fanky5g/ponzu/internal/application"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/fanky5g/ponzu/internal/domain/services/content"
 	"mime/multipart"
@@ -20,8 +20,8 @@ type service struct {
 
 type Service interface {
 	content.Service
-	GetAllUploads() ([]item.FileUpload, error)
-	GetFileUpload(target string) (*item.FileUpload, error)
+	GetAllUploads() ([]entities.FileUpload, error)
+	GetFileUpload(target string) (*entities.FileUpload, error)
 	DeleteFile(target string) error
 	StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error)
 	interfaces.StaticFileSystemInterface
@@ -37,7 +37,7 @@ func New(
 		return nil, err
 	}
 
-	if err = searchClient.CreateIndex(UploadsEntityName, &item.FileUpload{}); err != nil {
+	if err = searchClient.CreateIndex(UploadsEntityName, &entities.FileUpload{}); err != nil {
 		return nil, err
 	}
 

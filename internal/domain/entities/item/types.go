@@ -25,8 +25,9 @@ var (
 
 	// Types is a map used to reference a type name to its actual Editable type
 	// mainly for lookups in /admin route based utilities
-	Types       map[string]EntityBuilder
-	Definitions map[string]TypeDefinition
+	Types                map[string]EntityBuilder
+	Definitions          map[string]TypeDefinition
+	FieldCollectionTypes map[string]EntityBuilder
 )
 
 type EntityBuilder func() interface{}
@@ -34,4 +35,5 @@ type EntityBuilder func() interface{}
 func init() {
 	Types = make(map[string]EntityBuilder)
 	Definitions = make(map[string]TypeDefinition)
+	FieldCollectionTypes = make(map[string]EntityBuilder)
 }
