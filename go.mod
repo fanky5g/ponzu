@@ -5,7 +5,6 @@ go 1.21.5
 require (
 	github.com/blevesearch/bleve v1.0.14
 	github.com/boltdb/bolt v1.3.1
-	github.com/fatih/structs v1.1.0
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/gorilla/schema v1.2.1
 	github.com/nilslice/email v0.1.0
