@@ -37,7 +37,6 @@ func New(
 		return nil, err
 	}
 
-	// TODO: move index initialization to search client
 	if err = searchClient.CreateIndex(UploadsEntityName, &entities.FileUpload{}); err != nil {
 		return nil, err
 	}
