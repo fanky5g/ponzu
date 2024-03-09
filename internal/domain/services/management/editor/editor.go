@@ -39,8 +39,8 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 		<div class="row">
 			<div class="col s12">
 			  <ul class="tabs">
-				<li class="tab col s3"><a class="active" href="#content">Content</a></li>
-				<li class="tab col s3"><a href="#properties">Properties</a></li>
+				<li class="tab col s3"><a class="active" href="#content"><i class="material-icons">edit</i>Edit</a></li>
+				<li class="tab col s3"><a href="#properties"><i class="material-icons">tune</i>Properties</a></li>
 			  </ul>
 			</div>
 			<div id="content" class="col s12 editor-content">

@@ -127,6 +127,8 @@ textarea {
 
 .material-icons {
     line-height: 1.4;
+    vertical-align: middle;
+    margin-right: 8px;
 }
 
 .clear {
