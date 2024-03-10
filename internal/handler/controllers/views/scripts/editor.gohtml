@@ -13,7 +13,7 @@
             slug = $('input[name=slug]');
 
         // hide if this is a new post, or a non-post editor page
-        if (id.val() === '-1' || form.attr('action') !== '/edit') {
+        if (id.val() === '-1' || form.attr('action') !== '{{ .PublicPath }}/edit') {
             del.hide();
             external.hide();
         }

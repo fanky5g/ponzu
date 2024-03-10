@@ -1,22 +1,27 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application"
-	"github.com/fanky5g/ponzu/internal/application/analytics"
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/content"
-	"github.com/fanky5g/ponzu/internal/application/search"
-	"github.com/fanky5g/ponzu/internal/application/storage"
-	"github.com/fanky5g/ponzu/internal/application/users"
-	conf "github.com/fanky5g/ponzu/internal/config"
+	conf "github.com/fanky5g/ponzu/config"
+	localStorage "github.com/fanky5g/ponzu/driver/storage"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/middleware"
-	localStorage "github.com/fanky5g/ponzu/internal/infrastructure/storage"
+	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/services/analytics"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/internal/services/search"
+	"github.com/fanky5g/ponzu/internal/services/storage"
+	"github.com/fanky5g/ponzu/internal/services/users"
 	"log"
 	"net/http"
 )
 
-func RegisterRoutes(services application.Services, middlewares middleware.Middlewares) {
+func RegisterRoutes(
+	pathConf conf.Paths,
+	mux *http.ServeMux,
+	services services.Services,
+	middlewares middleware.Middlewares,
+) {
 	Auth := middlewares.Get(middleware.AuthMiddleware)
 	CacheControlMiddleware := middleware.ToHttpHandler(middlewares.Get(middleware.CacheControlMiddleware))
 
@@ -29,32 +34,32 @@ func RegisterRoutes(services application.Services, middlewares middleware.Middle
 	contentSearchService := services.Get(search.ContentSearchService).(search.Service)
 	uploadSearchService := services.Get(search.UploadSearchService).(search.Service)
 
-	http.HandleFunc("/", Auth(NewAdminHandler(analyticsService, configService)))
+	mux.HandleFunc("/", Auth(NewAdminHandler(pathConf, analyticsService, configService)))
 
-	http.HandleFunc("/init", NewInitHandler(configService, userService, authService))
+	mux.HandleFunc("/init", NewInitHandler(pathConf, configService, userService, authService))
 
-	http.HandleFunc("/login", NewLoginHandler(configService, authService, userService))
-	http.HandleFunc("/logout", LogoutHandler)
+	mux.HandleFunc("/login", NewLoginHandler(pathConf, configService, authService, userService))
+	mux.HandleFunc("/logout", NewLogoutHandler(pathConf))
 
-	http.HandleFunc("/recover", NewForgotPasswordHandler(configService, userService, authService))
-	http.HandleFunc("/recover/key", NewRecoveryKeyHandler(configService, authService, userService))
+	mux.HandleFunc("/recover", NewForgotPasswordHandler(pathConf, configService, userService, authService))
+	mux.HandleFunc("/recover/key", NewRecoveryKeyHandler(pathConf, configService, authService, userService))
 
-	http.HandleFunc("/configure", Auth(NewConfigHandler(configService)))
-	http.HandleFunc("/configure/users", Auth(NewConfigUsersHandler(configService, authService, userService)))
-	http.HandleFunc("/configure/users/edit", Auth(NewConfigUsersEditHandler(configService, authService, userService)))
-	http.HandleFunc("/configure/users/delete", Auth(NewConfigUsersDeleteHandler(configService, authService, userService)))
+	mux.HandleFunc("/configure", Auth(NewConfigHandler(pathConf, configService)))
+	mux.HandleFunc("/configure/users", Auth(NewConfigUsersHandler(pathConf, configService, authService, userService)))
+	mux.HandleFunc("/configure/users/edit", Auth(NewConfigUsersEditHandler(pathConf, configService, authService, userService)))
+	mux.HandleFunc("/configure/users/delete", Auth(NewConfigUsersDeleteHandler(pathConf, configService, authService, userService)))
 
-	http.HandleFunc("/uploads", Auth(NewUploadContentsHandler(configService, storageService)))
-	http.HandleFunc("/uploads/search", Auth(NewUploadSearchHandler(configService, uploadSearchService)))
+	mux.HandleFunc("/uploads", Auth(NewUploadContentsHandler(pathConf, configService, storageService)))
+	mux.HandleFunc("/uploads/search", Auth(NewUploadSearchHandler(pathConf, configService, uploadSearchService)))
 
-	http.HandleFunc("/contents", Auth(NewContentsHandler(configService, contentService)))
-	http.HandleFunc("/contents/search", Auth(NewSearchHandler(configService, contentSearchService)))
-	http.HandleFunc("/contents/export", Auth(NewExportHandler(configService, contentService)))
+	mux.HandleFunc("/contents", Auth(NewContentsHandler(pathConf, configService, contentService)))
+	mux.HandleFunc("/contents/search", Auth(NewSearchHandler(pathConf, configService, contentSearchService)))
+	mux.HandleFunc("/contents/export", Auth(NewExportHandler(pathConf, configService, contentService)))
 
-	http.HandleFunc("/edit", Auth(NewEditHandler(configService, contentService, storageService)))
-	http.HandleFunc("/edit/delete", Auth(NewDeleteHandler(configService, contentService)))
-	http.HandleFunc("/edit/upload", Auth(NewEditUploadHandler(configService, storageService)))
-	http.HandleFunc("/edit/upload/delete", Auth(NewDeleteUploadHandler(configService, storageService)))
+	mux.HandleFunc("/edit", Auth(NewEditHandler(pathConf, configService, contentService, storageService)))
+	mux.HandleFunc("/edit/delete", Auth(NewDeleteHandler(pathConf, configService, contentService)))
+	mux.HandleFunc("/edit/upload", Auth(NewEditUploadHandler(pathConf, configService, storageService)))
+	mux.HandleFunc("/edit/upload/delete", Auth(NewDeleteUploadHandler(pathConf, configService, storageService)))
 
 	staticDir := conf.AdminStaticDir()
 	staticFileSystem, err := localStorage.NewLocalStaticFileSystem(http.Dir(staticDir))
@@ -62,7 +67,7 @@ func RegisterRoutes(services application.Services, middlewares middleware.Middle
 		log.Fatalf("Failed to create static file system: %v", err)
 	}
 
-	http.Handle("/static/", CacheControlMiddleware(
+	mux.Handle("/static/", CacheControlMiddleware(
 		http.StripPrefix("/static", http.FileServer(staticFileSystem)),
 	))
 }

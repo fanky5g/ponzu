@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/users"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 )
 
 func NewConfigUsersEditHandler(
+	pathConf conf.Paths,
 	configService config.Service,
 	authService auth.Service,
 	userService users.Service,
@@ -33,7 +35,7 @@ func NewConfigUsersEditHandler(
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
-				errView, err := views.Admin(util.Html("error_500"), appName)
+				errView, err := views.Admin(util.Html("error_500"), appName, pathConf)
 				if err != nil {
 					return
 				}
@@ -44,7 +46,7 @@ func NewConfigUsersEditHandler(
 
 			user, err := authService.GetUserFromAuthToken(request.GetAuthToken(req))
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -57,7 +59,7 @@ func NewConfigUsersEditHandler(
 			if err = authService.VerifyCredential(user.ID, password); err != nil {
 				log.Printf("Unexpected user/password combination: %v\n", err)
 				res.WriteHeader(http.StatusBadRequest)
-				errView, err := views.Admin(util.Html("error_405"), appName)
+				errView, err := views.Admin(util.Html("error_405"), appName, pathConf)
 				if err != nil {
 					return
 				}
@@ -73,7 +75,7 @@ func NewConfigUsersEditHandler(
 					Type:  entities.CredentialTypePassword,
 					Value: newPassword,
 				}); err != nil {
-					LogAndFail(res, fmt.Errorf("failed to update password: %v", err), appName)
+					LogAndFail(res, fmt.Errorf("failed to update password: %v", err), appName, pathConf)
 					return
 				}
 			}
@@ -85,7 +87,7 @@ func NewConfigUsersEditHandler(
 				}
 
 				if err = userService.UpdateUser(user, update); err != nil {
-					LogAndFail(res, fmt.Errorf("failed to update user: %v", err), appName)
+					LogAndFail(res, fmt.Errorf("failed to update user: %v", err), appName, pathConf)
 					return
 				}
 
@@ -95,7 +97,7 @@ func NewConfigUsersEditHandler(
 			// create new token
 			authToken, err := authService.NewToken(user)
 			if err != nil {
-				LogAndFail(res, fmt.Errorf("failed to generate token: %v", err), appName)
+				LogAndFail(res, fmt.Errorf("failed to generate token: %v", err), appName, pathConf)
 				return
 			}
 
@@ -109,7 +111,7 @@ func NewConfigUsersEditHandler(
 			http.SetCookie(res, cookie)
 			// add new token cookie to the request
 			req.AddCookie(cookie)
-			http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/edit"), http.StatusFound)
+			util.Redirect(req, res, pathConf, strings.TrimSuffix(req.URL.RequestURI(), "/edit"), http.StatusFound)
 
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)

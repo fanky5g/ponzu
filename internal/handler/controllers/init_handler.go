@@ -2,18 +2,19 @@ package controllers
 
 import (
 	"encoding/base64"
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/users"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func NewInitHandler(configService config.Service, userService users.Service, authService auth.Service) http.HandlerFunc {
+func NewInitHandler(pathConf conf.Paths, configService config.Service, userService users.Service, authService auth.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		systemInitialized, err := hasSystemUsers(userService)
 		if err != nil {
@@ -23,7 +24,7 @@ func NewInitHandler(configService config.Service, userService users.Service, aut
 		}
 
 		if systemInitialized {
-			http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
+			util.Redirect(req, res, pathConf, "/admin", http.StatusFound)
 			return
 		}
 
@@ -36,7 +37,7 @@ func NewInitHandler(configService config.Service, userService users.Service, aut
 				return
 			}
 
-			view, err := views.Init(appName)
+			view, err := views.Init(appName, pathConf)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -114,8 +115,8 @@ func NewInitHandler(configService config.Service, userService users.Service, aut
 				Path:    "/",
 			})
 
-			redir := strings.TrimSuffix(req.URL.String(), "/init")
-			http.Redirect(res, req, redir, http.StatusFound)
+			redir := strings.TrimSuffix(req.URL.RequestURI(), "/init")
+			util.Redirect(req, res, pathConf, redir, http.StatusFound)
 
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)

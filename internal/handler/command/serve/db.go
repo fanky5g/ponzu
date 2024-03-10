@@ -2,7 +2,7 @@ package serve
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/fanky5g/ponzu/internal/config"
+	"github.com/fanky5g/ponzu/config"
 	"log"
 	"path/filepath"
 )

@@ -2,13 +2,15 @@ package views
 
 import (
 	"bytes"
+	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/util"
 )
 
 // Init ...
-func Init(appName string) ([]byte, error) {
+func Init(appName string, paths config.Paths) ([]byte, error) {
 	a := View{
-		Logo: appName,
+		Logo:       appName,
+		PublicPath: paths.PublicPath,
 	}
 
 	buf := &bytes.Buffer{}

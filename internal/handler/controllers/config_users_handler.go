@@ -3,12 +3,13 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/users"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 
 // UsersList ...
 func UsersList(
+	pathConf conf.Paths,
 	userService users.Service,
 	currentUser *entities.User,
 ) ([]byte, error) {
@@ -37,6 +39,7 @@ func UsersList(
 	data := map[string]interface{}{
 		"GetUserByEmail": currentUser,
 		"Users":          systemUsers,
+		"PublicPath":     pathConf.PublicPath,
 	}
 
 	err = tmpl.Execute(buf, data)
@@ -44,10 +47,11 @@ func UsersList(
 		return nil, err
 	}
 
-	return views.Admin(buf.String(), "")
+	return views.Admin(buf.String(), "", pathConf)
 }
 
 func NewConfigUsersHandler(
+	pathConf conf.Paths,
 	configService config.Service,
 	authService auth.Service,
 	userService users.Service) http.HandlerFunc {
@@ -66,13 +70,13 @@ func NewConfigUsersHandler(
 		case http.MethodGet:
 			currentUser, err := authService.GetUserFromAuthToken(request.GetAuthToken(req))
 			if err != nil {
-				LogAndFail(res, fmt.Errorf("failed to get current user: %v", err), appName)
+				LogAndFail(res, fmt.Errorf("failed to get current user: %v", err), appName, pathConf)
 				return
 			}
 
-			view, err := UsersList(userService, currentUser)
+			view, err := UsersList(pathConf, userService, currentUser)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -82,21 +86,21 @@ func NewConfigUsersHandler(
 			// create new user
 			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
 			email := strings.ToLower(req.FormValue("email"))
 			password := req.PostFormValue("password")
 			if email == "" || password == "" {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
 			// TODO: UnitOfWork. We need to be able to run all or fail all operations
 			user, err := userService.CreateUser(email)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -104,12 +108,11 @@ func NewConfigUsersHandler(
 				Type:  entities.CredentialTypePassword,
 				Value: password,
 			}); err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
-			http.Redirect(res, req, req.URL.String(), http.StatusFound)
-
+			util.Redirect(req, res, pathConf, req.URL.RequestURI(), http.StatusFound)
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 		}

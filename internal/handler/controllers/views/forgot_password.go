@@ -2,13 +2,15 @@ package views
 
 import (
 	"bytes"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/util"
 )
 
 // ForgotPassword ...
-func ForgotPassword(appName string) ([]byte, error) {
+func ForgotPassword(appName string, paths conf.Paths) ([]byte, error) {
 	a := View{
-		Logo: appName,
+		Logo:       appName,
+		PublicPath: paths.PublicPath,
 	}
 
 	buf := &bytes.Buffer{}

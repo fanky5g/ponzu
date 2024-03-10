@@ -29,7 +29,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoWithEmptyQueryVal
 	}
 
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "services/x-www-form-urlencoded")
 	req.URL.RawQuery = q.Encode()
 
 	searchRequestDto, err := GetSearchRequestDto(req)
@@ -56,7 +56,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDto() {
 	}
 
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "services/x-www-form-urlencoded")
 	req.URL.RawQuery = q.Encode()
 
 	searchRequestDto, err := GetSearchRequestDto(req)
@@ -91,7 +91,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoFromJSONRequest()
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "services/json")
 
 	searchRequestDto, err := GetSearchRequestDto(req)
 	if assert.NoError(suite.T(), err) {

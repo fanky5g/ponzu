@@ -3,13 +3,14 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/config"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/fanky5g/ponzu/internal/domain/services/content"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
@@ -17,7 +18,7 @@ import (
 	"strings"
 )
 
-func NewContentsHandler(configService config.Service, contentService content.Service) http.HandlerFunc {
+func NewContentsHandler(pathConf conf.Paths, configService config.Service, contentService content.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		appName, err := configService.GetAppName()
 		if err != nil {
@@ -30,7 +31,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 		t := q.Get("type")
 		if t == "" {
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
+			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
 			if err != nil {
 				return
 			}
@@ -48,7 +49,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 
 		if _, ok := item.Types[t]; !ok {
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
+			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
 			if err != nil {
 				return
 			}
@@ -59,7 +60,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 
 		pt := item.Types[t]()
 		if _, ok := pt.(editor.Editable); !ok {
-			LogAndFail(res, fmt.Errorf("item %s does not implement editable interface", t), appName)
+			LogAndFail(res, fmt.Errorf("item %s does not implement editable interface", t), appName, pathConf)
 			return
 		}
 
@@ -68,7 +69,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 			if q.Get("count") == "" {
 				count = 10
 			} else {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 		}
@@ -78,20 +79,20 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 			if q.Get("offset") == "" {
 				offset = 0
 			} else {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 		}
 
 		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
 		search, err := request.MapSearchRequest(searchRequestDto)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -145,7 +146,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 							</script>
 						</div>
 					</div>
-					<form class="col s4" action="/contents/search" method="get">
+					<form class="col s4" action="` + pathConf.PublicPath + `/contents/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
@@ -158,15 +159,15 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 
 		total, posts, err = contentService.GetAllWithOptions(t+specifier, search)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
 		for _, entity := range posts {
-			post := PostListItem(entity.(editor.Editable), t, status)
+			post := PostListItem(entity.(editor.Editable), t, status, pathConf)
 			_, err = b.Write(post)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 		}
@@ -175,7 +176,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 
 		_, err = b.Write([]byte(`</ul>`))
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -228,7 +229,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 
 		_, err = b.Write([]byte(pagination + `</div></div>`))
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -253,13 +254,13 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 	`
 
 		btn := `<div class="col s3">
-		<a href="/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
+		<a href="` + pathConf.PublicPath + `/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
 			New ` + t + `
 		</a>`
 
 		if _, ok := pt.(interfaces.CSVFormattable); ok {
 			btn += `<br/>
-				<a href="/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
+				<a href="` + pathConf.PublicPath + `/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
 					<i class="material-icons left">system_update_alt</i>
 					CSV
 				</a>`
@@ -267,7 +268,7 @@ func NewContentsHandler(configService config.Service, contentService content.Ser
 
 		html += b.String() + script + btn + `</div></div>`
 
-		adminView, err := views.Admin(html, appName)
+		adminView, err := views.Admin(html, appName, pathConf)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

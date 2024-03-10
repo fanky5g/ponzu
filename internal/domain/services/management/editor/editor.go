@@ -4,13 +4,14 @@ package editor
 
 import (
 	"bytes"
+	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 )
 
 // Editable ensures data is editable
 type Editable interface {
-	MarshalEditor() ([]byte, error)
+	MarshalEditor(paths config.Paths) ([]byte, error)
 }
 
 // Editor is a view containing fields to manage content
@@ -31,7 +32,7 @@ type FieldArgs struct {
 
 // Form takes editable content and any number of Field funcs to describe the edit
 // page for any content struct added by a user
-func Form(post Editable, fields ...Field) ([]byte, error) {
+func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 	editor := &Editor{}
 
 	editor.ViewBuf = &bytes.Buffer{}
@@ -91,7 +92,7 @@ func Form(post Editable, fields ...Field) ([]byte, error) {
 
 	script := &bytes.Buffer{}
 	scriptTmpl := util.MakeScript("editor")
-	if err = scriptTmpl.Execute(script, nil); err != nil {
+	if err = scriptTmpl.Execute(script, paths); err != nil {
 		panic(err)
 	}
 

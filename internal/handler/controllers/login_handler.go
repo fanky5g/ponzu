@@ -1,12 +1,14 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/users"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/users"
+	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 	"strings"
@@ -22,6 +24,7 @@ func hasSystemUsers(userService users.Service) (bool, error) {
 }
 
 func NewLoginHandler(
+	pathConf conf.Paths,
 	configService config.Service,
 	authService auth.Service,
 	userService users.Service) http.HandlerFunc {
@@ -34,8 +37,7 @@ func NewLoginHandler(
 		}
 
 		if !systemInitialized {
-			redir := req.URL.Scheme + req.URL.Host + "/init"
-			http.Redirect(res, req, redir, http.StatusFound)
+			util.Redirect(req, res, pathConf, "/init", http.StatusFound)
 			return
 		}
 
@@ -47,7 +49,7 @@ func NewLoginHandler(
 		}
 
 		if isValid {
-			http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
+			util.Redirect(req, res, pathConf, "/admin", http.StatusFound)
 			return
 		}
 
@@ -60,7 +62,7 @@ func NewLoginHandler(
 				return
 			}
 
-			view, err := views.Login(appName)
+			view, err := views.Login(appName, pathConf)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -74,7 +76,7 @@ func NewLoginHandler(
 			err = req.ParseForm()
 			if err != nil {
 				log.Println(err)
-				http.Redirect(res, req, req.URL.String(), http.StatusFound)
+				util.Redirect(req, res, pathConf, req.URL.RequestURI(), http.StatusFound)
 				return
 			}
 
@@ -87,7 +89,7 @@ func NewLoginHandler(
 
 			if err != nil || authToken == nil {
 				log.Println("Failed to login user", err)
-				http.Redirect(res, req, req.URL.String(), http.StatusFound)
+				util.Redirect(req, res, pathConf, req.URL.RequestURI(), http.StatusFound)
 				return
 			}
 
@@ -98,7 +100,7 @@ func NewLoginHandler(
 				Path:    "/",
 			})
 
-			http.Redirect(res, req, strings.TrimSuffix(req.URL.String(), "/login"), http.StatusFound)
+			util.Redirect(req, res, pathConf, "/login", http.StatusFound)
 		}
 	}
 }

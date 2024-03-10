@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/auth"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/response"
+	"github.com/fanky5g/ponzu/internal/services/auth"
 
 	"net/http"
 )

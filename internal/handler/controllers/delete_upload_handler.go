@@ -1,17 +1,21 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/storage"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 )
 
-func NewDeleteUploadHandler(configService config.Service, storageService storage.Service) http.HandlerFunc {
+func NewDeleteUploadHandler(
+	pathConf conf.Paths,
+	configService config.Service,
+	storageService storage.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -27,7 +31,7 @@ func NewDeleteUploadHandler(configService config.Service, storageService storage
 
 		err = req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -42,7 +46,7 @@ func NewDeleteUploadHandler(configService config.Service, storageService storage
 		if !ok {
 			log.Println("Type", storage.UploadsEntityName, "does not implement item.Hookable or embed item.Item.")
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
+			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
 			if err != nil {
 				return
 			}
@@ -70,7 +74,6 @@ func NewDeleteUploadHandler(configService config.Service, storageService storage
 			return
 		}
 
-		redir := "/uploads"
-		http.Redirect(res, req, redir, http.StatusFound)
+		util.Redirect(req, res, pathConf, "/uploads", http.StatusFound)
 	}
 }

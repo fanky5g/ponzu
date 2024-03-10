@@ -1,17 +1,20 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/users"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/users"
+	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 	"strings"
 )
 
 func NewRecoveryKeyHandler(
+	pathConf conf.Paths,
 	configService config.Service,
 	authService auth.Service,
 	userService users.Service) http.HandlerFunc {
@@ -25,7 +28,7 @@ func NewRecoveryKeyHandler(
 				return
 			}
 
-			view, err := views.RecoveryKey(appName)
+			view, err := views.RecoveryKey(appName, pathConf)
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)
 				return
@@ -95,10 +98,8 @@ func NewRecoveryKeyHandler(
 				return
 			}
 
-			// redirect to /login
-			redir := req.URL.Scheme + req.URL.Host + "/login"
-			http.Redirect(res, req, redir, http.StatusFound)
-
+			util.Redirect(req, res, pathConf, "/login", http.StatusFound)
+			return
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return

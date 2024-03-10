@@ -2,6 +2,7 @@ package entities
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"reflect"
@@ -22,8 +23,9 @@ type FileUpload struct {
 func (f *FileUpload) String() string { return f.Name }
 
 // MarshalEditor writes a buffer of views to edit a Post and partially implements editor.Editable
-func (f *FileUpload) MarshalEditor() ([]byte, error) {
+func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {
 	view, err := editor.Form(f,
+		paths,
 		editor.Field{
 			View: func() []byte {
 				if f.Path == "" {
@@ -60,7 +62,7 @@ func (f *FileUpload) MarshalEditor() ([]byte, error) {
 		$(function() {
 			// change form action to storage-specific endpoint
 			var form = $('form');
-			form.attr('action', '/edit/upload');
+			form.attr('action', '` + paths.PublicPath + `/edit/upload');
 			
 			// hide default fields & labels unnecessary for the config
 			var fields = $('.default-fields');

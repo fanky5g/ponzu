@@ -10,7 +10,7 @@ func getRequestAsURLValues(req *http.Request) (url.Values, error) {
 	var err error
 
 	switch getContentType(req) {
-	case "application/x-www-form-urlencoded":
+	case "services/x-www-form-urlencoded":
 		payload = req.URL.Query()
 		break
 	case "multipart/form-data":
@@ -20,7 +20,7 @@ func getRequestAsURLValues(req *http.Request) (url.Values, error) {
 
 		payload = req.PostForm
 		break
-	case "application/json":
+	case "services/json":
 		payload, err = mapJSONContentToURLValues(req)
 		if err != nil {
 			return nil, err

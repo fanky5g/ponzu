@@ -3,17 +3,18 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/storage"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/storage"
 	"log"
 	"net/http"
 )
 
-func NewUploadContentsHandler(configService config.Service, contentService storage.Service) http.HandlerFunc {
+func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service, contentService storage.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		appName, err := configService.GetAppName()
 		if err != nil {
@@ -25,19 +26,19 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 		pt := interface{}(&entities.FileUpload{})
 		_, ok := pt.(editor.Editable)
 		if !ok {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
 		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
 		search, err := request.MapSearchRequest(searchRequestDto)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -78,7 +79,7 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 							</script>
 						</div>
 					</div>
-					<form class="col s4" action="/uploads/search" method="get">
+					<form class="col s4" action="` + pathConf.PublicPath + `/uploads/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
@@ -91,7 +92,7 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 		status := ""
 		total, posts, err = contentService.GetAllWithOptions(storage.UploadsEntityName, search)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -103,17 +104,17 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
 				_, err = b.Write([]byte(post))
 				if err != nil {
-					LogAndFail(res, err, appName)
+					LogAndFail(res, err, appName, pathConf)
 					return
 				}
 
 				continue
 			}
 
-			post := PostListItem(p, storage.UploadsEntityName, status)
+			post := PostListItem(p, storage.UploadsEntityName, status, pathConf)
 			_, err = b.Write(post)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 		}
@@ -122,7 +123,7 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 
 		_, err = b.Write([]byte(`</ul>`))
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -175,7 +176,7 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 
 		_, err = b.Write([]byte(pagination + `</div></div>`))
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -199,10 +200,10 @@ func NewUploadContentsHandler(configService config.Service, contentService stora
 	</script>
 	`
 
-		btn := `<div class="col s3"><a href="/edit/upload" class="btn new-post waves-effect waves-light">New upload</a></div></div>`
+		btn := `<div class="col s3"><a href="` + pathConf.PublicPath + `/edit/upload" class="btn new-post waves-effect waves-light">New upload</a></div></div>`
 		html = html + b.String() + script + btn
 
-		adminView, err := views.Admin(html, appName)
+		adminView, err := views.Admin(html, appName, pathConf)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

@@ -1,6 +1,6 @@
 <div class="card user-management">
     <div class="card-title">Edit your account:</div>
-    <form class="row" enctype="multipart/form-data" action="/configure/users/edit" method="post">
+    <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users/edit" method="post">
         <div class="col s9">
             <label class="active">Email Address</label>
             <input type="email" name="email" value="{{ .User.Email }}"/>
@@ -24,7 +24,7 @@
     </form>
 
     <div class="card-title">Add a new user:</div>
-    <form class="row" enctype="multipart/form-data" action="/configure/users" method="post">
+    <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users" method="post">
         <div class="col s9">
             <label class="active">Email Address</label>
             <input type="email" name="email" value=""/>
@@ -45,7 +45,7 @@
         {{ range .Users }}
             <li class="col s9">
                 {{ .Email }}
-                <form enctype="multipart/form-data" class="delete-user __ponzu right" action="/configure/users/delete" method="post">
+                <form enctype="multipart/form-data" class="delete-user __ponzu right" action="{{ .PublicPath }}/configure/users/delete" method="post">
                     <span>Delete</span>
                     <input type="hidden" name="email" value="{{ .Email }}"/>
                     <input type="hidden" name="id" value="{{ .ID }}"/>
