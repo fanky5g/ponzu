@@ -5,7 +5,7 @@
             <blockquote>You need to initialize your system by filling out the form below. All of
                 this information can be updated later on, but you will not be able to start
                 without first completing this step.</blockquote>
-            <form method="post" action="/init" class="row">
+            <form method="post" action="{{ .PublicPath }}/init" class="row">
                 <div>Configuration</div>
                 <div class="input-field col s12">
                     <input placeholder="Enter the name of your site (internal use only)" class="validate required" type="text" id="name" name="name"/>

@@ -3,7 +3,7 @@
         <div class="card-content">
             <div class="card-title">Account Recovery</div>
             <blockquote>Please check for your recovery key inside an email sent to the address you provided. Check your spam folder in case the message was flagged.</blockquote>
-            <form method="post" action="/recover/key" class="row" enctype="multipart/form-data">
+            <form method="post" action="{{ .PublicPath }}/recover/key" class="row" enctype="multipart/form-data">
                 <div class="input-field col s12">
                     <input placeholder="Enter your recovery key" class="validate required" type="text" id="key" name="key"/>
                     <label for="key" class="active">Recovery Key</label>

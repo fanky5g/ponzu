@@ -2,13 +2,15 @@ package views
 
 import (
 	"bytes"
+	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/util"
 )
 
 // RecoveryKey ...
-func RecoveryKey(appName string) ([]byte, error) {
+func RecoveryKey(appName string, paths config.Paths) ([]byte, error) {
 	a := View{
-		Logo: appName,
+		Logo:       appName,
+		PublicPath: paths.PublicPath,
 	}
 
 	buf := &bytes.Buffer{}

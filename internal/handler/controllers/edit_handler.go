@@ -3,21 +3,26 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/storage"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/content"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/manager"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func NewEditHandler(configService config.Service, contentService content.Service, storageService storage.Service) http.HandlerFunc {
+func NewEditHandler(
+	pathConf conf.Paths,
+	configService config.Service,
+	contentService content.Service,
+	storageService storage.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		appName, err := configService.GetAppName()
 		if err != nil {
@@ -47,13 +52,13 @@ func NewEditHandler(configService config.Service, contentService content.Service
 
 				post, err = contentService.GetContent(t, i)
 				if err != nil {
-					LogAndFail(res, err, appName)
+					LogAndFail(res, err, appName, pathConf)
 					return
 				}
 
 				if post == nil {
 					res.WriteHeader(http.StatusNotFound)
-					errView, err := views.Admin(util.Html("error_404"), appName)
+					errView, err := views.Admin(util.Html("error_404"), appName, pathConf)
 					if err != nil {
 						return
 					}
@@ -69,13 +74,13 @@ func NewEditHandler(configService config.Service, contentService content.Service
 				}
 			}
 
-			m, err := manager.Manage(post.(editor.Editable), t)
+			m, err := manager.Manage(post.(editor.Editable), pathConf, t)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
-			adminView, err := views.Admin(string(m), appName)
+			adminView, err := views.Admin(string(m), appName, pathConf)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -87,7 +92,7 @@ func NewEditHandler(configService config.Service, contentService content.Service
 		case http.MethodPost:
 			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -95,13 +100,13 @@ func NewEditHandler(configService config.Service, contentService content.Service
 			t := req.FormValue("type")
 			files, err := request.GetRequestFiles(req)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
 			urlPaths, err := storageService.StoreFiles(files)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -116,7 +121,7 @@ func NewEditHandler(configService config.Service, contentService content.Service
 
 			entity, err := request.GetEntityFromFormData(pt, req.PostForm)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -124,7 +129,7 @@ func NewEditHandler(configService config.Service, contentService content.Service
 			if !ok {
 				log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
 				res.WriteHeader(http.StatusBadRequest)
-				errView, err := views.Admin(util.Html("error_400"), appName)
+				errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
 				if err != nil {
 					return
 				}
@@ -155,7 +160,7 @@ func NewEditHandler(configService config.Service, contentService content.Service
 
 			id, err := contentService.CreateContent(t, entity)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -183,17 +188,15 @@ func NewEditHandler(configService config.Service, contentService content.Service
 				}
 			}
 
-			scheme := req.URL.Scheme
-			host := req.URL.Host
-			path := req.URL.Path
-			redir := scheme + host + path + "?type=" + pt + "&id=" + id
+			path := strings.TrimSuffix(pathConf.PublicPath, req.URL.Path)
+			redir := path + "?type=" + pt + "&id=" + id
 
 			if req.URL.Query().Get("status") == "pending" {
 				redir += "&status=pending"
 			}
 
-			http.Redirect(res, req, redir, http.StatusFound)
-
+			util.Redirect(req, res, pathConf, redir, http.StatusFound)
+			return
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 		}

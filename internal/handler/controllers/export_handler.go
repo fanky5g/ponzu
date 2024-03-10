@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/content"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/internal/util"
 	"io"
 	"log"
@@ -11,7 +12,7 @@ import (
 	"strings"
 )
 
-func NewExportHandler(configService config.Service, contentService content.Service) http.HandlerFunc {
+func NewExportHandler(pathConf conf.Paths, configService config.Service, contentService content.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		appName, err := configService.GetAppName()
 		if err != nil {
@@ -26,7 +27,7 @@ func NewExportHandler(configService config.Service, contentService content.Servi
 		f := strings.ToLower(q.Get("format"))
 
 		if t == "" || f == "" {
-			v, err := views.Admin(util.Html("error_400"), appName)
+			v, err := views.Admin(util.Html("error_400"), appName, pathConf)
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)
 				return
@@ -45,7 +46,7 @@ func NewExportHandler(configService config.Service, contentService content.Servi
 		case "csv":
 			response, err := contentService.ExportCSV(t)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 			}
 
 			if response == nil {
@@ -56,7 +57,7 @@ func NewExportHandler(configService config.Service, contentService content.Servi
 			res.Header().Set("Content-Type", response.ContentType)
 			res.Header().Set("Content-Disposition", response.ContentDisposition)
 			if _, err = io.Copy(res, response.Payload); err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 			}
 		default:
 			res.WriteHeader(http.StatusBadRequest)

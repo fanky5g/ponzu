@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 )
@@ -30,8 +31,9 @@ type Config struct {
 func (c *Config) String() string { return c.Name }
 
 // MarshalEditor writes a buffer of views to edit a Post and partially implements editor.Editable
-func (c *Config) MarshalEditor() ([]byte, error) {
+func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 	view, err := editor.Form(c,
+		paths,
 		editor.Field{
 			View: editor.Input("Name", c, map[string]string{
 				"label":       "Site Name",
@@ -144,8 +146,9 @@ func (c *Config) MarshalEditor() ([]byte, error) {
 		<div class="card-content">
 			<div class="card-title">System Configuration</div>
 		</div>
-		<form action="/configure" method="post">
+		<form action="` + paths.PublicPath + `/configure" method="post">
 	`)
+
 	close := []byte(`</form></div>`)
 	script := []byte(`
 	<script>

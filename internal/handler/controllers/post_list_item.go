@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/storage"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
+	"github.com/fanky5g/ponzu/internal/services/storage"
 	"log"
 	"strings"
 	"time"
@@ -12,7 +13,7 @@ import (
 // PostListItem is a helper to create the li containing a post.
 // p is the asserted post as an Editable, t is the Type of the post.
 // specifier is passed to append a name to a namespace like __pending
-func PostListItem(e editor.Editable, typeName, status string) []byte {
+func PostListItem(e editor.Editable, typeName, status string, pathConf conf.Paths) []byte {
 	s, ok := e.(item.Sortable)
 	if !ok {
 		log.Println("Content type", typeName, "doesn't implement item.Sortable")
@@ -42,9 +43,9 @@ func PostListItem(e editor.Editable, typeName, status string) []byte {
 		status = "__" + status
 	}
 	action := "/edit/delete"
-	link := `<a href="/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>`
+	link := `<a href="` + pathConf.PublicPath + `/edit?type=` + typeName + `&status=` + strings.TrimPrefix(status, "__") + `&id=` + cid + `">` + i.String() + `</a>`
 	if strings.HasPrefix(typeName, storage.UploadsEntityName) {
-		link = `<a href="/edit/upload?id=` + cid + `">` + i.String() + `</a>`
+		link = `<a href="` + pathConf.PublicPath + `/edit/upload?id=` + cid + `">` + i.String() + `</a>`
 		action = "/edit/upload/delete"
 	}
 

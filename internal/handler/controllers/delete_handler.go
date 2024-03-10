@@ -1,17 +1,18 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/content"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func NewDeleteHandler(configService config.Service, contentService content.Service) http.HandlerFunc {
+func NewDeleteHandler(pathConf conf.Paths, configService config.Service, contentService content.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -27,7 +28,7 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 
 		err = req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -50,7 +51,7 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 		if !ok {
 			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
+			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
 			if err != nil {
 				return
 			}
@@ -64,7 +65,7 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 		if !ok {
 			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
+			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
 			if err != nil {
 				return
 			}
@@ -75,7 +76,7 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 
 		post, err = contentService.GetContent(t, id)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -102,7 +103,7 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 
 		err = contentService.DeleteContent(t, id)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -126,8 +127,7 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 			}
 		}
 
-		redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
-		redir = redir + "/contents?type=" + ct
-		http.Redirect(res, req, redir, http.StatusFound)
+		redir := "/edit/delete/contents?type=" + ct
+		util.Redirect(req, res, pathConf, redir, http.StatusFound)
 	}
 }

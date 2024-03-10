@@ -42,7 +42,7 @@ func writeJSON(w io.Writer, resp map[string]interface{}) error {
 // writeJSONResponse should be used any time you want to communicate
 // data back to a foreign client
 func writeJSONResponse(res http.ResponseWriter, statusCode int, response map[string]interface{}) {
-	res.Header().Set("Content-Type", "application/json")
+	res.Header().Set("Content-Type", "services/json")
 	res.Header().Set("Vary", "Accept-Encoding")
 
 	res.WriteHeader(statusCode)

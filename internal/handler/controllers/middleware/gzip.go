@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"compress/gzip"
-	"github.com/fanky5g/ponzu/internal/application/config"
+	"github.com/fanky5g/ponzu/internal/services/config"
 	"log"
 	"net/http"
 	"strings"

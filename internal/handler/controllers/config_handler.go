@@ -2,14 +2,16 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/application/config"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 )
 
-func NewConfigHandler(configService config.Service) http.HandlerFunc {
+func NewConfigHandler(pathConf conf.Paths, configService config.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
@@ -29,7 +31,7 @@ func NewConfigHandler(configService config.Service) http.HandlerFunc {
 				return
 			}
 
-			cfg, err := c.MarshalEditor()
+			cfg, err := c.MarshalEditor(pathConf)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -43,7 +45,7 @@ func NewConfigHandler(configService config.Service) http.HandlerFunc {
 				return
 			}
 
-			adminView, err := views.Admin(string(cfg), appName)
+			adminView, err := views.Admin(string(cfg), appName, pathConf)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
@@ -68,7 +70,7 @@ func NewConfigHandler(configService config.Service) http.HandlerFunc {
 				return
 			}
 
-			http.Redirect(res, req, req.URL.String(), http.StatusFound)
+			util.Redirect(req, res, pathConf, req.URL.RequestURI(), http.StatusFound)
 
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
@@ -14,8 +15,8 @@ func writeResponse(res http.ResponseWriter, statusCode int, response []byte) {
 	}
 }
 
-func renderErrorView(res http.ResponseWriter, appName, templateName string, statusCode int) {
-	errView, err := views.Admin(util.Html(templateName), appName)
+func renderErrorView(res http.ResponseWriter, appName, templateName string, statusCode int, pathConf conf.Paths) {
+	errView, err := views.Admin(util.Html(templateName), appName, pathConf)
 	if err != nil {
 		log.Printf("Failed to build error view: %v\n", err)
 		res.WriteHeader(http.StatusInternalServerError)
@@ -26,9 +27,9 @@ func renderErrorView(res http.ResponseWriter, appName, templateName string, stat
 	return
 }
 
-func LogAndFail(res http.ResponseWriter, err error, appName string) {
+func LogAndFail(res http.ResponseWriter, err error, appName string, pathConf conf.Paths) {
 	if err != nil {
 		log.Println(err)
-		renderErrorView(res, appName, "error_500", http.StatusInternalServerError)
+		renderErrorView(res, appName, "error_500", http.StatusInternalServerError, pathConf)
 	}
 }

@@ -2,16 +2,17 @@ package controllers
 
 import (
 	"bytes"
-	"github.com/fanky5g/ponzu/internal/application/analytics"
-	"github.com/fanky5g/ponzu/internal/application/config"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/analytics"
+	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 )
 
 // Dashboard returns the controllers view with analytics dashboard
-func Dashboard(analyticsService analytics.Service, configService config.Service) ([]byte, error) {
+func Dashboard(pathConf conf.Paths, analyticsService analytics.Service, configService config.Service) ([]byte, error) {
 	buf := &bytes.Buffer{}
 	data, err := analyticsService.GetChartData()
 	if err != nil {
@@ -29,12 +30,12 @@ func Dashboard(analyticsService analytics.Service, configService config.Service)
 		return nil, err
 	}
 
-	return views.Admin(buf.String(), appName)
+	return views.Admin(buf.String(), appName, pathConf)
 }
 
-func NewAdminHandler(analyticsService analytics.Service, configService config.Service) http.HandlerFunc {
+func NewAdminHandler(pathConf conf.Paths, analyticsService analytics.Service, configService config.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		view, err := Dashboard(analyticsService, configService)
+		view, err := Dashboard(pathConf, analyticsService, configService)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

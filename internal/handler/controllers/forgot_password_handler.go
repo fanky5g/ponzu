@@ -3,11 +3,12 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/users"
+	conf "github.com/fanky5g/ponzu/config"
 	domainErrors "github.com/fanky5g/ponzu/internal/domain/errors"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/internal/util"
 	emailer "github.com/nilslice/email"
 	"log"
@@ -16,6 +17,7 @@ import (
 )
 
 func NewForgotPasswordHandler(
+	pathConf conf.Paths,
 	configService config.Service,
 	userService users.Service,
 	authService auth.Service) http.HandlerFunc {
@@ -29,9 +31,9 @@ func NewForgotPasswordHandler(
 
 		switch req.Method {
 		case http.MethodGet:
-			view, err := views.ForgotPassword(appName)
+			view, err := views.ForgotPassword(appName, pathConf)
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -40,7 +42,7 @@ func NewForgotPasswordHandler(
 		case http.MethodPost:
 			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 			if err != nil {
-				LogAndFail(res, err, appName)
+				LogAndFail(res, err, appName, pathConf)
 				return
 			}
 
@@ -106,12 +108,11 @@ Ponzu CMS at %s
 				}
 			}()
 
-			// redirect to /recover/key and send email with key and URL
-			http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/recover/key", http.StatusFound)
+			util.Redirect(req, res, pathConf, "/recover/key", http.StatusFound)
 
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
-			errView, err := views.Admin(util.Html("error_405"), appName)
+			errView, err := views.Admin(util.Html("error_405"), appName, pathConf)
 			if err != nil {
 				return
 			}

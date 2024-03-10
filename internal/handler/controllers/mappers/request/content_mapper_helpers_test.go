@@ -75,7 +75,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapJSONContentToURLValues() {
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "services/json")
 
 	expectedContent := map[string][]string{
 		"title":     {"API Content Title"},
@@ -114,7 +114,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapNestedJSONContentToURLValues(
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "services/json")
 
 	expectedContent := map[string][]string{
 		"title":                    {"API Content Title"},

@@ -5,6 +5,7 @@ package manager
 import (
 	"bytes"
 	"fmt"
+	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"html/template"
@@ -15,7 +16,7 @@ import (
 // TODO: move this to static template
 const managerHTML = `
 <div class="card editor">
-    <form method="post" action="/edit" enctype="multipart/form-data">
+    <form method="post" action="{{ .PublicPath }}/edit" enctype="multipart/form-data">
 		<input type="hidden" name="uuid" value="{{.UUID}}"/>
 		<input type="hidden" name="id" value="{{.ID}}"/>
 		<input type="hidden" name="type" value="{{.Kind}}"/>
@@ -115,16 +116,17 @@ const managerHTML = `
 var managerTmpl = template.Must(template.New("manager").Parse(managerHTML))
 
 type manager struct {
-	ID     string
-	UUID   uuid.UUID
-	Kind   string
-	Slug   string
-	Editor template.HTML
+	ID         string
+	UUID       uuid.UUID
+	Kind       string
+	Slug       string
+	Editor     template.HTML
+	PublicPath string
 }
 
 // Manage ...
-func Manage(e editor.Editable, typeName string) ([]byte, error) {
-	v, err := e.MarshalEditor()
+func Manage(e editor.Editable, paths config.Paths, typeName string) ([]byte, error) {
+	v, err := e.MarshalEditor(paths)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't marshal editor for content %s. %s", typeName, err.Error())
 	}
@@ -140,11 +142,12 @@ func Manage(e editor.Editable, typeName string) ([]byte, error) {
 	}
 
 	m := manager{
-		ID:     i.ItemID(),
-		UUID:   i.UniqueID(),
-		Kind:   typeName,
-		Slug:   s.ItemSlug(),
-		Editor: template.HTML(v),
+		ID:         i.ItemID(),
+		UUID:       i.UniqueID(),
+		Kind:       typeName,
+		Slug:       s.ItemSlug(),
+		Editor:     template.HTML(v),
+		PublicPath: paths.PublicPath,
 	}
 
 	// execute views template into buffer for func return val

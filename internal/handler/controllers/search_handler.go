@@ -2,17 +2,18 @@ package controllers
 
 import (
 	"bytes"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/search"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/search"
 	"github.com/fanky5g/ponzu/internal/util"
 	"log"
 	"net/http"
 )
 
-func NewSearchHandler(configService config.Service, searchService search.Service) http.HandlerFunc {
+func NewSearchHandler(pathConf conf.Paths, configService config.Service, searchService search.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
 		t := q.Get("type")
@@ -29,7 +30,7 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
+			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
 			if err != nil {
 				return
 			}
@@ -45,13 +46,13 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 		}
 
 		if t == "" {
-			http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
+			util.Redirect(req, res, pathConf, "/admin", http.StatusFound)
 			return
 		}
 
 		matches, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			LogAndFail(res, err, appName, pathConf)
 			return
 		}
 
@@ -60,7 +61,7 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 					<div class="card-content">
 					<div class="row">
 					<div class="card-title col s7">` + t + ` Results</div>
-					<form class="col s4" action="/contents/search" method="get">
+					<form class="col s4" action="` + pathConf.PublicPath + `/contents/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
@@ -73,13 +74,13 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 					<ul class="posts row">`
 
 		for i := range matches {
-			post := PostListItem(matches[i].(editor.Editable), t, status)
+			post := PostListItem(matches[i].(editor.Editable), t, status, pathConf)
 			_, err = b.Write(post)
 			if err != nil {
 				log.Println(err)
 
 				res.WriteHeader(http.StatusInternalServerError)
-				errView, err := views.Admin(util.Html("error_500"), appName)
+				errView, err := views.Admin(util.Html("error_500"), appName, pathConf)
 				if err != nil {
 					log.Println(err)
 				}
@@ -94,7 +95,7 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 			log.Println(err)
 
 			res.WriteHeader(http.StatusInternalServerError)
-			errView, err := views.Admin(util.Html("error_500"), appName)
+			errView, err := views.Admin(util.Html("error_500"), appName, pathConf)
 			if err != nil {
 				log.Println(err)
 			}
@@ -124,13 +125,13 @@ func NewSearchHandler(configService config.Service, searchService search.Service
 	`
 
 		btn := `<div class="col s3">
-		<a href="/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
+		<a href="` + pathConf.PublicPath + `/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
 			New ` + t + `
 		</a>`
 
 		html += b.String() + script + btn + `</div></div>`
 
-		adminView, err := views.Admin(html, appName)
+		adminView, err := views.Admin(html, appName, pathConf)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

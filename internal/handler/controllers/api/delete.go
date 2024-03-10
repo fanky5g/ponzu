@@ -2,9 +2,9 @@ package api
 
 import (
 	"errors"
-	"github.com/fanky5g/ponzu/internal/application/content"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/services/content"
 	"log"
 	"net/http"
 )

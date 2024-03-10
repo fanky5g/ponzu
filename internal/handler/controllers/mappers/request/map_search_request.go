@@ -18,7 +18,7 @@ func GetSearchRequestDto(req *http.Request) (*request.SearchRequestDto, error) {
 		}
 
 		return getSearchRequestFromURL(req.PostForm)
-	case "application/json":
+	case "services/json":
 		var searchRequest request.SearchRequestDto
 		if err := json.NewDecoder(req.Body).Decode(&searchRequest); err != nil {
 			return nil, err

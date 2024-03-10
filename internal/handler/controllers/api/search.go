@@ -3,9 +3,9 @@ package api
 import (
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/search"
 	"github.com/fanky5g/ponzu/internal/domain/entities/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/services/search"
 	"log"
 	"net/http"
 )
