@@ -2,22 +2,18 @@ package search
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/driver"
 )
 
-var ContentSearchService services.ServiceToken = "ContentSearchService"
-var UploadSearchService services.ServiceToken = "UploadSearchService"
-
 type service struct {
-	client interfaces.SearchClientInterface
+	client driver.SearchClientInterface
 }
 
 type Service interface {
 	Search(entityName, query string, count, offset int) ([]interface{}, error)
 }
 
-func New(client interfaces.SearchClientInterface) (Service, error) {
+func New(client driver.SearchClientInterface) (Service, error) {
 	return &service{client: client}, nil
 }
 

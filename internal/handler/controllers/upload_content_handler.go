@@ -3,42 +3,38 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/content/editor"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
-	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/storage"
-	"log"
+	"github.com/fanky5g/ponzu/tokens"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service, contentService storage.Service) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		appName, err := configService.GetAppName()
-		if err != nil {
-			log.Printf("Failed to get app name: %v\n", appName)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
+	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
 
+	return func(res http.ResponseWriter, req *http.Request) {
 		pt := interface{}(&entities.FileUpload{})
 		_, ok := pt.(editor.Editable)
 		if !ok {
-			LogAndFail(res, err, appName, pathConf)
+			log.Warning("entities.FileUpload is not editable")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
 		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to get search request dto")
 			return
 		}
 
 		search, err := request.MapSearchRequest(searchRequestDto)
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to map search request dto")
 			return
 		}
 
@@ -79,7 +75,7 @@ func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service,
 							</script>
 						</div>
 					</div>
-					<form class="col s4" action="` + pathConf.PublicPath + `/uploads/search" method="get">
+					<form class="col s4" action="{{ .PublicPath }}/uploads/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
@@ -89,10 +85,9 @@ func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service,
                    </form>
 					</div>`
 
-		status := ""
-		total, posts, err = contentService.GetAllWithOptions(storage.UploadsEntityName, search)
+		total, posts, err = storageService.GetAllWithOptions(constants.UploadsEntityName, search)
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to search uploads")
 			return
 		}
 
@@ -104,17 +99,19 @@ func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service,
 				post := `<li class="col s12">Error decoding data. Possible file corruption.</li>`
 				_, err = b.Write([]byte(post))
 				if err != nil {
-					LogAndFail(res, err, appName, pathConf)
+					log.WithField("Error", err).Warning("Failed to write template")
+					r.Renderer().InternalServerError(res)
 					return
 				}
 
 				continue
 			}
 
-			post := PostListItem(p, storage.UploadsEntityName, status, pathConf)
-			_, err = b.Write(post)
+			contentEntryTemplate := editor.BuildContentListEntryTemplate(p, constants.UploadsEntityName)
+			_, err = b.Write([]byte(contentEntryTemplate))
 			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to write template")
+				r.Renderer().InternalServerError(res)
 				return
 			}
 		}
@@ -123,7 +120,8 @@ func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service,
 
 		_, err = b.Write([]byte(`</ul>`))
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to write template")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -176,7 +174,8 @@ func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service,
 
 		_, err = b.Write([]byte(pagination + `</div></div>`))
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to write template")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -200,17 +199,9 @@ func NewUploadContentsHandler(pathConf conf.Paths, configService config.Service,
 	</script>
 	`
 
-		btn := `<div class="col s3"><a href="` + pathConf.PublicPath + `/edit/upload" class="btn new-post waves-effect waves-light">New upload</a></div></div>`
+		btn := `<div class="col s3"><a href="{{ .PublicPath }}/edit/upload" class="btn new-post waves-effect waves-light">New upload</a></div></div>`
 		html = html + b.String() + script + btn
 
-		adminView, err := views.Admin(html, appName, pathConf)
-		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		res.Header().Set("Content-Type", "text/html")
-		res.Write(adminView)
+		r.Renderer().InjectTemplateInAdmin(res, html, nil)
 	}
 }

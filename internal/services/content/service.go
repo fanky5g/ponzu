@@ -1,17 +1,17 @@
 package content
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
-	"github.com/fanky5g/ponzu/internal/domain/services/content"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	contentService "github.com/fanky5g/ponzu/internal/services/shared/content"
+	"github.com/fanky5g/ponzu/tokens"
 )
 
-var ServiceToken services.ServiceToken = "ContentService"
-
 type service struct {
-	contentDomainService content.Service
+	contentDomainService contentService.Service
+	types                map[string]content.Builder
 }
 
 func (s *service) DeleteContent(entityType, entityId string) error {
@@ -43,16 +43,19 @@ func (s *service) GetAll(entityType string) ([]interface{}, error) {
 }
 
 type Service interface {
-	content.Service
+	contentService.Service
 	ExportCSV(entityName string) (*entities.ResponseStream, error)
 }
 
 func New(
-	contentRepository interfaces.ContentRepositoryInterface,
-	configRepository interfaces.ConfigRepositoryInterface,
-	searchClient interfaces.SearchClientInterface,
+	db driver.Database,
+	types map[string]content.Builder,
+	searchClient driver.SearchClientInterface,
 ) (Service, error) {
-	for itemName, itemType := range item.Types {
+	contentRepository := db.Get(tokens.ContentRepositoryToken).(repositories.ContentRepositoryInterface)
+	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)
+
+	for itemName, itemType := range types {
 		if _, err := searchClient.GetIndex(itemName); err != nil {
 			err = searchClient.CreateIndex(itemName, itemType())
 			if err != nil {
@@ -61,13 +64,14 @@ func New(
 		}
 	}
 
-	contentDomainService, err := content.New(contentRepository, configRepository, searchClient)
+	contentDomainService, err := contentService.New(contentRepository, configRepository, searchClient)
 	if err != nil {
 		return nil, err
 	}
 
 	s := &service{
 		contentDomainService: contentDomainService,
+		types:                types,
 	}
 
 	return s, nil

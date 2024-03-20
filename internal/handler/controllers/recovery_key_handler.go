@@ -1,48 +1,34 @@
 package controllers
 
 import (
-	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	entities2 "github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
-	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/services/users"
-	"github.com/fanky5g/ponzu/internal/util"
-	"log"
+	"github.com/fanky5g/ponzu/tokens"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func NewRecoveryKeyHandler(
-	pathConf conf.Paths,
-	configService config.Service,
-	authService auth.Service,
-	userService users.Service) http.HandlerFunc {
+func NewRecoveryKeyHandler(r router.Router) http.HandlerFunc {
+	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
-			appName, err := configService.GetAppName()
-			if err != nil {
-				log.Printf("Failed to get app name: %v\n", appName)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			view, err := views.RecoveryKey(appName, pathConf)
-			if err != nil {
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			res.Write(view)
+			r.Renderer().Render(res, "recovery_key")
 
 		case http.MethodPost:
 			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 			if err != nil {
-				log.Println("Error parsing recovery key form:", err)
-
+				log.WithField("Error", err).Warning("Failed to parse form")
 				res.WriteHeader(http.StatusInternalServerError)
-				res.Write([]byte("Error, please go back and try again."))
+				if _, err = res.Write([]byte("Error, please go back and try again.")); err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
+
 				return
 			}
 
@@ -52,53 +38,63 @@ func NewRecoveryKeyHandler(
 
 			var actual string
 			if actual, err = authService.GetRecoveryKey(email); err != nil || actual == "" {
-				log.Println("Error getting recovery key from database:", err)
-
+				log.WithField("Error", err).Warning("Error getting recovery key from database")
 				res.WriteHeader(http.StatusInternalServerError)
-				res.Write([]byte("Error, please go back and try again."))
+				if _, err = res.Write([]byte("Error, please go back and try again.")); err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
+
 				return
 			}
 
 			if key != actual {
-				log.Println("Bad recovery key submitted:", key)
-
+				log.WithField("key", key).Warning("Bad recovery key submitted")
 				res.WriteHeader(http.StatusBadRequest)
-				res.Write([]byte("Error, please go back and try again."))
+				if _, err = res.Write([]byte("Error, please go back and try again.")); err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
+
 				return
 			}
 
 			// set user with new password
 			password := req.FormValue("password")
-			var user *entities.User
+			var user *entities2.User
 			user, err = userService.GetUserByEmail(email)
 			if err != nil {
-				log.Println("Error finding user by email:", email, err)
+				log.WithField("Error", err).Warning("Error finding user by email")
+				res.WriteHeader(http.StatusBadRequest)
+				if _, err = res.Write([]byte("Error, please go back and try again.")); err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
 
-				res.WriteHeader(http.StatusInternalServerError)
-				res.Write([]byte("Error, please go back and try again."))
 				return
 			}
 
 			if user == nil {
-				log.Println("No user found with email:", email)
-
+				log.Warning("No user found with email")
 				res.WriteHeader(http.StatusBadRequest)
-				res.Write([]byte("Error, please go back and try again."))
+				if _, err = res.Write([]byte("Error, please go back and try again.")); err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
+
 				return
 			}
 
-			if err = authService.SetCredential(user.ID, &entities.Credential{
-				Type:  entities.CredentialTypePassword,
+			if err = authService.SetCredential(user.ID, &entities2.Credential{
+				Type:  entities2.CredentialTypePassword,
 				Value: password,
 			}); err != nil {
-				log.Println("Error updating user:", err)
+				log.WithField("Error", err).Warning("Error updating user")
 
 				res.WriteHeader(http.StatusInternalServerError)
-				res.Write([]byte("Error, please go back and try again."))
+				if _, err = res.Write([]byte("Error, please go back and try again.")); err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
 				return
 			}
 
-			util.Redirect(req, res, pathConf, "/login", http.StatusFound)
+			r.Redirect(req, res, "/login")
 			return
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)

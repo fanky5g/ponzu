@@ -2,7 +2,7 @@ package analytics
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"time"
 )
 

@@ -3,40 +3,27 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
-	"github.com/fanky5g/ponzu/internal/domain/services/content"
-	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
+	"github.com/fanky5g/ponzu/content/editor"
+	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
-	"github.com/fanky5g/ponzu/internal/services/config"
-	"github.com/fanky5g/ponzu/internal/util"
-	"log"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/tokens"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-func NewContentsHandler(pathConf conf.Paths, configService config.Service, contentService content.Service) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		appName, err := configService.GetAppName()
-		if err != nil {
-			log.Printf("Failed to get app name: %v\n", appName)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+func NewContentsHandler(r router.Router) http.HandlerFunc {
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	contentTypes := r.Context().Types().Content
 
+	return func(res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
 		t := q.Get("type")
 		if t == "" {
-			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			r.Renderer().BadRequest(res)
 			return
 		}
 
@@ -47,20 +34,15 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 
 		status := q.Get("status")
 
-		if _, ok := item.Types[t]; !ok {
-			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+		if _, ok := contentTypes[t]; !ok {
+			r.Renderer().BadRequest(res)
 			return
 		}
 
-		pt := item.Types[t]()
+		pt := contentTypes[t]()
 		if _, ok := pt.(editor.Editable); !ok {
-			LogAndFail(res, fmt.Errorf("item %s does not implement editable interface", t), appName, pathConf)
+			log.Warnf("item %s does not implement editable interface", t)
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -69,7 +51,8 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 			if q.Get("count") == "" {
 				count = 10
 			} else {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to parse count")
+				r.Renderer().InternalServerError(res)
 				return
 			}
 		}
@@ -79,20 +62,23 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 			if q.Get("offset") == "" {
 				offset = 0
 			} else {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to parse offset")
+				r.Renderer().InternalServerError(res)
 				return
 			}
 		}
 
 		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to get SearchRequestDto")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
 		search, err := request.MapSearchRequest(searchRequestDto)
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to map search request")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -112,7 +98,7 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 					<div class="row">
 					<div class="col s8">
 						<div class="row">
-							<div class="card-title col s7">` + t + ` Items</div>
+							<div class="card-title col s7">{{ .Data.TypeName }} Items</div>
 							<div class="col s5 input-field inline">
 								<select class="browser-default __ponzu sort-order">
 									<option value="DESC">New to Old</option>
@@ -128,13 +114,12 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 										var path = window.location.pathname;
 										var s = sort.val();
 										var t = getParam('type');
-										var status = getParam('status');
 
 										if (status == "") {
 											status = "public";
 										}
 
-										window.location.replace(path + '?type=' + t + '&order=' + s + '&status=' + status);
+										window.location.replace(path + '?type=' + t + '&order=' + s);
 									});
 
 									var order = getParam('order');
@@ -146,28 +131,29 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 							</script>
 						</div>
 					</div>
-					<form class="col s4" action="` + pathConf.PublicPath + `/contents/search" method="get">
+					<form class="col s4" action="{{ .PublicPath }}/contents/search" method="get">
 						<div class="input-field post-search inline">
 							<label class="active">Search:</label>
 							<i class="right material-icons search-icon">search</i>
-							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
-							<input type="hidden" name="type" value="` + t + `" />
-							<input type="hidden" name="status" value="` + status + `" />
+							<input class="search" name="q" type="text" placeholder="Within all {{ .Data.TypeName }} fields" class="search"/>
+							<input type="hidden" name="type" value="{{ .Data.TypeName }}" />
 						</div>
                     </form>	
 					</div>`
 
 		total, posts, err = contentService.GetAllWithOptions(t+specifier, search)
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to search")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
 		for _, entity := range posts {
-			post := PostListItem(entity.(editor.Editable), t, status, pathConf)
-			_, err = b.Write(post)
+			contentListEntry := editor.BuildContentListEntryTemplate(entity.(editor.Editable), t)
+			_, err = b.Write([]byte(contentListEntry))
 			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to Render content list entry")
+				r.Renderer().InternalServerError(res)
 				return
 			}
 		}
@@ -176,7 +162,8 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 
 		_, err = b.Write([]byte(`</ul>`))
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to write buffer")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -229,7 +216,8 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 
 		_, err = b.Write([]byte(pagination + `</div></div>`))
 		if err != nil {
-			LogAndFail(res, err, appName, pathConf)
+			log.WithField("Error", err).Warning("Failed to write buffer")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -254,28 +242,19 @@ func NewContentsHandler(pathConf conf.Paths, configService config.Service, conte
 	`
 
 		btn := `<div class="col s3">
-		<a href="` + pathConf.PublicPath + `/edit?type=` + t + `" class="btn new-post waves-effect waves-light">
-			New ` + t + `
+		<a href="{{ .PublicPath }}/edit?type={{ .Data.TypeName }}" class="btn new-post waves-effect waves-light">
+			New {{ .Data.TypeName }}
 		</a>`
 
-		if _, ok := pt.(interfaces.CSVFormattable); ok {
+		if _, ok := pt.(item.CSVFormattable); ok {
 			btn += `<br/>
-				<a href="` + pathConf.PublicPath + `/contents/export?type=` + t + `&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
+				<a href="{{ .PublicPath }}/contents/export?type={{ .Data.TypeName }}&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
 					<i class="material-icons left">system_update_alt</i>
 					CSV
 				</a>`
 		}
 
 		html += b.String() + script + btn + `</div></div>`
-
-		adminView, err := views.Admin(html, appName, pathConf)
-		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		res.Header().Set("Content-Type", "text/html")
-		res.Write(adminView)
+		r.Renderer().InjectTemplateInAdmin(res, html, editor.ContentMetadata{TypeName: t})
 	}
 }

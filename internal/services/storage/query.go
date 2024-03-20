@@ -1,11 +1,12 @@
 package storage
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/entities"
 )
 
 func (s *service) GetFileUpload(key string) (*entities.FileUpload, error) {
-	file, err := s.Service.GetContent(UploadsEntityName, key)
+	file, err := s.Service.GetContent(constants.UploadsEntityName, key)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +19,7 @@ func (s *service) GetFileUpload(key string) (*entities.FileUpload, error) {
 }
 
 func (s *service) GetAllUploads() ([]entities.FileUpload, error) {
-	files, err := s.Service.GetAll(UploadsEntityName)
+	files, err := s.Service.GetAll(constants.UploadsEntityName)
 	if err != nil {
 		return nil, err
 	}

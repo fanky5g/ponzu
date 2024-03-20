@@ -4,7 +4,7 @@
 /*.db
 .idea
 
-internal/domain/entities/content/*
-!internal/domain/entities/content/doc.go
+internal/entities/content/*
+!internal/entities/content/doc.go
 .DS_Store
 ponzu

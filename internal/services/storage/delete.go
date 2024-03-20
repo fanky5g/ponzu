@@ -2,11 +2,12 @@ package storage
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/entities"
 )
 
 func (s *service) DeleteFile(target string) error {
-	fileUpload, err := s.GetContent(UploadsEntityName, target)
+	fileUpload, err := s.GetContent(constants.UploadsEntityName, target)
 	if err != nil {
 		return err
 	}
@@ -20,5 +21,5 @@ func (s *service) DeleteFile(target string) error {
 		return fmt.Errorf("failed to delete from file store: %v", err)
 	}
 
-	return s.Service.DeleteContent(UploadsEntityName, target)
+	return s.Service.DeleteContent(constants.UploadsEntityName, target)
 }

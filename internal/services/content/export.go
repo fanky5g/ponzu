@@ -6,10 +6,10 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
-	"github.com/fanky5g/ponzu/internal/domain/enum"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/tidwall/gjson"
 	"io"
 	"time"
@@ -77,12 +77,12 @@ func (f *csvFile) WriteJSONData(data []interface{}) error {
 }
 
 func (s *service) ExportCSV(entityName string) (*entities.ResponseStream, error) {
-	t, ok := item.Types[entityName]
+	t, ok := s.types[entityName]
 	if !ok {
-		return nil, fmt.Errorf(item.ErrTypeNotRegistered.Error(), entityName)
+		return nil, fmt.Errorf(content.ErrTypeNotRegistered.Error(), entityName)
 	}
 
-	csvFormattable, ok := t().(interfaces.CSVFormattable)
+	csvFormattable, ok := t().(item.CSVFormattable)
 	if !ok {
 		return nil, fmt.Errorf("%s does not implement CSV Formattable interface", entityName)
 	}
@@ -91,9 +91,9 @@ func (s *service) ExportCSV(entityName string) (*entities.ResponseStream, error)
 	var data []interface{}
 	var size int
 	var err error
-	// get content data and loop through creating a csv row per result
+	// get entities data and loop through creating a csv row per result
 	size, data, err = s.GetAllWithOptions(entityName, &entities.Search{
-		SortOrder: enum.Descending,
+		SortOrder: constants.Descending,
 		Pagination: &entities.Pagination{
 			Count:  chunkSize,
 			Offset: offset,
@@ -120,7 +120,7 @@ func (s *service) ExportCSV(entityName string) (*entities.ResponseStream, error)
 		read:      len(data),
 		loadMore: func(offset int) ([]interface{}, error) {
 			_, d, e := s.GetAllWithOptions(entityName, &entities.Search{
-				SortOrder: enum.Descending,
+				SortOrder: constants.Descending,
 				Pagination: &entities.Pagination{
 					Count:  chunkSize,
 					Offset: offset,

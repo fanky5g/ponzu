@@ -3,7 +3,7 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"mime/multipart"

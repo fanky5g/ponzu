@@ -3,61 +3,48 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	conf "github.com/fanky5g/ponzu/config"
-	domainErrors "github.com/fanky5g/ponzu/internal/domain/errors"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	domainErrors "github.com/fanky5g/ponzu/errors"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/services/users"
-	"github.com/fanky5g/ponzu/internal/util"
+	"github.com/fanky5g/ponzu/tokens"
 	emailer "github.com/nilslice/email"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func NewForgotPasswordHandler(
-	pathConf conf.Paths,
-	configService config.Service,
-	userService users.Service,
-	authService auth.Service) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		appName, err := configService.GetAppName()
-		if err != nil {
-			log.Printf("Failed to get app name: %v\n", appName)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+func NewForgotPasswordHandler(r router.Router) http.HandlerFunc {
+	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
+	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+	configService := r.Context().Service(tokens.ConfigServiceToken).(config.Service)
 
+	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
-			view, err := views.ForgotPassword(appName, pathConf)
-			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
-				return
-			}
-
-			res.Write(view)
+			r.Renderer().Render(res, "forgot_password")
 
 		case http.MethodPost:
 			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to parse form")
+				r.Renderer().InternalServerError(res)
 				return
 			}
 
 			// check email for user, if no user return Error
 			email := strings.ToLower(req.FormValue("email"))
 			if email == "" {
-				res.WriteHeader(http.StatusBadRequest)
-				log.Println("Failed account recovery. No email address submitted.")
+				log.Info("Failed account recovery. No email address submitted.")
+				r.Renderer().BadRequest(res)
 				return
 			}
 
 			_, err = userService.GetUserByEmail(email)
 			if errors.Is(err, domainErrors.ErrNoUserExists) {
-				res.WriteHeader(http.StatusBadRequest)
-				log.Println("No user exists.", err)
+				log.WithField("Error", err).Info("No user exists")
+				r.Renderer().BadRequest(res)
 				return
 			}
 
@@ -108,16 +95,9 @@ Ponzu CMS at %s
 				}
 			}()
 
-			util.Redirect(req, res, pathConf, "/recover/key", http.StatusFound)
-
+			r.Redirect(req, res, "/recover/key")
 		default:
-			res.WriteHeader(http.StatusMethodNotAllowed)
-			errView, err := views.Admin(util.Html("error_405"), appName, pathConf)
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			r.Renderer().MethodNotAllowed(res)
 			return
 		}
 	}

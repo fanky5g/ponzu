@@ -2,7 +2,7 @@ package auth
 
 import (
 	"errors"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 )
 
 func (s *service) Authorize(currentUserToken string, credential *entities.Credential) error {

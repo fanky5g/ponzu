@@ -2,8 +2,8 @@ package request
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/enum"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/http"
 	"net/url"
@@ -48,7 +48,7 @@ func getSearchRequestFromURL(qs url.Values) (*request.SearchRequestDto, error) {
 
 	return &request.SearchRequestDto{
 		Query:                q,
-		SortOrder:            enum.SortOrder(order),
+		SortOrder:            constants.SortOrder(order),
 		PaginationRequestDto: *paginationRequest,
 	}, nil
 }

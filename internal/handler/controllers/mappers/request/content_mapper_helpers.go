@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
-	"github.com/fanky5g/ponzu/internal/util"
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/util"
 	"github.com/gorilla/schema"
 	"net/http"
 	"net/url"
@@ -16,19 +16,19 @@ import (
 )
 
 var (
-	ErrUnsupportedContentType  = errors.New("unsupported content type")
+	ErrUnsupportedContentType  = errors.New("unsupported entities type")
 	PonzuRepeatPrefix          = ".__ponzu-repeat"
 	PonzuFieldCollectionPrefix = ".__ponzu-field-collection"
 )
 
-func mapPayloadToGenericEntity(t item.EntityBuilder, payload map[string][]string) (interface{}, error) {
+func mapPayloadToGenericEntity(t content.Builder, payload map[string][]string) (interface{}, error) {
 	entity := t()
 	addContentMetadata(payload)
 	transformArrayFields(payload)
 
 	dec := schema.NewDecoder()
 
-	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a content type
+	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a entities type
 	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
 	err := dec.Decode(entity, payload)
 	if err != nil {
@@ -181,7 +181,7 @@ func cleanArrayFields(entity interface{}, payload url.Values) {
 		v := reflect.Indirect(reflect.ValueOf(entity))
 		field := v.FieldByName(fieldName)
 
-		fieldCollections, isFieldCollections := (field.Interface()).(item.FieldCollections)
+		fieldCollections, isFieldCollections := (field.Interface()).(content.FieldCollections)
 		if isFieldCollections {
 			field = reflect.ValueOf(fieldCollections.Data())
 		}
@@ -200,7 +200,7 @@ func cleanArrayFields(entity interface{}, payload url.Values) {
 		}
 
 		if isFieldCollections {
-			fieldCollections.SetData(cleanedArray.Interface().([]item.FieldCollection))
+			fieldCollections.SetData(cleanedArray.Interface().([]content.FieldCollection))
 		} else {
 			field.Set(cleanedArray)
 		}
@@ -221,7 +221,7 @@ func buildFieldCollections(entity interface{}, payload map[string][]string, dec 
 
 		if field.IsValid() {
 			fieldValue := field.Interface()
-			fieldCollections, isFieldCollection := fieldValue.(item.FieldCollections)
+			fieldCollections, isFieldCollection := fieldValue.(content.FieldCollections)
 			if !isFieldCollection {
 				continue
 			}

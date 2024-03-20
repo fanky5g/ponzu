@@ -2,7 +2,7 @@ package request
 
 import (
 	"errors"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 )
 
 var (

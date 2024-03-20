@@ -2,7 +2,10 @@ package serve
 
 import (
 	"github.com/fanky5g/ponzu/application"
-	"github.com/fanky5g/ponzu/database"
+	"github.com/fanky5g/ponzu/application/server"
+	"github.com/fanky5g/ponzu/content"
+	generatorTypes "github.com/fanky5g/ponzu/content/generator/types"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -27,12 +30,7 @@ var serveCmd = &cobra.Command{
 	Aliases: []string{"s"},
 	Short:   "run the server",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		db, err := database.New()
-		if err != nil {
-			panic(err)
-		}
-
-		serveConfig := &application.ServeConfig{
+		serveConfig := &server.ServeConfig{
 			HttpsPort: httpsPort,
 			HttpPort:  port,
 			Bind:      bind,
@@ -40,12 +38,20 @@ var serveCmd = &cobra.Command{
 			Https:     https,
 		}
 
+		// TODO: pass default content types from default application types dir
 		app, err := application.New(application.Config{
 			ServeConfig: serveConfig,
-			Database:    db,
-		})
+			ContentTypes: content.Types{
+				Content:          make(map[string]content.Builder),
+				FieldCollections: make(map[string]content.Builder),
+				Definitions:      make(map[string]generatorTypes.TypeDefinition),
+			}})
 
-		return app.Serve()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		return app.Server().Serve()
 	},
 }
 

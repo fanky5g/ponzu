@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
+	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"net/http"
 	"strings"
 )
@@ -14,9 +14,8 @@ const (
 
 var CacheControlMiddleware Token = "CacheControlMiddleware"
 
-func NewCacheControlMiddleware(cacheable interfaces.Cacheable) Middleware {
+func NewCacheControlMiddleware(cache repositories.Cache) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
-		cache := cacheable.Cache()
 
 		return func(res http.ResponseWriter, req *http.Request) {
 			cacheDisabled := cache.GetByKey("cache_disabled").(bool)

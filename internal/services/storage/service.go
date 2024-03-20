@@ -3,18 +3,17 @@
 package storage
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
-	"github.com/fanky5g/ponzu/internal/domain/services/content"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	"github.com/fanky5g/ponzu/internal/services/shared/content"
+	"github.com/fanky5g/ponzu/tokens"
 	"mime/multipart"
 )
 
-var ServiceToken services.ServiceToken = "StorageService"
-var UploadsEntityName = "uploads"
-
 type service struct {
-	client interfaces.StorageClientInterface
+	client driver.StorageClientInterface
 	content.Service
 }
 
@@ -24,20 +23,22 @@ type Service interface {
 	GetFileUpload(target string) (*entities.FileUpload, error)
 	DeleteFile(target string) error
 	StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error)
-	interfaces.StaticFileSystemInterface
+	driver.StaticFileSystemInterface
 }
 
 func New(
-	contentRepository interfaces.ContentRepositoryInterface,
-	configRepository interfaces.ConfigRepositoryInterface,
-	searchClient interfaces.SearchClientInterface,
-	client interfaces.StorageClientInterface) (Service, error) {
-	contentDomainService, err := content.New(contentRepository, configRepository, searchClient)
+	db driver.Database,
+	searchClient driver.SearchClientInterface,
+	client driver.StorageClientInterface) (Service, error) {
+	uploadsRepository := db.Get(tokens.UploadRepositoryToken).(repositories.ContentRepositoryInterface)
+	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)
+
+	contentDomainService, err := content.New(uploadsRepository, configRepository, searchClient)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = searchClient.CreateIndex(UploadsEntityName, &entities.FileUpload{}); err != nil {
+	if err = searchClient.CreateIndex(constants.UploadsEntityName, &entities.FileUpload{}); err != nil {
 		return nil, err
 	}
 

@@ -1,0 +1,38 @@
+package {{ .Target.Package }}
+
+import (
+	"github.com/fanky5g/ponzu/content"
+)
+
+type {{ .Definition.Name }} struct {
+    {{ range .Definition.Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
+    {{ end }}
+}
+
+func init() {
+	Definitions["{{ .Definition.Name }}"] = content.TypeDefinition {
+        Name:          "{{ .Definition.Name }}",
+        Label:         "{{ .Definition.Label }}",
+        Initial:       "{{ .Definition.Initial }}",
+        Fields:        []content.Field{
+            {{- range .Definition.Fields }}
+                {
+                    Name:  "{{ .Name }}",
+                    Label: "{{ .Name }}",
+                    Initial: "{{ .Initial }}",
+                    TypeName: "{{ .TypeName }}",
+                    JSONName: "{{ .JSONName }}",
+                    ViewType: "{{ .ViewType }}",
+                    IsReference: {{ .IsReference }},
+                    IsNested: {{ .IsNested }},
+                    ReferenceName: "{{ .ReferenceName }}",
+                    ReferenceJSONTags: []string{
+                        {{ range .ReferenceJSONTags }}{{ . }}
+                        {{ end }}
+                    },
+                },
+            {{- end }}
+        },
+        HasReferences: {{ .Definition.HasReferences }},
+	}
+}

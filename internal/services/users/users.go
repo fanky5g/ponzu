@@ -2,15 +2,14 @@ package users
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	"github.com/fanky5g/ponzu/tokens"
 )
 
-var ServiceToken services.ServiceToken = "UserService"
-
 type service struct {
-	repository interfaces.UserRepositoryInterface
+	repository repositories.UserRepositoryInterface
 }
 
 type Service interface {
@@ -67,6 +66,6 @@ func (s *service) ListUsers() ([]entities.User, error) {
 	return users, nil
 }
 
-func New(userRepository interfaces.UserRepositoryInterface) (Service, error) {
-	return &service{repository: userRepository}, nil
+func New(db driver.Database) (Service, error) {
+	return &service{repository: db.Get(tokens.UserRepositoryToken).(repositories.UserRepositoryInterface)}, nil
 }
