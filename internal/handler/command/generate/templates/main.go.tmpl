@@ -1,0 +1,58 @@
+package main
+
+import (
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/generator"
+	"github.com/fanky5g/ponzu/content/generator/parser"
+	targetPackage "{{ .ModuleName }}/{{ .Target.Package }}"
+	"log"
+)
+
+func main() {
+	types := content.Types{
+		Content:          targetPackage.Content,
+		FieldCollections: targetPackage.FieldCollections,
+		Definitions:      targetPackage.Definitions,
+	}
+
+	p, err := parser.New(types)
+
+	// parse type info from args
+	typeDefinition, err := p.ParseTypeDefinition({{ .ContentType }}, []string{
+		{{- range .Arguments }}
+		"{{ . }}",
+		{{- end }}
+	})
+
+	if err != nil {
+		log.Panicf("failed to parse type args: %s\n", err.Error())
+	}
+
+	domainContentGenerator, err := generator.New(generator.Config{
+		Types: types,
+		Target: generator.Target{
+			Path: generator.Path{
+				Root: "{{ .Target.Path.Root }}",
+				Base: "{{ .Target.Path.Base }}",
+			},
+			Package: "{{ .Target.Package }}",
+		},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	contentGenerators := []generator.ContentGenerator{domainContentGenerator}
+	for _, contentGenerator := range contentGenerators {
+		for _, field := range typeDefinition.Fields {
+			if err = contentGenerator.ValidateField(&field); err != nil {
+				log.Panic(err)
+			}
+		}
+
+		if err = contentGenerator.Generate({{ .ContentType }}, typeDefinition); err != nil {
+			log.Panic(err)
+		}
+	}
+}

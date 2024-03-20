@@ -1,15 +1,14 @@
 package config
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	"github.com/fanky5g/ponzu/tokens"
 	"net/url"
 )
 
-var ServiceToken services.ServiceToken = "ConfigService"
-
 type service struct {
-	repository interfaces.ConfigRepositoryInterface
+	repository repositories.ConfigRepositoryInterface
 }
 
 type Service interface {
@@ -74,6 +73,6 @@ func (s *service) GetAppName() (string, error) {
 	return s.GetStringValue("name")
 }
 
-func New(repository interfaces.ConfigRepositoryInterface) (Service, error) {
-	return &service{repository: repository}, nil
+func New(db driver.Database) (Service, error) {
+	return &service{repository: db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)}, nil
 }

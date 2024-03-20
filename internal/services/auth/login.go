@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"golang.org/x/crypto/bcrypt"
 )
 

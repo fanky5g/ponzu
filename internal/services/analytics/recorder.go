@@ -1,8 +1,8 @@
 package analytics
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
+	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"log"
 	"runtime"
 	"time"
@@ -22,7 +22,7 @@ func (s *service) Record(req entities.AnalyticsHTTPRequestMetadata) {
 	requestChan <- req
 }
 
-func (s *service) StartRecorder(analyticsRepository interfaces.AnalyticsRepositoryInterface) {
+func (s *service) StartRecorder(analyticsRepository repositories.AnalyticsRepositoryInterface) {
 	requestChan = make(chan entities.AnalyticsHTTPRequestMetadata, 1024*64*runtime.NumCPU())
 	// make timer to notify select to batch request insert from requestChan
 	// interval: 30 seconds

@@ -1,0 +1,75 @@
+package {{ .Target.Package }}
+
+import (
+	"fmt"
+	"reflect"
+	{{ if .Definition.HasReferences }}
+	"github.com/bosssauce/reference"
+	{{ end }}
+	"github.com/fanky5g/ponzu/content/editor"
+	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/content/item"
+)
+
+type {{ .Definition.Name }} struct {
+    item.Item
+
+    {{ range .Definition.Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
+    {{ end }}	
+}
+
+// MarshalEditor writes a buffer of views to edit a {{ .Definition.Name }} within the CMS
+// and implements editor.Editable
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) MarshalEditor(paths config.Paths) ([]byte, error) {
+	view, err := editor.Form({{ .Definition.Initial }},
+	    paths,
+        // Take note that the first argument to these Input-like functions 
+        // is the string version of each {{ .Definition.Name }} field, and must follow
+        // this pattern for auto-decoding and auto-encoding reasons:
+        {{ range .Definition.Fields }}editor.Field{
+			{{ .View }}
+		},
+		{{ end }}
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to render {{ .Definition.Name }} editor view: %s", err.Error())
+	}
+
+	return view, nil
+}
+
+func init() {
+	Content["{{ .Definition.Name }}"] = func() interface{} { return new({{ .Definition.Name }}) }
+}
+
+// String defines how a {{ .Definition.Name }} is printed. Update it using more descriptive
+// fields from the {{ .Definition.Name }} struct type
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) String() string {
+	return fmt.Sprintf("{{ .Definition.Name }}: %s", {{ .Definition.Initial }}.UUID)
+}
+
+// IndexContent determines if {{ .Definition.Name }} should be indexed for searching
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) IndexContent() bool {
+	return false
+}
+
+// GetSearchableAttributes defines fields of {{ .Definition.Name }} that should be indexed
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) GetSearchableAttributes() map[string]reflect.Type {
+	searchableAttributes := make(map[string]reflect.Type)
+	idField := "ID"
+	v := reflect.Indirect(reflect.ValueOf({{ .Definition.Initial }}))
+    searchableAttributes[idField] = v.FieldByName(idField).Type()
+
+	t := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		fieldName := t.Field(i).Name
+
+		if fieldName != idField && field.Kind() == reflect.String {
+			searchableAttributes[fieldName] = field.Type()
+		}
+	}
+
+	return searchableAttributes
+}

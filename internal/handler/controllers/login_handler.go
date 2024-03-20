@@ -1,95 +1,75 @@
 package controllers
 
 import (
-	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
-	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/services/users"
-	"github.com/fanky5g/ponzu/internal/util"
-	"log"
+	"github.com/fanky5g/ponzu/tokens"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func hasSystemUsers(userService users.Service) (bool, error) {
-	systemUsers, err := userService.ListUsers()
-	if err != nil {
-		return false, err
-	}
+func NewLoginHandler(r router.Router) http.HandlerFunc {
+	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
+	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
 
-	return len(systemUsers) > 0, nil
-}
-
-func NewLoginHandler(
-	pathConf conf.Paths,
-	configService config.Service,
-	authService auth.Service,
-	userService users.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		systemInitialized, err := hasSystemUsers(userService)
+		systemUsers, err := userService.ListUsers()
 		if err != nil {
-			log.Printf("Failed to check system initialization: %v\n", err)
-			res.WriteHeader(http.StatusInternalServerError)
+			log.WithField("Error", err).Warning("Failed to list users")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
+		systemInitialized := len(systemUsers) > 0
 		if !systemInitialized {
-			util.Redirect(req, res, pathConf, "/init", http.StatusFound)
+			r.Redirect(req, res, "/init")
 			return
 		}
 
 		isValid, err := authService.IsTokenValid(request.GetAuthToken(req))
 		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
-			log.Printf("Failed to check token validity: %v\n", err)
+			log.WithField("Error", err).Printf("Failed to check token validity: %v\n", err)
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
 		if isValid {
-			util.Redirect(req, res, pathConf, "/admin", http.StatusFound)
+			r.Redirect(req, res, "/admin")
 			return
 		}
 
 		switch req.Method {
 		case http.MethodGet:
-			appName, err := configService.GetAppName()
-			if err != nil {
-				log.Printf("Failed to get app name: %v\n", appName)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			view, err := views.Login(appName, pathConf)
-			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			res.Header().Set("Content-Type", "text/html")
-			res.Write(view)
+			r.Renderer().Render(res, "login_admin")
 
 		case http.MethodPost:
 			err = req.ParseForm()
 			if err != nil {
-				log.Println(err)
-				util.Redirect(req, res, pathConf, req.URL.RequestURI(), http.StatusFound)
+				log.WithField("Error", err).Warning("Failed to parse form")
+				r.Redirect(req, res, req.URL.RequestURI())
 				return
 			}
 
 			email := strings.ToLower(req.FormValue("email"))
 			password := req.FormValue("password")
-			authToken, err := authService.LoginByEmail(email, &entities.Credential{
+			var authToken *entities.AuthToken
+			authToken, err = authService.LoginByEmail(email, &entities.Credential{
 				Type:  entities.CredentialTypePassword,
 				Value: password,
 			})
 
-			if err != nil || authToken == nil {
-				log.Println("Failed to login user", err)
-				util.Redirect(req, res, pathConf, req.URL.RequestURI(), http.StatusFound)
+			if err != nil {
+				log.WithField("Error", err).Warning("Failed to login user")
+				r.Redirect(req, res, req.URL.RequestURI())
+				return
+			}
+
+			if authToken == nil {
+				r.Redirect(req, res, req.URL.RequestURI())
 				return
 			}
 
@@ -100,7 +80,7 @@ func NewLoginHandler(
 				Path:    "/",
 			})
 
-			util.Redirect(req, res, pathConf, "/login", http.StatusFound)
+			r.Redirect(req, res, "/login")
 		}
 	}
 }

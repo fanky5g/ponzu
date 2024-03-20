@@ -2,7 +2,7 @@ package request
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/content/item"
 	"mime/multipart"
 	"net/http"
 )

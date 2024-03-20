@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/response"
 	"time"
 )

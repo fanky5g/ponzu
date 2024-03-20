@@ -3,110 +3,94 @@ package controllers
 import (
 	"context"
 	"fmt"
-	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
-	"github.com/fanky5g/ponzu/internal/domain/services/content"
-	"github.com/fanky5g/ponzu/internal/domain/services/management/editor"
-	"github.com/fanky5g/ponzu/internal/domain/services/management/manager"
+	contentPkg "github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/editor"
+	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
-	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/internal/services/storage"
-	"github.com/fanky5g/ponzu/internal/util"
-	"log"
+	"github.com/fanky5g/ponzu/tokens"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func NewEditHandler(
-	pathConf conf.Paths,
-	configService config.Service,
-	contentService content.Service,
-	storageService storage.Service) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		appName, err := configService.GetAppName()
-		if err != nil {
-			log.Printf("Failed to get app name: %v\n", appName)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+func NewEditHandler(r router.Router) http.HandlerFunc {
+	contentTypes := r.Context().Types().Content
+	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
 
+	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
 			q := req.URL.Query()
 			i := q.Get("id")
 			t := q.Get("type")
-			status := q.Get("status")
 
-			contentType, ok := item.Types[t]
+			contentType, ok := contentTypes[t]
 			if !ok {
-				fmt.Fprintf(res, item.ErrTypeNotRegistered.Error(), t)
+				_, err := fmt.Fprintf(res, contentPkg.ErrTypeNotRegistered.Error(), t)
+				if err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
+
 				return
 			}
 
-			post := contentType()
+			contentEntry := contentType()
+			var err error
 			if i != "" {
-				if status == "pending" {
-					t = t + "__pending"
-				}
-
-				post, err = contentService.GetContent(t, i)
+				contentEntry, err = contentService.GetContent(t, i)
 				if err != nil {
-					LogAndFail(res, err, appName, pathConf)
+					log.WithField("Error", err).Warning("Failed to get content")
 					return
 				}
 
-				if post == nil {
-					res.WriteHeader(http.StatusNotFound)
-					errView, err := views.Admin(util.Html("error_404"), appName, pathConf)
-					if err != nil {
-						return
-					}
-
-					res.Write(errView)
+				if contentEntry == nil {
+					r.Renderer().BadRequest(res)
 					return
 				}
 			} else {
-				_, ok = post.(item.Identifiable)
+				_, ok = contentEntry.(item.Identifiable)
 				if !ok {
 					log.Println("Content type", t, "doesn't implement item.Identifiable")
 					return
 				}
 			}
 
-			m, err := manager.Manage(post.(editor.Editable), pathConf, t)
-			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
-				return
-			}
-
-			adminView, err := views.Admin(string(m), appName, pathConf)
-			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			res.Header().Set("Content-Type", "text/html")
-			res.Write(adminView)
+			r.Renderer().ManageEditable(res, contentEntry.(editor.Editable), t)
 		case http.MethodPost:
-			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
-			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
-				return
-			}
-
 			cid := req.FormValue("id")
 			t := req.FormValue("type")
+
+			contentType, ok := contentTypes[t]
+			if !ok {
+				_, err := fmt.Fprintf(res, contentPkg.ErrTypeNotRegistered.Error(), t)
+				if err != nil {
+					log.WithField("Error", err).Warning("Failed to write response")
+				}
+
+				return
+			}
+
+			err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+			if err != nil {
+				log.WithField("Error", err).Warning("Failed to parse form")
+				r.Renderer().InternalServerError(res)
+				return
+			}
+
 			files, err := request.GetRequestFiles(req)
 			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to get request files")
+				r.Renderer().InternalServerError(res)
 				return
 			}
 
 			urlPaths, err := storageService.StoreFiles(files)
 			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to get save files")
 				return
 			}
 
@@ -119,22 +103,16 @@ func NewEditHandler(
 				pt = strings.Split(t, "__")[0]
 			}
 
-			entity, err := request.GetEntityFromFormData(pt, req.PostForm)
+			entity, err := request.GetEntityFromFormData(contentType, req.PostForm)
 			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to map request entity")
 				return
 			}
 
 			hook, ok := entity.(item.Hookable)
 			if !ok {
 				log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
-				res.WriteHeader(http.StatusBadRequest)
-				errView, err := views.Admin(util.Html("error_400"), appName, pathConf)
-				if err != nil {
-					return
-				}
-
-				res.Write(errView)
+				r.Renderer().BadRequest(res)
 				return
 			}
 
@@ -160,7 +138,7 @@ func NewEditHandler(
 
 			id, err := contentService.CreateContent(t, entity)
 			if err != nil {
-				LogAndFail(res, err, appName, pathConf)
+				log.WithField("Error", err).Warning("Failed to create content")
 				return
 			}
 
@@ -188,15 +166,7 @@ func NewEditHandler(
 				}
 			}
 
-			path := strings.TrimSuffix(pathConf.PublicPath, req.URL.Path)
-			redir := path + "?type=" + pt + "&id=" + id
-
-			if req.URL.Query().Get("status") == "pending" {
-				redir += "&status=pending"
-			}
-
-			util.Redirect(req, res, pathConf, redir, http.StatusFound)
-			return
+			r.Redirect(req, res, req.URL.Path+"?type="+pt+"&id="+id)
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 		}

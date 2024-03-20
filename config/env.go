@@ -31,7 +31,7 @@ func TlsDir() string {
 	return tlsDir
 }
 
-func AdminStaticDir() string {
+func AssetStaticDir() string {
 	staticDir := os.Getenv("PONZU_ADMINSTATIC_DIR")
 	if staticDir == "" {
 		staticDir = filepath.Join(rootPath, "public", "static")

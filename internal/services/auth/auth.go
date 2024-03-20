@@ -2,20 +2,19 @@ package auth
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	"github.com/fanky5g/ponzu/tokens"
 	"github.com/nilslice/jwt"
 	"math/rand"
 	"time"
 )
 
-var ServiceToken services.ServiceToken = "AuthService"
-
 type service struct {
-	userRepository        interfaces.UserRepositoryInterface
-	credentialRepository  interfaces.CredentialHashRepositoryInterface
-	recoveryKeyRepository interfaces.RecoveryKeyRepositoryInterface
+	userRepository        repositories.UserRepositoryInterface
+	credentialRepository  repositories.CredentialHashRepositoryInterface
+	recoveryKeyRepository repositories.RecoveryKeyRepositoryInterface
 }
 
 type Service interface {
@@ -82,11 +81,12 @@ func (s *service) SetRecoveryKey(email string) (string, error) {
 	return key, s.recoveryKeyRepository.SetRecoveryKey(email, key)
 }
 
-func New(
-	configRepository interfaces.ConfigRepositoryInterface,
-	userRepository interfaces.UserRepositoryInterface,
-	credentialRepository interfaces.CredentialHashRepositoryInterface,
-	recoveryKeyRepository interfaces.RecoveryKeyRepositoryInterface) (Service, error) {
+func New(db driver.Database) (Service, error) {
+	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)
+	userRepository := db.Get(tokens.UserRepositoryToken).(repositories.UserRepositoryInterface)
+	credentialRepository := db.Get(tokens.CredentialHashRepositoryToken).(repositories.CredentialHashRepositoryInterface)
+	recoveryKeyRepository := db.Get(tokens.RecoveryKeyRepositoryToken).(repositories.RecoveryKeyRepositoryInterface)
+
 	clientSecret := configRepository.Cache().GetByKey("client_secret").(string)
 	if clientSecret != "" {
 		jwt.Secret([]byte(clientSecret))
