@@ -19,6 +19,11 @@ body {
     overflow-x: hidden;
 }
 
+body, button {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 fieldset {
     min-width: 0;
     border: 0;
@@ -227,11 +232,6 @@ li:hover .quick-delete-post, li:hover .delete-user {
     top: -10px;
 }
 
-div.editor-content, div.editor-metadata {
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
 .addon-meta a {
     color: #7e7e7e;
     text-decoration: underline;
@@ -315,8 +315,12 @@ div.col.s6:has(select.block-select) {
     margin-top: 20px;
 }
 
-.tabs .tab a, .tabs .tab a:hover {
+.tabs .tab a, .tabs .tab a:hover, .tabs .tab a.active {
     color: #039be5;
+}
+
+.tabs .tab a.active, .tabs .tab a:focus.active {
+    background-color: transparent;
 }
 
 .tabs .indicator {
@@ -325,4 +329,9 @@ div.col.s6:has(select.block-select) {
 
 .tabs {
     border-bottom: 1px solid #e0e0e0;
+}
+
+.card.editor > form > .row {
+    margin-left: 0;
+    margin-right: 0;
 }

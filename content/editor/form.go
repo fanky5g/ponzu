@@ -16,11 +16,11 @@ func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 		<div class="row">
 			<div class="col s12">
 			  <ul class="tabs">
-				<li class="tab col s3"><a class="active" href="#entities"><i class="material-icons">edit</i>Edit</a></li>
+				<li class="tab col s3"><a class="active" href="#content"><i class="material-icons">edit</i>Edit</a></li>
 				<li class="tab col s3"><a href="#properties"><i class="material-icons">tune</i>Properties</a></li>
 			  </ul>
 			</div>
-			<div id="entities" class="col s12 editor-entities">
+			<div id="content" class="col s12 card-content editor-content">
 	`)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 	}
 
 	// entities items with Item embedded have some default fields we need to render
-	_, err = editor.ViewBuf.WriteString(`<div id="properties" class="col s12 editor-metadata">`)
+	_, err = editor.ViewBuf.WriteString(`<div id="properties" class="col s12 card-content editor-metadata">`)
 	if err != nil {
 		log.Println("Error writing HTML string to editor Form buffer")
 		return nil, err
