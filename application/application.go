@@ -8,7 +8,6 @@ import (
 )
 
 type Config struct {
-	ServeConfig  *server.ServeConfig
 	ContentTypes content.Types
 }
 
@@ -35,7 +34,7 @@ func New(conf Config) (Application, error) {
 		return nil, err
 	}
 
-	svr, err := server.New(conf.ServeConfig, conf.ContentTypes, infra, svcs)
+	svr, err := server.New(conf.ContentTypes, infra, svcs)
 	if err != nil {
 		return nil, err
 	}

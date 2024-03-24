@@ -7,7 +7,7 @@ import (
 
 func (server *server) Serve() error {
 	// cannot run production HTTPS and development HTTPS together
-	if server.cfg.DevHttps {
+	if server.cfg.ServeConfig.DevHttps {
 		fmt.Println("Enabling self-signed HTTPS... [DEV]")
 
 		go server.tlsService.EnableDev()
@@ -16,7 +16,7 @@ func (server *server) Serve() error {
 		fmt.Println("If your browser rejects HTTPS requests, try allowing insecure connections on localhost.")
 		fmt.Println("on Chrome, visit chrome://flags/#allow-insecure-localhost")
 
-	} else if server.cfg.Https {
+	} else if server.cfg.ServeConfig.Https {
 		fmt.Println("Enabling HTTPS...")
 
 		go server.tlsService.Enable()
@@ -26,7 +26,7 @@ func (server *server) Serve() error {
 		)
 	}
 
-	fmt.Printf("Server listening at %s:%d for HTTP requests...\n", server.cfg.Bind, server.cfg.HttpPort)
+	fmt.Printf("Server listening at %s:%d for HTTP requests...\n", server.cfg.ServeConfig.Bind, server.cfg.ServeConfig.HttpPort)
 	fmt.Println("\nVisit '/' to get started.")
-	return http.ListenAndServe(fmt.Sprintf("%s:%d", server.cfg.Bind, server.cfg.HttpPort), server.mux)
+	return http.ListenAndServe(fmt.Sprintf("%s:%d", server.cfg.ServeConfig.Bind, server.cfg.ServeConfig.HttpPort), server.mux)
 }
