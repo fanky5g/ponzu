@@ -73,7 +73,7 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string, args *Fi
 					$.ajax({
 						data: data,
 						type: 'PUT',	
-						url: '/edit/upload',
+						url: '{{ .PublicPath }}/edit/upload',
 						cache: false,
 						contentType: false,
 						processData: false,

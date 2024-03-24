@@ -7,7 +7,11 @@ import (
 	"net/http"
 )
 
-func RegisterRoutes(r router.Router, staticFileSystem driver.StaticFileSystemInterface) error {
+func RegisterRoutes(
+	r router.Router,
+	staticFileSystem driver.StaticFileSystemInterface,
+	uploadsStaticFileSystem driver.StaticFileSystemInterface,
+) error {
 	r.AuthorizedRoute("/", NewAdminHandler)
 
 	r.Route("/init", NewInitHandler)
@@ -32,7 +36,7 @@ func RegisterRoutes(r router.Router, staticFileSystem driver.StaticFileSystemInt
 	r.AuthorizedRoute("/edit/upload", NewEditUploadHandler)
 	r.AuthorizedRoute("/edit/upload/delete", NewDeleteUploadHandler)
 
-	api.RegisterRoutes(r)
+	api.RegisterRoutes(r, uploadsStaticFileSystem)
 
 	r.HandleWithCacheControl("/static/", http.StripPrefix("/static", http.FileServer(staticFileSystem)))
 	return nil

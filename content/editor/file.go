@@ -1,5 +1,7 @@
 package editor
 
+import "fmt"
+
 // File returns the []byte of a <input type="file"> HTML element with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
@@ -24,7 +26,7 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 		</div>`
 
 	script :=
-		`<script>
+		fmt.Sprintf(`<script>
 			$(function() {
 				var $file = $('.file-input.` + name + `'),
 					storage = $file.find('input.storage'),
@@ -126,7 +128,7 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 					clip.empty();
 				}
 			});	
-		</script>`
+		</script>`)
 
 	return []byte(tmpl + script)
 }

@@ -332,6 +332,6 @@ div.col.s6:has(select.block-select) {
     margin-right: 0;
 }
 
-.input-field:has(input[type="hidden"]) {
+.input-field:has(input[name="timestamp"]), .input-field:has(input[name="updated"]) {
     display: none;
 }

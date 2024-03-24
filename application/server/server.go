@@ -75,6 +75,7 @@ func New(contentTypes content.Types, infra infrastructure.Infrastructure, svcs s
 	err = controllers.RegisterRoutes(
 		rtr,
 		infra.Get(tokens.AssetStorageClientInfrastructureToken).(driver.StorageClientInterface),
+		infra.Get(tokens.StorageClientInfrastructureToken).(driver.StorageClientInterface),
 	)
 	if err != nil {
 		return nil, err

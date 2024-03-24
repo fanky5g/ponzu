@@ -5,6 +5,7 @@ import (
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
+	"path/filepath"
 	"reflect"
 	"time"
 )
@@ -24,6 +25,8 @@ func (f *FileUpload) String() string { return f.Name }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {
+	f.Path = filepath.Join(paths.PublicPath, f.Path)
+
 	view, err := editor.Form(f,
 		paths,
 		editor.Field{
@@ -34,7 +37,6 @@ func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {
 
 				return []byte(`
             <div class="input-field col s12">
-                <!-- Add your custom editor field view here. -->
 				<h5>` + f.Name + `</h5>
 				<ul>
 					<li><span class="grey-text text-lighten-1">Content-Length:</span> ` + fmt.Sprintf("%s", FmtBytes(float64(f.ContentLength))) + `</li>
