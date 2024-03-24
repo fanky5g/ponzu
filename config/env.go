@@ -13,15 +13,6 @@ func init() {
 	rootPath = filepath.Join(filepath.Dir(b), "..")
 }
 
-func DataDir() string {
-	dataDir := os.Getenv("PONZU_DATA_DIR")
-	if dataDir == "" {
-		return rootPath
-	}
-
-	return dataDir
-}
-
 func TlsDir() string {
 	tlsDir := os.Getenv("PONZU_TLS_DIR")
 	if tlsDir == "" {
@@ -38,20 +29,4 @@ func AssetStaticDir() string {
 	}
 
 	return staticDir
-}
-
-func UploadDir() string {
-	uploadDir := os.Getenv("PONZU_UPLOAD_DIR")
-	if uploadDir == "" {
-		uploadDir = filepath.Join(DataDir(), "uploads")
-	}
-	return uploadDir
-}
-
-func SearchDir() string {
-	searchDir := os.Getenv("PONZU_SEARCH_DIR")
-	if searchDir == "" {
-		searchDir = filepath.Join(DataDir(), "search")
-	}
-	return searchDir
 }

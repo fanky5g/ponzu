@@ -3,11 +3,8 @@ package command
 import (
 	"fmt"
 	"github.com/fanky5g/ponzu/internal/handler/command/generate"
-	"github.com/fanky5g/ponzu/internal/handler/command/serve"
-
-	"os"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var RootCmd = &cobra.Command{
@@ -25,6 +22,5 @@ func Execute() {
 }
 
 func init() {
-	serve.RegisterCommandRecursive(RootCmd)
 	generate.RegisterCommandRecursive(RootCmd)
 }
