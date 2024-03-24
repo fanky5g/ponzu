@@ -38,7 +38,7 @@ func New(contentTypes map[string]content.Builder) (Infrastructure, error) {
 		return nil, fmt.Errorf("failed to initialize database: %v", err)
 	}
 
-	uploadStorageClient, err := storage.New(config.UploadDir())
+	uploadStorageClient, err := storage.New("")
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize storage client: %v", err)
 	}

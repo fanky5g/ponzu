@@ -10,6 +10,7 @@ import (
 
 type Paths struct {
 	PublicPath string
+	DataDir    string
 }
 
 type ServeConfig struct {
@@ -25,25 +26,30 @@ type Config struct {
 	ServeConfig ServeConfig
 }
 
-func defineFlags(flagSet *flag.FlagSet) {
+func defineFlags(flagSet *flag.FlagSet, workingDir string) {
 	flagSet.String("public_path", "", "Optional URL path to serve ponzu on")
 	flagSet.String("bind", "localhost", "address for ponzu to bind the HTTP(S) server")
 	flagSet.Int("https_port", 443, "port for ponzu to bind its HTTPS listener")
 	flagSet.Int("port", 8080, "port for ponzu to bind its HTTP listener")
 	flagSet.Bool("https", false, "enable automatic TLS/SSL certificate management")
 	flagSet.Bool("dev_https", false, "[dev environment] enable automatic TLS/SSL certificate management")
+	flagSet.String(
+		"data_dir",
+		workingDir,
+		"directory where application data should be stored. Defaults to working directory",
+	)
 }
 
 func New() (*Config, error) {
-	flags := flag.NewFlagSet("config", flag.ExitOnError)
-	defineFlags(flags)
-
-	if err := flags.Parse(os.Args[1:]); err != nil {
+	cwd, err := os.Getwd()
+	if err != nil {
 		return nil, err
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
+	flags := flag.NewFlagSet("config", flag.ExitOnError)
+	defineFlags(flags, cwd)
+
+	if err = flags.Parse(os.Args[1:]); err != nil {
 		return nil, err
 	}
 
