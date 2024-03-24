@@ -141,7 +141,7 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 		return nil, err
 	}
 
-	open := []byte(`
+	openingTag := []byte(`
 	<div class="card">
 		<div class="card-content">
 			<div class="card-title">System Configuration</div>
@@ -149,7 +149,7 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 		<form action="` + paths.PublicPath + `/configure" method="post">
 	`)
 
-	close := []byte(`</form></div>`)
+	closingTag := []byte(`</form></div>`)
 	script := []byte(`
 	<script>
 		$(function() {
@@ -177,8 +177,8 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 	</script>
 	`)
 
-	view = append(open, view...)
-	view = append(view, close...)
+	view = append(openingTag, view...)
+	view = append(view, closingTag...)
 	view = append(view, script...)
 
 	return view, nil
