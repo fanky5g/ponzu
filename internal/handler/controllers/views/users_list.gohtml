@@ -1,58 +1,62 @@
-<div class="card user-management">
-    <div class="card-title">Edit your account:</div>
-    <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users/edit" method="post">
-        <div class="col s9">
-            <label class="active">Email Address</label>
-            <input type="email" name="email" value="{{ .Data.User.Email }}"/>
-        </div>
+<div class="card">
+    <div class="card-content">
+        <div class="card-title">Edit your account:</div>
 
-        <div class="col s9">
-            <div>To approve changes, enter your password:</div>
+        <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users/edit" method="post">
+            <div class="col s9">
+                <label class="active">Email Address</label>
+                <input type="email" name="email" value="{{ .Data.User.Email }}"/>
+            </div>
 
-            <label class="active">Current Password</label>
-            <input type="password" name="password"/>
-        </div>
+            <div class="col s9">
+                <div>To approve changes, enter your password:</div>
 
-        <div class="col s9">
-            <label class="active">New Password: (leave blank if no password change needed)</label>
-            <input name="new_password" type="password"/>
-        </div>
+                <label class="active">Current Password</label>
+                <input type="password" name="password"/>
+            </div>
 
-        <div class="col s9">
-            <button class="btn waves-effect waves-light green right" type="submit">Save</button>
-        </div>
-    </form>
+            <div class="col s9">
+                <label class="active">New Password: (leave blank if no password change needed)</label>
+                <input name="new_password" type="password"/>
+            </div>
 
-    <div class="card-title">Add a new user:</div>
-    <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users" method="post">
-        <div class="col s9">
-            <label class="active">Email Address</label>
-            <input type="email" name="email" value=""/>
-        </div>
+            <div class="col s9">
+                <button class="btn waves-effect waves-light green right" type="submit">Save</button>
+            </div>
+        </form>
 
-        <div class="col s9">
-            <label class="active">Password</label>
-            <input type="password" name="password"/>
-        </div>
+        <div class="card-title">Add a new user:</div>
+        <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users" method="post">
+            <div class="col s9">
+                <label class="active">Email Address</label>
+                <input type="email" name="email" value=""/>
+            </div>
 
-        <div class="col s9">
-            <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
-        </div>
-    </form>
+            <div class="col s9">
+                <label class="active">Password</label>
+                <input type="password" name="password"/>
+            </div>
 
-    <div class="card-title">Remove Admin Users</div>
-    <ul class="users row">
-        {{ range .Data.Users }}
-            <li class="col s9">
-                {{ .Email }}
-                <form enctype="multipart/form-data" class="delete-user __ponzu right" action="{{ .PublicPath }}/configure/users/delete" method="post">
-                    <span>Delete</span>
-                    <input type="hidden" name="email" value="{{ .Email }}"/>
-                    <input type="hidden" name="id" value="{{ .ID }}"/>
-                </form>
-            </li>
+            <div class="col s9">
+                <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
+            </div>
+        </form>
+        {{ $numberOfUsers := len .Data.Users }}{{ if gt $numberOfUsers 0 }}
+            <div class="card-title">Remove Admin Users</div>
+            <ul class="users row">
+                {{ range .Data.Users }}
+                    <li class="col s9">
+                        {{ .Email }}
+                        <form enctype="multipart/form-data" class="delete-user __ponzu right" action="{{ .PublicPath }}/configure/users/delete" method="post">
+                            <span>Delete</span>
+                            <input type="hidden" name="email" value="{{ .Email }}"/>
+                            <input type="hidden" name="id" value="{{ .ID }}"/>
+                        </form>
+                    </li>
+                {{ end }}
+            </ul>
         {{ end }}
-    </ul>
+    </div>
 </div>
 <script>
     $(function() {
