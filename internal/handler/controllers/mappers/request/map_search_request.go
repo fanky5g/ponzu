@@ -2,8 +2,8 @@ package request
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/enum"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/http"
 	"net/url"
@@ -18,7 +18,7 @@ func GetSearchRequestDto(req *http.Request) (*request.SearchRequestDto, error) {
 		}
 
 		return getSearchRequestFromURL(req.PostForm)
-	case "application/json":
+	case "services/json":
 		var searchRequest request.SearchRequestDto
 		if err := json.NewDecoder(req.Body).Decode(&searchRequest); err != nil {
 			return nil, err
@@ -48,7 +48,7 @@ func getSearchRequestFromURL(qs url.Values) (*request.SearchRequestDto, error) {
 
 	return &request.SearchRequestDto{
 		Query:                q,
-		SortOrder:            enum.SortOrder(order),
+		SortOrder:            constants.SortOrder(order),
 		PaginationRequestDto: *paginationRequest,
 	}, nil
 }

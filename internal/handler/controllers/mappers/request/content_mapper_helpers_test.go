@@ -3,7 +3,8 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/item"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -20,7 +21,7 @@ type page struct {
 	ContentBlocks *pageContentBlocks `json:"content_blocks"`
 }
 
-type pageContentBlocks []item.FieldCollection
+type pageContentBlocks []content.FieldCollection
 
 type textBlock struct {
 	Text string `json:"text"`
@@ -30,26 +31,26 @@ func (p *pageContentBlocks) Name() string {
 	return "Page Content Blocks"
 }
 
-func (p *pageContentBlocks) Data() []item.FieldCollection {
+func (p *pageContentBlocks) Data() []content.FieldCollection {
 	return *p
 }
 
-func (p *pageContentBlocks) Add(fieldCollection item.FieldCollection) {
+func (p *pageContentBlocks) Add(fieldCollection content.FieldCollection) {
 	*p = append(*p, fieldCollection)
 }
 
-func (p *pageContentBlocks) Set(i int, fieldCollection item.FieldCollection) {
+func (p *pageContentBlocks) Set(i int, fieldCollection content.FieldCollection) {
 	data := p.Data()
 	data[i] = fieldCollection
 	*p = data
 }
 
-func (p *pageContentBlocks) SetData(data []item.FieldCollection) {
+func (p *pageContentBlocks) SetData(data []content.FieldCollection) {
 	*p = data
 }
 
-func (p *pageContentBlocks) AllowedTypes() map[string]item.EntityBuilder {
-	return map[string]item.EntityBuilder{
+func (p *pageContentBlocks) AllowedTypes() map[string]content.Builder {
+	return map[string]content.Builder{
 		"TextBlock": func() interface{} {
 			return new(textBlock)
 		},
@@ -75,7 +76,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapJSONContentToURLValues() {
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "services/json")
 
 	expectedContent := map[string][]string{
 		"title":     {"API Content Title"},
@@ -85,9 +86,9 @@ func (suite *ContentMapperHelpersTestSuite) TestMapJSONContentToURLValues() {
 		"trustable": {"true"},
 	}
 
-	content, err := mapJSONContentToURLValues(req)
+	jsonContent, err := mapJSONContentToURLValues(req)
 	if assert.NoError(suite.T(), err) {
-		assert.Equal(suite.T(), expectedContent, content)
+		assert.Equal(suite.T(), expectedContent, jsonContent)
 	}
 }
 
@@ -114,7 +115,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapNestedJSONContentToURLValues(
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "services/json")
 
 	expectedContent := map[string][]string{
 		"title":                    {"API Content Title"},
@@ -157,7 +158,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntity() {
 		"title":     []string{"API Content Title"},
 	}
 
-	var t item.EntityBuilder = func() interface{} {
+	var t content.Builder = func() interface{} {
 		return new(Review)
 	}
 
@@ -218,7 +219,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		"author.name": []string{"Foo Bar"},
 	}
 
-	var t item.EntityBuilder = func() interface{} {
+	var t content.Builder = func() interface{} {
 		return new(Review)
 	}
 
@@ -289,7 +290,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		".__ponzu-repeat.authors.removed": []string{"1,2,4"},
 	}
 
-	var t item.EntityBuilder = func() interface{} {
+	var t content.Builder = func() interface{} {
 		return new(Review)
 	}
 
@@ -343,10 +344,10 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		"title":                       []string{"Home"},
 		"url":                         []string{"https://ponzu.domain"},
 		"content_blocks.0.type":       []string{"TextBlock"},
-		"content_blocks.0.value.text": []string{"This is some WYSIWYG content"},
+		"content_blocks.0.value.text": []string{"This is some WYSIWYG entities"},
 	}
 
-	var t item.EntityBuilder = func() interface{} {
+	var t content.Builder = func() interface{} {
 		return new(page)
 	}
 
@@ -369,7 +370,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		ContentBlocks: &pageContentBlocks{
 			{
 				Type:  "TextBlock",
-				Value: &textBlock{Text: "This is some WYSIWYG content"},
+				Value: &textBlock{Text: "This is some WYSIWYG entities"},
 			},
 		},
 	}
@@ -390,16 +391,16 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		"title":                       []string{"Home"},
 		"url":                         []string{"https://ponzu.domain"},
 		"content_blocks.0.type":       []string{"TextBlock"},
-		"content_blocks.0.value.text": []string{"This is some WYSIWYG content"},
+		"content_blocks.0.value.text": []string{"This is some WYSIWYG entities"},
 		"content_blocks.3.type":       []string{"TextBlock"},
-		"content_blocks.3.value.text": []string{"This is some WYSIWYG content 3"},
+		"content_blocks.3.value.text": []string{"This is some WYSIWYG entities 3"},
 		"content_blocks.5.type":       []string{"TextBlock"},
-		"content_blocks.5.value.text": []string{"This is some WYSIWYG content 5"},
+		"content_blocks.5.value.text": []string{"This is some WYSIWYG entities 5"},
 		".__ponzu-field-collection.content_blocks.length":  []string{"3"},
 		".__ponzu-field-collection.content_blocks.removed": []string{"1,2,4"},
 	}
 
-	var t item.EntityBuilder = func() interface{} {
+	var t content.Builder = func() interface{} {
 		return new(page)
 	}
 
@@ -422,15 +423,15 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		ContentBlocks: &pageContentBlocks{
 			{
 				Type:  "TextBlock",
-				Value: &textBlock{Text: "This is some WYSIWYG content"},
+				Value: &textBlock{Text: "This is some WYSIWYG entities"},
 			},
 			{
 				Type:  "TextBlock",
-				Value: &textBlock{Text: "This is some WYSIWYG content 3"},
+				Value: &textBlock{Text: "This is some WYSIWYG entities 3"},
 			},
 			{
 				Type:  "TextBlock",
-				Value: &textBlock{Text: "This is some WYSIWYG content 5"},
+				Value: &textBlock{Text: "This is some WYSIWYG entities 5"},
 			},
 		},
 	}

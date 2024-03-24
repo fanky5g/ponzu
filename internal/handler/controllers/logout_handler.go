@@ -1,17 +1,20 @@
 package controllers
 
 import (
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"net/http"
 	"time"
 )
 
-func LogoutHandler(res http.ResponseWriter, req *http.Request) {
-	http.SetCookie(res, &http.Cookie{
-		Name:    "_token",
-		Expires: time.Unix(0, 0),
-		Value:   "",
-		Path:    "/",
-	})
+func NewLogoutHandler(r router.Router) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		http.SetCookie(res, &http.Cookie{
+			Name:    "_token",
+			Expires: time.Unix(0, 0),
+			Value:   "",
+			Path:    "/",
+		})
 
-	http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/login", http.StatusFound)
+		r.Redirect(req, res, "/login")
+	}
 }

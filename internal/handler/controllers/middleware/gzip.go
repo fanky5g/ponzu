@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"compress/gzip"
-	"github.com/fanky5g/ponzu/internal/application/config"
+	"github.com/fanky5g/ponzu/internal/services/config"
 	"log"
 	"net/http"
 	"strings"
@@ -51,7 +51,7 @@ func NewGzipMiddleware(configService config.Service) Middleware {
 				return
 			}
 
-			// check if req header content-encoding supports gzip
+			// check if req header entities-encoding supports gzip
 			if strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 				// gzip response data
 				res.Header().Set("Content-Encoding", "gzip")

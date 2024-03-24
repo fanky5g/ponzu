@@ -1,14 +1,18 @@
 package api
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/auth"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/response"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/tokens"
 
 	"net/http"
 )
 
-func NewAuthHandler(authService auth.Service) http.HandlerFunc {
+func NewAuthHandler(r router.Router) http.HandlerFunc {
+	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodPost:

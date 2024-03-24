@@ -1,0 +1,86 @@
+package {{ .Target.Package }}
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/fanky5g/ponzu/content"
+)
+
+type {{ .Definition.Name }} []content.FieldCollection
+
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Name() string {
+	return "{{ .Definition.Label }}"
+}
+
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Data() []content.FieldCollection {
+	if p == nil {
+		return nil
+	}
+
+	return *p
+}
+
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) AllowedTypes() map[string]content.Builder {
+	return map[string]content.Builder{
+	    {{- range .Definition.ContentBlocks }}
+	        "{{ .TypeName }}": func() interface{} {
+                return new({{ .TypeName }})
+            },
+	    {{- end }}
+	}
+}
+
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Add(fieldCollection content.FieldCollection) {
+	*p = append(*p, fieldCollection)
+}
+
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Set(i int, fieldCollection content.FieldCollection) {
+	data := p.Data()
+	data[i] = fieldCollection
+	*p = data
+}
+
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) SetData(data []content.FieldCollection) {
+	*p = data
+}
+
+func ({{ .Definition.Initial }} *{{ .Definition.Name }}) UnmarshalJSON(b []byte) error {
+	if p == nil {
+		*p = make([]content.FieldCollection, 0)
+	}
+
+	allowedTypes := p.AllowedTypes()
+
+	var value []content.FieldCollection
+	if err := json.Unmarshal(b, &value); err != nil {
+		return err
+	}
+
+	for i, t := range value {
+		builder, ok := allowedTypes[t.Type]
+		if !ok {
+			return fmt.Errorf("type %s not implemented", t.Type)
+		}
+
+		entity := builder()
+		byteRepresentation, err := json.Marshal(t.Value)
+		if err != nil {
+			return err
+		}
+
+		if err = json.Unmarshal(byteRepresentation, entity); err != nil {
+			return err
+		}
+
+		value[i].Value = entity
+	}
+
+	*p = value
+	return nil
+}
+
+func init() {
+	FieldCollections["{{ .Definition.Name }}"] = func() interface{} {
+		return new({{ .Definition.Name }})
+	}
+}

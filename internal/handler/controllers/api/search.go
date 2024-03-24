@@ -3,16 +3,21 @@ package api
 import (
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/search"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/search"
+	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
 )
 
 var ErrMissingSearchQuery = errors.New("query cannot be empty")
 
-func NewSearchContentHandler(searchService search.Service) http.HandlerFunc {
+func NewSearchContentHandler(r router.Router) http.HandlerFunc {
+	contentTypes := r.Context().Types().Content
+	searchService := r.Context().Service(tokens.ContentSearchServiceToken).(search.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		t := req.URL.Query().Get("type")
 		if t == "" {
@@ -20,9 +25,9 @@ func NewSearchContentHandler(searchService search.Service) http.HandlerFunc {
 			return
 		}
 
-		_, ok := item.Types[t]
+		_, ok := contentTypes[t]
 		if !ok {
-			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(item.ErrTypeNotRegistered.Error(), t))
+			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(content.ErrTypeNotRegistered.Error(), t))
 			return
 		}
 

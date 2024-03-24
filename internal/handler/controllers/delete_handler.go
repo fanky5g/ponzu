@@ -1,33 +1,29 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/content"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
-	"github.com/fanky5g/ponzu/internal/util"
-	"log"
+	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/tokens"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func NewDeleteHandler(configService config.Service, contentService content.Service) http.HandlerFunc {
+func NewDeleteHandler(r router.Router) http.HandlerFunc {
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	contentTypes := r.Context().Types().Content
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 
-		appName, err := configService.GetAppName()
+		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
-			log.Printf("Failed to get app name: %v\n", appName)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
-		if err != nil {
-			LogAndFail(res, err, appName)
+			log.WithField("Error", err).Warning("Failed to parse form")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -46,16 +42,10 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 			ct = spec[0]
 		}
 
-		p, ok := item.Types[ct]
+		p, ok := contentTypes[ct]
 		if !ok {
 			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			r.Renderer().BadRequest(res)
 			return
 		}
 
@@ -63,19 +53,14 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 		hook, ok := post.(item.Hookable)
 		if !ok {
 			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			errView, err := views.Admin(util.Html("error_400"), appName)
-			if err != nil {
-				return
-			}
-
-			res.Write(errView)
+			r.Renderer().BadRequest(res)
 			return
 		}
 
 		post, err = contentService.GetContent(t, id)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			log.WithField("Error", err).Warning("Failed to get content")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -102,7 +87,8 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 
 		err = contentService.DeleteContent(t, id)
 		if err != nil {
-			LogAndFail(res, err, appName)
+			log.WithField("Error", err).Warning("Failed to delete content")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
@@ -126,8 +112,6 @@ func NewDeleteHandler(configService config.Service, contentService content.Servi
 			}
 		}
 
-		redir := strings.TrimSuffix(req.URL.Scheme+req.URL.Host+req.URL.Path, "/edit/delete")
-		redir = redir + "/contents?type=" + ct
-		http.Redirect(res, req, redir, http.StatusFound)
+		r.Redirect(req, res, "/edit/delete/contents?type="+ct)
 	}
 }

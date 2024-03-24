@@ -3,7 +3,7 @@ package request
 import (
 	"encoding/json"
 	"errors"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/http"
 	"net/url"
@@ -15,13 +15,13 @@ func MapAuthRequest(req *http.Request) (string, *entities.Credential, error) {
 	var authRequest *request.AuthRequestDto
 	contentType := getContentType(req)
 
-	if contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data" {
+	if contentType == "services/x-www-form-urlencoded" || contentType == "multipart/form-data" {
 		if err := req.ParseMultipartForm(1024 * 1024 * 4); err != nil {
 			return "", nil, err
 		}
 
 		authRequest = mapAuthRequestFromFormData(req.PostForm)
-	} else if contentType == "application/json" {
+	} else if contentType == "services/json" {
 		if err := json.NewDecoder(req.Body).Decode(&authRequest); err != nil {
 			return "", nil, err
 		}

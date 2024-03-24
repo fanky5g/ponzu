@@ -2,53 +2,45 @@ package controllers
 
 import (
 	"encoding/base64"
-	"github.com/fanky5g/ponzu/internal/application/auth"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/application/users"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
-	"github.com/fanky5g/ponzu/internal/util"
-	"log"
+	entities2 "github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/services/users"
+	"github.com/fanky5g/ponzu/tokens"
+	"github.com/fanky5g/ponzu/util"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func NewInitHandler(configService config.Service, userService users.Service, authService auth.Service) http.HandlerFunc {
+func NewInitHandler(r router.Router) http.HandlerFunc {
+	configService := r.Context().Service(tokens.ConfigServiceToken).(config.Service)
+	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
-		systemInitialized, err := hasSystemUsers(userService)
+		systemUsers, err := userService.ListUsers()
 		if err != nil {
-			log.Printf("Failed to check system initialization: %v\n", err)
-			res.WriteHeader(http.StatusInternalServerError)
+			log.WithField("Error", err).Warning("Failed to list users")
+			r.Renderer().InternalServerError(res)
 			return
 		}
 
+		systemInitialized := len(systemUsers) > 0
 		if systemInitialized {
-			http.Redirect(res, req, req.URL.Scheme+req.URL.Host+"/admin", http.StatusFound)
+			r.Redirect(req, res, "/admin")
 			return
 		}
 
 		switch req.Method {
 		case http.MethodGet:
-			appName, err := configService.GetAppName()
-			if err != nil {
-				log.Printf("Failed to get app name: %v\n", appName)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			view, err := views.Init(appName)
-			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			res.Header().Set("Content-Type", "text/html")
-			res.Write(view)
-
+			r.Renderer().Render(res, "init_admin")
+			return
 		case http.MethodPost:
-			err := req.ParseForm()
+			err = req.ParseForm()
 			if err != nil {
-				log.Println(err)
+				log.WithField("Error", err).Warning("Failed to parse form")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -65,15 +57,16 @@ func NewInitHandler(configService config.Service, userService users.Service, aut
 			// create and save controllers user
 			email := strings.ToLower(req.FormValue("email"))
 			password := req.FormValue("password")
-			user, err := userService.CreateUser(email)
+			var user *entities2.User
+			user, err = userService.CreateUser(email)
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			if err = authService.SetCredential(user.ID, &entities.Credential{
-				Type:  entities.CredentialTypePassword,
+			if err = authService.SetCredential(user.ID, &entities2.Credential{
+				Type:  entities2.CredentialTypePassword,
 				Value: password,
 			}); err != nil {
 				log.Println(err)
@@ -114,9 +107,7 @@ func NewInitHandler(configService config.Service, userService users.Service, aut
 				Path:    "/",
 			})
 
-			redir := strings.TrimSuffix(req.URL.String(), "/init")
-			http.Redirect(res, req, redir, http.StatusFound)
-
+			r.Redirect(req, res, strings.TrimSuffix(req.URL.RequestURI(), "/init"))
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 		}

@@ -1,10 +1,2 @@
-/ponzu-server
-/uploads
-/search
-/*.db
 .idea
-
-internal/domain/entities/content/*
-!internal/domain/entities/content/doc.go
 .DS_Store
-ponzu

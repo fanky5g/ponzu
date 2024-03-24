@@ -1,7 +1,9 @@
 package middleware
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/config"
+	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
 	"net/url"
@@ -60,8 +62,10 @@ func responseWithCORS(
 }
 
 func NewCORSMiddleware(
-	configService config.Service,
+	applicationServices services.Services,
 	cacheControlMiddleware Middleware) Middleware {
+	configService := applicationServices.Get(tokens.ConfigServiceToken).(config.Service)
+
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return cacheControlMiddleware(
 			func(res http.ResponseWriter, req *http.Request) {

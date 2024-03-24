@@ -1,21 +1,24 @@
 package api
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/content"
-	"github.com/fanky5g/ponzu/internal/application/storage"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"fmt"
+	contentPkg "github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
 )
 
-func NewContentHandler(contentService content.Service, storageService storage.Service) http.HandlerFunc {
-	handleCreateContent := NewCreateContentHandler(contentService, storageService)
-	handleListContent := NewListContentHandler(contentService)
-	handleGetContentById := NewContentByIdHandler(contentService)
-	handleGetContentBySlug := NewContentBySlugHandler(contentService)
-	handleUpdateContent := NewUpdateContentHandler(contentService, storageService)
-	handleDeleteContent := NewDeleteContentHandler(contentService)
+func NewContentHandler(r router.Router) http.HandlerFunc {
+	handleCreateContent := NewCreateContentHandler(r)
+	handleListContent := NewListContentHandler(r)
+	handleGetContentById := NewContentByIdHandler(r)
+	handleGetContentBySlug := NewContentBySlugHandler(r)
+	handleUpdateContent := NewUpdateContentHandler(r)
+	handleDeleteContent := NewDeleteContentHandler(r)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)
@@ -54,7 +57,10 @@ func NewContentHandler(contentService content.Service, storageService storage.Se
 	}
 }
 
-func NewListContentHandler(contentService content.Service) http.HandlerFunc {
+func NewListContentHandler(r router.Router) http.HandlerFunc {
+	contentTypes := r.Context().Types().Content
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
 		t := q.Get("type")
@@ -63,7 +69,7 @@ func NewListContentHandler(contentService content.Service) http.HandlerFunc {
 			return
 		}
 
-		it, ok := item.Types[t]
+		it, ok := contentTypes[t]
 		if !ok {
 			res.WriteHeader(http.StatusNotFound)
 			return
@@ -83,7 +89,7 @@ func NewListContentHandler(contentService content.Service) http.HandlerFunc {
 
 		_, posts, err := contentService.GetAllWithOptions(t, search)
 		if err != nil {
-			log.Printf("Failed to list content: %v\n", err)
+			log.Printf("Failed to list entities: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -117,12 +123,15 @@ func NewListContentHandler(contentService content.Service) http.HandlerFunc {
 	}
 }
 
-func NewContentByIdHandler(contentService content.Service) func(string, http.ResponseWriter, *http.Request) {
+func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *http.Request) {
+	contentTypes := r.Context().Types().Content
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+
 	return func(contentId string, res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
 		t := q.Get("type")
 
-		pt, ok := item.Types[t]
+		pt, ok := contentTypes[t]
 		if !ok {
 			res.WriteHeader(http.StatusNotFound)
 			return
@@ -130,7 +139,7 @@ func NewContentByIdHandler(contentService content.Service) func(string, http.Res
 
 		post, err := contentService.GetContent(t, contentId)
 		if err != nil {
-			log.Printf("Failed to get content: %v\n", err)
+			log.Printf("Failed to get entities: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -163,11 +172,14 @@ func NewContentByIdHandler(contentService content.Service) func(string, http.Res
 	}
 }
 
-func NewContentBySlugHandler(contentService content.Service) func(string, http.ResponseWriter, *http.Request) {
+func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, *http.Request) {
+	contentTypes := r.Context().Types().Content
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+
 	return func(contentId string, res http.ResponseWriter, req *http.Request) {
 		t, post, err := contentService.GetContentBySlug(contentId)
 		if err != nil {
-			log.Printf("Failed to get content: %v\n", err)
+			log.Printf("Failed to get entities: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -177,9 +189,9 @@ func NewContentBySlugHandler(contentService content.Service) func(string, http.R
 			return
 		}
 
-		pt, ok := item.Types[t]
+		pt, ok := contentTypes[t]
 		if !ok {
-			writeJSONError(res, http.StatusBadRequest, item.ErrTypeNotRegistered)
+			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(contentPkg.ErrTypeNotRegistered.Error(), t))
 			return
 		}
 

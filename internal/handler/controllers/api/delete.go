@@ -2,18 +2,23 @@ package api
 
 import (
 	"errors"
-	"github.com/fanky5g/ponzu/internal/application/content"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
 )
 
-func NewDeleteContentHandler(contentService content.Service) http.HandlerFunc {
+func NewDeleteContentHandler(r router.Router) http.HandlerFunc {
+	contentTypes := r.Context().Types().Content
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)
 		if identifier == "" {
-			writeJSONError(res, http.StatusBadRequest, errors.New("content id is required"))
+			writeJSONError(res, http.StatusBadRequest, errors.New("entities id is required"))
 			return
 		}
 
@@ -27,9 +32,9 @@ func NewDeleteContentHandler(contentService content.Service) http.HandlerFunc {
 			return
 		}
 
-		p, found := item.Types[t]
+		p, found := contentTypes[t]
 		if !found {
-			log.Println("[Delete] attempt to delete content of unknown type:", t, "from:", req.RemoteAddr)
+			log.Println("[Delete] attempt to delete entities of unknown type:", t, "from:", req.RemoteAddr)
 			res.WriteHeader(http.StatusNotFound)
 			return
 		}

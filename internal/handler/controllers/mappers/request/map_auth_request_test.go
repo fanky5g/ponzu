@@ -3,7 +3,7 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"mime/multipart"
@@ -32,7 +32,7 @@ func (suite *AuthRequestTestSuite) TestMapJSONRequest() {
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "services/json")
 
 	expectedCredential := &entities.Credential{
 		Type:  entities.CredentialTypePassword,

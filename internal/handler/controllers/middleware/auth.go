@@ -1,15 +1,21 @@
 package middleware
 
 import (
-	"github.com/fanky5g/ponzu/internal/application/auth"
+	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/tokens"
+	"github.com/fanky5g/ponzu/util"
 	"log"
 	"net/http"
 )
 
 var AuthMiddleware Token = "AuthMiddleware"
 
-func NewAuthMiddleware(authService auth.Service) func(next http.HandlerFunc) http.HandlerFunc {
+func NewAuthMiddleware(paths conf.Paths, applicationServices services.Services) func(next http.HandlerFunc) http.HandlerFunc {
+	authService := applicationServices.Get(tokens.AuthServiceToken).(auth.Service)
+
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(res http.ResponseWriter, req *http.Request) {
 			authToken := request.GetAuthToken(req)
@@ -25,8 +31,7 @@ func NewAuthMiddleware(authService auth.Service) func(next http.HandlerFunc) htt
 				return
 			}
 
-			redir := req.URL.Scheme + req.URL.Host + "/login"
-			http.Redirect(res, req, redir, http.StatusFound)
+			util.Redirect(req, res, paths, "/login", http.StatusFound)
 		}
 	}
 }

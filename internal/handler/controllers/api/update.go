@@ -3,19 +3,26 @@ package api
 import (
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/application/content"
-	"github.com/fanky5g/ponzu/internal/application/storage"
-	"github.com/fanky5g/ponzu/internal/domain/entities/item"
+	contentPkg "github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/internal/services/storage"
+	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
 )
 
-func NewUpdateContentHandler(contentService content.Service, storageService storage.Service) http.HandlerFunc {
+func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
+	contentTypes := r.Context().Types().Content
+	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)
 		if identifier == "" {
-			writeJSONError(res, http.StatusBadRequest, errors.New("content id is required"))
+			writeJSONError(res, http.StatusBadRequest, errors.New("entities id is required"))
 			return
 		}
 
@@ -50,9 +57,9 @@ func NewUpdateContentHandler(contentService content.Service, storageService stor
 			}
 		}
 
-		pt, ok := item.Types[t]
+		pt, ok := contentTypes[t]
 		if !ok {
-			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(item.ErrTypeNotRegistered.Error(), t))
+			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(contentPkg.ErrTypeNotRegistered.Error(), t))
 			return
 		}
 

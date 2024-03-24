@@ -1,0 +1,68 @@
+<script>
+    $(function() {
+        $(document).ready(function(){
+            $('.tabs').tabs();
+        });
+
+        var form = $('form'),
+            save = form.find('button.save-post'),
+            del = form.find('button.delete-post'),
+            external = form.find('.post-controls.external'),
+            id = form.find('input[name=id]'),
+            timestamp = $('.__ponzu.content-only'),
+            slug = $('input[name=slug]');
+
+        // hide if this is a new post, or a non-post editor page
+        if (id.val() === '-1' || form.attr('action') !== '{{ .PublicPath }}/edit') {
+            del.hide();
+            external.hide();
+        }
+
+        // hide approval if not on a pending content item
+        if (getParam('status') !== 'pending') {
+            external.hide();
+        }
+
+        save.on('click', function(e) {
+            e.preventDefault();
+
+            if (getParam('status') === 'pending') {
+                var action = form.attr('action');
+                form.attr('action', action + '?status=pending')
+            }
+
+            form.submit();
+        });
+
+        del.on('click', function(e) {
+            e.preventDefault();
+            var action = form.attr('action');
+            action = action + '/delete';
+            form.attr('action', action);
+
+            if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this post?\nThis cannot be undone.")) {
+                form.submit();
+            }
+        });
+
+        external.find('button.approve-post').on('click', function(e) {
+            e.preventDefault();
+            var action = form.attr('action');
+            action = action + '/approve';
+            form.attr('action', action);
+
+            form.submit();
+        });
+
+        external.find('button.reject-post').on('click', function(e) {
+            e.preventDefault();
+            var action = form.attr('action');
+            action = action + '/delete?reject=true';
+            form.attr('action', action);
+
+            if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to reject this post?\nDoing so will delete it, and cannot be undone.")) {
+                form.submit();
+            }
+        });
+    });
+</script>

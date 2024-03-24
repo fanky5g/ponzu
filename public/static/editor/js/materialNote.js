@@ -1963,7 +1963,7 @@ var dom = (function() {
 
 
       /**
-       * insert views at current cursor
+       * insert templates at current cursor
        */
       this.pasteHTML = function(markup) {
         var self = this;
@@ -3284,7 +3284,7 @@ var dom = (function() {
           // disable UL/OL and escape!
           bullet.toggleList(splitRoot.parentNode.nodeName);
           return;
-        // if new line has content (not a line break)
+        // if new line has entities (not a line break)
         } else {
           nextPara = dom.splitTree(splitRoot, rng.getStartPoint());
 
@@ -4850,7 +4850,7 @@ var dom = (function() {
                     }
                 }
             } else {
-                //first thing is content
+                //first thing is entities
                 chunk = code.substring(0, openTag);
                 code = code.substring(openTag);
 
@@ -6011,11 +6011,11 @@ var dom = (function() {
     var tplPopover = function(className, content) {
       var $popover = $('<div class="' + className + ' popover bottom in" style="display: none;">' +
                '<div class="arrow"></div>' +
-               '<div class="popover-content">' +
+               '<div class="popover-entities">' +
                '</div>' +
              '</div>');
 
-      $popover.find('.popover-content').append(content);
+      $popover.find('.popover-entities').append(content);
       return $popover;
     };
 
@@ -6032,7 +6032,7 @@ var dom = (function() {
 
       var modal = [
           '<div class="' + className + ' modal modal-fixed-footer">',
-              '<div class="modal-content">',
+              '<div class="modal-entities">',
                   (title ? '<h4>' + title + '</h4>' : ''),
                   '<p>' + body + '</p>',
               '</div>',
@@ -7316,7 +7316,7 @@ var dom = (function() {
           editor = $('#note-popover-' + id).find('.note-air-popover');
           tabContainer = editor.find('ul.tabs');
           tabs = editor.find('li.tab a');
-          toolbar = $(editor).find('.popover-content button.dropdown');
+          toolbar = $(editor).find('.popover-entities button.dropdown');
           isAir = true;
         } else {
           editor = $(editor).next('.note-editor');
@@ -7400,7 +7400,7 @@ var dom = (function() {
      *
      * * get contents
      * ```
-     * var content = $("#materialnote").code();
+     * var entities = $("#materialnote").code();
      * ```
      * * set contents
      *

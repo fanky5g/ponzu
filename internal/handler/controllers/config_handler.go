@@ -2,14 +2,17 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/application/config"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/views"
+	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
 )
 
-func NewConfigHandler(configService config.Service) http.HandlerFunc {
+func NewConfigHandler(r router.Router) http.HandlerFunc {
+	configService := r.Context().Service(tokens.ConfigServiceToken).(config.Service)
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
@@ -29,30 +32,7 @@ func NewConfigHandler(configService config.Service) http.HandlerFunc {
 				return
 			}
 
-			cfg, err := c.MarshalEditor()
-			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			appName, err := configService.GetAppName()
-			if err != nil {
-				log.Printf("Failed to get app name: %v\n", appName)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			adminView, err := views.Admin(string(cfg), appName)
-			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			res.Header().Set("Content-Type", "text/html")
-			res.Write(adminView)
-
+			r.Renderer().Editable(res, c)
 		case http.MethodPost:
 			err := req.ParseForm()
 			if err != nil {
@@ -68,8 +48,7 @@ func NewConfigHandler(configService config.Service) http.HandlerFunc {
 				return
 			}
 
-			http.Redirect(res, req, req.URL.String(), http.StatusFound)
-
+			r.Redirect(req, res, req.URL.RequestURI())
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 		}

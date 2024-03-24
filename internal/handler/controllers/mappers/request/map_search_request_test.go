@@ -3,8 +3,8 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/fanky5g/ponzu/internal/domain/entities"
-	"github.com/fanky5g/ponzu/internal/domain/enum"
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -21,7 +21,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoWithEmptyQueryVal
 	var q url.Values
 
 	expectedSearchRequestDto := &request.SearchRequestDto{
-		SortOrder: enum.Descending,
+		SortOrder: constants.Descending,
 		PaginationRequestDto: request.PaginationRequestDto{
 			Count:  10,
 			Offset: 0,
@@ -29,7 +29,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoWithEmptyQueryVal
 	}
 
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "services/x-www-form-urlencoded")
 	req.URL.RawQuery = q.Encode()
 
 	searchRequestDto, err := GetSearchRequestDto(req)
@@ -48,7 +48,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDto() {
 
 	expectedSearchRequestDto := &request.SearchRequestDto{
 		Query:     "Alpaka",
-		SortOrder: enum.Ascending,
+		SortOrder: constants.Ascending,
 		PaginationRequestDto: request.PaginationRequestDto{
 			Count:  100,
 			Offset: 5,
@@ -56,7 +56,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDto() {
 	}
 
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "services/x-www-form-urlencoded")
 	req.URL.RawQuery = q.Encode()
 
 	searchRequestDto, err := GetSearchRequestDto(req)
@@ -77,7 +77,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoFromJSONRequest()
 
 	expectedSearchRequestDto := &request.SearchRequestDto{
 		Query:     "Alpaka",
-		SortOrder: enum.Ascending,
+		SortOrder: constants.Ascending,
 		PaginationRequestDto: request.PaginationRequestDto{
 			Count:  100,
 			Offset: 5,
@@ -91,7 +91,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoFromJSONRequest()
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "services/json")
 
 	searchRequestDto, err := GetSearchRequestDto(req)
 	if assert.NoError(suite.T(), err) {
@@ -102,7 +102,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoFromJSONRequest()
 func (suite *MapSearchRequestTestSuite) TestMapSearchRequest() {
 	searchRequestDto := &request.SearchRequestDto{
 		Query:     "Alpaka",
-		SortOrder: enum.Ascending,
+		SortOrder: constants.Ascending,
 		PaginationRequestDto: request.PaginationRequestDto{
 			Count:  100,
 			Offset: 5,
@@ -111,7 +111,7 @@ func (suite *MapSearchRequestTestSuite) TestMapSearchRequest() {
 
 	expectedSearch := &entities.Search{
 		Query:     "Alpaka",
-		SortOrder: enum.Ascending,
+		SortOrder: constants.Ascending,
 		Pagination: &entities.Pagination{
 			Count:  100,
 			Offset: 5,
