@@ -82,7 +82,7 @@ generate commands return nothing.`,
 }
 
 var contentCmd = &cobra.Command{
-	Use:     "entities <namespace> <field> <field>...",
+	Use:     "content <namespace> <field> <field>...",
 	Aliases: []string{"c"},
 	Short:   "generates a new entities type",
 	RunE: func(cmd *cobra.Command, args []string) error {

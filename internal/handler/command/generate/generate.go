@@ -172,6 +172,16 @@ func (g *generator) Generate() error {
 		}
 
 		var output string
+		output, err = g.exec("go get ./...", workingDir)
+		if err != nil {
+			errorMessage := err.Error()
+			if output != "" {
+				errorMessage = output
+			}
+
+			return fmt.Errorf("failed to generate content: %v", errorMessage)
+		}
+
 		output, err = g.exec("go run main.go", workingDir)
 		if err != nil {
 			errorMessage := err.Error()
@@ -234,7 +244,6 @@ func (g *generator) exec(command, workingDir string) (string, error) {
 	commandName := tokens[0]
 	args := tokens[1:]
 
-	log.Info("Running command", commandName, args)
 	cmd := exec.Command(commandName, args...)
 	cmd.Dir = workingDir
 	output, errCommandExec := cmd.CombinedOutput()
