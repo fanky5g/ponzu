@@ -9,6 +9,5 @@ type UserRepositoryInterface interface {
 	UpdateUser(usr, updatedUsr *entities.User) error
 	DeleteUser(email string) error
 	GetUserByEmail(email string) (*entities.User, error)
-	// GetAllUsers users repository can and should return Users entity and not byte arrays
 	GetAllUsers() ([][]byte, error)
 }
