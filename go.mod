@@ -3,6 +3,8 @@ module github.com/fanky5g/ponzu
 go 1.21.5
 
 replace github.com/fanky5g/ponzu-driver-postgres => ../ponzu-driver-postgres
+replace github.com/fanky5g/ponzu-driver-bleve => ../ponzu-driver-bleve
+replace github.com/fanky5g/ponzu-driver-bolt-db => ../ponzu-driver-bolt-db
 
 require (
 	github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240324095946-113f4fec9ceb

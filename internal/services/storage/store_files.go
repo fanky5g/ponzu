@@ -2,7 +2,6 @@ package storage
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/entities"
 	"mime/multipart"
@@ -52,7 +51,7 @@ func (s *service) storeFileInfo(size int64, filename, urlPath string, file *mult
 		},
 	}
 
-	if _, err := s.Service.CreateContent(constants.UploadsEntityName, entity); err != nil {
+	if _, err := s.repository.Insert(entity); err != nil {
 		return fmt.Errorf("error saving file storage record to database: %v", err)
 	}
 

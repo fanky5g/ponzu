@@ -40,7 +40,7 @@ func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
 
 		b := &bytes.Buffer{}
 		var total int
-		var posts []interface{}
+		var posts []*entities.FileUpload
 
 		html := `<div class="col s9 card">
 					<div class="card-content">
@@ -85,14 +85,14 @@ func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
                    </form>
 					</div>`
 
-		total, posts, err = storageService.GetAllWithOptions(constants.UploadsEntityName, search)
+		total, posts, err = storageService.GetAllWithOptions(search)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to search uploads")
 			return
 		}
 
 		for i := range posts {
-			p, ok := posts[i].(editor.Editable)
+			p, ok := interface{}(posts[i]).(editor.Editable)
 			if !ok {
 				log.Printf("Invalid entry. Item %v does not implement editable interface\n", posts[i])
 

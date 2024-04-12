@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/entities"
 )
 
@@ -28,8 +27,6 @@ type EntityIdentifierInterface interface {
 }
 
 type ContentRepositoryInterface interface {
-	CreateEntityStore(entityName string, entityType interface{}) error
 	CRUDInterface
 	EntityIdentifierInterface
-	Types() map[string]content.Builder
 }

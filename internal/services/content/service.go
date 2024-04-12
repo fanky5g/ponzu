@@ -5,45 +5,23 @@ import (
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/infrastructure/repositories"
-	contentService "github.com/fanky5g/ponzu/internal/services/shared/content"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
 type service struct {
-	contentDomainService contentService.Service
-	types                map[string]content.Builder
-}
-
-func (s *service) DeleteContent(entityType, entityId string) error {
-	return s.contentDomainService.DeleteContent(entityType, entityId)
-}
-
-func (s *service) CreateContent(entityType string, content interface{}) (string, error) {
-	return s.contentDomainService.CreateContent(entityType, content)
-}
-
-func (s *service) UpdateContent(entityType, entityId string, update map[string]interface{}) (interface{}, error) {
-	return s.contentDomainService.UpdateContent(entityType, entityId, update)
-}
-
-func (s *service) GetContent(entityType, entityId string) (interface{}, error) {
-	return s.contentDomainService.GetContent(entityType, entityId)
-}
-
-func (s *service) GetContentBySlug(slug string) (string, interface{}, error) {
-	return s.contentDomainService.GetContentBySlug(slug)
-}
-
-func (s *service) GetAllWithOptions(entityType string, search *entities.Search) (int, []interface{}, error) {
-	return s.contentDomainService.GetAllWithOptions(entityType, search)
-}
-
-func (s *service) GetAll(entityType string) ([]interface{}, error) {
-	return s.contentDomainService.GetAll(entityType)
+	repository   repositories.GenericRepositoryInterface
+	searchClient driver.SearchClientInterface
+	types        map[string]content.Builder
 }
 
 type Service interface {
-	contentService.Service
+	CreateContent(entityType string, entity interface{}) (string, error)
+	DeleteContent(entityType, entityId string) error
+	GetContent(entityType, entityId string) (interface{}, error)
+	GetContentBySlug(slug string) (string, interface{}, error)
+	GetAll(namespace string) ([]interface{}, error)
+	GetAllWithOptions(namespace string, search *entities.Search) (int, []interface{}, error)
+	UpdateContent(entityType, entityId string, update map[string]interface{}) (interface{}, error)
 	ExportCSV(entityName string) (*entities.ResponseStream, error)
 }
 
@@ -52,7 +30,7 @@ func New(
 	types map[string]content.Builder,
 	searchClient driver.SearchClientInterface,
 ) (Service, error) {
-	contentRepository := db.Get(tokens.ContentRepositoryToken).(repositories.ContentRepositoryInterface)
+	contentRepository := db.Get(tokens.ContentRepositoryToken).(repositories.GenericRepositoryInterface)
 
 	for itemName, itemType := range types {
 		if _, err := searchClient.GetIndex(itemName); err != nil {
@@ -63,14 +41,10 @@ func New(
 		}
 	}
 
-	contentDomainService, err := contentService.New(contentRepository, searchClient)
-	if err != nil {
-		return nil, err
-	}
-
 	s := &service{
-		contentDomainService: contentDomainService,
-		types:                types,
+		repository:   contentRepository,
+		searchClient: searchClient,
+		types:        types,
 	}
 
 	return s, nil
