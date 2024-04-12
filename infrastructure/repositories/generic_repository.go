@@ -8,11 +8,11 @@ type GenericRepositoryInterface interface {
 	UpdateById(id string, update interface{}) (interface{}, error)
 	Search(search *entities.Search) (int, []interface{}, error)
 	FindOneById(id string) (interface{}, error)
+	FindOneBy(field string, value interface{}) (interface{}, error)
+	FindAll() ([]interface{}, error)
 	DeleteById(id string) error
 	//BatchInsert(entities []interface{}) ([]interface{}, error)
-	//FindOneBy(criteria string, value interface{}) (interface{}, error)
 	//FindBy(criteria string, value interface{}) ([]interface{}, error)
-	//FindAll() ([]interface{}, error)
 	//FindAllOrderBy(
 	//	order constants.SortOrder,
 	//) ([]interface{}, error)
