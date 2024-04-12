@@ -10,7 +10,7 @@ import (
 )
 
 func (s *service) SendPasswordRecoveryInstructions(email string) error {
-	_, err := s.userRepository.GetUserByEmail(email)
+	_, err := s.getUserByEmail(email)
 	if errors.Is(err, domainErrors.ErrNoUserExists) {
 		return errors.New("no user exists")
 	}

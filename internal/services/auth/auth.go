@@ -6,16 +6,15 @@ import (
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
-	"github.com/fanky5g/ponzu/util"
 	"github.com/nilslice/jwt"
 	"math/rand"
 	"time"
 )
 
 type service struct {
-	userRepository        repositories.UserRepositoryInterface
-	credentialRepository  repositories.CredentialHashRepositoryInterface
-	recoveryKeyRepository repositories.RecoveryKeyRepositoryInterface
+	userRepository        repositories.GenericRepositoryInterface
+	credentialRepository  repositories.GenericRepositoryInterface
+	recoveryKeyRepository repositories.GenericRepositoryInterface
 	configRepository      repositories.GenericRepositoryInterface
 }
 
@@ -26,13 +25,26 @@ type Service interface {
 	SetCredential(userId string, credential *entities.Credential) error
 	VerifyCredential(userId string, credential *entities.Credential) error
 	LoginByEmail(email string, credential *entities.Credential) (*entities.AuthToken, error)
-	GetRecoveryKey(email string) (string, error)
-	SetRecoveryKey(email string) (string, error)
+	GetRecoveryKey(email string) (*entities.RecoveryKey, error)
+	SetRecoveryKey(email string) (*entities.RecoveryKey, error)
 	SendPasswordRecoveryInstructions(email string) error
 }
 
 func (s *service) IsTokenValid(token string) (bool, error) {
 	return jwt.Passes(token), nil
+}
+
+func (s *service) getUserByEmail(email string) (*entities.User, error) {
+	u, err := s.userRepository.FindOneBy(map[string]interface{}{"email": email})
+	if err != nil {
+		return nil, err
+	}
+
+	if u == nil {
+		return nil, nil
+	}
+
+	return u.(*entities.User), nil
 }
 
 func (s *service) GetUserFromAuthToken(token string) (*entities.User, error) {
@@ -51,7 +63,7 @@ func (s *service) GetUserFromAuthToken(token string) (*entities.User, error) {
 		return nil, fmt.Errorf("error. No user data found in request token")
 	}
 
-	return s.userRepository.GetUserByEmail(email.(string))
+	return s.getUserByEmail(email.(string))
 }
 
 func (s *service) NewToken(user *entities.User) (*entities.AuthToken, error) {
@@ -73,40 +85,52 @@ func (s *service) NewToken(user *entities.User) (*entities.AuthToken, error) {
 	}, nil
 }
 
-func (s *service) GetRecoveryKey(email string) (string, error) {
-	return s.recoveryKeyRepository.GetRecoveryKey(email)
+func (s *service) GetRecoveryKey(email string) (*entities.RecoveryKey, error) {
+	r, err := s.recoveryKeyRepository.FindOneBy(map[string]interface{}{"email": email})
+	if err != nil {
+		return nil, err
+	}
+
+	if r == nil {
+		return nil, nil
+	}
+
+	return r.(*entities.RecoveryKey), nil
 }
 
-func (s *service) SetRecoveryKey(email string) (string, error) {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
-	key := fmt.Sprintf("%d", r.Int63())
+func (s *service) SetRecoveryKey(email string) (*entities.RecoveryKey, error) {
+	recoveryKey, err := s.recoveryKeyRepository.Insert(&entities.RecoveryKey{
+		Email: email,
+		Value: fmt.Sprintf("%d", rand.New(rand.NewSource(time.Now().Unix())).Int63()),
+	})
 
-	return key, s.recoveryKeyRepository.SetRecoveryKey(email, key)
+	if err != nil {
+		return nil, err
+	}
+
+	return recoveryKey.(*entities.RecoveryKey), nil
 }
 
 func New(db driver.Database) (Service, error) {
 	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.GenericRepositoryInterface)
-	userRepository := db.Get(tokens.UserRepositoryToken).(repositories.UserRepositoryInterface)
-	credentialRepository := db.Get(tokens.CredentialHashRepositoryToken).(repositories.CredentialHashRepositoryInterface)
-	recoveryKeyRepository := db.Get(tokens.RecoveryKeyRepositoryToken).(repositories.RecoveryKeyRepositoryInterface)
-
-	config, err := configRepository.Latest()
+	c, err := configRepository.Latest()
 	if err != nil {
 		return nil, err
 	}
 
-	clientSecret, err := util.StringFieldByJSONTagName(config, "client_secret")
-	if err != nil {
-		return nil, err
+	// TODO: update jwt secret whenever config.ClientSecret is updated
+	var cfg entities.Config
+	if c != nil {
+		cfg = *(c.(*entities.Config))
 	}
 
-	if clientSecret != "" {
-		jwt.Secret([]byte(clientSecret))
+	if cfg.ClientSecret != "" {
+		jwt.Secret([]byte(cfg.ClientSecret))
 	}
 
 	return &service{
-		userRepository:        userRepository,
-		credentialRepository:  credentialRepository,
-		recoveryKeyRepository: recoveryKeyRepository,
+		userRepository:        db.Get(tokens.UserRepositoryToken).(repositories.GenericRepositoryInterface),
+		credentialRepository:  db.Get(tokens.CredentialHashRepositoryToken).(repositories.GenericRepositoryInterface),
+		recoveryKeyRepository: db.Get(tokens.RecoveryKeyRepositoryToken).(repositories.GenericRepositoryInterface),
 	}, nil
 }

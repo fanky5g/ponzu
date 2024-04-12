@@ -9,7 +9,7 @@ import (
 )
 
 func (s *service) LoginByEmail(email string, credential *entities.Credential) (*entities.AuthToken, error) {
-	user, err := s.userRepository.GetUserByEmail(email)
+	user, err := s.getUserByEmail(email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user by email: %v", err)
 	}
