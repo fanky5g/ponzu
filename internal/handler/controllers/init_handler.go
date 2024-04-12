@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/base64"
-	entities2 "github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/internal/services/config"
@@ -45,19 +45,26 @@ func NewInitHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			// get the site name from post to encode and use as secret
-			name := []byte(req.FormValue("name") + util.NewEtag())
-			secret := base64.StdEncoding.EncodeToString(name)
-			req.Form.Set("client_secret", secret)
+			var cfg *entities.Config
+			cfg, err = configService.Get()
+			if err != nil {
+				log.WithField("Error", err).Warning("Failed to get config")
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			if cfg.ClientSecret == "" {
+				name := []byte(req.FormValue("name") + util.NewEtag())
+				cfg.ClientSecret = base64.StdEncoding.EncodeToString(name)
+			}
 
 			// generate an Etag to use for response caching
-			etag := util.NewEtag()
-			req.Form.Set("etag", etag)
+			cfg.Etag = util.NewEtag()
 
 			// create and save controllers user
 			email := strings.ToLower(req.FormValue("email"))
 			password := req.FormValue("password")
-			var user *entities2.User
+			var user *entities.User
 			user, err = userService.CreateUser(email)
 			if err != nil {
 				log.Println(err)
@@ -65,37 +72,28 @@ func NewInitHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			if err = authService.SetCredential(user.ID, &entities2.Credential{
-				Type:  entities2.CredentialTypePassword,
+			if err = authService.SetCredential(user.ID, &entities.Credential{
+				Type:  entities.CredentialTypePassword,
 				Value: password,
 			}); err != nil {
-				log.Println(err)
+				log.WithField("Error", err).Warning("Failed to create admin user")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			// set HTTP port which should be previously added to config cache
-			var port string
-			port, err = configService.GetCacheStringValue("http_port")
-			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			req.Form.Set("http_port", port)
 			// set initial user email as admin_email and make config
-			req.Form.Set("admin_email", email)
-			err = configService.SetConfig(req.Form)
+			cfg.AdminEmail = email
+			err = configService.SetConfig(cfg)
 			if err != nil {
-				log.Println(err)
+				log.WithField("Error", err).Warning("Failed to update config")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			authToken, err := authService.NewToken(user)
+			var authToken *entities.AuthToken
+			authToken, err = authService.NewToken(user)
 			if err != nil {
-				log.Println(err)
+				log.WithField("Error", err).Warning("Failed to generate auth token")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}

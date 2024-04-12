@@ -31,9 +31,7 @@ func New(
 	searchClient driver.SearchClientInterface,
 	client driver.StorageClientInterface) (Service, error) {
 	uploadsRepository := db.Get(tokens.UploadRepositoryToken).(repositories.ContentRepositoryInterface)
-	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)
-
-	contentDomainService, err := content.New(uploadsRepository, configRepository, searchClient)
+	contentDomainService, err := content.New(uploadsRepository, searchClient)
 	if err != nil {
 		return nil, err
 	}

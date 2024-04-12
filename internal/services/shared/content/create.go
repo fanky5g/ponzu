@@ -44,10 +44,6 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 		return "", err
 	}
 
-	if err = s.configRepository.InvalidateCache(); err != nil {
-		return "", err
-	}
-
 	if searchable, ok := entity.(driver.Searchable); ok && searchable.IndexContent() {
 		var index driver.SearchIndexInterface
 		index, err = s.searchClient.GetIndex(s.getEntityType(entityType))

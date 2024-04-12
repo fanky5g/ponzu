@@ -4,7 +4,6 @@
 package item
 
 import (
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -109,22 +108,14 @@ type Hookable interface {
 	AfterDisable(http.ResponseWriter, *http.Request) error
 }
 
-// Pushable lets a user define which values of certain struct fields are
-// 'pushed' down to  a client via HTTP/2 Server Push. All items in the slice
-// should be the json tag names of the struct fields to which they correspond.
-type Pushable interface {
-	// the values contained by fields returned by Push must strictly be URL paths
-	Push(http.ResponseWriter, *http.Request) ([]string, error)
-}
-
 // Item should only be embedded into entities type structs.
 type Item struct {
-	UUID      uuid.UUID `json:"uuid"`
-	ID        string    `json:"id"`
-	Slug      string    `json:"slug"`
-	Timestamp int64     `json:"timestamp"`
-	Updated   int64     `json:"updated"`
-	Specifier string    `json:"specifier"`
+	//UUID      uuid.UUID `json:"uuid"`
+	ID        string `json:"id"`
+	Slug      string `json:"slug"`
+	Timestamp int64  `json:"timestamp"`
+	Updated   int64  `json:"updated"`
+	//Specifier string    `json:"specifier"`
 }
 
 // Time partially implements the Sortable interface
@@ -161,33 +152,33 @@ func (i *Item) SetItemID(id string) {
 
 // UniqueID gets the Item's UUID field
 // partially implements the Identifiable interface
-func (i *Item) UniqueID() uuid.UUID {
-	return i.UUID
-}
+//func (i *Item) UniqueID() uuid.UUID {
+//	return i.UUID
+//}
 
 // SetUniqueID sets the Item's UUID field
 // partially implements the Identifiable interface
-func (i *Item) SetUniqueID(uuid uuid.UUID) {
-	i.UUID = uuid
-}
+//func (i *Item) SetUniqueID(uuid uuid.UUID) {
+//	i.UUID = uuid
+//}
 
 // SetSpecifier sets the Item's specifier field
 // partially implements the Identifiable interface
-func (i *Item) SetSpecifier(specifier string) {
-	i.Specifier = specifier
-}
+//func (i *Item) SetSpecifier(specifier string) {
+//	i.Specifier = specifier
+//}
 
 // ItemSpecifier gets the Item's specifier field
 // partially implements the Identifiable interface
-func (i *Item) ItemSpecifier() string {
-	return i.Specifier
-}
+//func (i *Item) ItemSpecifier() string {
+//	return i.Specifier
+//}
 
 // String formats an Item into a printable value
 // partially implements the Identifiable interface
-func (i *Item) String() string {
-	return fmt.Sprintf("Item ID: %s", i.UniqueID())
-}
+//func (i *Item) String() string {
+//	return fmt.Sprintf("Item ID: %s", i.UniqueID())
+//}
 
 // BeforeAPIResponse is a no-op to ensure structs which embed Item implement Hookable
 func (i *Item) BeforeAPIResponse(res http.ResponseWriter, req *http.Request, data interface{}) (interface{}, error) {

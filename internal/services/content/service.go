@@ -53,7 +53,6 @@ func New(
 	searchClient driver.SearchClientInterface,
 ) (Service, error) {
 	contentRepository := db.Get(tokens.ContentRepositoryToken).(repositories.ContentRepositoryInterface)
-	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)
 
 	for itemName, itemType := range types {
 		if _, err := searchClient.GetIndex(itemName); err != nil {
@@ -64,7 +63,7 @@ func New(
 		}
 	}
 
-	contentDomainService, err := contentService.New(contentRepository, configRepository, searchClient)
+	contentDomainService, err := contentService.New(contentRepository, searchClient)
 	if err != nil {
 		return nil, err
 	}

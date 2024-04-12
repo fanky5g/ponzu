@@ -3,7 +3,6 @@ package router
 import (
 	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/middleware"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/renderer"
@@ -42,13 +41,11 @@ func (r *router) Renderer() renderer.Renderer {
 func New(
 	mux *http.ServeMux,
 	paths conf.Paths,
-	configCache repositories.Cache,
 	svcs services.Services,
 	types content.Types) (Router, error) {
 	middlewares, err := middleware.New(
 		paths,
 		svcs,
-		configCache,
 	)
 
 	if err != nil {

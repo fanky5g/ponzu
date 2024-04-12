@@ -9,6 +9,9 @@ import (
 
 type Config struct {
 	ContentTypes content.Types
+	Database     struct {
+		Models map[string]content.Builder
+	}
 }
 
 type application struct {
@@ -24,7 +27,7 @@ func (app *application) Server() server.Server {
 }
 
 func New(conf Config) (Application, error) {
-	infra, err := infrastructure.New(conf.ContentTypes.Content)
+	infra, err := infrastructure.New(conf.ContentTypes.Content, conf.Database.Models)
 	if err != nil {
 		return nil, err
 	}

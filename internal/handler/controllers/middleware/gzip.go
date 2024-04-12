@@ -3,7 +3,7 @@ package middleware
 import (
 	"compress/gzip"
 	"github.com/fanky5g/ponzu/internal/services/config"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -39,14 +39,14 @@ func (gzw gzipResponseWriter) Push(target string, opts *http.PushOptions) error 
 func NewGzipMiddleware(configService config.Service) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(res http.ResponseWriter, req *http.Request) {
-			gzipDisabled, err := configService.GetCacheBoolValue("gzip_disabled")
+			cfg, err := configService.Get()
 			if err != nil {
+				log.WithField("Error", err).Warning("Failed to get get config: %v", err)
 				res.WriteHeader(http.StatusInternalServerError)
-				log.Printf("Failed to get cache value gzip_disabled: %v\n", err)
 				return
 			}
 
-			if gzipDisabled {
+			if cfg.DisableGZIP {
 				next.ServeHTTP(res, req)
 				return
 			}
