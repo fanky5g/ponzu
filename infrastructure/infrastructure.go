@@ -3,10 +3,11 @@ package infrastructure
 import (
 	"fmt"
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
-	boltDb "github.com/fanky5g/ponzu-driver-bolt-db"
 	"github.com/fanky5g/ponzu-driver-local-storage"
+	postgres "github.com/fanky5g/ponzu-driver-postgres"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
@@ -30,10 +31,29 @@ func (infra *infrastructure) Get(token tokens.Driver) interface{} {
 	return nil
 }
 
-func New(contentTypes map[string]content.Builder) (Infrastructure, error) {
-	svcs := make(map[tokens.Driver]interface{})
+func getDatabaseDriver(
+	name string,
+	contentTypes map[string]content.Builder,
+	models map[string]content.Builder,
+) (driver.Database, error) {
+	switch name {
+	default:
+		return postgres.New(contentTypes, models)
+	}
+}
 
-	db, err := boltDb.New(contentTypes)
+func New(
+	contentTypes map[string]content.Builder,
+	models map[string]content.Builder,
+) (Infrastructure, error) {
+	svcs := make(map[tokens.Driver]interface{})
+	cfg, err := config.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	var db driver.Database
+	db, err = getDatabaseDriver(cfg.DatabaseDriver, contentTypes, models)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %v", err)
 	}

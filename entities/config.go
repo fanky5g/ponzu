@@ -183,3 +183,7 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 
 	return view, nil
 }
+
+var ConfigBuilder = func() interface{} {
+	return new(Config)
+}

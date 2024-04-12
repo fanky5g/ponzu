@@ -2,7 +2,8 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	"github.com/fanky5g/ponzu/internal/services/config"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -14,17 +15,24 @@ const (
 
 var CacheControlMiddleware Token = "CacheControlMiddleware"
 
-func NewCacheControlMiddleware(cache repositories.Cache) Middleware {
+func NewCacheControlMiddleware(configService config.Service) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 
 		return func(res http.ResponseWriter, req *http.Request) {
-			cacheDisabled := cache.GetByKey("cache_disabled").(bool)
-			if cacheDisabled {
+			cfg, err := configService.Get()
+			if err != nil {
+				log.WithField("Error", err).Warning("Failed to get get config: %v", err)
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			if cfg.DisableHTTPCache {
 				res.Header().Add("Cache-Control", "no-cache")
 				next.ServeHTTP(res, req)
 			} else {
-				age := int64(cache.GetByKey("cache_max_age").(float64))
-				etag := cache.GetByKey("etag").(string)
+				age := cfg.CacheMaxAge
+				etag := cfg.Etag
+
 				if age == 0 {
 					age = DefaultMaxAge
 				}

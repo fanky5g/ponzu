@@ -36,3 +36,40 @@ func IndexAt(v reflect.Value, i int) interface{} {
 
 	return v.Index(i).Interface()
 }
+
+func FieldByJSONTagName(structType interface{}, jsonTagName string) reflect.Value {
+	v := reflect.ValueOf(structType)
+	if v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+
+	for i := 0; i < v.NumField(); i++ {
+		typeField := v.Type().Field(i)
+		tag := typeField.Tag
+
+		if jsonTag, ok := tag.Lookup("json"); ok {
+			if jsonTag == jsonTagName {
+				return v.FieldByName(typeField.Name)
+			}
+		}
+	}
+
+	return reflect.Value{}
+}
+
+func StringFieldByJSONTagName(structType interface{}, jsonTagName string) (string, error) {
+	if structType == nil {
+		return "", nil
+	}
+
+	value := FieldByJSONTagName(structType, jsonTagName)
+	if !value.IsValid() {
+		return "", fmt.Errorf("%s is not a valid field", jsonTagName)
+	}
+
+	if value.Kind() != reflect.String {
+		return "", fmt.Errorf("%s is not a string", jsonTagName)
+	}
+
+	return value.String(), nil
+}

@@ -158,7 +158,7 @@ func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
 	return value
 }
 
-// ValueFromStructField returns the string value of a field in a struct
+// ValueFromStructField returns the value of a field in a struct
 func ValueFromStructField(name string, post interface{}, args *FieldArgs) interface{} {
 	field := ValueByName(name, post, args)
 

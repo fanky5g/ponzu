@@ -142,8 +142,8 @@ func Manage(e editor.Editable, paths config.Paths, typeName string) ([]byte, err
 	}
 
 	m := manager{
-		ID:         i.ItemID(),
-		UUID:       i.UniqueID(),
+		ID: i.ItemID(),
+		//UUID:       i.UniqueID(),
 		Kind:       typeName,
 		Slug:       s.ItemSlug(),
 		Editor:     template.HTML(v),

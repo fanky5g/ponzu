@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"encoding/json"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/tokens"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -16,23 +16,14 @@ func NewConfigHandler(r router.Router) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
-			data, err := configService.GetAll()
+			cfg, err := configService.Get()
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			c := &entities.Config{}
-
-			err = json.Unmarshal(data, c)
-			if err != nil {
-				log.Println(err)
-				res.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			r.Renderer().Editable(res, c)
+			r.Renderer().Editable(res, cfg)
 		case http.MethodPost:
 			err := req.ParseForm()
 			if err != nil {
@@ -41,7 +32,13 @@ func NewConfigHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			err = configService.SetConfig(req.Form)
+			entity, err := request.GetEntityFromFormData(entities.ConfigBuilder, req.PostForm)
+			if err != nil {
+				log.WithField("Error", err).Warning("Failed to map config entity")
+				return
+			}
+
+			err = configService.SetConfig(entity.(*entities.Config))
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)

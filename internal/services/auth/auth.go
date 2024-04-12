@@ -6,6 +6,7 @@ import (
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
+	"github.com/fanky5g/ponzu/util"
 	"github.com/nilslice/jwt"
 	"math/rand"
 	"time"
@@ -15,6 +16,7 @@ type service struct {
 	userRepository        repositories.UserRepositoryInterface
 	credentialRepository  repositories.CredentialHashRepositoryInterface
 	recoveryKeyRepository repositories.RecoveryKeyRepositoryInterface
+	configRepository      repositories.GenericRepositoryInterface
 }
 
 type Service interface {
@@ -26,6 +28,7 @@ type Service interface {
 	LoginByEmail(email string, credential *entities.Credential) (*entities.AuthToken, error)
 	GetRecoveryKey(email string) (string, error)
 	SetRecoveryKey(email string) (string, error)
+	SendPasswordRecoveryInstructions(email string) error
 }
 
 func (s *service) IsTokenValid(token string) (bool, error) {
@@ -82,12 +85,21 @@ func (s *service) SetRecoveryKey(email string) (string, error) {
 }
 
 func New(db driver.Database) (Service, error) {
-	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)
+	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.GenericRepositoryInterface)
 	userRepository := db.Get(tokens.UserRepositoryToken).(repositories.UserRepositoryInterface)
 	credentialRepository := db.Get(tokens.CredentialHashRepositoryToken).(repositories.CredentialHashRepositoryInterface)
 	recoveryKeyRepository := db.Get(tokens.RecoveryKeyRepositoryToken).(repositories.RecoveryKeyRepositoryInterface)
 
-	clientSecret := configRepository.Cache().GetByKey("client_secret").(string)
+	config, err := configRepository.Latest()
+	if err != nil {
+		return nil, err
+	}
+
+	clientSecret, err := util.StringFieldByJSONTagName(config, "client_secret")
+	if err != nil {
+		return nil, err
+	}
+
 	if clientSecret != "" {
 		jwt.Secret([]byte(clientSecret))
 	}

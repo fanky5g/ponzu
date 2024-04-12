@@ -4,7 +4,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/tokens"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 )
@@ -69,22 +69,14 @@ func NewCORSMiddleware(
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return cacheControlMiddleware(
 			func(res http.ResponseWriter, req *http.Request) {
-				corsDisabled, err := configService.GetCacheBoolValue("cors_disabled")
+				cfg, err := configService.Get()
 				if err != nil {
+					log.WithField("Error", err).Warning("Failed to get get config: %v", err)
 					res.WriteHeader(http.StatusInternalServerError)
-					log.Printf("Failed to get cache value cors_disabled: %v\n", err)
 					return
 				}
 
-				// check origin matches config domain
-				domain, err := configService.GetCacheStringValue("domain")
-				if err != nil {
-					res.WriteHeader(http.StatusInternalServerError)
-					log.Printf("Failed to get cache value domain: %v\n", err)
-					return
-				}
-
-				res, cors := responseWithCORS(corsDisabled, domain, res, req)
+				res, cors := responseWithCORS(cfg.DisableCORS, cfg.Domain, res, req)
 				if !cors {
 					return
 				}

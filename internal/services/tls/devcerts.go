@@ -20,6 +20,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/util"
 	"log"
 	"math/big"
 	"net"
@@ -89,7 +90,17 @@ func (s *service) setupDev() {
 	}
 
 	hosts := []string{"localhost", "0.0.0.0"}
-	domain := s.configRepository.Cache().GetByKey("domain").(string)
+
+	cfg, err := s.configRepository.Latest()
+	if err != nil {
+		log.Fatalf("Failed to get config: %v", err)
+	}
+
+	domain, err := util.StringFieldByJSONTagName(cfg, "domain")
+	if err != nil {
+		log.Fatalf("Failed to get domain config: %v", err)
+	}
+
 	if domain != "" {
 		hosts = append(hosts, domain)
 	}

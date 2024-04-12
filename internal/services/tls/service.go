@@ -7,7 +7,7 @@ import (
 )
 
 type service struct {
-	configRepository repositories.ConfigRepositoryInterface
+	configRepository repositories.GenericRepositoryInterface
 }
 
 type Service interface {
@@ -16,5 +16,5 @@ type Service interface {
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{configRepository: db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)}, nil
+	return &service{configRepository: db.Get(tokens.ConfigRepositoryToken).(repositories.GenericRepositoryInterface)}, nil
 }

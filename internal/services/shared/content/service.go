@@ -8,7 +8,7 @@ import (
 
 type service struct {
 	repository       repositories.ContentRepositoryInterface
-	configRepository repositories.ConfigRepositoryInterface
+	configRepository repositories.GenericRepositoryInterface
 	searchClient     driver.SearchClientInterface
 }
 
@@ -24,13 +24,11 @@ type Service interface {
 
 func New(
 	contentRepository repositories.ContentRepositoryInterface,
-	configRepository repositories.ConfigRepositoryInterface,
 	searchClient driver.SearchClientInterface,
 ) (Service, error) {
 	s := &service{
-		repository:       contentRepository,
-		configRepository: configRepository,
-		searchClient:     searchClient,
+		repository:   contentRepository,
+		searchClient: searchClient,
 	}
 
 	return s, nil
