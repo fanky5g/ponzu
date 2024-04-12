@@ -51,7 +51,7 @@ func (s *service) UpdateUser(user, update *entities.User) error {
 }
 
 func (s *service) GetUserByEmail(email string) (*entities.User, error) {
-	u, err := s.repository.FindOneBy("email", email)
+	u, err := s.repository.FindOneBy(map[string]interface{}{"email": email})
 	if err != nil {
 		return nil, err
 	}
