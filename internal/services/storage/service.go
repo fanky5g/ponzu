@@ -7,19 +7,17 @@ import (
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/infrastructure/repositories"
-	"github.com/fanky5g/ponzu/internal/services/shared/content"
 	"github.com/fanky5g/ponzu/tokens"
 	"mime/multipart"
 )
 
 type service struct {
-	client driver.StorageClientInterface
-	content.Service
+	client     driver.StorageClientInterface
+	repository repositories.GenericRepositoryInterface
 }
 
 type Service interface {
-	content.Service
-	GetAllUploads() ([]entities.FileUpload, error)
+	GetAllWithOptions(search *entities.Search) (int, []*entities.FileUpload, error)
 	GetFileUpload(target string) (*entities.FileUpload, error)
 	DeleteFile(target string) error
 	StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error)
@@ -30,19 +28,14 @@ func New(
 	db driver.Database,
 	searchClient driver.SearchClientInterface,
 	client driver.StorageClientInterface) (Service, error) {
-	uploadsRepository := db.Get(tokens.UploadRepositoryToken).(repositories.ContentRepositoryInterface)
-	contentDomainService, err := content.New(uploadsRepository, searchClient)
-	if err != nil {
-		return nil, err
-	}
 
-	if err = searchClient.CreateIndex(constants.UploadsEntityName, &entities.FileUpload{}); err != nil {
+	if err := searchClient.CreateIndex(constants.UploadsEntityName, &entities.FileUpload{}); err != nil {
 		return nil, err
 	}
 
 	s := &service{
-		client:  client,
-		Service: contentDomainService,
+		client:     client,
+		repository: db.Get(tokens.UploadRepositoryToken).(repositories.GenericRepositoryInterface),
 	}
 
 	return s, nil

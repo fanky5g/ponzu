@@ -4,7 +4,6 @@ import (
 	"fmt"
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	"github.com/fanky5g/ponzu-driver-local-storage"
-	postgres "github.com/fanky5g/ponzu-driver-postgres"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
@@ -36,10 +35,7 @@ func getDatabaseDriver(
 	contentTypes map[string]content.Builder,
 	models map[string]content.Builder,
 ) (driver.Database, error) {
-	switch name {
-	default:
-		return postgres.New(contentTypes, models)
-	}
+	return nil, nil
 }
 
 func New(
@@ -69,6 +65,7 @@ func New(
 	}
 
 	contentSearchClient, err := bleveSearch.New(
+		contentTypes,
 		db.Get(tokens.ContentRepositoryToken).(repositories.ContentRepositoryInterface),
 	)
 	if err != nil {
@@ -76,6 +73,7 @@ func New(
 	}
 
 	uploadsSearchClient, err := bleveSearch.New(
+		contentTypes,
 		db.Get(tokens.UploadRepositoryToken).(repositories.ContentRepositoryInterface),
 	)
 	if err != nil {
