@@ -37,6 +37,9 @@ func (server *server) Serve() error {
 		)
 	}
 
+	// start analytics recorder
+	go server.analyticsService.StartRecorder()
+
 	fmt.Printf("Server listening at %s:%d for HTTP requests...\n", cfg.BindAddress, cfg.HTTPPort)
 	fmt.Println("\nVisit '/' to get started.")
 	return http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.BindAddress, cfg.HTTPPort), server.mux)

@@ -11,6 +11,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/handler/controllers"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/services/tls"
 	"github.com/fanky5g/ponzu/tokens"
@@ -25,6 +26,7 @@ type Server interface {
 type server struct {
 	tlsService       tls.Service
 	configService    config.Service
+	analyticsService analytics.Service
 	mux              *http.ServeMux
 	configRepository repositories.GenericRepositoryInterface
 }
@@ -40,6 +42,8 @@ func New(contentTypes content.Types, infra infrastructure.Infrastructure, svcs s
 	}
 
 	configService := svcs.Get(tokens.ConfigServiceToken).(config.Service)
+	analyticsService := svcs.Get(tokens.AnalyticsServiceToken).(analytics.Service)
+
 	cfg, err := configService.Get()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get application config: %v", err)
@@ -81,8 +85,9 @@ func New(contentTypes content.Types, infra infrastructure.Infrastructure, svcs s
 	}
 
 	return &server{
-		tlsService:    svcs.Get(tokens.TLSServiceToken).(tls.Service),
-		configService: configService,
-		mux:           mux,
+		tlsService:       svcs.Get(tokens.TLSServiceToken).(tls.Service),
+		configService:    configService,
+		analyticsService: analyticsService,
+		mux:              mux,
 	}, nil
 }

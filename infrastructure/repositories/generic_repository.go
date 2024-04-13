@@ -1,6 +1,9 @@
 package repositories
 
-import "github.com/fanky5g/ponzu/entities"
+import (
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/entities"
+)
 
 type GenericRepositoryInterface interface {
 	Insert(entity interface{}) (interface{}, error)
@@ -11,10 +14,5 @@ type GenericRepositoryInterface interface {
 	FindOneBy(criteria map[string]interface{}) (interface{}, error)
 	FindAll() ([]interface{}, error)
 	DeleteById(id string) error
-	//BatchInsert(entities []interface{}) ([]interface{}, error)
-	//FindBy(criteria string, value interface{}) ([]interface{}, error)
-	//FindAllOrderBy(
-	//	order constants.SortOrder,
-	//) ([]interface{}, error)
-	//DeleteByTimeRange(start, end time.Time) error
+	DeleteBy(field string, operator constants.ComparisonOperator, value interface{}) error
 }
