@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/nilslice/jwt"
 	"math/rand"
@@ -12,10 +11,10 @@ import (
 )
 
 type service struct {
-	userRepository        repositories.GenericRepositoryInterface
-	credentialRepository  repositories.GenericRepositoryInterface
-	recoveryKeyRepository repositories.GenericRepositoryInterface
-	configRepository      repositories.GenericRepositoryInterface
+	userRepository        driver.Repository
+	credentialRepository  driver.Repository
+	recoveryKeyRepository driver.Repository
+	configRepository      driver.Repository
 }
 
 type Service interface {
@@ -112,7 +111,7 @@ func (s *service) SetRecoveryKey(email string) (*entities.RecoveryKey, error) {
 }
 
 func New(db driver.Database) (Service, error) {
-	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.GenericRepositoryInterface)
+	configRepository := db.Get(tokens.ConfigRepositoryToken).(driver.Repository)
 	c, err := configRepository.Latest()
 	if err != nil {
 		return nil, err
@@ -129,8 +128,8 @@ func New(db driver.Database) (Service, error) {
 	}
 
 	return &service{
-		userRepository:        db.Get(tokens.UserRepositoryToken).(repositories.GenericRepositoryInterface),
-		credentialRepository:  db.Get(tokens.CredentialHashRepositoryToken).(repositories.GenericRepositoryInterface),
-		recoveryKeyRepository: db.Get(tokens.RecoveryKeyRepositoryToken).(repositories.GenericRepositoryInterface),
+		userRepository:        db.Get(tokens.UserRepositoryToken).(driver.Repository),
+		credentialRepository:  db.Get(tokens.CredentialHashRepositoryToken).(driver.Repository),
+		recoveryKeyRepository: db.Get(tokens.RecoveryKeyRepositoryToken).(driver.Repository),
 	}, nil
 }

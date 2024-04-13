@@ -1,19 +1,32 @@
 package content
 
+import (
+	"fmt"
+	"github.com/fanky5g/ponzu/constants"
+	log "github.com/sirupsen/logrus"
+)
+
 func (s *service) DeleteContent(entityType, entityId string) error {
-	//target := fmt.Sprintf("%s:%s", entityType, entityId)
-	//if err := s.repository.DeleteEntity(target); err != nil {
-	//	return err
-	//}
-	//
-	//index, err := s.searchClient.GetIndex(s.getEntityType(target))
-	//if err != nil {
-	//	log.Printf("failed to delete search index: %v", err)
-	//}
-	//
-	//if index != nil {
-	//	return index.Delete(target)
-	//}
+	repository := s.repository(entityType)
+	if err := repository.DeleteById(entityId); err != nil {
+		return fmt.Errorf("failed to delete: %v", err)
+	}
+
+	if err := s.slugRepository.DeleteBy("entity_id", constants.Equal, entityId); err != nil {
+		return fmt.Errorf("failed to delete slug: %v", err)
+	}
+
+	index, err := s.searchClient.GetIndex(entityType)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error":      err,
+			"EntityType": entityType,
+		}).Warning("Failed to delete search index")
+	}
+
+	if index != nil {
+		return index.Delete(entityId)
+	}
 
 	return nil
 }

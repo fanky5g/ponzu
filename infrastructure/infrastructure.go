@@ -5,9 +5,10 @@ import (
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	"github.com/fanky5g/ponzu-driver-local-storage"
 	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
@@ -66,16 +67,17 @@ func New(
 
 	contentSearchClient, err := bleveSearch.New(
 		contentTypes,
-		db.Get(tokens.ContentRepositoryToken).(repositories.ContentRepositoryInterface),
+		db,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize search client: %v", err)
 	}
 
-	uploadsSearchClient, err := bleveSearch.New(
-		contentTypes,
-		db.Get(tokens.UploadRepositoryToken).(repositories.ContentRepositoryInterface),
-	)
+	uploadsSearchClient, err := bleveSearch.New(map[string]content.Builder{
+		constants.UploadsEntityName: func() interface{} {
+			return new(entities.FileUpload)
+		},
+	}, db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize upload search client: %v", err)
 	}

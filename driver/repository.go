@@ -1,11 +1,11 @@
-package repositories
+package driver
 
 import (
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/entities"
 )
 
-type GenericRepositoryInterface interface {
+type Repository interface {
 	Insert(entity interface{}) (interface{}, error)
 	Latest() (interface{}, error)
 	UpdateById(id string, update interface{}) (interface{}, error)

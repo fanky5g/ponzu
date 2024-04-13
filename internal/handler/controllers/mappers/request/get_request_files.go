@@ -2,7 +2,7 @@ package request
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/util"
 	"mime/multipart"
 	"net/http"
 )
@@ -22,7 +22,7 @@ func GetRequestFiles(req *http.Request) (map[string]*multipart.FileHeader, error
 	for fieldName, fds := range req.MultipartForm.File {
 		for _, f := range fds {
 			var filename string
-			filename, err = item.NormalizeString(f.Filename)
+			filename, err = util.Slugify(f.Filename)
 			if err != nil {
 				return nil, err
 			}

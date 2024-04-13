@@ -3,10 +3,10 @@ package tokens
 type Repository string
 
 var (
-	AnalyticsRequestsRepositoryToken Repository = "analytics_requests"
-	AnalyticsMetricsRepositoryToken  Repository = "analytics_metrics"
+	AnalyticsRequestsRepositoryToken Repository = "analytics_request"
+	AnalyticsMetricsRepositoryToken  Repository = "analytics_metric"
 	ConfigRepositoryToken            Repository = "config"
-	ContentRepositoryToken           Repository = "content"
+	SlugRepositoryToken              Repository = "slug"
 	UploadRepositoryToken            Repository = "upload"
 	CredentialHashRepositoryToken    Repository = "credential-hash"
 	RecoveryKeyRepositoryToken       Repository = "recovery-key"
