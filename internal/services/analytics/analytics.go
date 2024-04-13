@@ -11,15 +11,19 @@ import (
 )
 
 type service struct {
-	repository repositories.AnalyticsRepositoryInterface
+	requestsRepository repositories.GenericRepositoryInterface
+	metricsRepository  repositories.GenericRepositoryInterface
 }
 
 type Service interface {
-	StartRecorder(analyticsRepository repositories.AnalyticsRepositoryInterface)
+	StartRecorder()
 	Record(req entities.AnalyticsHTTPRequestMetadata)
 	GetChartData() (map[string]interface{}, error)
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{repository: db.Get(tokens.AnalyticsRepositoryToken).(repositories.AnalyticsRepositoryInterface)}, nil
+	return &service{
+		requestsRepository: db.Get(tokens.AnalyticsRequestsRepositoryToken).(repositories.GenericRepositoryInterface),
+		metricsRepository:  db.Get(tokens.AnalyticsMetricsRepositoryToken).(repositories.GenericRepositoryInterface),
+	}, nil
 }
