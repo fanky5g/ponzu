@@ -2,12 +2,11 @@ package tls
 
 import (
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
 type service struct {
-	configRepository repositories.GenericRepositoryInterface
+	configRepository driver.Repository
 }
 
 type Service interface {
@@ -16,5 +15,5 @@ type Service interface {
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{configRepository: db.Get(tokens.ConfigRepositoryToken).(repositories.GenericRepositoryInterface)}, nil
+	return &service{configRepository: db.Get(tokens.ConfigRepositoryToken).(driver.Repository)}, nil
 }

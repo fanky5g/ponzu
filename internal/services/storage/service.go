@@ -6,14 +6,13 @@ import (
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
 	"mime/multipart"
 )
 
 type service struct {
 	client     driver.StorageClientInterface
-	repository repositories.GenericRepositoryInterface
+	repository driver.Repository
 }
 
 type Service interface {
@@ -35,7 +34,7 @@ func New(
 
 	s := &service{
 		client:     client,
-		repository: db.Get(tokens.UploadRepositoryToken).(repositories.GenericRepositoryInterface),
+		repository: db.Get(tokens.UploadRepositoryToken).(driver.Repository),
 	}
 
 	return s, nil

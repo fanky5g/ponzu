@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-	contentPkg "github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
@@ -173,11 +171,10 @@ func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *h
 }
 
 func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, *http.Request) {
-	contentTypes := r.Context().Types().Content
 	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
 
 	return func(contentId string, res http.ResponseWriter, req *http.Request) {
-		t, post, err := contentService.GetContentBySlug(contentId)
+		post, err := contentService.GetContentBySlug(contentId)
 		if err != nil {
 			log.Printf("Failed to get entities: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -189,17 +186,10 @@ func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, 
 			return
 		}
 
-		pt, ok := contentTypes[t]
-		if !ok {
-			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(contentPkg.ErrTypeNotRegistered.Error(), t))
-			return
-		}
-
 		// assert hookable
-		get := pt()
-		hook, ok := get.(item.Hookable)
+		hook, ok := post.(item.Hookable)
 		if !ok {
-			log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+			log.Println("[Response] error: Type does not implement item.Hookable or embed item.Item.")
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}

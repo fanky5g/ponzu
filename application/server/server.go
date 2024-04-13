@@ -7,7 +7,6 @@ import (
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/infrastructure"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/internal/handler/controllers"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services"
@@ -28,7 +27,7 @@ type server struct {
 	configService    config.Service
 	analyticsService analytics.Service
 	mux              *http.ServeMux
-	configRepository repositories.GenericRepositoryInterface
+	configRepository driver.Repository
 }
 
 func (server *server) ServeMux() *http.ServeMux {

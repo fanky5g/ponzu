@@ -20,8 +20,8 @@ type FileUpload struct {
 	ContentType   string `json:"content_type"`
 }
 
-// String partially implements item.Identifiable and overrides Item's String()
-func (f *FileUpload) String() string { return f.Name }
+// Title partially implements item.Identifiable
+func (f *FileUpload) Title() string { return f.Name }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {

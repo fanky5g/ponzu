@@ -3,13 +3,14 @@ module github.com/fanky5g/ponzu
 go 1.21.5
 
 replace github.com/fanky5g/ponzu-driver-postgres => ../ponzu-driver-postgres
+
 replace github.com/fanky5g/ponzu-driver-bleve => ../ponzu-driver-bleve
+
 replace github.com/fanky5g/ponzu-driver-bolt-db => ../ponzu-driver-bolt-db
 
 require (
 	github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240324095946-113f4fec9ceb
 	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240324100444-b4aea13de4ad
-	github.com/fanky5g/ponzu-driver-postgres v0.0.0-00010101000000-000000000000
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/gorilla/schema v1.2.1
 	github.com/nilslice/email v0.1.0
@@ -44,11 +45,6 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.4.3 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
@@ -72,8 +68,7 @@ require (
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/postgres v1.5.7 // indirect
-	gorm.io/gorm v1.25.8 // indirect
 )

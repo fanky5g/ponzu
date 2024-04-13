@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 	"reflect"
 )
 
 type service struct {
-	repository repositories.GenericRepositoryInterface
+	repository driver.Repository
 }
 
 type Service interface {
@@ -80,5 +79,5 @@ func (s *service) GetAppName() (string, error) {
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{repository: db.Get(tokens.ConfigRepositoryToken).(repositories.GenericRepositoryInterface)}, nil
+	return &service{repository: db.Get(tokens.ConfigRepositoryToken).(driver.Repository)}, nil
 }
