@@ -25,8 +25,8 @@ type CredentialHash struct {
 	Value  []byte         `json:"value"`
 }
 
-func (*CredentialHash) GetRepositoryToken() string {
-	return string(tokens.CredentialHashRepositoryToken)
+func (*CredentialHash) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.CredentialHashRepositoryToken
 }
 
 type AuthToken struct {
@@ -39,6 +39,6 @@ type RecoveryKey struct {
 	Value string `json:"value"`
 }
 
-func (*RecoveryKey) GetRepositoryToken() string {
-	return string(tokens.RecoveryKeyRepositoryToken)
+func (*RecoveryKey) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.RecoveryKeyRepositoryToken
 }

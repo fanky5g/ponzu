@@ -85,7 +85,7 @@ func New(
 	}
 
 	uploadsSearchClient, err := bleveSearch.New(map[string]content.Builder{
-		models.WrapPonzuModelNameSpace(tokens.Repository(constants.UploadsEntityName)): func() interface{} {
+		constants.UploadsEntityName: func() interface{} {
 			return new(entities.FileUpload)
 		},
 	}, db)

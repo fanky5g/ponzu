@@ -9,8 +9,8 @@ type AnalyticsMetric struct {
 	Unique   int    `json:"unique"`
 }
 
-func (*AnalyticsMetric) GetRepositoryToken() string {
-	return string(tokens.AnalyticsMetricsRepositoryToken)
+func (*AnalyticsMetric) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.AnalyticsMetricsRepositoryToken
 }
 
 type AnalyticsHTTPRequestMetadata struct {
@@ -24,6 +24,6 @@ type AnalyticsHTTPRequestMetadata struct {
 	External   bool   `json:"external_content"`
 }
 
-func (*AnalyticsHTTPRequestMetadata) GetRepositoryToken() string {
-	return string(tokens.AnalyticsRequestsRepositoryToken)
+func (*AnalyticsHTTPRequestMetadata) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.AnalyticsRequestsRepositoryToken
 }

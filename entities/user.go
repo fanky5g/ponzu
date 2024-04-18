@@ -7,6 +7,6 @@ type User struct {
 	Email string `json:"email"`
 }
 
-func (*User) GetRepositoryToken() string {
-	return string(tokens.UserRepositoryToken)
+func (*User) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.UserRepositoryToken
 }

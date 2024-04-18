@@ -24,8 +24,8 @@ type FileUpload struct {
 // Title partially implements item.Identifiable
 func (f *FileUpload) Title() string { return f.Name }
 
-func (*FileUpload) GetRepositoryToken() string {
-	return string(tokens.UploadRepositoryToken)
+func (*FileUpload) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.UploadRepositoryToken
 }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable

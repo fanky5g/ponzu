@@ -6,7 +6,6 @@ import (
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 	"mime/multipart"
 )
@@ -29,16 +28,13 @@ func New(
 	searchClient driver.SearchClientInterface,
 	client driver.StorageClientInterface) (Service, error) {
 
-	if err := searchClient.CreateIndex(
-		models.WrapPonzuModelNameSpace(tokens.Repository(constants.UploadsEntityName)), &entities.FileUpload{}); err != nil {
+	if err := searchClient.CreateIndex(constants.UploadsEntityName, &entities.FileUpload{}); err != nil {
 		return nil, err
 	}
 
 	s := &service{
-		client: client,
-		repository: db.Get(
-			models.WrapPonzuModelNameSpace(tokens.UploadRepositoryToken),
-		).(driver.Repository),
+		client:     client,
+		repository: db.GetRepositoryByToken(tokens.UploadRepositoryToken),
 	}
 
 	return s, nil

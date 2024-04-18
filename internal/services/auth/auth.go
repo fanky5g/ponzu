@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/nilslice/jwt"
 	"math/rand"
@@ -112,9 +111,7 @@ func (s *service) SetRecoveryKey(email string) (*entities.RecoveryKey, error) {
 }
 
 func New(db driver.Database) (Service, error) {
-	configRepository := db.Get(
-		models.WrapPonzuModelNameSpace(tokens.ConfigRepositoryToken),
-	).(driver.Repository)
+	configRepository := db.GetRepositoryByToken(tokens.ConfigRepositoryToken)
 	c, err := configRepository.Latest()
 	if err != nil {
 		return nil, err
@@ -131,14 +128,8 @@ func New(db driver.Database) (Service, error) {
 	}
 
 	return &service{
-		userRepository: db.Get(
-			models.WrapPonzuModelNameSpace(tokens.UserRepositoryToken),
-		).(driver.Repository),
-		credentialRepository: db.Get(
-			models.WrapPonzuModelNameSpace(tokens.CredentialHashRepositoryToken),
-		).(driver.Repository),
-		recoveryKeyRepository: db.Get(
-			models.WrapPonzuModelNameSpace(tokens.RecoveryKeyRepositoryToken),
-		).(driver.Repository),
+		userRepository:        db.GetRepositoryByToken(tokens.UserRepositoryToken),
+		credentialRepository:  db.GetRepositoryByToken(tokens.CredentialHashRepositoryToken),
+		recoveryKeyRepository: db.GetRepositoryByToken(tokens.RecoveryKeyRepositoryToken),
 	}, nil
 }
