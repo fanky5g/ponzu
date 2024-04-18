@@ -46,19 +46,19 @@ func New(
 	contentRepositories := make(map[string]driver.Repository)
 	for entityName, entityConstructor := range types {
 		entity := entityConstructor()
-		persistable, ok := entity.(entities.EntityStoreInterface)
+		persistable, ok := entity.(entities.Persistable)
 		if !ok {
-			return nil, fmt.Errorf("entity %s does not implement EntityStoreInterface", entityName)
+			return nil, fmt.Errorf("entity %s does not implement Persistable", entityName)
 		}
 
-		repository := db.GetRepository(persistable)
+		repository := db.GetRepositoryByToken(persistable.GetRepositoryToken())
 		if repository == nil {
 			return nil, fmt.Errorf("content repository for %s not implemented", entityName)
 		}
 
 		contentRepositories[entityName] = repository
 		if _, err := searchClient.GetIndex(entityName); err != nil {
-			err = searchClient.CreateIndex(entityName, entityConstructor())
+			err = searchClient.CreateIndex(entityName, entity)
 			if err != nil {
 				return nil, err
 			}
