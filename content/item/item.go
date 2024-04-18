@@ -5,6 +5,7 @@ package item
 
 import (
 	"net/http"
+	"time"
 )
 
 // Sluggable makes a struct locatable by URL with its own path.
@@ -30,6 +31,13 @@ type Identifiable interface {
 type Sortable interface {
 	Time() int64
 	Touch() int64
+}
+
+type Temporal interface {
+	CreatedAt() int64
+	SetCreatedAt(time.Time)
+	UpdatedAt() int64
+	SetUpdatedAt(time.Time)
 }
 
 // CSVFormattable is implemented with the method FormatCSV, which must return the ordered
@@ -100,6 +108,22 @@ func (i *Item) Touch() int64 {
 // SetSlug sets the item's slug for its URL
 func (i *Item) SetSlug(slug string) {
 	i.Slug = slug
+}
+
+func (i *Item) CreatedAt() int64 {
+	return i.Timestamp
+}
+
+func (i *Item) UpdatedAt() int64 {
+	return i.Updated
+}
+
+func (i *Item) SetCreatedAt(t time.Time) {
+	i.Timestamp = t.Unix()
+}
+
+func (i *Item) SetUpdatedAt(t time.Time) {
+	i.Updated = t.Unix()
 }
 
 // ItemSlug sets the item's slug for its URL

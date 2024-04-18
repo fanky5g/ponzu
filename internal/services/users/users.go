@@ -3,6 +3,7 @@ package users
 import (
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
@@ -82,5 +83,7 @@ func (s *service) ListUsers() ([]entities.User, error) {
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{repository: db.Get(tokens.UserRepositoryToken).(driver.Repository)}, nil
+	return &service{repository: db.Get(
+		models.WrapPonzuModelNameSpace(tokens.UserRepositoryToken),
+	).(driver.Repository)}, nil
 }

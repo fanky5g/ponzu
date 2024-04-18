@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 	"reflect"
@@ -79,5 +80,7 @@ func (s *service) GetAppName() (string, error) {
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{repository: db.Get(tokens.ConfigRepositoryToken).(driver.Repository)}, nil
+	return &service{repository: db.Get(
+		models.WrapPonzuModelNameSpace(tokens.ConfigRepositoryToken),
+	).(driver.Repository)}, nil
 }

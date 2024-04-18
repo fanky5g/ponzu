@@ -30,5 +30,5 @@ func (s *service) GetAll(entityType string) ([]interface{}, error) {
 }
 
 func (s *service) GetAllWithOptions(entityType string, search *entities.Search) (int, []interface{}, error) {
-	return s.repository(entityType).Search(search)
+	return s.repository(entityType).Find(search.SortOrder, search.Pagination)
 }
