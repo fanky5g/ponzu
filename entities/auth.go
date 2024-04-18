@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"github.com/fanky5g/ponzu/tokens"
+	"time"
+)
 
 type CredentialType string
 
@@ -22,6 +25,10 @@ type CredentialHash struct {
 	Value  []byte         `json:"value"`
 }
 
+func (*CredentialHash) GetRepositoryToken() string {
+	return string(tokens.CredentialHashRepositoryToken)
+}
+
 type AuthToken struct {
 	Expires time.Time
 	Token   string
@@ -30,4 +37,8 @@ type AuthToken struct {
 type RecoveryKey struct {
 	Email string `json:"email"`
 	Value string `json:"value"`
+}
+
+func (*RecoveryKey) GetRepositoryToken() string {
+	return string(tokens.RecoveryKeyRepositoryToken)
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/tokens"
 )
 
 // Config represents the configurable options of the system
@@ -28,6 +29,10 @@ type Config struct {
 }
 
 func (c *Config) Title() string { return c.Name }
+
+func (*Config) GetRepositoryToken() string {
+	return string(tokens.ConfigRepositoryToken)
+}
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {

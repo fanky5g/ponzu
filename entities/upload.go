@@ -5,6 +5,7 @@ import (
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/tokens"
 	"path/filepath"
 	"reflect"
 	"time"
@@ -22,6 +23,10 @@ type FileUpload struct {
 
 // Title partially implements item.Identifiable
 func (f *FileUpload) Title() string { return f.Name }
+
+func (*FileUpload) GetRepositoryToken() string {
+	return string(tokens.UploadRepositoryToken)
+}
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {
