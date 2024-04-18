@@ -82,13 +82,6 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		var specifier string
-		if status == "public" || status == "" {
-			specifier = "__sorted"
-		} else if status == "pending" {
-			specifier = "__pending"
-		}
-
 		b := &bytes.Buffer{}
 		var total int
 		var posts []interface{}
@@ -141,7 +134,7 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
                     </form>	
 					</div>`
 
-		total, posts, err = contentService.GetAllWithOptions(t+specifier, search)
+		total, posts, err = contentService.GetAllWithOptions(t, search)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to search")
 			r.Renderer().InternalServerError(res)

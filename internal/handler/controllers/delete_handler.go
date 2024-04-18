@@ -7,7 +7,6 @@ import (
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strings"
 )
 
 func NewDeleteHandler(r router.Router) http.HandlerFunc {
@@ -34,12 +33,6 @@ func NewDeleteHandler(r router.Router) http.HandlerFunc {
 		if id == "" || t == "" {
 			res.WriteHeader(http.StatusBadRequest)
 			return
-		}
-
-		// catch specifier suffix from delete form value
-		if strings.Contains(t, "__") {
-			spec := strings.Split(t, "__")
-			ct = spec[0]
 		}
 
 		p, ok := contentTypes[ct]
