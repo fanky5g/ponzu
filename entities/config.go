@@ -27,8 +27,7 @@ type Config struct {
 	BackupBasicAuthPassword string   `json:"backup_basic_auth_password"`
 }
 
-// String partially implements item.Identifiable and overrides Item's String()
-func (c *Config) String() string { return c.Name }
+func (c *Config) Title() string { return c.Name }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
@@ -124,7 +123,7 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 		},
 		editor.Field{
 			View: editor.Input("BackupBasicAuthUser", c, map[string]string{
-				"label":       "HTTP Basic Auth GetUserByEmail",
+				"label":       "HTTP Basic Auth User",
 				"placeholder": "Enter a user name for Basic Auth access",
 				"type":        "text",
 			}, nil),

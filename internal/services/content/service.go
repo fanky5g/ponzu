@@ -5,6 +5,7 @@ import (
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 	"log"
 )
@@ -41,11 +42,13 @@ func New(
 	types map[string]content.Builder,
 	searchClient driver.SearchClientInterface,
 ) (Service, error) {
-	slugRepository := db.Get(tokens.SlugRepositoryToken).(driver.Repository)
+	slugRepository := db.Get(
+		models.WrapPonzuModelNameSpace(tokens.SlugRepositoryToken),
+	).(driver.Repository)
 
 	contentRepositories := make(map[string]driver.Repository)
 	for itemName, itemType := range types {
-		repository := db.Get(tokens.Repository(itemName))
+		repository := db.Get(itemName)
 		if repository == nil {
 			return nil, fmt.Errorf("content repository for %s not implemented", itemName)
 		}

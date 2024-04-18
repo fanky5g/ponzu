@@ -44,7 +44,7 @@ func NewSearchContentHandler(r router.Router) http.HandlerFunc {
 
 		matches, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
-			log.Printf("[Search] error: %v\n", err)
+			log.Printf("[Find] error: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}

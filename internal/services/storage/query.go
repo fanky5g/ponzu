@@ -18,7 +18,7 @@ func (s *service) GetFileUpload(entityId string) (*entities.FileUpload, error) {
 }
 
 func (s *service) GetAllWithOptions(search *entities.Search) (int, []*entities.FileUpload, error) {
-	total, files, err := s.repository.Search(search)
+	total, files, err := s.repository.Find(search.SortOrder, search.Pagination)
 	if err != nil {
 		return 0, nil, err
 	}

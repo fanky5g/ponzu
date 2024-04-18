@@ -9,7 +9,7 @@ type Repository interface {
 	Insert(entity interface{}) (interface{}, error)
 	Latest() (interface{}, error)
 	UpdateById(id string, update interface{}) (interface{}, error)
-	Search(search *entities.Search) (int, []interface{}, error)
+	Find(order constants.SortOrder, pagination *entities.Pagination) (int, []interface{}, error)
 	FindOneById(id string) (interface{}, error)
 	FindOneBy(criteria map[string]interface{}) (interface{}, error)
 	FindAll() ([]interface{}, error)

@@ -49,7 +49,7 @@ func NewSearchHandler(r router.Router) http.HandlerFunc {
 					<div class="card-title col s7">` + t + ` Results</div>
 					<form class="col s4" action="{{ .PublicPath }}/contents/search" method="get">
 						<div class="input-field post-search inline">
-							<label class="active">Search:</label>
+							<label class="active">Find:</label>
 							<i class="right material-icons search-icon">search</i>
 							<input class="search" name="q" type="text" placeholder="Within all ` + t + ` fields" class="search"/>
 							<input type="hidden" name="type" value="` + t + `" />

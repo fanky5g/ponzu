@@ -1,14 +1,17 @@
 package infrastructure
 
 import (
+	"errors"
 	"fmt"
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	"github.com/fanky5g/ponzu-driver-local-storage"
+	pgDriver "github.com/fanky5g/ponzu-driver-postgres"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
@@ -33,15 +36,23 @@ func (infra *infrastructure) Get(token tokens.Driver) interface{} {
 
 func getDatabaseDriver(
 	name string,
-	contentTypes map[string]content.Builder,
-	models map[string]content.Builder,
+	contentModels []models.ModelInterface,
 ) (driver.Database, error) {
-	return nil, nil
+	m := make([]models.ModelInterface, 0)
+	m = append(m, contentModels...)
+	m = append(m, models.GetPonzuModels()...)
+
+	switch name {
+	case "postgres":
+		return pgDriver.New(m)
+	default:
+		return nil, errors.New("invalid driver")
+	}
 }
 
 func New(
 	contentTypes map[string]content.Builder,
-	models map[string]content.Builder,
+	contentModels []models.ModelInterface,
 ) (Infrastructure, error) {
 	svcs := make(map[tokens.Driver]interface{})
 	cfg, err := config.Get()
@@ -50,7 +61,7 @@ func New(
 	}
 
 	var db driver.Database
-	db, err = getDatabaseDriver(cfg.DatabaseDriver, contentTypes, models)
+	db, err = getDatabaseDriver(cfg.DatabaseDriver, contentModels)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %v", err)
 	}
@@ -74,7 +85,7 @@ func New(
 	}
 
 	uploadsSearchClient, err := bleveSearch.New(map[string]content.Builder{
-		constants.UploadsEntityName: func() interface{} {
+		models.WrapPonzuModelNameSpace(tokens.Repository(constants.UploadsEntityName)): func() interface{} {
 			return new(entities.FileUpload)
 		},
 	}, db)

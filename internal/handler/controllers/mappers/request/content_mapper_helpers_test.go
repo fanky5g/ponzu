@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -129,9 +128,9 @@ func (suite *ContentMapperHelpersTestSuite) TestMapNestedJSONContentToURLValues(
 		"author.location.timezone": {"PST"},
 	}
 
-	content, err := mapJSONContentToURLValues(req)
+	mapped, err := mapJSONContentToURLValues(req)
 	if assert.NoError(suite.T(), err) {
-		assert.Equal(suite.T(), expectedContent, content)
+		assert.Equal(suite.T(), expectedContent, mapped)
 	}
 }
 
@@ -162,16 +161,9 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntity() {
 		return new(Review)
 	}
 
-	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
-	if err != nil {
-		suite.FailNow(err.Error())
-		return
-	}
-
 	expectedEntity := &Review{
 		Item: item.Item{
 			ID:        "6",
-			UUID:      uid,
 			Slug:      "review-183a4535-f015-4660-bb8f-6541522e9afb",
 			Timestamp: 1707647434000,
 			Updated:   1707647434000,
@@ -223,16 +215,9 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		return new(Review)
 	}
 
-	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
-	if err != nil {
-		suite.FailNow(err.Error())
-		return
-	}
-
 	expectedEntity := &Review{
 		Item: item.Item{
 			ID:        "6",
-			UUID:      uid,
 			Slug:      "review-183a4535-f015-4660-bb8f-6541522e9afb",
 			Timestamp: 1707647434000,
 			Updated:   1707647434000,
@@ -294,16 +279,9 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		return new(Review)
 	}
 
-	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
-	if err != nil {
-		suite.FailNow(err.Error())
-		return
-	}
-
 	expectedEntity := &Review{
 		Item: item.Item{
 			ID:        "6",
-			UUID:      uid,
 			Slug:      "review-183a4535-f015-4660-bb8f-6541522e9afb",
 			Timestamp: 1707647434000,
 			Updated:   1707647434000,
@@ -351,16 +329,9 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		return new(page)
 	}
 
-	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
-	if err != nil {
-		suite.FailNow(err.Error())
-		return
-	}
-
 	expectedEntity := &page{
 		Item: item.Item{
 			ID:        "6",
-			UUID:      uid,
 			Slug:      "page-183a4535-f015-4660-bb8f-6541522e9afb",
 			Timestamp: 1707647434000,
 			Updated:   1707647434000,
@@ -404,16 +375,9 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		return new(page)
 	}
 
-	uid, err := uuid.FromString("183a4535-f015-4660-bb8f-6541522e9afb")
-	if err != nil {
-		suite.FailNow(err.Error())
-		return
-	}
-
 	expectedEntity := &page{
 		Item: item.Item{
 			ID:        "6",
-			UUID:      uid,
 			Slug:      "page-183a4535-f015-4660-bb8f-6541522e9afb",
 			Timestamp: 1707647434000,
 			Updated:   1707647434000,

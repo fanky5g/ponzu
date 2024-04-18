@@ -71,7 +71,7 @@ func NewCORSMiddleware(
 			func(res http.ResponseWriter, req *http.Request) {
 				cfg, err := configService.Get()
 				if err != nil {
-					log.WithField("Error", err).Warning("Failed to get get config: %v", err)
+					log.WithField("Error", err).Warning("Failed to get get config")
 					res.WriteHeader(http.StatusInternalServerError)
 					return
 				}

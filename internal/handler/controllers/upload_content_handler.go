@@ -77,7 +77,7 @@ func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
 					</div>
 					<form class="col s4" action="{{ .PublicPath }}/uploads/search" method="get">
 						<div class="input-field post-search inline">
-							<label class="active">Search:</label>
+							<label class="active">Find:</label>
 							<i class="right material-icons search-icon">search</i>
 							<input class="search" name="q" type="text" placeholder="Within all upload fields" class="search"/>
 							<input type="hidden" name="type" value="__uploads" />
