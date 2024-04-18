@@ -28,7 +28,7 @@ type Config struct {
 	BackupBasicAuthPassword string   `json:"backup_basic_auth_password"`
 }
 
-func (c *Config) Title() string { return c.Name }
+func (c *Config) GetTitle() string { return c.Name }
 
 func (*Config) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.ConfigRepositoryToken

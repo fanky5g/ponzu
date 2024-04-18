@@ -27,7 +27,7 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 	}
 
 	if sluggable.ItemSlug() == "" {
-		slug, err := util.Slugify(identifiable.Title())
+		slug, err := util.Slugify(sluggable.GetTitle())
 		if err != nil {
 			return "", fmt.Errorf("failed to get slug: %v", err)
 		}
@@ -41,7 +41,7 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 	}
 
 	identifiable = content.(item.Identifiable)
-	if _, err = s.slugRepository.Insert(entities.Slug{
+	if _, err = s.slugRepository.Insert(&entities.Slug{
 		EntityType: entityType,
 		EntityId:   identifiable.ItemID(),
 		Slug:       sluggable.ItemSlug(),

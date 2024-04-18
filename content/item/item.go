@@ -8,11 +8,13 @@ import (
 	"time"
 )
 
-// Sluggable makes a struct locatable by URL with its own path.
-// As an Item implementing Sluggable, slugs may overlap. If this is an issue,
-// make your entities struct (or one which embeds Item) implement Sluggable,
-// and it will override the slug created by Item's SetSlug with your own
+// Readable enables an entity to have a Title property
+type Readable interface {
+	GetTitle() string
+}
+
 type Sluggable interface {
+	Readable
 	SetSlug(string)
 	ItemSlug() string
 }
@@ -24,7 +26,6 @@ type Sluggable interface {
 type Identifiable interface {
 	ItemID() string
 	SetItemID(string)
-	Title() string
 }
 
 // Sortable ensures data is sortable by time

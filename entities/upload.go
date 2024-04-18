@@ -21,8 +21,7 @@ type FileUpload struct {
 	ContentType   string `json:"content_type"`
 }
 
-// Title partially implements item.Identifiable
-func (f *FileUpload) Title() string { return f.Name }
+func (f *FileUpload) GetTitle() string { return f.Name }
 
 func (*FileUpload) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.UploadRepositoryToken

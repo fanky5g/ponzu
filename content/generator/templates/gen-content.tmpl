@@ -43,12 +43,6 @@ func init() {
 	Content["{{ .Definition.Name }}"] = func() interface{} { return new({{ .Definition.Name }}) }
 }
 
-// String defines how a {{ .Definition.Name }} is printed. Update it using more descriptive
-// fields from the {{ .Definition.Name }} struct type
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) String() string {
-	return fmt.Sprintf("{{ .Definition.Name }}: %s", {{ .Definition.Initial }}.UUID)
-}
-
 // IndexContent determines if {{ .Definition.Name }} should be indexed for searching
 func ({{ .Definition.Initial }} *{{ .Definition.Name }}) IndexContent() bool {
 	return false
