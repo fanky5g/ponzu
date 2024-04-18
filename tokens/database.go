@@ -1,14 +1,14 @@
 package tokens
 
-type Repository string
+type RepositoryToken string
 
 var (
-	AnalyticsRequestsRepositoryToken Repository = "analytics_http_request_metadata"
-	AnalyticsMetricsRepositoryToken  Repository = "analytics_metrics"
-	ConfigRepositoryToken            Repository = "config"
-	SlugRepositoryToken              Repository = "slugs"
-	UploadRepositoryToken            Repository = "uploads"
-	CredentialHashRepositoryToken    Repository = "credential_hashes"
-	RecoveryKeyRepositoryToken       Repository = "recovery_keys"
-	UserRepositoryToken              Repository = "users"
+	AnalyticsRequestsRepositoryToken RepositoryToken = "analytics_http_request_metadata"
+	AnalyticsMetricsRepositoryToken  RepositoryToken = "analytics_metrics"
+	ConfigRepositoryToken            RepositoryToken = "config"
+	SlugRepositoryToken              RepositoryToken = "slugs"
+	UploadRepositoryToken            RepositoryToken = "uploads"
+	CredentialHashRepositoryToken    RepositoryToken = "credential_hashes"
+	RecoveryKeyRepositoryToken       RepositoryToken = "recovery_keys"
+	UserRepositoryToken              RepositoryToken = "users"
 )

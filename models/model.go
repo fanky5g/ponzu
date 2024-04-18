@@ -23,7 +23,7 @@ type ModelInterface interface {
 	NewEntity() interface{}
 }
 
-func WrapPonzuModelNameSpace(name tokens.Repository) string {
+func WrapPonzuModelNameSpace(name tokens.RepositoryToken) string {
 	return fmt.Sprintf("%s_%s", ponzuModelNameSpace, name)
 }
 

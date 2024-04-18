@@ -5,7 +5,6 @@ import (
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 	"log"
 )
@@ -34,7 +33,7 @@ func (s *service) repository(entityType string) driver.Repository {
 		log.Panicf("Failed to get repository for: %v", entityType)
 	}
 
-	return repository.(driver.Repository)
+	return repository
 }
 
 func New(
@@ -42,21 +41,24 @@ func New(
 	types map[string]content.Builder,
 	searchClient driver.SearchClientInterface,
 ) (Service, error) {
-	slugRepository := db.Get(
-		models.WrapPonzuModelNameSpace(tokens.SlugRepositoryToken),
-	).(driver.Repository)
+	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
 	contentRepositories := make(map[string]driver.Repository)
-	for itemName, itemType := range types {
-		repository := db.Get(itemName)
-		if repository == nil {
-			return nil, fmt.Errorf("content repository for %s not implemented", itemName)
+	for entityName, entityConstructor := range types {
+		entity := entityConstructor()
+		persistable, ok := entity.(entities.EntityStoreInterface)
+		if !ok {
+			return nil, fmt.Errorf("entity %s does not implement EntityStoreInterface", entityName)
 		}
 
-		contentRepositories[itemName] = repository.(driver.Repository)
+		repository := db.GetRepository(persistable)
+		if repository == nil {
+			return nil, fmt.Errorf("content repository for %s not implemented", entityName)
+		}
 
-		if _, err := searchClient.GetIndex(itemName); err != nil {
-			err = searchClient.CreateIndex(itemName, itemType())
+		contentRepositories[entityName] = repository
+		if _, err := searchClient.GetIndex(entityName); err != nil {
+			err = searchClient.CreateIndex(entityName, entityConstructor())
 			if err != nil {
 				return nil, err
 			}

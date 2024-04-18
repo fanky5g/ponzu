@@ -6,7 +6,6 @@ package analytics
 import (
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
@@ -23,11 +22,7 @@ type Service interface {
 
 func New(db driver.Database) (Service, error) {
 	return &service{
-		requestsRepository: db.Get(
-			models.WrapPonzuModelNameSpace(tokens.AnalyticsRequestsRepositoryToken),
-		).(driver.Repository),
-		metricsRepository: db.Get(
-			models.WrapPonzuModelNameSpace(tokens.AnalyticsMetricsRepositoryToken),
-		).(driver.Repository),
+		requestsRepository: db.GetRepositoryByToken(tokens.AnalyticsRequestsRepositoryToken),
+		metricsRepository:  db.GetRepositoryByToken(tokens.AnalyticsMetricsRepositoryToken),
 	}, nil
 }

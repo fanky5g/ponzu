@@ -30,8 +30,8 @@ type Config struct {
 
 func (c *Config) Title() string { return c.Name }
 
-func (*Config) GetRepositoryToken() string {
-	return string(tokens.ConfigRepositoryToken)
+func (*Config) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.ConfigRepositoryToken
 }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
