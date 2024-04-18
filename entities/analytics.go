@@ -1,10 +1,16 @@
 package entities
 
+import "github.com/fanky5g/ponzu/tokens"
+
 type AnalyticsMetric struct {
 	MetricID string `json:"metric_id"`
 	Date     string `json:"date"`
 	Total    int    `json:"total"`
 	Unique   int    `json:"unique"`
+}
+
+func (*AnalyticsMetric) GetRepositoryToken() string {
+	return string(tokens.AnalyticsMetricsRepositoryToken)
 }
 
 type AnalyticsHTTPRequestMetadata struct {
@@ -16,4 +22,8 @@ type AnalyticsHTTPRequestMetadata struct {
 	RemoteAddr string `json:"ip_address"`
 	Timestamp  int64  `json:"timestamp"`
 	External   bool   `json:"external_content"`
+}
+
+func (*AnalyticsHTTPRequestMetadata) GetRepositoryToken() string {
+	return string(tokens.AnalyticsRequestsRepositoryToken)
 }
