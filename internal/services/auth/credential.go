@@ -58,7 +58,7 @@ func (s *service) SetCredential(userId string, credential *entities.Credential) 
 func (s *service) VerifyCredential(userId string, credential *entities.Credential) error {
 	c, err := s.credentialRepository.FindOneBy(map[string]interface{}{
 		"user_id": userId,
-		"type":    credential.Type,
+		"type":    string(credential.Type),
 	})
 
 	if err != nil {
