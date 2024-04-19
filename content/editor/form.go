@@ -192,13 +192,13 @@ func getDefaultFields(e Editable) []Field {
 				{
 					View: Timestamp("Timestamp", e, map[string]string{
 						"type":  "hidden",
-						"class": "timestamp __ponzu",
+						"class": "__ponzu timestamp",
 					}),
 				},
 				{
 					View: Timestamp("Updated", e, map[string]string{
 						"type":  "hidden",
-						"class": "updated __ponzu",
+						"class": "__ponzu updated",
 					}),
 				},
 			}...)

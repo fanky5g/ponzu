@@ -146,7 +146,7 @@ func FmtBytes(size float64) string {
 
 // FmtTime shows a human-readable time based on the timestamp
 func FmtTime(t int64) string {
-	return time.Unix(t/1000, 0).Format("03:04 PM Jan 2, 2006") + " (UTC)"
+	return time.Unix(t, 0).Format("03:04 PM Jan 2, 2006") + " (UTC)"
 }
 
 // IndexContent determines if FileUpload should be indexed for searching
