@@ -19,16 +19,14 @@ type Service interface {
 }
 
 func (s *service) CreateUser(email string) (*entities.User, error) {
-	user := &entities.User{
+	user, err := s.repository.Insert(&entities.User{
 		Email: email,
-	}
-
-	_, err := s.repository.Insert(user)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return user.(*entities.User), nil
 }
 
 func (s *service) DeleteUser(email string) error {
@@ -68,7 +66,7 @@ func (s *service) ListUsers() ([]entities.User, error) {
 		return nil, err
 	}
 
-	users := make([]entities.User, 0)
+	users := make([]entities.User, len(uu))
 	for i := range uu {
 		if err != nil {
 			return nil, err
