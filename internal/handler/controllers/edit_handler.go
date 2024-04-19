@@ -13,7 +13,6 @@ import (
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strings"
 )
 
 func NewEditHandler(r router.Router) http.HandlerFunc {
@@ -98,11 +97,6 @@ func NewEditHandler(r router.Router) http.HandlerFunc {
 				req.PostForm.Set(name, urlPath)
 			}
 
-			pt := t
-			if strings.Contains(t, "__") {
-				pt = strings.Split(t, "__")[0]
-			}
-
 			entity, err := request.GetEntityFromFormData(contentType, req.PostForm)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to map request entity")
@@ -111,7 +105,7 @@ func NewEditHandler(r router.Router) http.HandlerFunc {
 
 			hook, ok := entity.(item.Hookable)
 			if !ok {
-				log.Println("Type", pt, "does not implement item.Hookable or embed item.Item.")
+				log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
 				r.Renderer().BadRequest(res)
 				return
 			}
@@ -166,7 +160,7 @@ func NewEditHandler(r router.Router) http.HandlerFunc {
 				}
 			}
 
-			r.Redirect(req, res, req.URL.Path+"?type="+pt+"&id="+id)
+			r.Redirect(req, res, req.URL.Path+"?type="+t+"&id="+id)
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 		}

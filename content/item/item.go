@@ -120,11 +120,11 @@ func (i *Item) UpdatedAt() int64 {
 }
 
 func (i *Item) SetCreatedAt(t time.Time) {
-	i.Timestamp = t.Unix()
+	i.Timestamp = t.UnixMilli()
 }
 
 func (i *Item) SetUpdatedAt(t time.Time) {
-	i.Updated = t.Unix()
+	i.Updated = t.UnixMilli()
 }
 
 // ItemSlug sets the item's slug for its URL
