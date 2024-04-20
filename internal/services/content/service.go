@@ -23,7 +23,7 @@ type Service interface {
 	GetContentBySlug(slug string) (interface{}, error)
 	GetAll(namespace string) ([]interface{}, error)
 	GetAllWithOptions(namespace string, search *entities.Search) (int, []interface{}, error)
-	UpdateContent(entityType, entityId string, update map[string]interface{}) (interface{}, error)
+	UpdateContent(entityType, entityId string, update interface{}) (interface{}, error)
 	ExportCSV(entityName string) (*entities.ResponseStream, error)
 }
 

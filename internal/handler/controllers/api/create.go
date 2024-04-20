@@ -59,7 +59,7 @@ func NewCreateContentHandler(r router.Router) http.HandlerFunc {
 
 		post, err := request.GetEntity(contentType, req)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
@@ -110,7 +110,7 @@ func NewCreateContentHandler(r router.Router) http.HandlerFunc {
 		}
 
 		// create JSON response to send data back to client
-		writeJSONData(res, http.StatusOK, map[string]interface{}{
+		r.Renderer().Json(res, http.StatusOK, map[string]interface{}{
 			"id":   id,
 			"type": t,
 		})

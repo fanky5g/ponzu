@@ -18,12 +18,12 @@ func NewDeleteContentHandler(r router.Router) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)
 		if identifier == "" {
-			writeJSONError(res, http.StatusBadRequest, errors.New("entities id is required"))
+			r.Renderer().Error(res, http.StatusBadRequest, errors.New("entities id is required"))
 			return
 		}
 
 		if isSlug {
-			writeJSONError(res, http.StatusBadRequest, errors.New("slug not supported for delete"))
+			r.Renderer().Error(res, http.StatusBadRequest, errors.New("slug not supported for delete"))
 		}
 
 		t := req.URL.Query().Get("type")
@@ -78,7 +78,7 @@ func NewDeleteContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, map[string]interface{}{
+		r.Renderer().Json(res, http.StatusOK, map[string]interface{}{
 			"id":     identifier,
 			"status": "deleted",
 			"type":   t,

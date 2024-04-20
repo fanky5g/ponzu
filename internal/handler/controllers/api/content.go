@@ -75,13 +75,13 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 
 		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
 		search, err := request.MapSearchRequest(searchRequestDto)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
@@ -110,7 +110,7 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 		}
 
 		posts = p.([]interface{})
-		writeJSONData(res, http.StatusOK, posts)
+		r.Renderer().Json(res, http.StatusOK, posts)
 
 		// hook after response
 		err = hook.AfterAPIResponse(res, req, posts)
@@ -159,7 +159,7 @@ func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *h
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, post)
+		r.Renderer().Json(res, http.StatusOK, post)
 
 		// hook after response
 		err = hook.AfterAPIResponse(res, req, post)
@@ -182,7 +182,7 @@ func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, 
 		}
 
 		if post == nil {
-			writeJSONData(res, http.StatusNotFound, nil)
+			r.Renderer().Json(res, http.StatusNotFound, nil)
 			return
 		}
 
@@ -202,7 +202,7 @@ func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, 
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, post)
+		r.Renderer().Json(res, http.StatusOK, post)
 
 		// hook after response
 		err = hook.AfterAPIResponse(res, req, post)

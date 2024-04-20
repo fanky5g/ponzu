@@ -22,12 +22,12 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)
 		if identifier == "" {
-			writeJSONError(res, http.StatusBadRequest, errors.New("entities id is required"))
+			r.Renderer().Error(res, http.StatusBadRequest, errors.New("entities id is required"))
 			return
 		}
 
 		if isSlug {
-			writeJSONError(res, http.StatusBadRequest, errors.New("slug not supported for update"))
+			r.Renderer().Error(res, http.StatusBadRequest, errors.New("slug not supported for update"))
 		}
 
 		t := req.URL.Query().Get("type")
@@ -59,7 +59,7 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 
 		pt, ok := contentTypes[t]
 		if !ok {
-			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(contentPkg.ErrTypeNotRegistered.Error(), t))
+			r.Renderer().Error(res, http.StatusBadRequest, fmt.Errorf(contentPkg.ErrTypeNotRegistered.Error(), t))
 			return
 		}
 
@@ -70,9 +70,9 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		update, err := request.MapRequestToContentUpdate(req)
+		update, err := request.GetEntity(pt, req)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
@@ -111,6 +111,6 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, u)
+		r.Renderer().Json(res, http.StatusOK, u)
 	}
 }

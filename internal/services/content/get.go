@@ -25,6 +25,23 @@ func (s *service) GetContentBySlug(slug string) (interface{}, error) {
 	return s.repository(ss.EntityType).FindOneById(ss.EntityId)
 }
 
+func (s *service) GetSlug(entityType, entityId string) (*entities.Slug, error) {
+	slug, err := s.slugRepository.FindOneBy(map[string]interface{}{
+		"entity_type": entityType,
+		"entity_id":   entityId,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if slug == nil {
+		return nil, nil
+	}
+
+	return slug.(*entities.Slug), nil
+}
+
 func (s *service) GetAll(entityType string) ([]interface{}, error) {
 	return s.repository(entityType).FindAll()
 }

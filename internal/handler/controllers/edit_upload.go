@@ -117,7 +117,11 @@ func NewEditUploadHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			r.Renderer().Json(res, []byte(`{"data": [{"url": "`+urlPaths["file"]+`"}]}`))
+			r.Renderer().Json(res, http.StatusOK, []map[string]interface{}{
+				{
+					"url": urlPaths["file"],
+				},
+			})
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return

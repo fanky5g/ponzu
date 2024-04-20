@@ -91,7 +91,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoFromJSONRequest()
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "services/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	searchRequestDto, err := GetSearchRequestDto(req)
 	if assert.NoError(suite.T(), err) {

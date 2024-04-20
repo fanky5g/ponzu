@@ -6,7 +6,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/tokens"
-
 	"net/http"
 )
 
@@ -18,17 +17,17 @@ func NewAuthHandler(r router.Router) http.HandlerFunc {
 		case http.MethodPost:
 			accountId, credential, err := request.MapAuthRequest(req)
 			if err != nil {
-				writeJSONError(res, http.StatusBadRequest, err)
+				r.Renderer().Error(res, http.StatusBadRequest, err)
 				return
 			}
 
 			authToken, err := authService.LoginByEmail(accountId, credential)
 			if err != nil {
-				writeJSONError(res, http.StatusBadRequest, err)
+				r.Renderer().Error(res, http.StatusBadRequest, err)
 				return
 			}
 
-			writeJSONData(res, http.StatusOK, response.MapAuthTokenResponse(authToken))
+			r.Renderer().Json(res, http.StatusOK, response.MapAuthTokenResponse(authToken))
 			return
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)

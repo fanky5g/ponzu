@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	contentIdentifierRegex = regexp.MustCompile("/api/entities/(?P<identifier>[^/]+)")
+	contentIdentifierRegex = regexp.MustCompile("/api/content/(?P<identifier>[^/]+)")
 )
 
 func GetRequestContentId(req *http.Request) (bool, string) {

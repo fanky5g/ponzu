@@ -26,7 +26,7 @@ func (gt *generator) getTemplateName(contentType content.Type) (string, error) {
 		return filepath.Join(gt.templateDir, "gen-field-collection.tmpl"), nil
 	}
 
-	return "", errors.New("unsupported entities type")
+	return "", errors.New("unsupported content type")
 }
 
 func (gt *generator) Generate(contentType content.Type, definition *types.TypeDefinition) error {
