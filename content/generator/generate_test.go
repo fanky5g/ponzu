@@ -1,8 +1,7 @@
 package generator
 
 import (
-	"fmt"
-	content "github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/generator/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -245,7 +244,6 @@ func init() {
 	buf, err := s.gt.generate(content.TypePlain, t)
 	if assert.NoError(s.T(), err) {
 		assert.Equal(s.T(), expectedBuffer, buf)
-		fmt.Println(string(buf))
 	}
 }
 

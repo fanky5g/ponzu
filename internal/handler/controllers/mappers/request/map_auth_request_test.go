@@ -32,7 +32,7 @@ func (suite *AuthRequestTestSuite) TestMapJSONRequest() {
 	}
 
 	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "services/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	expectedCredential := &entities.Credential{
 		Type:  entities.CredentialTypePassword,

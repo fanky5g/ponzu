@@ -36,7 +36,8 @@ type Renderer interface {
 	BadRequest(res http.ResponseWriter)
 	ManageEditable(res http.ResponseWriter, editable editor.Editable, typeName string)
 	Html(res http.ResponseWriter, data []byte)
-	Json(res http.ResponseWriter, data []byte)
+	Json(res http.ResponseWriter, statusCode int, data interface{})
+	Error(res http.ResponseWriter, statusCode int, err error)
 	Template(templates ...string) *template.Template
 	TemplateString(templates ...string) string
 }
@@ -178,24 +179,6 @@ func (r *renderer) InjectTemplateInAdmin(res http.ResponseWriter, templateText s
 	}
 
 	r.InjectInAdminView(res, buf)
-}
-
-func (r *renderer) Html(res http.ResponseWriter, data []byte) {
-	res.Header().Set("Content-Type", "text/Html")
-	if _, err := res.Write(data); err != nil {
-		log.WithFields(log.Fields{"Error": err}).Warn("Failed to write response")
-		r.InternalServerError(res)
-		return
-	}
-}
-
-func (r *renderer) Json(res http.ResponseWriter, data []byte) {
-	res.Header().Set("Content-Type", "application/Json")
-	if _, err := res.Write(data); err != nil {
-		log.WithFields(log.Fields{"Error": err}).Warn("Failed to write response")
-		r.InternalServerError(res)
-		return
-	}
 }
 
 func (r *renderer) renderInAppFrame(template string) ([]byte, error) {

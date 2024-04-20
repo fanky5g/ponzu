@@ -27,18 +27,18 @@ func NewSearchContentHandler(r router.Router) http.HandlerFunc {
 
 		_, ok := contentTypes[t]
 		if !ok {
-			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(content.ErrTypeNotRegistered.Error(), t))
+			r.Renderer().Error(res, http.StatusBadRequest, fmt.Errorf(content.ErrTypeNotRegistered.Error(), t))
 			return
 		}
 
 		searchRequest, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
 		if searchRequest.Query == "" {
-			writeJSONError(res, http.StatusBadRequest, ErrMissingSearchQuery)
+			r.Renderer().Error(res, http.StatusBadRequest, ErrMissingSearchQuery)
 			return
 		}
 
@@ -49,6 +49,6 @@ func NewSearchContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, matches)
+		r.Renderer().Json(res, http.StatusOK, matches)
 	}
 }
