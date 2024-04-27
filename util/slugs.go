@@ -8,13 +8,13 @@ import (
 	"unicode"
 )
 
-var rxList map[*regexp.Regexp][]byte
+var slugRxList map[*regexp.Regexp][]byte
 
 func init() {
 	// Compile regex once to use in stringToSlug().
 	// We store the compiled regex as the key
 	// and assign the replacement as the map's value.
-	rxList = map[*regexp.Regexp][]byte{
+	slugRxList = map[*regexp.Regexp][]byte{
 		regexp.MustCompile("`[-]+`"):                  []byte("-"),
 		regexp.MustCompile("[[:space:]]"):             []byte("-"),
 		regexp.MustCompile("[[:blank:]]"):             []byte(""),
@@ -35,8 +35,8 @@ func stringToSlug(s string) (string, error) {
 	src := []byte(strings.ToLower(s))
 
 	// Range over compiled regex and replacements from init().
-	for rx := range rxList {
-		src = rx.ReplaceAll(src, rxList[rx])
+	for rx := range slugRxList {
+		src = rx.ReplaceAll(src, slugRxList[rx])
 	}
 
 	str := strings.Replace(string(src), "'", "", -1)

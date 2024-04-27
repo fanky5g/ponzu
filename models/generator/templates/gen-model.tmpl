@@ -1,14 +1,19 @@
-package models
+package {{ .Package }}
 
 import (
 	"encoding/json"
 	"fmt"
 	ponzuModels "github.com/fanky5g/ponzu/models"
+	{{- if eq .ContentPackage .ContentBase }}
+    "{{ .ModulePath }}/{{ .ContentBase }}"
+    {{- else }}
+    {{ .ContentPackage }} "{{ .ModulePath }}/{{ .ContentBase }}"
+    {{- end }}
 	"strings"
 )
 
 type {{ .Definition.Name }}Document struct {
-	*content.{{ .Definition.Name }}
+	*{{ .ContentPackage }}.{{ .Definition.Name }}
 }
 
 func (document *{{ .Definition.Name }}Document) Value() (interface{}, error) {
@@ -30,16 +35,16 @@ func (document *{{ .Definition.Name }}Document) Scan(src interface{}) error {
 type {{ .Definition.Name }}Model struct{}
 
 func (*{{ .Definition.Name }}Model) Name() string {
-	return "{{ .Definition.Name | "%q" }}"
+	return "{{ .Definition.Name | TableName }}"
 }
 
 func (*{{ .Definition.Name }}Model) NewEntity() interface{} {
-	return new(content.{{ .Definition.Name }})
+	return new({{ .ContentPackage }}.{{ .Definition.Name }})
 }
 
 func (model *{{ .Definition.Name }}Model) ToDocument(entity interface{}) ponzuModels.DocumentInterface {
 	return &{{ .Definition.Name }}Document{
-		{{ .Definition.Name }}: entity.(*content.{{ .Definition.Name }}),
+		{{ .Definition.Name }}: entity.(*{{ .ContentPackage }}.{{ .Definition.Name }}),
 	}
 }
 
