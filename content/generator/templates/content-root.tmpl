@@ -3,11 +3,11 @@ package {{ .Package }}
 
 import (
 	ponzuContent "github.com/fanky5g/ponzu/content"
-	ponzuGeneratorTypes "github.com/fanky5g/ponzu/content/generator/types"
+	ponzuGenerator "github.com/fanky5g/ponzu/generator"
 )
 
 var (
 	Content          = make(map[string]ponzuContent.Builder)
 	FieldCollections = make(map[string]ponzuContent.Builder)
-	Definitions      = make(map[string]ponzuGeneratorTypes.TypeDefinition)
+	Definitions      = make(map[string]ponzuGenerator.TypeDefinition)
 )

@@ -1,4 +1,4 @@
-package types
+package generator
 
 type ContentBlock struct {
 	TypeName string
