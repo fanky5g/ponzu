@@ -38,7 +38,7 @@ type Block struct {
 func newBlock(definition string, kind BlockType) Block {
 	data := strings.Split(definition, ":")
 	title := strings.TrimSpace(data[0])
-	blockType := strings.TrimSpace(data[1])
+	blockType := strings.TrimSpace(strings.Join(data[1:], ":"))
 
 	name, label := parseName(title)
 	if kind == ContentBlock {

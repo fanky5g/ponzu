@@ -7,9 +7,9 @@ import (
 	"github.com/fanky5g/ponzu/util"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"html/template"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 var generateFuncMap = template.FuncMap{
@@ -24,6 +24,10 @@ var generateFuncMap = template.FuncMap{
 }
 
 func (m *modelGenerator) Generate(definition *generator.TypeDefinition, writer generator.Writer) error {
+	if definition.Type != generator.Content {
+		return nil
+	}
+
 	fileName := m.getFileName(definition)
 
 	var tmpl *template.Template

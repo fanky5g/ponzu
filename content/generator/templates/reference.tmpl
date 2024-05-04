@@ -1,4 +1,4 @@
-View: reference.Select("[[ .Name ]]", [[ .Initial ]], map[string]string{
+View: reference.Select("[[ $ | Path ]]", [[ $ | RootMethodReceiver ]], map[string]string{
         "label": "[[ .Label ]]",
     }, 
     "[[ .ReferenceName ]]", 

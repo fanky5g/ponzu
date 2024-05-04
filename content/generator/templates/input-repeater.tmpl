@@ -1,4 +1,4 @@
-View: editor.InputRepeater("{{ .Name }}", {{ .Initial }}, map[string]string{
+View: editor.InputRepeater("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, map[string]string{
     "label":       "{{ .Label }}",
     "type":        "text",
     "placeholder": "Enter the {{ .Label }} here",

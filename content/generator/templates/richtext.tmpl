@@ -1,0 +1,4 @@
+View: editor.Richtext("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, map[string]string{
+    "label":       "{{ .Label }}",
+    "placeholder": "Enter the {{ .Label }} here",
+}, {{ $ | FieldArg }}),

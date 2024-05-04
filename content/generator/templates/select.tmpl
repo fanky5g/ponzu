@@ -1,4 +1,4 @@
-View: editor.Select("{{ .Name }}", {{ .Initial }}, map[string]string{
+View: editor.Select("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, map[string]string{
     "label": "{{ .Label }}",
 }, map[string]string{
     // "value": "Display Name",    

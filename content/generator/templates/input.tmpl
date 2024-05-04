@@ -1,5 +1,5 @@
-View: editor.Input("{{ .Name }}", {{ .Initial }}, map[string]string{
+View: editor.Input("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, map[string]string{
     "label":       "{{ .Label }}",
     "type":        "text",
     "placeholder": "Enter the {{ .Label }} here",
-}, {{ .FieldGeneratorArgsVar }}),
+}, {{ $ | FieldArg }}),
