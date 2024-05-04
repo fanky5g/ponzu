@@ -3,9 +3,6 @@ package {{ .Target.Package }}
 import (
 	"fmt"
 	"reflect"
-	{{ if .Definition.HasReferences }}
-	"github.com/bosssauce/reference"
-	{{ end }}
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/item"
@@ -14,19 +11,19 @@ import (
 type {{ .Definition.Name }} struct {
     item.Item
 
-    {{ range .Definition.Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
+    {{ range .Fields nil }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
     {{ end }}	
 }
 
 // MarshalEditor writes a buffer of views to edit a {{ .Definition.Name }} within the CMS
 // and implements editor.Editable
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) MarshalEditor(paths config.Paths) ([]byte, error) {
-	view, err := editor.Form({{ .Definition.Initial }},
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) MarshalEditor(paths config.Paths) ([]byte, error) {
+	view, err := editor.Form({{ .Definition.Metadata.MethodReceiverName }},
 	    paths,
         // Take note that the first argument to these Input-like functions 
         // is the string version of each {{ .Definition.Name }} field, and must follow
         // this pattern for auto-decoding and auto-encoding reasons:
-        {{ range .Definition.Fields }}editor.Field{
+        {{ range .Fields nil }}editor.Field{
 			{{ .View }}
 		},
 		{{ end }}
@@ -44,15 +41,15 @@ func init() {
 }
 
 // IndexContent determines if {{ .Definition.Name }} should be indexed for searching
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) IndexContent() bool {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) IndexContent() bool {
 	return false
 }
 
 // GetSearchableAttributes defines fields of {{ .Definition.Name }} that should be indexed
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) GetSearchableAttributes() map[string]reflect.Type {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) GetSearchableAttributes() map[string]reflect.Type {
 	searchableAttributes := make(map[string]reflect.Type)
 	idField := "ID"
-	v := reflect.Indirect(reflect.ValueOf({{ .Definition.Initial }}))
+	v := reflect.Indirect(reflect.ValueOf({{ .Definition.Metadata.MethodReceiverName }}))
     searchableAttributes[idField] = v.FieldByName(idField).Type()
 
 	t := v.Type()

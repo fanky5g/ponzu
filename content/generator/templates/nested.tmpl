@@ -1,0 +1,6 @@
+View: editor.Nested("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, {{ $ | FieldArg }},
+    {{ range .Children }}editor.Field{
+        {{ .View }}
+    },
+    {{ end }}
+),

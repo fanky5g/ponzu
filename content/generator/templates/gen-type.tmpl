@@ -1,38 +1,53 @@
 package {{ .Target.Package }}
 
 import (
-	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/generator"
 )
 
 type {{ .Definition.Name }} struct {
-    {{ range .Definition.Fields }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
+    {{ range .Fields nil }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
     {{ end }}
 }
 
 func init() {
-	Definitions["{{ .Definition.Name }}"] = content.TypeDefinition {
+	Definitions["{{ .Definition.Name }}"] = generator.TypeDefinition {
+	    {{- if eq .Definition.Type 1 }}
+	    Type:          generator.Plain,
+	    {{- else if eq .Definition.Type 2 }}
+	    Type:          generator.Content,
+	    {{- else if eq .Definition.Type 3 }}
+	    Type:          generator.FieldCollection,
+	    {{- end }}
         Name:          "{{ .Definition.Name }}",
         Label:         "{{ .Definition.Label }}",
-        Initial:       "{{ .Definition.Initial }}",
-        Fields:        []content.Field{
-            {{- range .Definition.Fields }}
+        Metadata: generator.Metadata {
+            MethodReceiverName: "{{ .Definition.Metadata.MethodReceiverName }}",
+        },
+        Blocks:        []generator.Block{
+            {{- range .Definition.Blocks }}
                 {
+                    {{- if eq .Type 1 }}
+                    Type:          generator.Field,
+                    {{- else if eq .Type 2 }}
+                    Type:          generator.ContentBlock,
+                    {{- end }}
                     Name:  "{{ .Name }}",
                     Label: "{{ .Name }}",
-                    Initial: "{{ .Initial }}",
                     TypeName: "{{ .TypeName }}",
                     JSONName: "{{ .JSONName }}",
-                    ViewType: "{{ .ViewType }}",
-                    IsReference: {{ .IsReference }},
-                    IsNested: {{ .IsNested }},
                     ReferenceName: "{{ .ReferenceName }}",
                     ReferenceJSONTags: []string{
                         {{ range .ReferenceJSONTags }}{{ . }}
                         {{ end }}
                     },
+                    Definition: generator.BlockDefinition {
+                        Title:       "{{ .Definition.Title }}",
+                        Type:        "{{ .Definition.Type }}",
+                        IsArray:     {{ .Definition.IsArray }},
+                        IsReference: {{ .Definition.IsReference }},
+                    },
                 },
             {{- end }}
         },
-        HasReferences: {{ .Definition.HasReferences }},
 	}
 }

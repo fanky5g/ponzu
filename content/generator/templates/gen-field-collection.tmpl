@@ -8,11 +8,11 @@ import (
 
 type {{ .Definition.Name }} []content.FieldCollection
 
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Name() string {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Name() string {
 	return "{{ .Definition.Label }}"
 }
 
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Data() []content.FieldCollection {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Data() []content.FieldCollection {
 	if p == nil {
 		return nil
 	}
@@ -20,9 +20,9 @@ func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Data() []content.FieldC
 	return *p
 }
 
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) AllowedTypes() map[string]content.Builder {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) AllowedTypes() map[string]content.Builder {
 	return map[string]content.Builder{
-	    {{- range .Definition.ContentBlocks }}
+	    {{- range .Definition.Blocks }}
 	        "{{ .TypeName }}": func() interface{} {
                 return new({{ .TypeName }})
             },
@@ -30,21 +30,21 @@ func ({{ .Definition.Initial }} *{{ .Definition.Name }}) AllowedTypes() map[stri
 	}
 }
 
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Add(fieldCollection content.FieldCollection) {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Add(fieldCollection content.FieldCollection) {
 	*p = append(*p, fieldCollection)
 }
 
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) Set(i int, fieldCollection content.FieldCollection) {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Set(i int, fieldCollection content.FieldCollection) {
 	data := p.Data()
 	data[i] = fieldCollection
 	*p = data
 }
 
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) SetData(data []content.FieldCollection) {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) SetData(data []content.FieldCollection) {
 	*p = data
 }
 
-func ({{ .Definition.Initial }} *{{ .Definition.Name }}) UnmarshalJSON(b []byte) error {
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) UnmarshalJSON(b []byte) error {
 	if p == nil {
 		*p = make([]content.FieldCollection, 0)
 	}

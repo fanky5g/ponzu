@@ -1,22 +1,22 @@
 View: editor.FieldCollection(
-        "{{ .Name }}",
+        "{{ $ | Path }}",
         "{{ .Label }}",
-        {{ .Initial }},
+        {{ $ | RootMethodReceiver }},
         map[string]func (interface{}, *editor.FieldArgs, ...editor.Field) []byte {
-    {{- range $key, $value := .Types }}
+    {{- range $key, $value := $ | CollectionTypes }}
         "{{ $key }}": func(
-            {{ .FieldGeneratorDataVar }} interface{},
-            {{ .FieldGeneratorArgsVar }} *editor.FieldArgs,
+            v interface{},
+            args *editor.FieldArgs,
             injectFields...editor.Field,
         ) []byte {
             fields := append([]editor.Field{
-                {{ range .Fields }}{
+                {{ range .Fields $ }}{
                     {{ .View }}
                 },
                 {{ end }}
             }, injectFields...)
 
-            return editor.Nested("", {{ .FieldGeneratorDataVar }}, {{ .FieldGeneratorArgsVar }}, fields...)
+            return editor.Nested("", v, args, fields...)
         },
     {{- end }}
 }),
