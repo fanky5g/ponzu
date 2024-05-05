@@ -346,6 +346,7 @@ import (
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/tokens"
 	"reflect"
 )
 
@@ -525,6 +526,14 @@ func (p *Page) GetSearchableAttributes() map[string]reflect.Type {
 	}
 
 	return searchableAttributes
+}
+
+func (p *Page) GetTitle() string {
+	return p.ID
+}
+
+func (p *Page) GetRepositoryToken() tokens.RepositoryToken {
+	return "page"
 }`))
 
 	if err != nil {

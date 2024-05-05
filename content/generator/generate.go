@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/fanky5g/ponzu/generator"
+	"github.com/fanky5g/ponzu/util"
 	"github.com/pkg/errors"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -28,7 +30,18 @@ func (gt *contentGenerator) Generate(definition *generator.TypeDefinition, write
 		return err
 	}
 
-	tmpl, err := template.ParseFiles(templateName)
+	funcMap := template.FuncMap{
+		"RepositoryToken": func(name string) (string, error) {
+			s, err := util.Slugify(name)
+			if err != nil {
+				return "", err
+			}
+
+			return strings.Replace(s, "-", "_", -1), nil
+		},
+	}
+
+	tmpl, err := template.New(path.Base(templateName)).Funcs(funcMap).ParseFiles(templateName)
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %s", err.Error())
 	}

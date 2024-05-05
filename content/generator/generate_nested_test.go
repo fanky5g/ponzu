@@ -225,6 +225,7 @@ import (
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/tokens"
 	"reflect"
 )
 
@@ -313,7 +314,15 @@ func (a *Author) GetSearchableAttributes() map[string]reflect.Type {
 
 	return searchableAttributes
 }
-	`))
+
+func (a *Author) GetTitle() string {
+	return a.ID
+}
+
+func (a *Author) GetRepositoryToken() tokens.RepositoryToken {
+	return "author"
+}
+`))
 
 	if err != nil {
 		s.T().Fatal(err)
@@ -413,6 +422,7 @@ import (
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/tokens"
 	"reflect"
 )
 
@@ -534,7 +544,15 @@ func (r *Review) GetSearchableAttributes() map[string]reflect.Type {
 
 	return searchableAttributes
 }
-	`))
+
+func (r *Review) GetTitle() string {
+	return r.ID
+}
+
+func (r *Review) GetRepositoryToken() tokens.RepositoryToken {
+	return "review"
+}
+`))
 
 	if err != nil {
 		s.T().Fatal(err)
