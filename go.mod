@@ -4,6 +4,8 @@ go 1.21.5
 
 require (
 	github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240505082452-38ffe2d9a887
+	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
+	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240505082659-3ff7b1bc868a
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/schema v1.2.1
@@ -35,9 +37,7 @@ require (
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240505082659-3ff7b1bc868a // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/glycerine/go-unsnap-stream v0.0.0-20210130063903-47dfef350d96 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -52,7 +52,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
-	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
@@ -63,7 +62,6 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/tinylib/msgp v1.1.9 // indirect
 	github.com/willf/bitset v1.1.11 // indirect
 	go.etcd.io/bbolt v1.3.9 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
