@@ -3,7 +3,7 @@ module github.com/fanky5g/ponzu
 go 1.21.5
 
 require (
-	github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240505081330-ebd61d5f508d
+	github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240505082452-38ffe2d9a887
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/schema v1.2.1
@@ -35,7 +35,7 @@ require (
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240505081004-ae12b311821c // indirect
+	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240505082659-3ff7b1bc868a // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/glycerine/go-unsnap-stream v0.0.0-20210130063903-47dfef350d96 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
