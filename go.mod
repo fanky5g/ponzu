@@ -2,12 +2,6 @@ module github.com/fanky5g/ponzu
 
 go 1.21.5
 
-replace github.com/fanky5g/ponzu-driver-postgres => ../ponzu-driver-postgres
-
-replace github.com/fanky5g/ponzu-driver-bleve => ../ponzu-driver-bleve
-
-replace github.com/fanky5g/ponzu-driver-bolt-db => ../ponzu-driver-bolt-db
-
 require (
 	github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240324095946-113f4fec9ceb
 	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
@@ -41,6 +35,7 @@ require (
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240505081004-ae12b311821c // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -48,9 +43,9 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/pgtype v1.14.3 // indirect
-	github.com/jackc/pgx/v5 v5.4.3 // indirect
+	github.com/jackc/pgx/v5 v5.5.5 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
