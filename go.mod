@@ -16,7 +16,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	github.com/tidwall/gjson v1.17.0
-	golang.org/x/crypto v0.20.0
+	golang.org/x/crypto v0.22.0
 	golang.org/x/text v0.15.0
 )
 
@@ -35,7 +35,7 @@ require (
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240505081004-ae12b311821c // indirect
+	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240505082659-3ff7b1bc868a // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
