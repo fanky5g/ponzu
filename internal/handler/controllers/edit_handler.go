@@ -130,14 +130,25 @@ func NewEditHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			id, err := contentService.CreateContent(t, entity)
-			if err != nil {
-				log.WithField("Error", err).Warning("Failed to create content")
-				return
+			if cid == "" {
+				cid, err = contentService.CreateContent(t, entity)
+				if err != nil {
+					log.WithField("Error", err).Warning("Failed to create content")
+					r.Renderer().InternalServerError(res)
+					return
+				}
+
+			} else {
+				_, err = contentService.UpdateContent(t, cid, entity)
+				if err != nil {
+					log.WithField("Error", err).Warning("Failed to update content")
+					r.Renderer().InternalServerError(res)
+					return
+				}
 			}
 
 			// set the target in the context so user can get saved value from db in hook
-			ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%s", t, id))
+			ctx := context.WithValue(req.Context(), "target", fmt.Sprintf("%s:%s", t, cid))
 			req = req.WithContext(ctx)
 
 			err = hook.AfterSave(res, req)
@@ -160,7 +171,7 @@ func NewEditHandler(r router.Router) http.HandlerFunc {
 				}
 			}
 
-			r.Redirect(req, res, req.URL.Path+"?type="+t+"&id="+id)
+			r.Redirect(req, res, req.URL.Path+"?type="+t+"&id="+cid)
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 		}
