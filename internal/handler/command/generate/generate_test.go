@@ -156,7 +156,11 @@ func (suite *GenerateTestSuite) TestWriteTemplateGoMod() {
 	}, buf)) {
 		assert.Equal(suite.T(), buf.String(), `module github.com/fanky5g/app
 
-go 1.16.0`)
+go 1.16.0
+
+require (
+	github.com/fanky5g/ponzu v0.0.0-20240505092056-b8220e4bc4c0
+)`)
 	}
 }
 
