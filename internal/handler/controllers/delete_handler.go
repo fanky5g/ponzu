@@ -105,6 +105,6 @@ func NewDeleteHandler(r router.Router) http.HandlerFunc {
 			}
 		}
 
-		r.Redirect(req, res, "/edit/delete/contents?type="+ct)
+		r.Redirect(req, res, "/contents?type="+ct)
 	}
 }
