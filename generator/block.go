@@ -77,7 +77,7 @@ func newBlock(definition string, kind BlockType) Block {
 
 func getTypeName(blockDefinition BlockDefinition) string {
 	if !blockDefinition.IsReference {
-		return strings.ToLower(blockDefinition.Type)
+		return strings.ToLower(strings.Split(blockDefinition.Type, ":")[0])
 	}
 
 	if blockDefinition.IsArray {
