@@ -40,6 +40,10 @@ func init() {
 	Content["{{ .Definition.Name }}"] = func() interface{} { return new({{ .Definition.Name }}) }
 }
 
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) EntityName() string {
+    return "{{ .Definition.Name }}"
+}
+
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) GetTitle() string {
     return {{ .Definition.Metadata.MethodReceiverName }}.ID
 }
