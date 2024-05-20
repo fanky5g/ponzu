@@ -9,5 +9,5 @@ type SearchClientInterface interface {
 	// entity's Searchable interface to expose types you want to search, and implement the appropriate schema
 	// in your target search client
 	CreateIndex(entityName string, entityType interface{}) error
-	GetIndex(entityName string) (SearchIndexInterface, error)
+	GetIndex(entityName string) (SearchInterface, error)
 }
