@@ -2,7 +2,6 @@ package {{ .Target.Package }}
 
 import (
 	"fmt"
-	"reflect"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/item"
@@ -44,26 +43,6 @@ func init() {
 // IndexContent determines if {{ .Definition.Name }} should be indexed for searching
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) IndexContent() bool {
 	return false
-}
-
-// GetSearchableAttributes defines fields of {{ .Definition.Name }} that should be indexed
-func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) GetSearchableAttributes() map[string]reflect.Type {
-	searchableAttributes := make(map[string]reflect.Type)
-	idField := "ID"
-	v := reflect.Indirect(reflect.ValueOf({{ .Definition.Metadata.MethodReceiverName }}))
-    searchableAttributes[idField] = v.FieldByName(idField).Type()
-
-	t := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		fieldName := t.Field(i).Name
-
-		if fieldName != idField && field.Kind() == reflect.String {
-			searchableAttributes[fieldName] = field.Type()
-		}
-	}
-
-	return searchableAttributes
 }
 
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) GetTitle() string {
