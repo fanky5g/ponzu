@@ -11,3 +11,7 @@ type Slug struct {
 func (*Slug) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.SlugRepositoryToken
 }
+
+func (*Slug) EntityName() string {
+	return "Slug"
+}

@@ -347,7 +347,6 @@ import (
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
-	"reflect"
 )
 
 type Page struct {
@@ -503,29 +502,8 @@ func init() {
 	Content["Page"] = func() interface{} { return new(Page) }
 }
 
-// IndexContent determines if Page should be indexed for searching
-func (p *Page) IndexContent() bool {
-	return false
-}
-
-// GetSearchableAttributes defines fields of Page that should be indexed
-func (p *Page) GetSearchableAttributes() map[string]reflect.Type {
-	searchableAttributes := make(map[string]reflect.Type)
-	idField := "ID"
-	v := reflect.Indirect(reflect.ValueOf(p))
-	searchableAttributes[idField] = v.FieldByName(idField).Type()
-
-	t := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		fieldName := t.Field(i).Name
-
-		if fieldName != idField && field.Kind() == reflect.String {
-			searchableAttributes[fieldName] = field.Type()
-		}
-	}
-
-	return searchableAttributes
+func (p *Page) EntityName() string {
+	return "Page"
 }
 
 func (p *Page) GetTitle() string {

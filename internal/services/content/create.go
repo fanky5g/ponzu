@@ -49,14 +49,9 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 		return "", fmt.Errorf("failed to save slug: %v", err)
 	}
 
-	if searchable, ok := entity.(entities.Searchable); ok && searchable.IndexContent() {
-		var index driver.SearchInterface
-		index, err = s.searchClient.GetIndex(entityType)
-		if err != nil {
-			return "", fmt.Errorf("failed to get search index for %v: %v", entityType, err)
-		}
-
-		if err = index.Update(identifiable.ItemID(), entity); err != nil {
+	var searchClient driver.SearchInterface
+	if searchClient, err = s.searchClient.GetIndex(entityType); err != nil && searchClient != nil {
+		if err = searchClient.Update(identifiable.ItemID(), entity); err != nil {
 			return "", fmt.Errorf("failed to index entity: %v", err)
 		}
 	}

@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/google/uuid"
 	"time"
@@ -20,7 +21,7 @@ type Model struct {
 type ModelInterface interface {
 	Name() string
 	ToDocument(entity interface{}) DocumentInterface
-	NewEntity() interface{}
+	NewEntity() content.Entity
 }
 
 func WrapPonzuModelNameSpace(name tokens.RepositoryToken) string {

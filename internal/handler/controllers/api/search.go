@@ -42,7 +42,8 @@ func NewSearchContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		matches, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		// TODO: implement pagination using response size
+		matches, _, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
 			log.Printf("[Find] error: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)

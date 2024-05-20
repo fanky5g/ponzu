@@ -5,7 +5,7 @@ import (
 	"fmt"
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	"github.com/fanky5g/ponzu-driver-local-storage"
-	pgDriver "github.com/fanky5g/ponzu-driver-postgres"
+	postgres "github.com/fanky5g/ponzu-driver-postgres/database"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content"
@@ -44,7 +44,7 @@ func getDatabaseDriver(
 
 	switch name {
 	case "postgres":
-		return pgDriver.New(m)
+		return postgres.New(m)
 	default:
 		return nil, errors.New("invalid driver")
 	}

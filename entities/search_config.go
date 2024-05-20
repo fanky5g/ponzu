@@ -2,8 +2,11 @@ package entities
 
 import "reflect"
 
-type Searchable interface {
+type CustomizableSearchAttributes interface {
 	GetSearchableAttributes() map[string]reflect.Type
+}
+
+type SearchIndexable interface {
 	IndexContent() bool
 }
 

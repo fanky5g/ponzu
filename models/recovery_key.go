@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/entities"
 	"strings"
 )
@@ -33,7 +34,7 @@ func (*RecoveryKeyModel) Name() string {
 	return WrapPonzuModelNameSpace("recovery_keys")
 }
 
-func (*RecoveryKeyModel) NewEntity() interface{} {
+func (*RecoveryKeyModel) NewEntity() content.Entity {
 	return new(entities.RecoveryKey)
 }
 

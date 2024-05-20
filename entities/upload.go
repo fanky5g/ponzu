@@ -3,11 +3,11 @@ package entities
 import (
 	"fmt"
 	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
 	"path/filepath"
-	"reflect"
 	"time"
 )
 
@@ -19,6 +19,10 @@ type FileUpload struct {
 	Path          string `json:"path"`
 	ContentLength int64  `json:"content_length"`
 	ContentType   string `json:"content_type"`
+}
+
+func (*FileUpload) EntityName() string {
+	return constants.UploadsEntityName
 }
 
 func (f *FileUpload) GetTitle() string { return f.Name }
@@ -152,24 +156,4 @@ func FmtTime(t int64) string {
 // IndexContent determines if FileUpload should be indexed for searching
 func (f *FileUpload) IndexContent() bool {
 	return true
-}
-
-// GetSearchableAttributes defines fields that should be indexed
-func (f *FileUpload) GetSearchableAttributes() map[string]reflect.Type {
-	searchableAttributes := make(map[string]reflect.Type)
-	idField := "ID"
-
-	v := reflect.Indirect(reflect.ValueOf(f))
-	t := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		fieldName := t.Field(i).Name
-
-		if fieldName != idField && field.Kind() == reflect.String {
-			searchableAttributes[fieldName] = field.Type()
-		}
-	}
-
-	searchableAttributes[idField] = v.FieldByName(idField).Type()
-	return searchableAttributes
 }

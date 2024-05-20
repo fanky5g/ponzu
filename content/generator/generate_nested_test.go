@@ -226,7 +226,6 @@ import (
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
-	"reflect"
 )
 
 type Author struct {
@@ -290,29 +289,8 @@ func init() {
 	Content["Author"] = func() interface{} { return new(Author) }
 }
 
-// IndexContent determines if Author should be indexed for searching
-func (a *Author) IndexContent() bool {
-	return false
-}
-
-// GetSearchableAttributes defines fields of Author that should be indexed
-func (a *Author) GetSearchableAttributes() map[string]reflect.Type {
-	searchableAttributes := make(map[string]reflect.Type)
-	idField := "ID"
-	v := reflect.Indirect(reflect.ValueOf(a))
-	searchableAttributes[idField] = v.FieldByName(idField).Type()
-
-	t := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		fieldName := t.Field(i).Name
-
-		if fieldName != idField && field.Kind() == reflect.String {
-			searchableAttributes[fieldName] = field.Type()
-		}
-	}
-
-	return searchableAttributes
+func (a *Author) EntityName() string {
+	return "Author"
 }
 
 func (a *Author) GetTitle() string {
@@ -423,7 +401,6 @@ import (
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
-	"reflect"
 )
 
 type Review struct {
@@ -520,29 +497,8 @@ func init() {
 	Content["Review"] = func() interface{} { return new(Review) }
 }
 
-// IndexContent determines if Review should be indexed for searching
-func (r *Review) IndexContent() bool {
-	return false
-}
-
-// GetSearchableAttributes defines fields of Review that should be indexed
-func (r *Review) GetSearchableAttributes() map[string]reflect.Type {
-	searchableAttributes := make(map[string]reflect.Type)
-	idField := "ID"
-	v := reflect.Indirect(reflect.ValueOf(r))
-	searchableAttributes[idField] = v.FieldByName(idField).Type()
-
-	t := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		fieldName := t.Field(i).Name
-
-		if fieldName != idField && field.Kind() == reflect.String {
-			searchableAttributes[fieldName] = field.Type()
-		}
-	}
-
-	return searchableAttributes
+func (r *Review) EntityName() string {
+	return "Review"
 }
 
 func (r *Review) GetTitle() string {

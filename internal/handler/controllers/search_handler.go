@@ -36,7 +36,8 @@ func NewSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		matches, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		// TODO: implement pagination with response size
+		matches, _, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to search")
 			return

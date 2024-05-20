@@ -29,6 +29,10 @@ func (*CredentialHash) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.CredentialHashRepositoryToken
 }
 
+func (*CredentialHash) EntityName() string {
+	return "CredentialHash"
+}
+
 type AuthToken struct {
 	Expires time.Time
 	Token   string
@@ -41,4 +45,8 @@ type RecoveryKey struct {
 
 func (*RecoveryKey) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.RecoveryKeyRepositoryToken
+}
+
+func (*RecoveryKey) EntityName() string {
+	return "RecoveryKey"
 }

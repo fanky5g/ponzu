@@ -23,7 +23,8 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		matches, err := searchService.Search(constants.UploadsEntityName, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		// TODO: implement pagination using response size
+		matches, _, err := searchService.Search(constants.UploadsEntityName, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

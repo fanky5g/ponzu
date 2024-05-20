@@ -34,6 +34,10 @@ func (*Config) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.ConfigRepositoryToken
 }
 
+func (*Config) EntityName() string {
+	return "Config"
+}
+
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 	view, err := editor.Form(c,

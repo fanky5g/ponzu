@@ -13,6 +13,10 @@ func (*AnalyticsMetric) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.AnalyticsMetricsRepositoryToken
 }
 
+func (*AnalyticsMetric) EntityName() string {
+	return "AnalyticsMetric"
+}
+
 type AnalyticsHTTPRequestMetadata struct {
 	RequestID  string `json:"request_id"`
 	URL        string `json:"url"`
@@ -26,4 +30,8 @@ type AnalyticsHTTPRequestMetadata struct {
 
 func (*AnalyticsHTTPRequestMetadata) GetRepositoryToken() tokens.RepositoryToken {
 	return tokens.AnalyticsRequestsRepositoryToken
+}
+
+func (*AnalyticsHTTPRequestMetadata) EntityName() string {
+	return "AnalyticsHTTPRequestMetadata"
 }
