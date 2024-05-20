@@ -9,4 +9,7 @@ type (
 		FieldCollections map[string]Builder
 		Definitions      map[string]generator.TypeDefinition
 	}
+	Entity interface {
+		EntityName() string
+	}
 )
