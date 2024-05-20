@@ -5,3 +5,7 @@ type SearchIndexInterface interface {
 	Delete(id string) error
 	Search(query string, count, offset int) ([]interface{}, error)
 }
+
+type SearchInterface interface {
+	SearchIndexInterface
+}
