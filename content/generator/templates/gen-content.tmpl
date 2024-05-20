@@ -40,11 +40,6 @@ func init() {
 	Content["{{ .Definition.Name }}"] = func() interface{} { return new({{ .Definition.Name }}) }
 }
 
-// IndexContent determines if {{ .Definition.Name }} should be indexed for searching
-func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) IndexContent() bool {
-	return false
-}
-
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) GetTitle() string {
     return {{ .Definition.Metadata.MethodReceiverName }}.ID
 }
