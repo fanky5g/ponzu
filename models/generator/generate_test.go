@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	ponzuModels "github.com/fanky5g/ponzu/models"
-	ponzuContent "github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/testapp/entities"
 	"strings"
 )
@@ -53,7 +52,7 @@ func (*AuthorModel) Name() string {
 	return "author"
 }
 
-func (*AuthorModel) NewEntity() ponzuContent.Entity {
+func (*AuthorModel) NewEntity() interface{} {
 	return new(entities.Author)
 }
 

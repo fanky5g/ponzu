@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/entities"
 	"strings"
 )
@@ -34,7 +33,7 @@ func (*ConfigModel) Name() string {
 	return WrapPonzuModelNameSpace("config")
 }
 
-func (*ConfigModel) NewEntity() content.Entity {
+func (*ConfigModel) NewEntity() interface{} {
 	return new(entities.Config)
 }
 

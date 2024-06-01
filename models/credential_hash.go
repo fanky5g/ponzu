@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/entities"
 	"strings"
 )
@@ -34,7 +33,7 @@ func (*CredentialHashModel) Name() string {
 	return WrapPonzuModelNameSpace("credential_hashes")
 }
 
-func (*CredentialHashModel) NewEntity() content.Entity {
+func (*CredentialHashModel) NewEntity() interface{} {
 	return new(entities.CredentialHash)
 }
 

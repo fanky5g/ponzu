@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	ponzuModels "github.com/fanky5g/ponzu/models"
-	ponzuContent "github.com/fanky5g/ponzu/content"
 	{{- if eq .ContentPackage .ContentBase }}
     "{{ .ModulePath }}/{{ .ContentBase }}"
     {{- else }}
@@ -39,7 +38,7 @@ func (*{{ .Definition.Name }}Model) Name() string {
 	return "{{ .Definition.Name | TableName }}"
 }
 
-func (*{{ .Definition.Name }}Model) NewEntity() ponzuContent.Entity {
+func (*{{ .Definition.Name }}Model) NewEntity() interface{} {
 	return new({{ .ContentPackage }}.{{ .Definition.Name }})
 }
 

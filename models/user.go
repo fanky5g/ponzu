@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/entities"
 	"strings"
 )
@@ -34,7 +33,7 @@ func (*UserModel) Name() string {
 	return WrapPonzuModelNameSpace("users")
 }
 
-func (*UserModel) NewEntity() content.Entity {
+func (*UserModel) NewEntity() interface{} {
 	return new(entities.User)
 }
 
