@@ -26,5 +26,5 @@ func (s *service) Search(entityName, query string, count, offset int) ([]interfa
 		return nil, 0, fmt.Errorf("failed to get index for entity: %s", entityName)
 	}
 
-	return index.Search(query, count, offset)
+	return index.SearchWithPagination(query, count, offset)
 }
