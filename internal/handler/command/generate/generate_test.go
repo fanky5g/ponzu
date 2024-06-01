@@ -159,7 +159,7 @@ func (suite *GenerateTestSuite) TestWriteTemplateGoMod() {
 go 1.16.0
 
 require (
-	github.com/fanky5g/ponzu v0.0.0-20240505100750-c91a29f57604
+	github.com/fanky5g/ponzu v0.0.0-20240601084401-39b2b06d3406
 )`)
 	}
 }

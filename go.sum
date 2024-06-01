@@ -43,8 +43,19 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8Yc
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c/go.mod h1:Yg+htXGokKKdzcwhuNDwVvN+uBxDGXJ7G/VN1d8fa64=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052/go.mod h1:UbMTZqLaRiH3MsBH8va0n7s1pQYcu3uTb8G4tygF4Zg=
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4/go.mod h1:5tD+neXqOorC30/tWg0LCSkrqj/AR6gu8yY8/fpw1q0=
+<<<<<<< HEAD
 github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240324095946-113f4fec9ceb/go.mod h1:P4a1cjmoGO7HD9DvqZAk2YnaeGF/aMDnZrW6qvCWkFA=
 github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1/go.mod h1:eiHquC6KnDVZR79ELBbVqRque9F6oNfZO3M3ysA0OVs=
+=======
+github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240601084048-6ea0eb358dc9 h1:FUZnPY9+6b9qofXad8VZC6M1TtjiK7KVyc6k5GZqWuk=
+github.com/fanky5g/ponzu-driver-bleve v0.0.0-20240601084048-6ea0eb358dc9/go.mod h1:eDbWBn+UYMsSPtgox/Rf2NDxjqiLi2Kue0bNNCQnF+c=
+github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1 h1:5gxKJPAxxYOSJWDFzEfN70+i/4bjdggLKun0676NkWY=
+github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1/go.mod h1:eiHquC6KnDVZR79ELBbVqRque9F6oNfZO3M3ysA0OVs=
+github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240601084254-a0b36b20d9ce h1:2DfObNrgmEGPxtARjUcMJ/S3lD9iNiWD0pheU6byXY4=
+github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240601084254-a0b36b20d9ce/go.mod h1:/b/PSE9+cN1IcykyeLPs7i3kzhKKDiYKN+OC2aSvfKo=
+github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
+github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
+>>>>>>> 0d24d0e (update go.mod.tmpl use recent release)
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
 github.com/glycerine/go-unsnap-stream v0.0.0-20181221182339-f9677308dec2/go.mod h1:/20jfyN9Y5QPEAprSgKAUr+glWDY39ZiUEAYOEv5dsE=
@@ -236,6 +247,10 @@ golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5y
 golang.org/x/crypto v0.19.0/go.mod h1:Iy9bg/ha4yyC70EfRS8jz+B6ybOBKMaSxLj6P6oBDfU=
 golang.org/x/crypto v0.20.0/go.mod h1:Xwo95rrVNIoSMx9wa1JroENMToLWn3RNVrTBpLHgZPQ=
 golang.org/x/crypto v0.22.0/go.mod h1:vr6Su+7cTlO45qkww3VDJlzDn0ctJvRgYbC2NvXHt+M=
+<<<<<<< HEAD
+=======
+golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc h1:O9NuF4s+E/PvMIy+9IUZB9znFwUIXEWSstNjek6VpVg=
+>>>>>>> 0d24d0e (update go.mod.tmpl use recent release)
 golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc/go.mod h1:XtvwrStGgqGPLc4cjQfWqZHG1YFdYs6swckp8vpsjnc=
 golang.org/x/lint v0.0.0-20190930215403-16217165b5de/go.mod h1:6SW0HCj/g11FgYtHlgUYUwCkIfeOF89ocIRzGO/8vkc=
 golang.org/x/mod v0.0.0-20190513183733-4bf6d317e70e/go.mod h1:mXi4GBBbnImb6dmsKGUJ2LatrhH/nqhxcFungHvyanc=
