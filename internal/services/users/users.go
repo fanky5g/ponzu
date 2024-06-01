@@ -1,15 +1,13 @@
 package users
 
 import (
-	"encoding/json"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
 type service struct {
-	repository repositories.UserRepositoryInterface
+	repository driver.Repository
 }
 
 type Service interface {
@@ -21,51 +19,66 @@ type Service interface {
 }
 
 func (s *service) CreateUser(email string) (*entities.User, error) {
-	user := &entities.User{
+	user, err := s.repository.Insert(&entities.User{
 		Email: email,
-	}
-
-	err := s.repository.SetUser(user)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return user.(*entities.User), nil
 }
 
 func (s *service) DeleteUser(email string) error {
-	return s.repository.DeleteUser(email)
+	user, err := s.GetUserByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	if user == nil {
+		return nil
+	}
+
+	return s.repository.DeleteById(user.ID)
 }
 
 func (s *service) UpdateUser(user, update *entities.User) error {
-	return s.repository.UpdateUser(user, update)
+	_, err := s.repository.UpdateById(user.ID, update)
+	return err
 }
 
 func (s *service) GetUserByEmail(email string) (*entities.User, error) {
-	return s.repository.GetUserByEmail(email)
-}
-
-func (s *service) ListUsers() ([]entities.User, error) {
-	// get all users to list
-	jj, err := s.repository.GetAllUsers()
+	u, err := s.repository.FindOneBy(map[string]interface{}{"email": email})
 	if err != nil {
 		return nil, err
 	}
 
-	var users []entities.User
-	for i := range jj {
-		var u entities.User
-		err = json.Unmarshal(jj[i], &u)
+	if u == nil {
+		return nil, nil
+	}
+
+	return u.(*entities.User), nil
+}
+
+func (s *service) ListUsers() ([]entities.User, error) {
+	uu, err := s.repository.FindAll()
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]entities.User, len(uu))
+	for i := range uu {
 		if err != nil {
 			return nil, err
 		}
 
-		users = append(users, u)
+		u := uu[i].(*entities.User)
+		users[i] = *u
 	}
 
 	return users, nil
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{repository: db.Get(tokens.UserRepositoryToken).(repositories.UserRepositoryInterface)}, nil
+	return &service{repository: db.GetRepositoryByToken(tokens.UserRepositoryToken)}, nil
 }

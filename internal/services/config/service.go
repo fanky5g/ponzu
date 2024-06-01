@@ -1,78 +1,83 @@
 package config
 
 import (
+	"fmt"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/tokens"
-	"net/url"
+	"github.com/fanky5g/ponzu/util"
+	"reflect"
 )
 
 type service struct {
-	repository repositories.ConfigRepositoryInterface
+	repository driver.Repository
 }
 
 type Service interface {
 	GetAppName() (string, error)
-	GetStringValue(key string) (string, error)
-	GetCacheStringValue(key string) (string, error)
-	GetCacheBoolValue(key string) (bool, error)
-	SetConfig(data url.Values) error
-	GetAll() ([]byte, error)
+	SetConfig(config *entities.Config) error
+	Get() (*entities.Config, error)
 }
 
 func (s *service) GetStringValue(key string) (string, error) {
-	value, err := s.repository.GetConfig(key)
+	cfg, err := s.repository.Latest()
 	if err != nil {
 		return "", err
 	}
 
-	if value == nil {
-		return "", nil
-	}
-
-	return string(value), nil
+	return util.StringFieldByJSONTagName(cfg, key)
 }
 
-func (s *service) GetCacheStringValue(key string) (string, error) {
-	value := s.repository.Cache().GetByKey(key)
-	if value == nil {
-		return "", nil
+func (s *service) GetBoolValue(key string) (bool, error) {
+	cfg, err := s.repository.Latest()
+	if err != nil {
+		return false, err
 	}
 
-	if stringValue, ok := value.(string); ok {
-		return stringValue, nil
+	value := util.FieldByJSONTagName(cfg, key)
+	if !value.IsValid() {
+		return false, fmt.Errorf("%s is not a valid config entry", key)
 	}
 
-	return "", nil
-}
-
-func (s *service) GetCacheBoolValue(key string) (bool, error) {
-	value := s.repository.Cache().GetByKey(key)
-	if value == nil {
-		return false, nil
+	if value.Kind() != reflect.Bool {
+		return false, fmt.Errorf("%s is not a boolean", key)
 	}
 
-	if boolValue, ok := value.(bool); ok {
-		return boolValue, nil
+	return value.Bool(), nil
+}
+
+func (s *service) SetConfig(config *entities.Config) error {
+	cfg, err := s.Get()
+	if err != nil {
+		return err
 	}
 
-	return false, nil
+	if cfg == nil {
+		_, err = s.repository.Insert(config)
+		return err
+	}
+
+	_, err = s.repository.UpdateById(cfg.ID, config)
+	return err
 }
 
-func (s *service) SetConfig(data url.Values) error {
-	return s.repository.SetConfig(data)
+func (s *service) Get() (*entities.Config, error) {
+	cfg, err := s.repository.Latest()
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg == nil {
+		return nil, nil
+	}
+
+	return cfg.(*entities.Config), nil
 }
 
-func (s *service) GetAll() ([]byte, error) {
-	return s.repository.GetAll()
-}
-
-// GetAppName
-// TODO: store app name in cache
 func (s *service) GetAppName() (string, error) {
 	return s.GetStringValue("name")
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{repository: db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)}, nil
+	return &service{repository: db.GetRepositoryByToken(tokens.ConfigRepositoryToken)}, nil
 }

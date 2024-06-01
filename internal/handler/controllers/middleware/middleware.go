@@ -2,7 +2,6 @@ package middleware
 
 import (
 	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"github.com/fanky5g/ponzu/internal/services/config"
@@ -25,12 +24,12 @@ func (middlewares Middlewares) Get(token Token) Middleware {
 	return nil
 }
 
-func New(paths conf.Paths, applicationServices services.Services, cache repositories.Cache) (Middlewares, error) {
+func New(paths conf.Paths, applicationServices services.Services) (Middlewares, error) {
 	middlewares := make(Middlewares)
 	analyticsService := applicationServices.Get(tokens.AnalyticsServiceToken).(analytics.Service)
 	configService := applicationServices.Get(tokens.ConfigServiceToken).(config.Service)
 
-	cacheControlMiddleware := NewCacheControlMiddleware(cache)
+	cacheControlMiddleware := NewCacheControlMiddleware(configService)
 	middlewares[CacheControlMiddleware] = cacheControlMiddleware
 	middlewares[AnalyticsRecorderMiddleware] = NewAnalyticsRecorderMiddleware(analyticsService)
 	middlewares[AuthMiddleware] = NewAuthMiddleware(paths, applicationServices)

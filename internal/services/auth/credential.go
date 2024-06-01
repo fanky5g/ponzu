@@ -48,22 +48,28 @@ func (s *service) SetCredential(userId string, credential *entities.Credential) 
 			Value:  byteValue,
 		}
 
-		return s.credentialRepository.SetCredential(hashedCredential)
+		_, err = s.credentialRepository.Insert(hashedCredential)
+		return err
 	default:
 		return ErrUnsupportedCredentialType
 	}
 }
 
 func (s *service) VerifyCredential(userId string, credential *entities.Credential) error {
-	hashedCredential, err := s.credentialRepository.GetByUserId(userId, credential.Type)
+	c, err := s.credentialRepository.FindOneBy(map[string]interface{}{
+		"user_id": userId,
+		"type":    string(credential.Type),
+	})
+
 	if err != nil {
 		return err
 	}
 
-	if hashedCredential == nil {
+	if c == nil {
 		return errors.New("invalid credential. No match")
 	}
 
+	hashedCredential := c.(*entities.CredentialHash)
 	switch credential.Type {
 	case entities.CredentialTypePassword:
 		var passwordHash entities.PasswordHash

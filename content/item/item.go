@@ -4,40 +4,17 @@
 package item
 
 import (
-	"fmt"
 	"net/http"
-	"regexp"
-	"strings"
-	"unicode"
-
-	"github.com/gofrs/uuid"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
+	"time"
 )
 
-var rxList map[*regexp.Regexp][]byte
-
-func init() {
-	// Compile regex once to use in stringToSlug().
-	// We store the compiled regex as the key
-	// and assign the replacement as the map's value.
-	rxList = map[*regexp.Regexp][]byte{
-		regexp.MustCompile("`[-]+`"):                  []byte("-"),
-		regexp.MustCompile("[[:space:]]"):             []byte("-"),
-		regexp.MustCompile("[[:blank:]]"):             []byte(""),
-		regexp.MustCompile("`[^a-z0-9]`i"):            []byte("-"),
-		regexp.MustCompile("[!/:-@[-`{-~]"):           []byte(""),
-		regexp.MustCompile("/[^\x20-\x7F]/"):          []byte(""),
-		regexp.MustCompile("`&(amp;)?#?[a-z0-9]+;`i"): []byte("-"),
-		regexp.MustCompile("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i"): []byte("\\1"),
-	}
+// Readable enables an entity to have a Title property
+type Readable interface {
+	GetTitle() string
 }
 
-// Sluggable makes a struct locatable by URL with its own path.
-// As an Item implementing Sluggable, slugs may overlap. If this is an issue,
-// make your entities struct (or one which embeds Item) implement Sluggable,
-// and it will override the slug created by Item's SetSlug with your own
 type Sluggable interface {
+	Readable
 	SetSlug(string)
 	ItemSlug() string
 }
@@ -49,17 +26,19 @@ type Sluggable interface {
 type Identifiable interface {
 	ItemID() string
 	SetItemID(string)
-	UniqueID() uuid.UUID
-	SetUniqueID(uuid.UUID)
-	String() string
-	ItemSpecifier() string
-	SetSpecifier(string)
 }
 
 // Sortable ensures data is sortable by time
 type Sortable interface {
 	Time() int64
 	Touch() int64
+}
+
+type Temporal interface {
+	CreatedAt() int64
+	SetCreatedAt(time.Time)
+	UpdatedAt() int64
+	SetUpdatedAt(time.Time)
 }
 
 // CSVFormattable is implemented with the method FormatCSV, which must return the ordered
@@ -109,22 +88,12 @@ type Hookable interface {
 	AfterDisable(http.ResponseWriter, *http.Request) error
 }
 
-// Pushable lets a user define which values of certain struct fields are
-// 'pushed' down to  a client via HTTP/2 Server Push. All items in the slice
-// should be the json tag names of the struct fields to which they correspond.
-type Pushable interface {
-	// the values contained by fields returned by Push must strictly be URL paths
-	Push(http.ResponseWriter, *http.Request) ([]string, error)
-}
-
 // Item should only be embedded into entities type structs.
 type Item struct {
-	UUID      uuid.UUID `json:"uuid"`
-	ID        string    `json:"id"`
-	Slug      string    `json:"slug"`
-	Timestamp int64     `json:"timestamp"`
-	Updated   int64     `json:"updated"`
-	Specifier string    `json:"specifier"`
+	ID        string `json:"id"`
+	Slug      string `json:"slug"`
+	Timestamp int64  `json:"timestamp"`
+	Updated   int64  `json:"updated"`
 }
 
 // Time partially implements the Sortable interface
@@ -142,6 +111,22 @@ func (i *Item) SetSlug(slug string) {
 	i.Slug = slug
 }
 
+func (i *Item) CreatedAt() int64 {
+	return i.Timestamp
+}
+
+func (i *Item) UpdatedAt() int64 {
+	return i.Updated
+}
+
+func (i *Item) SetCreatedAt(t time.Time) {
+	i.Timestamp = t.UnixMilli()
+}
+
+func (i *Item) SetUpdatedAt(t time.Time) {
+	i.Updated = t.UnixMilli()
+}
+
 // ItemSlug sets the item's slug for its URL
 func (i *Item) ItemSlug() string {
 	return i.Slug
@@ -157,36 +142,6 @@ func (i *Item) ItemID() string {
 // partially implements the Identifiable interface
 func (i *Item) SetItemID(id string) {
 	i.ID = id
-}
-
-// UniqueID gets the Item's UUID field
-// partially implements the Identifiable interface
-func (i *Item) UniqueID() uuid.UUID {
-	return i.UUID
-}
-
-// SetUniqueID sets the Item's UUID field
-// partially implements the Identifiable interface
-func (i *Item) SetUniqueID(uuid uuid.UUID) {
-	i.UUID = uuid
-}
-
-// SetSpecifier sets the Item's specifier field
-// partially implements the Identifiable interface
-func (i *Item) SetSpecifier(specifier string) {
-	i.Specifier = specifier
-}
-
-// ItemSpecifier gets the Item's specifier field
-// partially implements the Identifiable interface
-func (i *Item) ItemSpecifier() string {
-	return i.Specifier
-}
-
-// String formats an Item into a printable value
-// partially implements the Identifiable interface
-func (i *Item) String() string {
-	return fmt.Sprintf("Item ID: %s", i.UniqueID())
 }
 
 // BeforeAPIResponse is a no-op to ensure structs which embed Item implement Hookable
@@ -313,50 +268,4 @@ func (i *Item) AfterDisable(res http.ResponseWriter, req *http.Request) error {
 // partially implements search.Searchable
 func (i *Item) IndexContent() bool {
 	return false
-}
-
-// Slug returns a URL friendly string from the title of a post item
-func Slug(i Identifiable) (string, error) {
-	// get the name of the post item
-	name := strings.TrimSpace(i.String())
-
-	// filter out non-alphanumeric character or non-whitespace
-	slug, err := stringToSlug(name)
-	if err != nil {
-		return "", err
-	}
-
-	return slug, nil
-}
-
-func isMn(r rune) bool {
-	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
-}
-
-// modified version of: https://www.socketloop.com/tutorials/golang-format-strings-to-seo-friendly-url-example
-func stringToSlug(s string) (string, error) {
-	src := []byte(strings.ToLower(s))
-
-	// Range over compiled regex and replacements from init().
-	for rx := range rxList {
-		src = rx.ReplaceAll(src, rxList[rx])
-	}
-
-	str := strings.Replace(string(src), "'", "", -1)
-	str = strings.Replace(str, `"`, "", -1)
-	str = strings.Replace(str, "&", "-", -1)
-
-	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
-	slug, _, err := transform.String(t, str)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(slug), nil
-}
-
-// NormalizeString removes and replaces illegal characters for URLs and other
-// path entities. Useful for taking user input and converting it for keys or URLs.
-func NormalizeString(s string) (string, error) {
-	return stringToSlug(s)
 }

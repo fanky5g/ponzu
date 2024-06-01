@@ -30,9 +30,9 @@ func BuildContentListEntryTemplate(e Editable, typeName string) string {
 	cid := i.ItemID()
 
 	action := "{{ .PublicPath }}/edit/delete"
-	link := `<a href="{{ .PublicPath }}/edit?type=` + typeName + `&id=` + cid + `">` + i.String() + `</a>`
+	link := `<a href="{{ .PublicPath }}/edit?type=` + typeName + `&id=` + cid + `">` + i.ItemID() + `</a>`
 	if strings.HasPrefix(typeName, constants.UploadsEntityName) {
-		link = `<a href="{{ .PublicPath }}/edit/upload?id=` + cid + `">` + i.String() + `</a>`
+		link = `<a href="{{ .PublicPath }}/edit/upload?id=` + cid + `">` + i.ItemID() + `</a>`
 		action = "{{ .PublicPath }}/edit/upload/delete"
 	}
 

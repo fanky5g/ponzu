@@ -15,13 +15,13 @@ func MapAuthRequest(req *http.Request) (string, *entities.Credential, error) {
 	var authRequest *request.AuthRequestDto
 	contentType := getContentType(req)
 
-	if contentType == "services/x-www-form-urlencoded" || contentType == "multipart/form-data" {
+	if contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data" {
 		if err := req.ParseMultipartForm(1024 * 1024 * 4); err != nil {
 			return "", nil, err
 		}
 
 		authRequest = mapAuthRequestFromFormData(req.PostForm)
-	} else if contentType == "services/json" {
+	} else if contentType == "application/json" {
 		if err := json.NewDecoder(req.Body).Decode(&authRequest); err != nil {
 			return "", nil, err
 		}

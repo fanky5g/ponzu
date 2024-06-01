@@ -22,8 +22,9 @@ type ServeConfig struct {
 }
 
 type Config struct {
-	Paths       Paths
-	ServeConfig ServeConfig
+	Paths          Paths
+	ServeConfig    ServeConfig
+	DatabaseDriver string
 }
 
 func defineFlags(flagSet *flag.FlagSet, workingDir string) {
@@ -38,9 +39,10 @@ func defineFlags(flagSet *flag.FlagSet, workingDir string) {
 		workingDir,
 		"directory where application data should be stored. Defaults to working directory",
 	)
+	flagSet.String("database_driver", "", "Database driver to use.")
 }
 
-func New() (*Config, error) {
+func Get() (*Config, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -77,5 +79,10 @@ func New() (*Config, error) {
 			DevHttps:  viper.GetBool("dev_https"),
 			Https:     viper.GetBool("https"),
 		},
+		DatabaseDriver: viper.GetString("database_driver"),
 	}, nil
+}
+
+func New() (*Config, error) {
+	return Get()
 }

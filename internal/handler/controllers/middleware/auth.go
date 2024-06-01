@@ -2,12 +2,13 @@ package middleware
 
 import (
 	conf "github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -22,12 +23,23 @@ func NewAuthMiddleware(paths conf.Paths, applicationServices services.Services) 
 			isValid, err := authService.IsTokenValid(authToken)
 			if err != nil {
 				res.WriteHeader(http.StatusInternalServerError)
-				log.Printf("Failed to check token validity: %v\n", err)
+				log.WithField("Error", err).Warning("Failed to check token validity")
 				return
 			}
 
 			if isValid {
 				next.ServeHTTP(res, req)
+				return
+			}
+
+			routeTag, hasRouteTag := req.Context().Value(constants.RouteTagIdentifier).(constants.RouteTag)
+			if hasRouteTag && routeTag == constants.APIRoute {
+				util.WriteJSONResponse(res, http.StatusUnauthorized, map[string]interface{}{
+					"error": map[string]string{
+						"message": "Unauthorized",
+					},
+				})
+
 				return
 			}
 

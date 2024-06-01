@@ -1,50 +1,39 @@
 package content
 
 import (
+	"fmt"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
-	contentService "github.com/fanky5g/ponzu/internal/services/shared/content"
 	"github.com/fanky5g/ponzu/tokens"
+	"log"
 )
 
 type service struct {
-	contentDomainService contentService.Service
-	types                map[string]content.Builder
-}
-
-func (s *service) DeleteContent(entityType, entityId string) error {
-	return s.contentDomainService.DeleteContent(entityType, entityId)
-}
-
-func (s *service) CreateContent(entityType string, content interface{}) (string, error) {
-	return s.contentDomainService.CreateContent(entityType, content)
-}
-
-func (s *service) UpdateContent(entityType, entityId string, update map[string]interface{}) (interface{}, error) {
-	return s.contentDomainService.UpdateContent(entityType, entityId, update)
-}
-
-func (s *service) GetContent(entityType, entityId string) (interface{}, error) {
-	return s.contentDomainService.GetContent(entityType, entityId)
-}
-
-func (s *service) GetContentBySlug(slug string) (string, interface{}, error) {
-	return s.contentDomainService.GetContentBySlug(slug)
-}
-
-func (s *service) GetAllWithOptions(entityType string, search *entities.Search) (int, []interface{}, error) {
-	return s.contentDomainService.GetAllWithOptions(entityType, search)
-}
-
-func (s *service) GetAll(entityType string) ([]interface{}, error) {
-	return s.contentDomainService.GetAll(entityType)
+	repositories   map[string]driver.Repository
+	slugRepository driver.Repository
+	searchClient   driver.SearchClientInterface
+	types          map[string]content.Builder
 }
 
 type Service interface {
-	contentService.Service
+	CreateContent(entityType string, entity interface{}) (string, error)
+	DeleteContent(entityType, entityId string) error
+	GetContent(entityType, entityId string) (interface{}, error)
+	GetContentBySlug(slug string) (interface{}, error)
+	GetAll(namespace string) ([]interface{}, error)
+	GetAllWithOptions(namespace string, search *entities.Search) (int, []interface{}, error)
+	UpdateContent(entityType, entityId string, update interface{}) (interface{}, error)
 	ExportCSV(entityName string) (*entities.ResponseStream, error)
+}
+
+func (s *service) repository(entityType string) driver.Repository {
+	repository := s.repositories[entityType]
+	if repository == nil {
+		log.Panicf("Failed to get repository for: %v", entityType)
+	}
+
+	return repository
 }
 
 func New(
@@ -52,26 +41,35 @@ func New(
 	types map[string]content.Builder,
 	searchClient driver.SearchClientInterface,
 ) (Service, error) {
-	contentRepository := db.Get(tokens.ContentRepositoryToken).(repositories.ContentRepositoryInterface)
-	configRepository := db.Get(tokens.ConfigRepositoryToken).(repositories.ConfigRepositoryInterface)
+	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
-	for itemName, itemType := range types {
-		if _, err := searchClient.GetIndex(itemName); err != nil {
-			err = searchClient.CreateIndex(itemName, itemType())
+	contentRepositories := make(map[string]driver.Repository)
+	for entityName, entityConstructor := range types {
+		entity := entityConstructor()
+		persistable, ok := entity.(entities.Persistable)
+		if !ok {
+			return nil, fmt.Errorf("entity %s does not implement Persistable", entityName)
+		}
+
+		repository := db.GetRepositoryByToken(persistable.GetRepositoryToken())
+		if repository == nil {
+			return nil, fmt.Errorf("content repository for %s not implemented", entityName)
+		}
+
+		contentRepositories[entityName] = repository
+		if _, err := searchClient.GetIndex(entityName); err != nil {
+			err = searchClient.CreateIndex(entityName, entity)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	contentDomainService, err := contentService.New(contentRepository, configRepository, searchClient)
-	if err != nil {
-		return nil, err
-	}
-
 	s := &service{
-		contentDomainService: contentDomainService,
-		types:                types,
+		repositories:   contentRepositories,
+		slugRepository: slugRepository,
+		searchClient:   searchClient,
+		types:          types,
 	}
 
 	return s, nil

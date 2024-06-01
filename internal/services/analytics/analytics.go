@@ -6,20 +6,23 @@ package analytics
 import (
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/infrastructure/repositories"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
 type service struct {
-	repository repositories.AnalyticsRepositoryInterface
+	requestsRepository driver.Repository
+	metricsRepository  driver.Repository
 }
 
 type Service interface {
-	StartRecorder(analyticsRepository repositories.AnalyticsRepositoryInterface)
+	StartRecorder()
 	Record(req entities.AnalyticsHTTPRequestMetadata)
 	GetChartData() (map[string]interface{}, error)
 }
 
 func New(db driver.Database) (Service, error) {
-	return &service{repository: db.Get(tokens.AnalyticsRepositoryToken).(repositories.AnalyticsRepositoryInterface)}, nil
+	return &service{
+		requestsRepository: db.GetRepositoryByToken(tokens.AnalyticsRequestsRepositoryToken),
+		metricsRepository:  db.GetRepositoryByToken(tokens.AnalyticsMetricsRepositoryToken),
+	}, nil
 }

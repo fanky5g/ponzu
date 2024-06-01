@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	entities2 "github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"
@@ -37,16 +37,24 @@ func NewRecoveryKeyHandler(r router.Router) http.HandlerFunc {
 			key := req.FormValue("key")
 
 			var actual string
-			if actual, err = authService.GetRecoveryKey(email); err != nil || actual == "" {
+			var recoveryKey *entities.RecoveryKey
+			recoveryKey, err = authService.GetRecoveryKey(email)
+			if err != nil {
 				log.WithField("Error", err).Warning("Error getting recovery key from database")
 				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			if recoveryKey == nil {
 				if _, err = res.Write([]byte("Error, please go back and try again.")); err != nil {
 					log.WithField("Error", err).Warning("Failed to write response")
 				}
 
+				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
 
+			actual = recoveryKey.Value
 			if key != actual {
 				log.WithField("key", key).Warning("Bad recovery key submitted")
 				res.WriteHeader(http.StatusBadRequest)
@@ -59,7 +67,7 @@ func NewRecoveryKeyHandler(r router.Router) http.HandlerFunc {
 
 			// set user with new password
 			password := req.FormValue("password")
-			var user *entities2.User
+			var user *entities.User
 			user, err = userService.GetUserByEmail(email)
 			if err != nil {
 				log.WithField("Error", err).Warning("Error finding user by email")
@@ -81,8 +89,8 @@ func NewRecoveryKeyHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			if err = authService.SetCredential(user.ID, &entities2.Credential{
-				Type:  entities2.CredentialTypePassword,
+			if err = authService.SetCredential(user.ID, &entities.Credential{
+				Type:  entities.CredentialTypePassword,
 				Value: password,
 			}); err != nil {
 				log.WithField("Error", err).Warning("Error updating user")

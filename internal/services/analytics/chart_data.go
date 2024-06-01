@@ -33,12 +33,12 @@ func (s *service) GetChartData() (map[string]interface{}, error) {
 		dates[len(times)-1-i] = day.Format("01/02")
 	}
 
-	currentMetrics, err := s.repository.GetMetrics()
+	currentMetrics, err := s.getMetrics()
 	if err != nil {
 		return nil, err
 	}
 
-	requests, err := s.repository.GetRequestMetadata(today, currentMetrics)
+	requests, err := s.getRequests(today, currentMetrics)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +124,8 @@ CheckRequest:
 		// check if we need to insert old data into cache - as long as it
 		// is not today's data
 		if dates[i] != today.Format("01/02") {
-			k := []byte(dates[i])
-			metric, err := s.repository.GetMetric(k)
+			var metric *entities.AnalyticsMetric
+			metric, err = s.getMetricByDate(dates[i])
 			if err != nil {
 				return nil, err
 			}
@@ -134,12 +134,7 @@ CheckRequest:
 				// keep zero counts out of cache in case data is added from
 				// other sources
 				if currentMetrics[dates[i]].Total != 0 {
-					v, err := json.Marshal(currentMetrics[dates[i]])
-					if err != nil {
-						return nil, err
-					}
-
-					err = s.repository.SetMetric(k, v)
+					_, err = s.metricsRepository.Insert(currentMetrics[dates[i]])
 					if err != nil {
 						return nil, err
 					}

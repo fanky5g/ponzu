@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/util"
 	"golang.org/x/crypto/acme/autocert"
 	"log"
 	"net/http"
@@ -20,40 +21,45 @@ import (
 func (s *service) newManager() autocert.Manager {
 	cache := autocert.DirCache(filepath.Join(config.TlsDir(), "certs"))
 	if _, err := os.Stat(string(cache)); os.IsNotExist(err) {
-		err := os.MkdirAll(string(cache), os.ModePerm|os.ModeDir)
+		err = os.MkdirAll(string(cache), os.ModePerm|os.ModeDir)
 		if err != nil {
 			log.Fatalln("Couldn't create cert directory at", cache)
 		}
 	}
 
-	// get host/domain and email from GetConfig to use for TLS request to Let's encryption.
+	cfg, err := s.configRepository.Latest()
+	if err != nil {
+		log.Fatalf("Failed to get config: %v", err)
+	}
+
+	// get host/domain and email from GetConfig to use for TLS request to Letsencrypt.
 	// we will fail fatally if either are not found since Let's Encrypt will rate-limit
 	// and sending incomplete requests is wasteful and guaranteed to fail its check
-	host, err := s.configRepository.GetConfig("domain")
+	host, err := util.StringFieldByJSONTagName(cfg, "domain")
 	if err != nil {
-		log.Fatalln("Error identifying host/domain during TLS set-up.", err)
+		log.Fatalf("Error identifying host/domain during TLS set-up: %v", err)
 	}
 
-	if host == nil {
+	if host == "" {
 		log.Fatalln("No 'domain' field set in Configuration. Please add a domain before attempting to make certificates.")
 	}
-	fmt.Println("Using", string(host), "as host/domain for certificate...")
+	fmt.Println("Using", host, "as host/domain for certificate...")
 	fmt.Println("NOTE: if the host/domain is not configured properly or is unreachable, HTTPS set-up will fail.")
 
-	email, err := s.configRepository.GetConfig("admin_email")
+	email, err := util.StringFieldByJSONTagName(cfg, "admin_email")
 	if err != nil {
 		log.Fatalln("Error identifying controllers email during TLS set-up.", err)
 	}
 
-	if email == nil {
+	if email == "" {
 		log.Fatalln("No 'admin_email' field set in Configuration. Please add an controllers email before attempting to make certificates.")
 	}
-	fmt.Println("Using", string(email), "as contact email for certificate...")
+	fmt.Println("Using", email, "as contact email for certificate...")
 
 	return autocert.Manager{
 		Prompt:      autocert.AcceptTOS,
 		Cache:       cache,
-		HostPolicy:  autocert.HostWhitelist(string(host)),
+		HostPolicy:  autocert.HostWhitelist(host),
 		RenewBefore: time.Hour * 24 * 30,
 		Email:       string(email),
 	}
@@ -64,8 +70,18 @@ func (s *service) newManager() autocert.Manager {
 func (s *service) Enable() {
 	m := s.newManager()
 
+	cfg, err := s.configRepository.Latest()
+	if err != nil {
+		log.Fatalf("Failed to get config: %v", err)
+	}
+
+	httpsPort, err := util.StringFieldByJSONTagName(cfg, "https_port")
+	if err != nil {
+		log.Fatalf("Failed to get https_port: %v", err)
+	}
+
 	server := &http.Server{
-		Addr:      fmt.Sprintf(":%s", s.configRepository.Cache().GetByKey("https_port").(string)),
+		Addr:      fmt.Sprintf(":%s", httpsPort),
 		TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 	}
 

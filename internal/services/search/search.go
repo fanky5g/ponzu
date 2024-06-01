@@ -10,7 +10,7 @@ type service struct {
 }
 
 type Service interface {
-	Search(entityName, query string, count, offset int) ([]interface{}, error)
+	Search(entityName, query string, count, offset int) ([]interface{}, int, error)
 }
 
 func New(client driver.SearchClientInterface) (Service, error) {
@@ -20,11 +20,11 @@ func New(client driver.SearchClientInterface) (Service, error) {
 // Search conducts a search and returns a set of Ponzu "targets", Type:ID pairs,
 // and an error. If there is no search index for the typeName (Type) provided,
 // db.ErrNoIndex will be returned as the error
-func (s *service) Search(entityName, query string, count, offset int) ([]interface{}, error) {
+func (s *service) Search(entityName, query string, count, offset int) ([]interface{}, int, error) {
 	index, err := s.client.GetIndex(entityName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get index for entity: %s", entityName)
+		return nil, 0, fmt.Errorf("failed to get index for entity: %s", entityName)
 	}
 
-	return index.Search(query, count, offset)
+	return index.SearchWithPagination(query, count, offset)
 }

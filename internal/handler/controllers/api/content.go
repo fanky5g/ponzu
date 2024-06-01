@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-	contentPkg "github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
@@ -77,13 +75,13 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 
 		searchRequestDto, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
 		search, err := request.MapSearchRequest(searchRequestDto)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
@@ -112,7 +110,7 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 		}
 
 		posts = p.([]interface{})
-		writeJSONData(res, http.StatusOK, posts)
+		r.Renderer().Json(res, http.StatusOK, posts)
 
 		// hook after response
 		err = hook.AfterAPIResponse(res, req, posts)
@@ -161,7 +159,7 @@ func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *h
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, post)
+		r.Renderer().Json(res, http.StatusOK, post)
 
 		// hook after response
 		err = hook.AfterAPIResponse(res, req, post)
@@ -173,11 +171,10 @@ func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *h
 }
 
 func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, *http.Request) {
-	contentTypes := r.Context().Types().Content
 	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
 
 	return func(contentId string, res http.ResponseWriter, req *http.Request) {
-		t, post, err := contentService.GetContentBySlug(contentId)
+		post, err := contentService.GetContentBySlug(contentId)
 		if err != nil {
 			log.Printf("Failed to get entities: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -185,21 +182,14 @@ func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, 
 		}
 
 		if post == nil {
-			writeJSONData(res, http.StatusNotFound, nil)
-			return
-		}
-
-		pt, ok := contentTypes[t]
-		if !ok {
-			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(contentPkg.ErrTypeNotRegistered.Error(), t))
+			r.Renderer().Json(res, http.StatusNotFound, nil)
 			return
 		}
 
 		// assert hookable
-		get := pt()
-		hook, ok := get.(item.Hookable)
+		hook, ok := post.(item.Hookable)
 		if !ok {
-			log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
+			log.Println("[Response] error: Type does not implement item.Hookable or embed item.Item.")
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -212,7 +202,7 @@ func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, 
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, post)
+		r.Renderer().Json(res, http.StatusOK, post)
 
 		// hook after response
 		err = hook.AfterAPIResponse(res, req, post)

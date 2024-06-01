@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-func JSONMapToURLValues(payload map[string]interface{}) url.Values {
+func MapToURLValues(payload map[string]interface{}) url.Values {
 	if payload == nil || len(payload) == 0 {
 		return nil
 	}

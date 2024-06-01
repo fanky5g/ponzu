@@ -3,10 +3,11 @@ package entities
 import (
 	"fmt"
 	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/tokens"
 	"path/filepath"
-	"reflect"
 	"time"
 )
 
@@ -20,8 +21,15 @@ type FileUpload struct {
 	ContentType   string `json:"content_type"`
 }
 
-// String partially implements item.Identifiable and overrides Item's String()
-func (f *FileUpload) String() string { return f.Name }
+func (*FileUpload) EntityName() string {
+	return constants.UploadsEntityName
+}
+
+func (f *FileUpload) GetTitle() string { return f.Name }
+
+func (*FileUpload) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.UploadRepositoryToken
+}
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {
@@ -142,30 +150,10 @@ func FmtBytes(size float64) string {
 
 // FmtTime shows a human-readable time based on the timestamp
 func FmtTime(t int64) string {
-	return time.Unix(t/1000, 0).Format("03:04 PM Jan 2, 2006") + " (UTC)"
+	return time.Unix(t, 0).Format("03:04 PM Jan 2, 2006") + " (UTC)"
 }
 
 // IndexContent determines if FileUpload should be indexed for searching
 func (f *FileUpload) IndexContent() bool {
 	return true
-}
-
-// GetSearchableAttributes defines fields that should be indexed
-func (f *FileUpload) GetSearchableAttributes() map[string]reflect.Type {
-	searchableAttributes := make(map[string]reflect.Type)
-	idField := "ID"
-
-	v := reflect.Indirect(reflect.ValueOf(f))
-	t := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		fieldName := t.Field(i).Name
-
-		if fieldName != idField && field.Kind() == reflect.String {
-			searchableAttributes[fieldName] = field.Type()
-		}
-	}
-
-	searchableAttributes[idField] = v.FieldByName(idField).Type()
-	return searchableAttributes
 }

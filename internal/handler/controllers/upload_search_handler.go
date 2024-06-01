@@ -23,7 +23,8 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		matches, err := searchService.Search(constants.UploadsEntityName, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		// TODO: implement pagination using response size
+		matches, _, err := searchService.Search(constants.UploadsEntityName, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -38,7 +39,7 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 					<div class="card-title col s7">Uploads Results</div>
 					<form class="col s4" action="{{ .PublicPath }}/uploads/search" method="get">
 						<div class="input-field post-search inline">
-							<label class="active">Search:</label>
+							<label class="active">Find:</label>
 							<i class="right material-icons search-icon">search</i>
 							<input class="search" name="q" type="text" placeholder="Within all upload fields" class="search"/>
 							<input type="hidden" name="type" value="` + constants.UploadsEntityName + `" />

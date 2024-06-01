@@ -27,28 +27,29 @@ func NewSearchContentHandler(r router.Router) http.HandlerFunc {
 
 		_, ok := contentTypes[t]
 		if !ok {
-			writeJSONError(res, http.StatusBadRequest, fmt.Errorf(content.ErrTypeNotRegistered.Error(), t))
+			r.Renderer().Error(res, http.StatusBadRequest, fmt.Errorf(content.ErrTypeNotRegistered.Error(), t))
 			return
 		}
 
 		searchRequest, err := request.GetSearchRequestDto(req)
 		if err != nil {
-			writeJSONError(res, http.StatusBadRequest, err)
+			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
 		if searchRequest.Query == "" {
-			writeJSONError(res, http.StatusBadRequest, ErrMissingSearchQuery)
+			r.Renderer().Error(res, http.StatusBadRequest, ErrMissingSearchQuery)
 			return
 		}
 
-		matches, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		// TODO: implement pagination using response size
+		matches, _, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
-			log.Printf("[Search] error: %v\n", err)
+			log.Printf("[Find] error: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		writeJSONData(res, http.StatusOK, matches)
+		r.Renderer().Json(res, http.StatusOK, matches)
 	}
 }

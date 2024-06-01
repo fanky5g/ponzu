@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"github.com/fanky5g/ponzu/tokens"
+	"time"
+)
 
 type CredentialType string
 
@@ -12,9 +15,8 @@ type PasswordHash struct {
 }
 
 type Credential struct {
-	Type CredentialType `json:"type"`
-	// TODO: value should be an interface. supporting many credential value types
-	Value string `json:"value"`
+	Type  CredentialType `json:"type"`
+	Value string         `json:"value"`
 }
 
 type CredentialHash struct {
@@ -23,7 +25,28 @@ type CredentialHash struct {
 	Value  []byte         `json:"value"`
 }
 
+func (*CredentialHash) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.CredentialHashRepositoryToken
+}
+
+func (*CredentialHash) EntityName() string {
+	return "CredentialHash"
+}
+
 type AuthToken struct {
 	Expires time.Time
 	Token   string
+}
+
+type RecoveryKey struct {
+	Email string `json:"email"`
+	Value string `json:"value"`
+}
+
+func (*RecoveryKey) GetRepositoryToken() tokens.RepositoryToken {
+	return tokens.RecoveryKeyRepositoryToken
+}
+
+func (*RecoveryKey) EntityName() string {
+	return "RecoveryKey"
 }

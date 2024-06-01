@@ -1,12 +1,11 @@
 package storage
 
 import (
-	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/entities"
 )
 
-func (s *service) GetFileUpload(key string) (*entities.FileUpload, error) {
-	file, err := s.Service.GetContent(constants.UploadsEntityName, key)
+func (s *service) GetFileUpload(entityId string) (*entities.FileUpload, error) {
+	file, err := s.repository.FindOneById(entityId)
 	if err != nil {
 		return nil, err
 	}
@@ -18,16 +17,20 @@ func (s *service) GetFileUpload(key string) (*entities.FileUpload, error) {
 	return file.(*entities.FileUpload), nil
 }
 
-func (s *service) GetAllUploads() ([]entities.FileUpload, error) {
-	files, err := s.Service.GetAll(constants.UploadsEntityName)
+func (s *service) GetAllWithOptions(search *entities.Search) (int, []*entities.FileUpload, error) {
+	total, files, err := s.repository.Find(search.SortOrder, search.Pagination)
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 
-	f := make([]entities.FileUpload, len(files))
-	for i, file := range files {
-		f[i] = file.(entities.FileUpload)
+	if len(files) > 0 {
+		out := make([]*entities.FileUpload, len(files))
+		for i := range files {
+			out[i] = files[i].(*entities.FileUpload)
+		}
+
+		return total, out, nil
 	}
 
-	return f, nil
+	return total, nil, nil
 }

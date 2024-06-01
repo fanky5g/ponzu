@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	ErrUnsupportedContentType  = errors.New("unsupported entities type")
+	ErrUnsupportedContentType  = errors.New("unsupported content type")
 	PonzuRepeatPrefix          = ".__ponzu-repeat"
 	PonzuFieldCollectionPrefix = ".__ponzu-field-collection"
 )
@@ -28,8 +28,8 @@ func mapPayloadToGenericEntity(t content.Builder, payload map[string][]string) (
 
 	dec := schema.NewDecoder()
 
-	dec.SetAliasTag("json")     // allows simpler struct tagging when creating a entities type
-	dec.IgnoreUnknownKeys(true) // will skip over form values submitted, but not in struct
+	dec.SetAliasTag("json")
+	dec.IgnoreUnknownKeys(true)
 	err := dec.Decode(entity, payload)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func mapJSONContentToURLValues(req *http.Request) (map[string][]string, error) {
 		return nil, err
 	}
 
-	return util.JSONMapToURLValues(payload), nil
+	return util.MapToURLValues(payload), nil
 }
 
 func addContentMetadata(payload url.Values) {

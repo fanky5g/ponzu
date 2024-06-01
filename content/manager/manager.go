@@ -143,7 +143,6 @@ func Manage(e editor.Editable, paths config.Paths, typeName string) ([]byte, err
 
 	m := manager{
 		ID:         i.ItemID(),
-		UUID:       i.UniqueID(),
 		Kind:       typeName,
 		Slug:       s.ItemSlug(),
 		Editor:     template.HTML(v),
@@ -152,7 +151,7 @@ func Manage(e editor.Editable, paths config.Paths, typeName string) ([]byte, err
 
 	// execute templates template into buffer for func return val
 	buf := &bytes.Buffer{}
-	if err := managerTmpl.Execute(buf, m); err != nil {
+	if err = managerTmpl.Execute(buf, m); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil

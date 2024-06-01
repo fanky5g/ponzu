@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	entities2 "github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
@@ -33,8 +33,8 @@ func NewConfigUsersEditHandler(r router.Router) http.HandlerFunc {
 			}
 
 			// check if password matches
-			password := &entities2.Credential{
-				Type:  entities2.CredentialTypePassword,
+			password := &entities.Credential{
+				Type:  entities.CredentialTypePassword,
 				Value: req.PostFormValue("password"),
 			}
 
@@ -47,8 +47,8 @@ func NewConfigUsersEditHandler(r router.Router) http.HandlerFunc {
 			email := strings.ToLower(req.PostFormValue("email"))
 			newPassword := req.PostFormValue("new_password")
 			if newPassword != "" {
-				if err = authService.SetCredential(user.ID, &entities2.Credential{
-					Type:  entities2.CredentialTypePassword,
+				if err = authService.SetCredential(user.ID, &entities.Credential{
+					Type:  entities.CredentialTypePassword,
 					Value: newPassword,
 				}); err != nil {
 					log.WithField("Error", err).Warning("Failed to update password")
@@ -58,7 +58,7 @@ func NewConfigUsersEditHandler(r router.Router) http.HandlerFunc {
 			}
 
 			if email != "" {
-				update := &entities2.User{
+				update := &entities.User{
 					ID:    user.ID,
 					Email: email,
 				}

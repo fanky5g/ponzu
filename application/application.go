@@ -5,10 +5,16 @@ import (
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/infrastructure"
 	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/models"
 )
+
+type DatabaseConfig struct {
+	Models []models.ModelInterface
+}
 
 type Config struct {
 	ContentTypes content.Types
+	Database     DatabaseConfig
 }
 
 type application struct {
@@ -24,7 +30,7 @@ func (app *application) Server() server.Server {
 }
 
 func New(conf Config) (Application, error) {
-	infra, err := infrastructure.New(conf.ContentTypes.Content)
+	infra, err := infrastructure.New(conf.ContentTypes.Content, conf.Database.Models)
 	if err != nil {
 		return nil, err
 	}

@@ -2,12 +2,23 @@ package server
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/config"
 	"net/http"
 )
 
 func (server *server) Serve() error {
+	appConfig, err := config.Get()
+	if err != nil {
+		return fmt.Errorf("failed to ponzu config: %v", err)
+	}
+
+	cfg, err := server.configService.Get()
+	if err != nil {
+		return fmt.Errorf("failed to get config: %v", err)
+	}
+
 	// cannot run production HTTPS and development HTTPS together
-	if server.cfg.ServeConfig.DevHttps {
+	if appConfig.ServeConfig.DevHttps {
 		fmt.Println("Enabling self-signed HTTPS... [DEV]")
 
 		go server.tlsService.EnableDev()
@@ -16,17 +27,20 @@ func (server *server) Serve() error {
 		fmt.Println("If your browser rejects HTTPS requests, try allowing insecure connections on localhost.")
 		fmt.Println("on Chrome, visit chrome://flags/#allow-insecure-localhost")
 
-	} else if server.cfg.ServeConfig.Https {
+	} else if appConfig.ServeConfig.Https {
 		fmt.Println("Enabling HTTPS...")
 
 		go server.tlsService.Enable()
 		fmt.Printf(
 			"Server listening on :%s for HTTPS requests...\n",
-			server.configCache.GetByKey("https_port").(string),
+			cfg.HTTPSPort,
 		)
 	}
 
-	fmt.Printf("Server listening at %s:%d for HTTP requests...\n", server.cfg.ServeConfig.Bind, server.cfg.ServeConfig.HttpPort)
+	// start analytics recorder
+	go server.analyticsService.StartRecorder()
+
+	fmt.Printf("Server listening at %s:%s for HTTP requests...\n", cfg.BindAddress, cfg.HTTPPort)
 	fmt.Println("\nVisit '/' to get started.")
-	return http.ListenAndServe(fmt.Sprintf("%s:%d", server.cfg.ServeConfig.Bind, server.cfg.ServeConfig.HttpPort), server.mux)
+	return http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.BindAddress, cfg.HTTPPort), server.mux)
 }
