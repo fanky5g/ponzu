@@ -25,7 +25,8 @@ func New(client driver.SearchInterface, database driver.Database) (Service, erro
 // Search conducts a search and returns a set of content documents after loading from database
 // if search driver supports GetID methods on returned matches. Otherwise, plain Ponzu targets Type:ID pairs are returned
 func (s *service) Search(entity interface{}, query string, count, offset int) ([]interface{}, int, error) {
-	matches, size, err := s.client.SearchWithPagination(entity, query, count, offset)
+	fmt.Println("search was called")
+    matches, size, err := s.client.SearchWithPagination(entity, query, count, offset)
 	fmt.Println("search client returned")
 	fmt.Println("size", size)
 	fmt.Println("Error", err)
