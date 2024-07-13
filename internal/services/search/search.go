@@ -17,7 +17,7 @@ type Service interface {
 }
 
 func New(client driver.SearchInterface, database driver.Database) (Service, error) {
-	return &service{client: client}, nil
+	return &service{client: client, database: database}, nil
 }
 
 // Search conducts a search and returns a set of content documents after loading from database
