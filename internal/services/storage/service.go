@@ -3,7 +3,6 @@
 package storage
 
 import (
-	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/tokens"
@@ -11,8 +10,9 @@ import (
 )
 
 type service struct {
-	client     driver.StorageClientInterface
-	repository driver.Repository
+	client       driver.StorageClientInterface
+	repository   driver.Repository
+	searchClient driver.SearchInterface
 }
 
 type Service interface {
@@ -25,13 +25,8 @@ type Service interface {
 
 func New(
 	db driver.Database,
-	searchClient driver.SearchClientInterface,
+	searchClient driver.SearchInterface,
 	client driver.StorageClientInterface) (Service, error) {
-
-	if err := searchClient.CreateIndex(constants.UploadsEntityName, &entities.FileUpload{}); err != nil {
-		return nil, err
-	}
-
 	s := &service{
 		client:     client,
 		repository: db.GetRepositoryByToken(tokens.UploadRepositoryToken),

@@ -2,11 +2,12 @@ package content
 
 import (
 	"fmt"
+
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/pkg/errors"
 )
 
 // UpdateContent supports only full updates. The entire structure will be overwritten.
-// Partial updates are not supported.
 func (s *service) UpdateContent(entityType, entityId string, update interface{}) (interface{}, error) {
 	identifiable, ok := update.(item.Identifiable)
 	if !ok {
@@ -26,5 +27,14 @@ func (s *service) UpdateContent(entityType, entityId string, update interface{})
 		}
 	}
 
-	return s.repository(entityType).UpdateById(entityId, update)
+	update, err := s.repository(entityType).UpdateById(entityId, update)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to update content")
+	}
+
+	if err = s.searchClient.Update(entityId, update); err != nil {
+		return nil, errors.Wrap(err, "Failed to update search index")
+	}
+
+	return update, nil
 }

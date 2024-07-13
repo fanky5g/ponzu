@@ -2,11 +2,13 @@ package storage
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/entities"
 	"mime/multipart"
 	"strings"
 	"time"
+
+	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/entities"
+    "github.com/pkg/errors"
 )
 
 // StoreFiles stores file uploads at paths like /YYYY/MM/filename.ext
@@ -51,9 +53,16 @@ func (s *service) storeFileInfo(size int64, filename, urlPath string, file *mult
 		},
 	}
 
-	if _, err := s.repository.Insert(entity); err != nil {
+	upload, err := s.repository.Insert(entity)
+    if err != nil {
 		return fmt.Errorf("error saving file storage record to database: %v", err)
 	}
+
+    if identifiable, ok := upload.(item.Identifiable); ok {
+        if err = s.searchClient.Update(identifiable.ItemID(), upload); err != nil {
+            return errors.Wrap(err, "Failed to update upload for search")
+        }
+    }
 
 	return nil
 }
