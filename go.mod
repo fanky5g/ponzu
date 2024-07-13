@@ -3,7 +3,7 @@ module github.com/fanky5g/ponzu
 go 1.21.5
 
 require (
-	github.com/fanky5g/ponzu-driver-bleve v1.0.2
+	github.com/fanky5g/ponzu-driver-bleve v1.0.3
 	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
 	github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240601091618-20667637387f
 	github.com/gofrs/uuid v4.4.0+incompatible

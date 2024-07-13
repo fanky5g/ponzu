@@ -60,6 +60,8 @@ github.com/fanky5g/ponzu-driver-bleve v1.0.0 h1:S1KYmdgzPCk2liwepURu7WaLTE68JzSN
 github.com/fanky5g/ponzu-driver-bleve v1.0.0/go.mod h1:Ol1SxyWClx6klUxoNR9KtASo3BkNZlLRTW1wBb7W7S0=
 github.com/fanky5g/ponzu-driver-bleve v1.0.1 h1:o3pWLy+rzMK/3ho6iVCTCT55K4i+rvu1JA+0f9BhM3Y=
 github.com/fanky5g/ponzu-driver-bleve v1.0.1/go.mod h1:Ol1SxyWClx6klUxoNR9KtASo3BkNZlLRTW1wBb7W7S0=
+github.com/fanky5g/ponzu-driver-bleve v1.0.3 h1:viZRBrwsdpBpv5PikZcd+keVzoqCakBN6B5cX8RuBwo=
+github.com/fanky5g/ponzu-driver-bleve v1.0.3/go.mod h1:Ol1SxyWClx6klUxoNR9KtASo3BkNZlLRTW1wBb7W7S0=
 github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1 h1:5gxKJPAxxYOSJWDFzEfN70+i/4bjdggLKun0676NkWY=
 github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1/go.mod h1:eiHquC6KnDVZR79ELBbVqRque9F6oNfZO3M3ysA0OVs=
 github.com/fanky5g/ponzu-driver-postgres v0.0.0-20240601091618-20667637387f h1:2gm9Cn7dAk6hnZNuz1SzlHhlWxTPJ0iVQ6Llwg4+Ouk=
