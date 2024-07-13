@@ -11,7 +11,7 @@ import (
 )
 
 type SearchClientTestSuite struct {
-    suite.Suite
+	suite.Suite
 }
 
 func (s *SearchClientTestSuite) TestGetBleveSearchClient() {
@@ -32,7 +32,5 @@ func (s *SearchClientTestSuite) TestGetBleveSearchClient() {
 }
 
 func TestGetSearchClient(t *testing.T) {
-    suite.Run(t, new(SearchClientTestSuite))
+	suite.Run(t, new(SearchClientTestSuite))
 }
-
-
