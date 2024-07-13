@@ -1,10 +1,12 @@
 package search
 
 import (
+	"fmt"
+
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/tokens"
-    "github.com/pkg/errors"
+	"github.com/pkg/errors"
 )
 
 type service struct {
@@ -24,6 +26,10 @@ func New(client driver.SearchInterface, database driver.Database) (Service, erro
 // if search driver supports GetID methods on returned matches. Otherwise, plain Ponzu targets Type:ID pairs are returned
 func (s *service) Search(entity interface{}, query string, count, offset int) ([]interface{}, int, error) {
 	matches, size, err := s.client.SearchWithPagination(entity, query, count, offset)
+	fmt.Println("search client returned")
+	fmt.Println("size", size)
+	fmt.Println("Error", err)
+	fmt.Println("matches", matches)
 	if err != nil {
 		return nil, 0, err
 	}
