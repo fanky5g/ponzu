@@ -12,7 +12,7 @@ import (
 type service struct {
 	repositories   map[string]driver.Repository
 	slugRepository driver.Repository
-	searchClient   driver.SearchClientInterface
+	searchClient   driver.SearchInterface
 	types          map[string]content.Builder
 }
 
@@ -39,7 +39,7 @@ func (s *service) repository(entityType string) driver.Repository {
 func New(
 	db driver.Database,
 	types map[string]content.Builder,
-	searchClient driver.SearchClientInterface,
+	searchClient driver.SearchInterface,
 ) (Service, error) {
 	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
@@ -57,12 +57,6 @@ func New(
 		}
 
 		contentRepositories[entityName] = repository
-		if _, err := searchClient.GetIndex(entityName); err != nil {
-			err = searchClient.CreateIndex(entityName, entity)
-			if err != nil {
-				return nil, err
-			}
-		}
 	}
 
 	s := &service{

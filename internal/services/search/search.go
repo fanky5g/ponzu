@@ -1,30 +1,64 @@
 package search
 
 import (
-	"fmt"
 	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/tokens"
+	"github.com/pkg/errors"
 )
 
 type service struct {
-	client driver.SearchClientInterface
+	client   driver.SearchInterface
+	database driver.Database
 }
 
 type Service interface {
-	Search(entityName, query string, count, offset int) ([]interface{}, int, error)
+	Search(entity interface{}, query string, count, offset int) ([]interface{}, int, error)
 }
 
-func New(client driver.SearchClientInterface) (Service, error) {
-	return &service{client: client}, nil
+func New(client driver.SearchInterface, database driver.Database) (Service, error) {
+	return &service{client: client, database: database}, nil
 }
 
-// Search conducts a search and returns a set of Ponzu "targets", Type:ID pairs,
-// and an error. If there is no search index for the typeName (Type) provided,
-// db.ErrNoIndex will be returned as the error
-func (s *service) Search(entityName, query string, count, offset int) ([]interface{}, int, error) {
-	index, err := s.client.GetIndex(entityName)
+// Search conducts a search and returns a set of content documents after loading from database
+// if search driver supports GetID methods on returned matches. Otherwise, plain Ponzu targets Type:ID pairs are returned
+func (s *service) Search(entity interface{}, query string, count, offset int) ([]interface{}, int, error) {
+	matches, size, err := s.client.SearchWithPagination(entity, query, count, offset)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to get index for entity: %s", entityName)
+		return nil, 0, err
 	}
 
-	return index.SearchWithPagination(query, count, offset)
+	if len(matches) == 0 {
+		return nil, 0, nil
+	}
+
+	_, ok := matches[0].(interface {
+		GetID() string
+	})
+
+	if !ok {
+		return matches, size, nil
+	}
+
+	persistable, ok := entity.(entities.Persistable)
+	if !ok {
+		return matches, size, nil
+	}
+
+	repository := s.database.GetRepositoryByToken(tokens.RepositoryToken(persistable.GetRepositoryToken()))
+	results := make([]interface{}, len(matches))
+	for i := range matches {
+		identifiable := matches[i].(interface {
+			GetID() string
+		})
+
+		result, err := repository.FindOneById(identifiable.GetID())
+		if err != nil {
+			return nil, 0, errors.Wrap(err, "Failed to fetch document")
+		}
+
+		results[i] = result
+	}
+
+	return results, size, nil
 }

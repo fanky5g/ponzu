@@ -2,14 +2,16 @@ package controllers
 
 import (
 	"bytes"
+	"net/http"
+
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/editor"
+	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/search"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
@@ -24,7 +26,7 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 		}
 
 		// TODO: implement pagination using response size
-		matches, _, err := searchService.Search(constants.UploadsEntityName, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		matches, _, err := searchService.Search(new(entities.FileUpload), searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

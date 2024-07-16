@@ -2,10 +2,11 @@ package config
 
 import (
 	"errors"
+	"os"
+
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"os"
 )
 
 type Paths struct {
@@ -25,6 +26,7 @@ type Config struct {
 	Paths          Paths
 	ServeConfig    ServeConfig
 	DatabaseDriver string
+	SearchDriver   string
 }
 
 func defineFlags(flagSet *flag.FlagSet, workingDir string) {
@@ -39,6 +41,7 @@ func defineFlags(flagSet *flag.FlagSet, workingDir string) {
 		workingDir,
 		"directory where application data should be stored. Defaults to working directory",
 	)
+    flagSet.String("search_driver", "", "Search driver to use.")
 	flagSet.String("database_driver", "", "Database driver to use.")
 }
 
@@ -71,6 +74,7 @@ func Get() (*Config, error) {
 	return &Config{
 		Paths: Paths{
 			PublicPath: viper.GetString("public_path"),
+            DataDir: viper.GetString("data_dir"),
 		},
 		ServeConfig: ServeConfig{
 			HttpsPort: viper.GetInt("https_port"),
@@ -80,6 +84,7 @@ func Get() (*Config, error) {
 			Https:     viper.GetBool("https"),
 		},
 		DatabaseDriver: viper.GetString("database_driver"),
+        SearchDriver: viper.GetString("search_driver"),
 	}, nil
 }
 

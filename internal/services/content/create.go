@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/util"
 )
@@ -49,11 +48,8 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 		return "", fmt.Errorf("failed to save slug: %v", err)
 	}
 
-	var searchClient driver.SearchInterface
-	if searchClient, err = s.searchClient.GetIndex(entityType); err != nil && searchClient != nil {
-		if err = searchClient.Update(identifiable.ItemID(), entity); err != nil {
-			return "", fmt.Errorf("failed to index entity: %v", err)
-		}
+	if err = s.searchClient.Update(identifiable.ItemID(), entity); err != nil {
+		return "", fmt.Errorf("failed to index entity: %v", err)
 	}
 
 	return identifiable.ItemID(), nil

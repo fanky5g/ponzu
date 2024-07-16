@@ -36,8 +36,14 @@ func NewSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
+        contentTypeConstructor, ok := r.Context().Types().Content[t]
+        if !ok {
+            r.Redirect(req, res, "/admin")
+            return
+        }
+
 		// TODO: implement pagination with response size
-		matches, _, err := searchService.Search(t, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		matches, _, err := searchService.Search(contentTypeConstructor(), searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to search")
 			return

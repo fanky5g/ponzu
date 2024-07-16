@@ -2,8 +2,9 @@ package content
 
 import (
 	"fmt"
+
 	"github.com/fanky5g/ponzu/constants"
-	log "github.com/sirupsen/logrus"
+    "github.com/pkg/errors"	
 )
 
 func (s *service) DeleteContent(entityType, entityId string) error {
@@ -16,17 +17,9 @@ func (s *service) DeleteContent(entityType, entityId string) error {
 		return fmt.Errorf("failed to delete slug: %v", err)
 	}
 
-	index, err := s.searchClient.GetIndex(entityType)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Error":      err,
-			"EntityType": entityType,
-		}).Warning("Failed to delete search index")
-	}
-
-	if index != nil {
-		return index.Delete(entityId)
-	}
+    if err := s.searchClient.Delete(entityType, entityId); err != nil {
+        return errors.Wrap(err, "failed to delete indexed content")
+    }
 
 	return nil
 }

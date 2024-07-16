@@ -32,8 +32,7 @@ func New(
 	types map[string]content.Builder,
 ) (Services, error) {
 	db := infra.Get(tokens.DatabaseInfrastructureToken).(driver.Database)
-	contentSearchClient := infra.Get(tokens.ContentSearchClientInfrastructureToken).(driver.SearchClientInterface)
-	uploadSearchClient := infra.Get(tokens.UploadSearchClientInfrastructureToken).(driver.SearchClientInterface)
+	searchClient := infra.Get(tokens.SearchClientInfrastructureToken).(driver.SearchInterface)
 	storageClient := infra.Get(tokens.StorageClientInfrastructureToken).(driver.StorageClientInterface)
 
 	// Initialize services
@@ -70,25 +69,25 @@ func New(
 	}
 	services[tokens.ConfigServiceToken] = configService
 
-	contentSvc, err := contentService.New(db, types, contentSearchClient)
+	contentSvc, err := contentService.New(db, types, searchClient)
 	if err != nil {
 		log.Fatalf("Failed to initialize entities service: %v", err)
 	}
 	services[tokens.ContentServiceToken] = contentSvc
 
-	contentSearchService, err := search.New(contentSearchClient)
+	contentSearchService, err := search.New(searchClient, db)
 	if err != nil {
 		log.Fatalf("Failed to initialize search service: %v", err)
 	}
 	services[tokens.ContentSearchServiceToken] = contentSearchService
 
-	uploadSearchService, err := search.New(uploadSearchClient)
+	uploadSearchService, err := search.New(searchClient, db)
 	if err != nil {
 		log.Fatalf("Failed to initialize search service: %v", err)
 	}
 	services[tokens.UploadSearchServiceToken] = uploadSearchService
 
-	storageService, err := storage.New(db, uploadSearchClient, storageClient)
+	storageService, err := storage.New(db, searchClient, storageClient)
 	if err != nil {
 		log.Fatalf("Failed to initialize storage services: %v", err)
 	}
