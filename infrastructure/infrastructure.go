@@ -4,7 +4,7 @@ import (
 	"fmt"
 
     "github.com/pkg/errors"
-	"github.com/fanky5g/ponzu-driver-local-storage"
+	localStorage "github.com/fanky5g/ponzu-driver-local-storage"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
@@ -47,12 +47,12 @@ func New(
 		return nil, fmt.Errorf("failed to initialize database: %v", err)
 	}
 
-	uploadStorageClient, err := storage.New("")
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize storage client: %v", err)
-	}
+    uploadStorageClient, err := getUploadStorageClient()
+    if err != nil {
+        return nil, err
+    }
 
-	assetStorageClient, err := storage.New(config.AssetStaticDir())
+	assetStorageClient, err := localStorage.New(config.AssetStaticDir())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create asset storage file system: %v", err)
 	}

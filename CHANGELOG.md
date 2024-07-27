@@ -11,3 +11,6 @@
 
 ### v0.2.1
 - Fix storage driver, add searchClient
+
+### v0.3.0
+- Select between `local` or `gcs` upload storage driver

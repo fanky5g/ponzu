@@ -27,6 +27,7 @@ type Config struct {
 	ServeConfig    ServeConfig
 	DatabaseDriver string
 	SearchDriver   string
+	StorageDriver  string
 }
 
 func defineFlags(flagSet *flag.FlagSet, workingDir string) {
@@ -41,8 +42,9 @@ func defineFlags(flagSet *flag.FlagSet, workingDir string) {
 		workingDir,
 		"directory where application data should be stored. Defaults to working directory",
 	)
-    flagSet.String("search_driver", "", "Search driver to use.")
+	flagSet.String("search_driver", "", "Search driver to use.")
 	flagSet.String("database_driver", "", "Database driver to use.")
+	flagSet.String("storage_driver", "", "Upload file storage driver to use.")
 }
 
 func Get() (*Config, error) {
@@ -74,7 +76,7 @@ func Get() (*Config, error) {
 	return &Config{
 		Paths: Paths{
 			PublicPath: viper.GetString("public_path"),
-            DataDir: viper.GetString("data_dir"),
+			DataDir:    viper.GetString("data_dir"),
 		},
 		ServeConfig: ServeConfig{
 			HttpsPort: viper.GetInt("https_port"),
@@ -84,7 +86,8 @@ func Get() (*Config, error) {
 			Https:     viper.GetBool("https"),
 		},
 		DatabaseDriver: viper.GetString("database_driver"),
-        SearchDriver: viper.GetString("search_driver"),
+		SearchDriver:   viper.GetString("search_driver"),
+		StorageDriver:  viper.GetString("storage_driver"),
 	}, nil
 }
 
