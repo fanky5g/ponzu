@@ -29,6 +29,7 @@ func New(
 	client driver.StorageClientInterface) (Service, error) {
 	s := &service{
 		client:     client,
+        searchClient: searchClient,
 		repository: db.GetRepositoryByToken(tokens.UploadRepositoryToken),
 	}
 
