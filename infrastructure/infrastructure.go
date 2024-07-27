@@ -57,7 +57,7 @@ func New(
 		return nil, fmt.Errorf("failed to create asset storage file system: %v", err)
 	}
 
-    searchClient, err := getSearchClient()
+    searchClient, err := getSearchClient(db)
     if err != nil {
         return nil, errors.Wrap(err, "Failed to get search client")
     }

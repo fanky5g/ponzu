@@ -19,7 +19,7 @@ func getDatabaseDriver(
 
 	switch name {
 	case "postgres":
-		return postgres.New(m)       
+		return postgres.New(m)
 	default:
 		return nil, errors.New("invalid driver")
 	}
