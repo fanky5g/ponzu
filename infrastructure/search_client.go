@@ -3,6 +3,8 @@ package infrastructure
 import (
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 
+	postgres "github.com/fanky5g/ponzu-driver-postgres/database"
+	postgresSearch "github.com/fanky5g/ponzu-driver-postgres/search"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/pkg/errors"
@@ -13,13 +15,7 @@ var (
 	ErrUnsupportedSearchDriver = errors.New("Unsupported search driver")
 )
 
-type searchConfig struct {
-	database     driver.Database
-	contentTypes map[string]func() interface{}
-	cfg          *config.Config
-}
-
-func getSearchClient() (driver.SearchInterface, error) {
+func getSearchClient(db driver.Database) (driver.SearchInterface, error) {
 	cfg, err := config.Get()
 	if err != nil {
 		return nil, err
@@ -32,8 +28,12 @@ func getSearchClient() (driver.SearchInterface, error) {
 	var searchClient driver.SearchInterface
 	switch cfg.SearchDriver {
 	case "postgres":
-		// TODO: define integration for postgres search
-		return nil, ErrUnsupportedSearchDriver
+		postgresDb, ok := db.(*postgres.Database)
+		if !ok {
+			return nil, errors.New("database driver incompatible with postgres search driver")
+		}
+
+		return postgresSearch.New(postgresDb)
 	case "bleve":
 		searchClient, err = bleveSearch.New(cfg.Paths.DataDir)
 		if err != nil {
