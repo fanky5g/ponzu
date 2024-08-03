@@ -46,68 +46,18 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string, args *Fi
 	iso = append(iso, []byte(input)...)
 	iso = append(iso, isoClose...)
 
-	script := `
-	<script>
-		$(function() { 
-			var _editor = $('.richtext.` + fieldName + `');
-			var hidden = $('.richtext-value.` + fieldName + `');
+	script := &bytes.Buffer{}
+	scriptTmpl := makeScript("richtext")
 
-			_editor.materialnote({
-				height: 250,
-				placeholder: '` + attrs["placeholder"] + `',
-				toolbar: [
-					['style', ['style']],
-					['font', ['bold', 'italic', 'underline', 'clear', 'strikethrough', 'superscript', 'subscript']],
-					['fontsize', ['fontsize']],
-					['color', ['color']],
-					['insert', ['link', 'picture', 'video', 'hr']],					
-					['para', ['ul', 'ol', 'paragraph']],
-					['table', ['table']],
-					['height', ['height']],
-					['misc', ['codeview']]
-				],
-				// intercept file insertion, storage and insert img with new src
-				onImageUpload: function(uploads) {
-					var data = new FormData();
-					data.append("file", uploads[0]);
-					$.ajax({
-						data: data,
-						type: 'PUT',	
-						url: '{{ .PublicPath }}/edit/upload',
-						cache: false,
-						contentType: false,
-						processData: false,
-						success: function(resp) {
-							var img = document.createElement('img');
-							img.setAttribute('src', resp.data[0].url);
-							_editor.materialnote('insertNode', img);
-						},
-						error: function(xhr, status, err) {
-							console.log(status, err);
-						}
-					})
+	if err := scriptTmpl.Execute(script, struct {
+		FieldName string
+		Attrs     map[string]string
+	}{
+		FieldName: fieldName,
+		Attrs:     attrs,
+	}); err != nil {
+		panic(err)
+	}
 
-				}
-			});
-
-			// inject entities into editor
-			if (hidden.val() !== "") {
-				_editor.code(hidden.val());
-			}
-
-			// update hidden input with encoded value on different events
-			_editor.on('materialnote.change', function(e, entities, $editable) {
-				hidden.val(replaceBadChars(entities));			
-			});
-
-			_editor.on('materialnote.paste', function(e) {
-				hidden.val(replaceBadChars(_editor.code()));			
-			});
-
-			// bit of a hack to stop the editor buttons from causing a refresh when clicked 
-			$('.note-toolbar').find('button, i, a').on('click', function(e) { e.preventDefault(); });
-		});
-	</script>`
-
-	return append(iso, []byte(script)...)
+	return append(iso, script.Bytes()...)
 }
