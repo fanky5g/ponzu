@@ -1,0 +1,19 @@
+<script>
+    $(function() {
+	    const hidden = $('.richtext-value.{{ .FieldName }}');
+
+        const quill = new Quill('.richtext.{{ .FieldName }}', {
+            theme: 'snow',
+            placeholder: '{{ index .Attrs "placeholder" }}',
+        });
+
+        if (hidden.val() !== "") {
+            const delta = quill.clipboard.convert({ html: hidden.val() });
+            quill.setContents(delta);
+		}
+
+        quill.on('text-change', () => {
+            hidden.val(replaceBadChars(quill.getSemanticHTML()));
+        });
+    });
+</script>
