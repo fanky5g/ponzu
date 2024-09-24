@@ -24,9 +24,16 @@
             mdcTabBar.activateTab(0);
         }
 
+        // initialize text fields
         const inputElements = document.querySelectorAll('.form-view-root .mdc-text-field');
         for (let i = 0; i < inputElements.length; i++) {
             const mdcInput = new mdc.textField.MDCTextField(inputElements[i]);
+        }
+
+        // initialize checkboxes
+        const checkboxElements = document.querySelectorAll('.form-view-root .mdc-form-field');
+        for (let i = 0; i < checkboxElements.length; i++) {
+            const mdcCheckbox = new mdc.checkbox.MDCCheckbox((checkboxElements[i])); 
         }
     })();
 
