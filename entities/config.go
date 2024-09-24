@@ -23,7 +23,6 @@ type Config struct {
 	DisableGZIP             bool     `json:"gzip_disabled"`
 	DisableHTTPCache        bool     `json:"cache_disabled"`
 	CacheMaxAge             int64    `json:"cache_max_age"`
-	CacheInvalidate         []string `json:"cache"`
 	BackupBasicAuthUser     string   `json:"backup_basic_auth_user"`
 	BackupBasicAuthPassword string   `json:"backup_basic_auth_password"`
 }
@@ -98,23 +97,17 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 		},
 		editor.Field{
 			View: editor.Checkbox("DisableCORS", c, map[string]string{
-				"label": "Disable CORS (so only " + c.Domain + " can fetch your data)",
-			}, map[string]string{
-				"true": "Disable CORS",
+				"label": "Disable CORS",
 			}),
 		},
 		editor.Field{
 			View: editor.Checkbox("DisableGZIP", c, map[string]string{
-				"label": "Disable GZIP (will increase server speed, but also bandwidth)",
-			}, map[string]string{
-				"true": "Disable GZIP",
+				"label": "Disable GZIP",
 			}),
 		},
 		editor.Field{
 			View: editor.Checkbox("DisableHTTPCache", c, map[string]string{
-				"label": "Disable HTTP Cache (overrides 'Cache-Control' header)",
-			}, map[string]string{
-				"true": "Disable HTTP Cache",
+				"label": "Disable HTTP Cache",
 			}),
 		},
 		editor.Field{
@@ -122,13 +115,6 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 				"label": "Max-Age value for HTTP caching (in seconds, 0 = 2592000)",
 				"type":  "text",
 			}, nil),
-		},
-		editor.Field{
-			View: editor.Checkbox("CacheInvalidate", c, map[string]string{
-				"label": "Invalidate cache on save",
-			}, map[string]string{
-				"invalidate": "Invalidate Cache",
-			}),
 		},
 		editor.Field{
 			View: editor.Input("BackupBasicAuthUser", c, map[string]string{

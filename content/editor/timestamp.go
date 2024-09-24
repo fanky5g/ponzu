@@ -24,5 +24,5 @@ func Timestamp(fieldName string, p interface{}, attrs map[string]string) []byte 
 		ViewBuf: &bytes.Buffer{},
 	}
 
-	return DOMElementSelfClose(e)
+	return DOMInputSelfClose(e)
 }

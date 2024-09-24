@@ -34,7 +34,7 @@ func InputRepeater(fieldName string, p interface{}, attrs map[string]string) []b
 			el.Label = attrs["label"]
 		}
 
-		_, err := html.Write(DOMElementSelfClose(el))
+		_, err := html.Write(DOMInputSelfClose(el))
 		if err != nil {
 			log.Println("Error writing DOMElementSelfClose to InputRepeater buffer")
 			return nil

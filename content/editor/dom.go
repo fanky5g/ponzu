@@ -2,7 +2,6 @@ package editor
 
 import (
 	"bytes"
-	"fmt"
 	"html"
 	"log"
 	"strings"
@@ -27,13 +26,7 @@ func NewElement(tagName, label, fieldName string, p interface{}, attrs map[strin
 
 	// define mdc element attributes
 	if tagName == "input" {
-		classNames, ok := attrs["class"]
-		if !ok {
-			classNames = ""
-		}
-
-		classNames = strings.TrimSpace(fmt.Sprintf("%s mdc-text-field__input", classNames))
-		attrs["class"] = classNames
+		addClassName(attrs, "mdc-text-field__input")
 	}
 
 	return &Element{
@@ -46,9 +39,7 @@ func NewElement(tagName, label, fieldName string, p interface{}, attrs map[strin
 	}
 }
 
-// DOMElementSelfClose is a special DOM element which is parsed as a
-// self-closing tag and thus needs to be created differently
-func DOMElementSelfClose(e *Element) []byte {
+func DOMInputSelfClose(e *Element) []byte {
 	isValidSelfClosingTag := true
 	if len(e.Attrs) > 0 {
 		if elementType, ok := e.Attrs["type"]; ok {
@@ -76,7 +67,6 @@ func DOMElementSelfClose(e *Element) []byte {
 			log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
 			return nil
 		}
-
 	}
 
 	_, err = e.ViewBuf.WriteString(`<` + e.TagName + ` value="`)
@@ -110,54 +100,6 @@ func DOMElementSelfClose(e *Element) []byte {
 			log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
 			return nil
 		}
-	}
-
-	return e.ViewBuf.Bytes()
-}
-
-// DOMElementCheckbox is a special DOM element which is parsed as a
-// checkbox input tag and thus needs to be created differently
-func DOMElementCheckbox(e *Element) []byte {
-	_, err := e.ViewBuf.WriteString(`<p class="col s6">`)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementCheckbox")
-		return nil
-	}
-
-	_, err = e.ViewBuf.WriteString(`<` + e.TagName + ` `)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementCheckbox")
-		return nil
-	}
-
-	for attr, value := range e.Attrs {
-		_, err := e.ViewBuf.WriteString(attr + `="` + value + `" `)
-		if err != nil {
-			log.Println("Error writing HTML string to buffer: DOMElementCheckbox")
-			return nil
-		}
-	}
-	_, err = e.ViewBuf.WriteString(` name="` + e.Name + `" />`)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementCheckbox")
-		return nil
-	}
-
-	if e.Label != "" {
-		_, err = e.ViewBuf.WriteString(
-			`<label for="` +
-				strings.Join(strings.Split(e.Label, " "), "-") + `">` +
-				e.Label + `</label>`)
-		if err != nil {
-			log.Println("Error writing HTML string to buffer: DOMElementCheckbox")
-			return nil
-		}
-	}
-
-	_, err = e.ViewBuf.WriteString(`</p>`)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementCheckbox")
-		return nil
 	}
 
 	return e.ViewBuf.Bytes()
@@ -280,49 +222,30 @@ func DOMElementWithChildrenSelect(e *Element, children []*Element) []byte {
 	return e.ViewBuf.Bytes()
 }
 
-func DOMElementWithChildrenCheckbox(e *Element, children []*Element) []byte {
-	_, err := e.ViewBuf.WriteString(`<` + e.TagName + ` `)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementWithChildrenCheckbox")
-		return nil
+func addClassName(attrs map[string]string, className string) {
+	if attrs == nil || strings.TrimSpace(className) == "" {
+        return
 	}
 
-	for attr, value := range e.Attrs {
-		_, err = e.ViewBuf.WriteString(attr + `="` + value + `" `)
-		if err != nil {
-			log.Println("Error writing HTML string to buffer: DOMElementWithChildrenCheckbox")
-			return nil
+	if _, ok := attrs["class"]; !ok {
+		attrs["class"] = ""
+	}
+
+	classNames := strings.FieldsFunc(attrs["class"], func(r rune) bool {
+		return r == ' '
+	})
+
+	hasClassName := false
+	for _, class := range classNames {
+		if strings.TrimSpace(class) == className {
+			hasClassName = true
+			break
 		}
 	}
 
-	_, err = e.ViewBuf.WriteString(` >`)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementWithChildrenCheckbox")
-		return nil
+	if !hasClassName {
+		classNames = append(classNames, className)
 	}
 
-	if e.Label != "" {
-		_, err = e.ViewBuf.WriteString(`<label class="active">` + e.Label + `</label>`)
-		if err != nil {
-			log.Println("Error writing HTML string to buffer: DOMElementWithChildrenCheckbox")
-			return nil
-		}
-	}
-
-	// loop over children and create DOMElement for each child
-	for _, child := range children {
-		_, err = e.ViewBuf.Write(DOMElementCheckbox(child))
-		if err != nil {
-			log.Println("Error writing HTML DOMElementCheckbox to buffer: DOMElementWithChildrenCheckbox")
-			return nil
-		}
-	}
-
-	_, err = e.ViewBuf.WriteString(`</` + e.TagName + `><div class="clear padding">&nbsp;</div>`)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementWithChildrenCheckbox")
-		return nil
-	}
-
-	return e.ViewBuf.Bytes()
+	attrs["class"] = strings.Join(classNames, " ")
 }

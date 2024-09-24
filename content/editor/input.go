@@ -27,5 +27,5 @@ package editor
 func Input(fieldName string, p interface{}, attrs map[string]string, args *FieldArgs) []byte {
 	e := NewElement("input", attrs["label"], fieldName, p, attrs, args)
 
-	return DOMElementSelfClose(e)
+	return DOMInputSelfClose(e)
 }
