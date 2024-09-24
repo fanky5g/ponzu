@@ -5,11 +5,14 @@
     <script type="text/javascript" src="{{ .PublicPath }}/static/common/js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="{{ .PublicPath }}/static/common/js/util.js"></script>
     <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/materialize.min.js"></script>
+    <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/material-components-web.min.js"></script>
     <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/chart.bundle.min.js"></script>
     <script type="text/javascript" src="{{ .PublicPath }}/static/editor/quill.js"></script>
 
     <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/material-icons.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/materialize.min.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/material-components-web.min.css" />
     <link rel="stylesheet" href="{{ .PublicPath }}/static/editor/quill.snow.css" />
     <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/admin.css" />
 
@@ -17,17 +20,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 </head>
-<body class="grey lighten-4">
-<div class="navbar-fixed">
-    <nav class="grey darken-2">
-        <div class="nav-wrapper">
-            <a class="brand-logo" href="{{ .PublicPath }}/">{{ .Logo }}</a>
-
-            <ul class="right">
-                <li><a href="{{ .PublicPath }}/logout">Logout</a></li>
-            </ul>
-        </div>
-    </nav>
-</div>
-
-<div class="admin-ui row">
+<body>
+<div id="app">
+    <div class="layout-content">
+        <div class="main">

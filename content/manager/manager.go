@@ -15,7 +15,7 @@ import (
 
 // TODO: move this to static template
 const managerHTML = `
-<div class="card editor">
+<div class="page editor">
     <form method="post" action="{{ .PublicPath }}/edit" enctype="multipart/form-data">
 		<input type="hidden" name="uuid" value="{{.UUID}}"/>
 		<input type="hidden" name="id" value="{{.ID}}"/>

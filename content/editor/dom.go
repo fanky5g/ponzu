@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bytes"
+	"fmt"
 	"html"
 	"log"
 	"strings"
@@ -20,6 +21,21 @@ type Element struct {
 // NewElement returns an Element with Name and Data already processed from the
 // fieldName and entities interface provided
 func NewElement(tagName, label, fieldName string, p interface{}, attrs map[string]string, args *FieldArgs) *Element {
+	if attrs == nil {
+		attrs = make(map[string]string)
+	}
+
+	// define mdc element attributes
+	if tagName == "input" {
+		classNames, ok := attrs["class"]
+		if !ok {
+			classNames = ""
+		}
+
+		classNames = strings.TrimSpace(fmt.Sprintf("%s mdc-text-field__input", classNames))
+		attrs["class"] = classNames
+	}
+
 	return &Element{
 		TagName: tagName,
 		Attrs:   attrs,
@@ -33,21 +49,34 @@ func NewElement(tagName, label, fieldName string, p interface{}, attrs map[strin
 // DOMElementSelfClose is a special DOM element which is parsed as a
 // self-closing tag and thus needs to be created differently
 func DOMElementSelfClose(e *Element) []byte {
-	_, err := e.ViewBuf.WriteString(`<div class="input-field col s12">`)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
-		return nil
+	isValidSelfClosingTag := true
+	if len(e.Attrs) > 0 {
+		if elementType, ok := e.Attrs["type"]; ok {
+			if elementType == "hidden" {
+				isValidSelfClosingTag = false
+			}
+		}
 	}
 
-	if e.Label != "" {
-		_, err = e.ViewBuf.WriteString(
-			`<label class="active" for="` +
-				strings.Join(strings.Split(e.Label, " "), "-") + `">` + e.Label +
-				`</label>`)
+	var err error
+	if isValidSelfClosingTag {
+		_, err = e.ViewBuf.WriteString(`<fieldset class="control-block">`)
 		if err != nil {
 			log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
 			return nil
 		}
+
+		_, err = e.ViewBuf.WriteString(`
+            <label class="mdc-text-field mdc-text-field--filled">
+              <span class="mdc-text-field__ripple"></span>
+              <span class="mdc-floating-label" id="my-label-id">` + e.Label + `</span>
+    `)
+
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
+			return nil
+		}
+
 	}
 
 	_, err = e.ViewBuf.WriteString(`<` + e.TagName + ` value="`)
@@ -75,10 +104,12 @@ func DOMElementSelfClose(e *Element) []byte {
 		return nil
 	}
 
-	_, err = e.ViewBuf.WriteString(`</div>`)
-	if err != nil {
-		log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
-		return nil
+	if isValidSelfClosingTag {
+		_, err = e.ViewBuf.WriteString(`<span class="mdc-line-ripple"></span></label></fieldset>`)
+		if err != nil {
+			log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
+			return nil
+		}
 	}
 
 	return e.ViewBuf.Bytes()

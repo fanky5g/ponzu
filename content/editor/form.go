@@ -20,9 +20,12 @@ func getTabIdentifier(name string) string {
 }
 
 func getTabContent(tab Tab) string {
+	tabIdentifier := getTabIdentifier(tab.Name)
+
 	return fmt.Sprintf(
-		`<div id="%s" class="col s12 card-content %s">%s</div>`,
-		getTabIdentifier(tab.Name),
+		`<div id="%s" role="tab-panel" aria-labelledby="%s" class="%s">%s</div>`,
+		tabIdentifier,
+		tabIdentifier,
 		strings.Join(tab.ClassNames, " "),
 		string(tab.Content),
 	)
@@ -42,14 +45,16 @@ func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 		return nil, nil
 	}
 
-	if len(tabs) == 1 {
-		tab := tabs[0]
-		_, err = viewBuf.WriteString(fmt.Sprintf(`<div class="row">%s`, getTabContent(tab)))
-		if err != nil {
-			return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
-		}
-	} else {
-		_, err = viewBuf.WriteString(`<div class="row"><div class="col s12"><ul class="tabs">`)
+	viewBuf.WriteString(`<div class="form-view-content">`)
+
+	if len(tabs) > 1 {
+		_, err = viewBuf.WriteString(`
+        <div class="mdc-tab-bar" role="tablist">
+            <div class="mdc-tab-scroller">
+                <div class="mdc-tab-scroller__scroll-area">
+                    <div class="mdc-tab-scroller__scroll-content">
+        `)
+
 		if err != nil {
 			return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
 		}
@@ -57,30 +62,42 @@ func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 		// write tab header
 		for _, tab := range tabs {
 			_, err = viewBuf.WriteString(fmt.Sprintf(`
-				<li class="tab col s3"><a href="#%s"><i class="material-icons">%s</i>%s</a></li>`,
-				getTabIdentifier(tab.Name),
+        <button type="button" class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+          <span class="mdc-tab__content">
+            <span class="mdc-tab__icon material-icons" aria-hidden="true">%s</span>
+            <span class="mdc-tab__text-label">%s</span>
+          </span>
+          <span class="mdc-tab-indicator">
+            <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+          </span>
+          <span class="mdc-tab__ripple"></span>
+        </button>`,
 				tab.Icon,
-				tab.Name,
+				getTabIdentifier(tab.Name),
 			))
+
 			if err != nil {
 				return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
 			}
 		}
 
 		// tab header closing tag
-		_, err = viewBuf.WriteString(`</ul></div>`)
+		_, err = viewBuf.WriteString(`</div></div></div></div>`)
 		if err != nil {
 			return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
 		}
 
-		// write content
-		for _, tab := range tabs {
-			_, err = viewBuf.WriteString(getTabContent(tab))
-			if err != nil {
-				return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
-			}
+	}
+
+	// write content
+	for _, tab := range tabs {
+		_, err = viewBuf.WriteString(getTabContent(tab))
+		if err != nil {
+			return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
 		}
 	}
+
+	viewBuf.WriteString(`</div>`)
 
 	script := &bytes.Buffer{}
 	scriptTmpl := makeScript("editor")
@@ -162,7 +179,7 @@ func getPropertiesTab(e Editable) (*Tab, error) {
 		Name:       "Properties",
 		Icon:       "tune",
 		Content:    viewBuf.Bytes(),
-		ClassNames: []string{"editor-metadata"},
+		ClassNames: []string{"editor-content"},
 	}, nil
 }
 

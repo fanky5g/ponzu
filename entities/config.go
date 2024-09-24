@@ -149,15 +149,9 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 		return nil, err
 	}
 
-	openingTag := []byte(`
-	<div class="card">
-		<div class="card-content">
-			<div class="card-title">System Configuration</div>
-		</div>
-		<form action="` + paths.PublicPath + `/configure" method="post">
-	`)
-
-	closingTag := []byte(`</form></div>`)
+	// Page Name: System Configuration
+	openingTag := []byte(`<form class="form-view-root" action="` + paths.PublicPath + `/configure" method="post">`)
+	closingTag := []byte(`</form>`)
 	script := []byte(`
 	<script>
 		$(function() {
