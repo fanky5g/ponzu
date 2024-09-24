@@ -2,6 +2,7 @@
     (function() {
         const contentActiveClassName = 'editor-content--active';
         const tabBar = document.querySelector(".form-view-root .mdc-tab-bar");
+        const contentViews = document.querySelectorAll('.form-view-content .editor-content');
         if (tabBar) {
             const mdcTabBar = new mdc.tabBar.MDCTabBar(tabBar);
 
@@ -9,7 +10,6 @@
                 event.preventDefault();
 
                 const activeIndex = event.detail.index;
-                const contentViews = document.querySelectorAll('.form-view-content .editor-content');
                 for (let i = 0; i < contentViews.length; i++) {
                     contentViews[i].classList.remove(contentActiveClassName);
                 }
@@ -22,6 +22,10 @@
 
             mdcTabBar.focusOnActivate = false;
             mdcTabBar.activateTab(0);
+        } else {
+            for (let i = 0; i < contentViews.length; i++) {
+                contentViews[i].classList.add(contentActiveClassName);
+            }
         }
 
         // initialize text fields
