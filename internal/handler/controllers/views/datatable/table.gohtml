@@ -1,0 +1,47 @@
+<style>
+.table {
+    position: relative;
+}
+
+.flex {
+    display: flex;
+    flex: 1;
+    box-sizing: border-box;
+    --webkit-box-sizing: border-box;
+}
+
+.empty-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, .654);
+    position: relative;
+    padding: 20px;
+}
+</style>
+
+{{ $length := len .Items }}
+{{ $hasItems := gt $length 0 }}
+
+<div class="mdc-data-table table flex">
+    {{ template "table-toolbar" . }}
+
+    {{ if $hasItems }}
+        {{ template "table-content" . }}
+        {{ template "table-pagination" . }}
+    {{ else}}
+        <p class="empty-text">No {{ .TypeName }} found</p>
+    {{ end }}
+</div>
+
+<script>
+    (function() {
+        const hasItems = {{ $hasItems }};
+        const tableView = document.querySelector('.mdc-data-table');
+
+        if (tableView && hasItems) {
+            const dataTable = new mdc.dataTable.MDCDataTable(tableView);
+        }
+    })();
+</script>
+

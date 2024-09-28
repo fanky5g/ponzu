@@ -1,0 +1,88 @@
+{{ define "table-row" }}
+<style>
+tr.table-row {
+    min-height: 40px;
+    height: 0;
+    font-size: 0.925rem;
+}
+
+.mdc-data-table__cell {
+    font-size: 14px;
+    line-height: 21px;
+}
+
+tr.table-row td:first-child.col-checkbox {
+    padding-top: 6px;
+}
+
+tr.table-row .col-checkbox+td {
+    padding-left: 4px;
+}
+
+tr.table-row td:first-child {
+    padding-left: 8px;
+}
+
+tr.table-row td {
+    color: rgba(0, 0, 0, .654);
+    padding: 7px 0 8px 0;
+    border-bottom: 1.1px solid rgba(0, 0, 0, .08);
+}
+
+tr.table-row td:not(:first-child) {
+    padding-left: 24px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.col-checkbox {
+    padding-bottom: 0;
+    padding-right: 8px;
+    width: 12px;
+    padding-top: 4px;
+}
+
+tr.table-row .link {
+    cursor: pointer;
+    text-decoration: none;
+    padding-bottom: 1px;
+    color: rgba(0, 0, 0, .987);
+    font-weight: normal;
+    max-width: 256px;
+    text-overflow: ellipsis;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+tr.table-row .link:hover {
+    color: #1565c0;
+    text-decoration: underline;
+}
+</style>
+<tr data-row-id="u2" class="mdc-data-table__row table-row"> 
+  <td class="mdc-data-table__cell mdc-data-table__cell--checkbox col-checkbox">
+    <div class="mdc-checkbox mdc-data-table__row-checkbox">
+      <input type="checkbox" class="mdc-checkbox__native-control" aria-labelledby="u2"/>
+      <div class="mdc-checkbox__background">
+        <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+          <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+        </svg>
+        <div class="mdc-checkbox__mixedmark"></div>
+      </div>
+      <div class="mdc-checkbox__ripple"></div>
+    </div>
+  </td>
+  <td class="mdc-data-table__cell" scope="row" id="u2">
+    {{ $name := .Item.GetTitle }}
+    {{ if eq $name "" }}
+        {{ $name = .Item.ItemID }}
+    {{ end }}
+    <a class="link" title="{{ $name }}" href="{{ .PublicPath }}/edit?type={{ .TypeName }}&id={{ .Item.ItemID }}">
+        {{ $name }}
+    </a>
+  </td>
+  <td class="mdc-data-table__cell">{{ formatTime .Item.Time }}</td>
+  <td class="mdc-data-table__cell">{{ formatTime .Item.Touch }}</td>
+</tr>
+{{ end }}
