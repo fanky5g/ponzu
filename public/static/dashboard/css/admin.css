@@ -572,7 +572,13 @@ div.col.s6:has(select.block-select) {
 
 .form-view-root, .form-view-content {
     max-width: 512px;
-    padding: 8px;
+    padding: 16px;
+}
+
+.form-view-root .mdc-text-field__input,
+.form-view-root .mdc-text-field:not(.mdc-text-field--label-floating) .mdc-floating-label,
+.mdc-form-field > label {
+    font-size: 14px;
 }
 
 .form-view-footer {
@@ -587,7 +593,10 @@ div.col.s6:has(select.block-select) {
 }
 
 .form-view-buttons {
-    justify-content: flex-start;
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    gap: 16px;
 }
 
 .form-view-content .editor-content {
@@ -598,3 +607,16 @@ div.col.s6:has(select.block-select) {
 .form-view-content .editor-content--active {
     display: block;
 }
+
+.divider {
+    border: none;
+    height: 1px;
+    margin: 0;
+    flex-shrink: 0;
+    background-color: #eeeeee;
+}
+
+.form-view-root .divider {
+    margin: 20px 0;
+}
+

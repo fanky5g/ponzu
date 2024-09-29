@@ -97,7 +97,13 @@ func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 		}
 	}
 
-	viewBuf.WriteString(`</div>`)
+	if _, err = viewBuf.WriteString(`</div>`); err != nil {
+		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
+	}
+
+	if _, err = viewBuf.WriteString(`<hr class="divider">`); err != nil {
+		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
+	}
 
 	script := &bytes.Buffer{}
 	scriptTmpl := makeScript("editor")
@@ -157,22 +163,25 @@ func getContentTab(fields []Field) (*Tab, error) {
 }
 
 func getPropertiesTab(e Editable) (*Tab, error) {
-	properties := getDefaultFields(e)
-	if len(properties) == 0 {
-		return nil, nil
-	}
-
+	iface := (interface{})(e)
 	viewBuf := &bytes.Buffer{}
-	for _, f := range properties {
-		_, err := viewBuf.Write(f.View)
-		if err != nil {
-			return nil, fmt.Errorf("error writing field view to editor view buffer: %v", err)
+	if sluggable, ok := iface.(item.Sluggable); ok {
+		if sluggable.ItemSlug() != "" {
+			_, err := viewBuf.Write(Input("Slug", e, map[string]string{
+				"label":       "URL Slug",
+				"type":        "text",
+				"disabled":    "true",
+				"placeholder": "Will be set automatically",
+			}, nil),
+			)
+			if err != nil {
+				return nil, fmt.Errorf("error writing field view to editor view buffer: %v", err)
+			}
 		}
 	}
 
-	_, err := viewBuf.WriteString(makeHtml("editor_timestamp"))
-	if err != nil {
-		return nil, fmt.Errorf("error writing field view to editor view buffer: %v", err)
+	if viewBuf.Len() == 0 {
+		return nil, nil
 	}
 
 	return &Tab{
@@ -181,46 +190,4 @@ func getPropertiesTab(e Editable) (*Tab, error) {
 		Content:    viewBuf.Bytes(),
 		ClassNames: []string{"editor-content"},
 	}, nil
-}
-
-// Default fields (properties) are system generated, and mostly non-editable. Most system entities that do not
-// have properties by default. E.g. System Configuration entities. As such, we only render properties
-// for existing entities that already have these properties. This
-// allows us to omit rendering properties unnecessarily for auto-generated system entities.
-func getDefaultFields(e Editable) []Field {
-	iface := (interface{})(e)
-	properties := make([]Field, 0)
-	if sluggable, ok := iface.(item.Sluggable); ok {
-		if sluggable.ItemSlug() != "" {
-			properties = append(properties, Field{
-				View: Input("Slug", e, map[string]string{
-					"label":       "URL Slug",
-					"type":        "text",
-					"disabled":    "true",
-					"placeholder": "Will be set automatically",
-				}, nil),
-			})
-		}
-	}
-
-	if sortable, ok := iface.(item.Sortable); ok {
-		if sortable.Time() != 0 {
-			properties = append(properties, []Field{
-				{
-					View: Timestamp("Timestamp", e, map[string]string{
-						"type":  "hidden",
-						"class": "__ponzu timestamp",
-					}),
-				},
-				{
-					View: Timestamp("Updated", e, map[string]string{
-						"type":  "hidden",
-						"class": "__ponzu updated",
-					}),
-				},
-			}...)
-		}
-	}
-
-	return properties
 }
