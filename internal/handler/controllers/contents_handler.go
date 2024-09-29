@@ -7,7 +7,6 @@ import (
 
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/editor"
-	// "github.com/fanky5g/ponzu/content/item"
 	"net/http"
 
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
@@ -82,15 +81,6 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 		//					</div>`
 		//
 
-		//		html += `<ul class="posts row">`
-		//
-		//		_, err = b.Write([]byte(`</ul>`))
-		//		if err != nil {
-		//			log.WithField("Error", err).Warning("Failed to write buffer")
-		//			r.Renderer().InternalServerError(res)
-		//			return
-		//		}
-		//
 		// set up pagination values
 		count := search.Pagination.Count
 		offset := search.Pagination.Offset
@@ -124,12 +114,6 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 		//		});
 		//	</script>
 		//	`
-		//
-		//		btn := `<div class="col s3">
-		//		<a href="{{ .PublicPath }}/edit?type={{ .Data.TypeName }}" class="btn new-post waves-effect waves-light">
-		//			New {{ .Data.TypeName }}
-		//		</a>`
-		//
 		//		if _, ok := pt.(item.CSVFormattable); ok {
 		//			btn += `<br/>
 		//				<a href="{{ .PublicPath }}/contents/export?type={{ .Data.TypeName }}&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
@@ -138,7 +122,6 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 		//				</a>`
 		//		}
 		//
-		//		html += b.String() + script + btn + `</div></div>`
 		buf := &bytes.Buffer{}
 		tableViewTmpl := r.Renderer().TemplateFromDir("datatable")
 
