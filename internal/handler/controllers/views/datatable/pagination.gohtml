@@ -38,15 +38,15 @@
 
         <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth" role="listbox">
           <ul class="mdc-list">
-            <li class="mdc-list-item" role="option" data-value="20">
-              <span class="mdc-list-item__text">20</span>
-            </li>
-            <li class="mdc-list-item mdc-list-item--selected" aria-selected="true" role="option" data-value="50">
-              <span class="mdc-list-item__text">50</span>
-            </li>
-            <li class="mdc-list-item" role="option" data-value="100">
-              <span class="mdc-list-item__text">100</span>
-            </li>
+            {{ range .PaginationOptions }}
+                {{ if eq $.RowsPerPage . }}
+                <li class="mdc-list-item mdc-list-item--selected" role="option" aria-selected="true" data-value="{{ . }}">
+                {{ else }}
+                <li class="mdc-list-item" role="option" data-value="{{ . }}">
+                {{ end }}
+                    <span class="mdc-list-item__text">{{ . }}</span>
+                </li>
+            {{ end }}
           </ul>
         </div>
       </div>
@@ -56,44 +56,84 @@
       <div class="mdc-data-table__pagination-total">
         {{ .CurrentItemStart }}‑{{ .CurrentItemEnd }} of {{ .TotalItemCount }}
       </div>
-      {{ $firstPageDisabled := "" }}
-      {{ $isFirstPage := eq .CurrentPage 1 }}
-      {{ if $isFirstPage }}
-        {{ $firstPageDisabled = "disabled" }}
-      {{ end }}
-      <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled="{{ $firstPageDisabled }}">
-        <div class="mdc-button__icon">first_page</div>
-      </button>
-      {{ $prevPageDisabled := "" }}
-      {{ if eq .CurrentPage 1 }}
-        {{ $prevPageDisabled = "disabled" }}
-      {{ end }}
-      <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled="{{ $prevPageDisabled }}">
-        <div class="mdc-button__icon">chevron_left</div>
-      </button>
-      {{ $nextPageDisabled := "" }}
-      {{ if eq .CurrentPage .NumberOfPages }}
-        {{ $nextPageDisabled = "disabled" }}
-      {{ end }}
-      <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled="{{ $nextPageDisabled }}">
-        <div class="mdc-button__icon">chevron_right</div>
-      </button>
-      {{ $lastPageDisabled := "" }}
-      {{ $isLastPage := eq .CurrentPage .NumberOfPages }}
-      {{ if $isLastPage }}
-        {{ $lastPageDisabled = "disabled" }}
-      {{ end }}
-      <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled="{{ $lastPageDisabled }}"> 
-        <div class="mdc-button__icon">last_page</div>
-      </button>
+
+      <form action="{{ .PublicPath }}/contents" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          {{ if eq .CurrentPage 1 }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled>
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button">
+          {{ end }}
+            <div class="mdc-button__icon">first_page</div>
+          </button>
+      </form>
+
+      <form action="{{ .PublicPath }}/contents" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          <input type="hidden" name="offset" value="{{ subtract (subtract .CurrentItemStart .RowsPerPage) 1 }}" />
+          {{ if eq .CurrentPage 1 }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled>
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button"> 
+          {{ end }}
+            <div class="mdc-button__icon">chevron_left</div>
+          </button>
+      </form>
+
+      <form action="{{ .PublicPath }}/contents" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          <input type="hidden" name="offset" value="{{ .CurrentItemEnd }}" />
+          {{ if eq .CurrentPage .NumberOfPages }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled>
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button">
+          {{ end }}
+            <div class="mdc-button__icon">chevron_right</div>
+          </button>
+      </form>
+
+      <form action="{{ .PublicPath }}/contents" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          <input type="hidden" name="offset" value="{{ multiply (subtract .NumberOfPages 1) .RowsPerPage }}" />
+          {{ if eq .CurrentPage .NumberOfPages }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled> 
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button"> 
+          {{ end }}
+            <div class="mdc-button__icon">last_page</div>
+          </button>
+      </form>
     </div>
   </div>
 </div>
+
 <script>
 (function() {
     const rowsPerPageSelect = document.querySelector('.mdc-data-table__pagination .mdc-select');
+    const rowsPerPageList = document.querySelector('.mdc-data-table__pagination .mdc-list');
     if (rowsPerPageSelect) {
         const mdcSelect = new mdc.select.MDCSelect(rowsPerPageSelect);
+    }
+
+    if (rowsPerPageList) {
+        const mdcList = new mdc.list.MDCList(rowsPerPageList);
+        const elements = mdcList.listElements;
+        const searchParams = new URLSearchParams(location.search);
+        rowsPerPageList.addEventListener('MDCList:action', function(event) {
+            const selected = elements[event.detail.index];
+            const rowsPerPage = selected.dataset.value;
+            searchParams.set("count", rowsPerPage);
+            searchParams.set("offset", "0");
+            window.location.replace(`${location.pathname}?${searchParams.toString()}`);
+        });
     }
 })();
 </script>

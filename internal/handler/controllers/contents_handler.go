@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/editor"
 	// "github.com/fanky5g/ponzu/content/item"
+	"net/http"
+
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/tokens"
-	"net/http"
 
 	log "github.com/sirupsen/logrus"
-	"strconv"
-	"strings"
 )
 
-var RowsPerPage = 50
+var PaginationOptions = []int{20, 50, 100}
 
 func NewContentsHandler(r router.Router) http.HandlerFunc {
 	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
@@ -32,12 +32,6 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		order := strings.ToLower(q.Get("order"))
-		if order != "asc" {
-			order = "desc"
-		}
-
-		status := q.Get("status")
 		if _, ok := contentTypes[t]; !ok {
 			r.Renderer().BadRequest(res)
 			return
@@ -48,28 +42,6 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 			log.Warnf("item %s does not implement editable interface", t)
 			r.Renderer().InternalServerError(res)
 			return
-		}
-
-		count, err := strconv.Atoi(q.Get("count")) // int: determines number of posts to return (10 default, -1 is all)
-		if err != nil {
-			if q.Get("count") == "" {
-				count = RowsPerPage
-			} else {
-				log.WithField("Error", err).Warning("Failed to parse count")
-				r.Renderer().InternalServerError(res)
-				return
-			}
-		}
-
-		offset, err := strconv.Atoi(q.Get("offset")) // int: multiplier of count for pagination (0 default)
-		if err != nil {
-			if q.Get("offset") == "" {
-				offset = 0
-			} else {
-				log.WithField("Error", err).Warning("Failed to parse offset")
-				r.Renderer().InternalServerError(res)
-				return
-			}
 		}
 
 		searchRequestDto, err := request.GetSearchRequestDto(req)
@@ -152,41 +124,19 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 		//			return
 		//		}
 		//
-		//		statusDisabled := "disabled"
-		prevStatus := ""
-		nextStatus := ""
-		//		// total may be less than 10 (default count), so reset count to match total
-		//		if total < count {
-		//			count = total
-		//		}
-		//		// nothing previous to current list
-		//		if offset == 0 {
-		//			prevStatus = statusDisabled
-		//		}
-		//		// nothing after current list
-		//		if (offset+1)*count >= total {
-
-		//			nextStatus = statusDisabled
-		//		}
-		//
 		// set up pagination values
-		urlFmt := req.URL.Path + "?count=%d&offset=%d&&order=%s&status=%s&type=%s"
-		prevURL := fmt.Sprintf(urlFmt, count, offset-1, order, status, t)
-		nextURL := fmt.Sprintf(urlFmt, count, offset+1, order, status, t)
-		start := 1 + count*offset
-		end := start + count - 1
+		count := search.Pagination.Count
+		offset := search.Pagination.Offset
+		if total < count {
+			count = total
+		}
+
+		start := 1 + offset
+		end := start + len(posts) - 1
 
 		if total < end {
 			end = total
 		}
-
-		_ = fmt.Sprintf(`
-		<ul class="pagination row">
-			<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_left</i></a></li>
-			<li class="col s8">%d to %d of %d</li>
-			<li class="col s2 waves-effect %s"><a href="%s"><i class="material-icons">chevron_right</i></a></li>
-		</ul>
-		`, prevStatus, prevURL, start, end, total, nextStatus, nextURL)
 
 		//		script := `
 		//	<script>
@@ -229,31 +179,31 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 		numberOfPages := int(math.Ceil(float64(total) / float64(count)))
 
 		data := struct {
-			TableName        string
-			Items            []interface{}
-			TypeName         string
-			PublicPath       string
-			NextPageURL      string
-			PrevPageURL      string
-			RowsPerPage      int
-			TotalItemCount   int
-			CurrentItemStart int
-			CurrentItemEnd   int
-			CurrentPage      int
-			NumberOfPages    int
+			TableName         string
+			Items             []interface{}
+			TypeName          string
+			PublicPath        string
+			RowsPerPage       int
+			SortOrder         constants.SortOrder
+			TotalItemCount    int
+			CurrentItemStart  int
+			CurrentItemEnd    int
+			CurrentPage       int
+			NumberOfPages     int
+			PaginationOptions []int
 		}{
-			TableName:        fmt.Sprintf("%s Items", t),
-			Items:            posts,
-			TypeName:         t,
-			PublicPath:       r.Context().Paths().PublicPath,
-			NextPageURL:      nextURL,
-			PrevPageURL:      prevURL,
-			RowsPerPage:      count,
-			TotalItemCount:   total,
-			CurrentItemStart: start,
-			CurrentItemEnd:   end,
-			NumberOfPages:    numberOfPages,
-			CurrentPage:      currentPage,
+			TableName:         fmt.Sprintf("%s Items", t),
+			Items:             posts,
+			TypeName:          t,
+			PublicPath:        r.Context().Paths().PublicPath,
+			RowsPerPage:       search.Pagination.Count,
+			TotalItemCount:    total,
+			CurrentItemStart:  start,
+			CurrentItemEnd:    end,
+			NumberOfPages:     numberOfPages,
+			CurrentPage:       currentPage,
+			SortOrder:         search.SortOrder,
+			PaginationOptions: PaginationOptions,
 		}
 
 		if err := tableViewTmpl.Execute(buf, data); err != nil {

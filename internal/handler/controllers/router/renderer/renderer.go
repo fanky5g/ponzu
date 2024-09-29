@@ -44,6 +44,9 @@ var (
 		"subtract": func(a, b int) int {
 			return a - b
 		},
+		"multiply": func(a, b int) int {
+			return a * b
+		},
 		"formatTime": func(t int64) string {
 			return time.Unix(t/1000, 0).Format("02.01.06 03:04 PM")
 		},
