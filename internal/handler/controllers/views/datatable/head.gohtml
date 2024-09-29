@@ -53,12 +53,25 @@ thead.table-head th:not(:first-child) {
         data-column-id="timestamp">
         <div class="mdc-data-table__header-cell-wrapper">
             <div class="mdc-data-table__header-cell-label">Created</div>
-            <button
-                class="mdc-icon-button material-icons mdc-data-table__sort-icon-button"
-                aria-label="Sort by timestamp"
-                aria-describedby="timestamp">
-                arrow_upward
-            </button>
+            <form action="{{ .PublicPath }}/contents" method="get">
+                {{ $sortOrder := "desc" }}
+                {{ $sortIcon := "arrow_downward" }}
+                {{ if eq .SortOrder "desc" }}
+                    {{ $sortOrder = "asc" }}
+                    {{ $sortIcon = "arrow_upward" }}
+                {{ end }}
+                <input type="hidden" name="type" value="{{ .TypeName }}" />
+                <input type="hidden" name="order" value="{{ $sortOrder }}" />
+                <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+                <input type="hidden" name="offset" value="{{ subtract (subtract .CurrentItemStart .RowsPerPage) 1 }}" />
+                <button
+                    type="submit"
+                    class="mdc-icon-button material-icons mdc-data-table__sort-icon-button"
+                    aria-label="Sort by timestamp"
+                    aria-describedby="timestamp">
+                    {{ $sortIcon }}
+                </button>
+            </form>
             <div class="mdc-data-table__sort-status-label" aria-hidden="true" id="timestamp"></div>
         </div>
       </th>

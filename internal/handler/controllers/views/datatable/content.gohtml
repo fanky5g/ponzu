@@ -9,7 +9,7 @@
 
 <div class="mdc-data-table__table-container table-content">
     <table class="mdc-data-table__table" aria-label="{{ .TableName }}">
-        {{ template "table-head" }}
+        {{ template "table-head" . }}
         <tbody class="mdc-data-table__content">
             {{ range .Items }}
                 {{ template "table-row" dict "Item" . "PublicPath" $.PublicPath "TypeName" $.TypeName }}
