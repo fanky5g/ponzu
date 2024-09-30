@@ -24,6 +24,9 @@
 
 .table-toolbar .actions {
     margin-left: 16px;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
 }
 
 .table-toolbar .actions button {
@@ -50,10 +53,28 @@
                 <span class="mdc-button__label">New {{ .TypeName }}</span>
           </button>
         </form>
+
+        <form
+            enctype="multipart/form-data"
+            name="delete-item-form"
+            onsubmit="return deleteItems();" action="{{ .PublicPath }}/edit/delete" method="post">
+            <input type="hidden" name="type" value="{{ .TypeName }}" />
+            <input type="hidden" name="ids" value="" />
+            <button type="submit" class="mdc-button" aria-label="Delete">
+                <span class="mdc-button__ripple"></span>
+                <i class="material-icons mdc-button__icon" aria-hidden="true">delete</i>
+                <span class="mdc-button__label">Delete</span>
+          </button>
+        </form>
       </div>
     </section>
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
     </section>
   </div>
 </div>
+<script>
+    const deleteItems = (event) => {
+       return confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete selected items?\nThis cannot be undone")
+    };
+</script>
 {{ end }}

@@ -35,12 +35,40 @@
 </div>
 
 <script>
+    const rowSelectionInputs = [
+        'form[name="delete-item-form"] input[name="ids"]',
+    ];
+
+    const updateRowSelectionInputs = (value) => {
+        for (let i = 0; i < rowSelectionInputs.length; i++) {
+            const inputElement = document.querySelector(rowSelectionInputs[i]);
+            if (inputElement) {
+                inputElement.value = value; 
+            }
+       }
+    };
+
+    const clearRowSelectionInputs = () => {
+        updateRowSelectionInputs("");
+    };
+    
     (function() {
         const hasItems = {{ $hasItems }};
         const tableView = document.querySelector('.mdc-data-table');
 
         if (tableView && hasItems) {
             const dataTable = new mdc.dataTable.MDCDataTable(tableView);
+            window.addEventListener('MDCDataTable:selectedAll', function() {
+                updateRowSelectionInputs(dataTable.getSelectedRowIds().join(','));
+            });
+
+            window.addEventListener('MDCDataTable:unselectedAll', function() {
+               clearRowSelectionInputs(); 
+            });
+
+            window.addEventListener('MDCDataTable:rowSelectionChanged', function(event) {
+                updateRowSelectionInputs(dataTable.getSelectedRowIds().join(','));
+            });
         }
     })();
 </script>
