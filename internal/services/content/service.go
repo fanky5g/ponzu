@@ -18,7 +18,7 @@ type service struct {
 
 type Service interface {
 	CreateContent(entityType string, entity interface{}) (string, error)
-	DeleteContent(entityType, entityId string) error
+	DeleteContent(entityType string, entityIds ...string) error
 	GetContent(entityType, entityId string) (interface{}, error)
 	GetContentBySlug(slug string) (interface{}, error)
 	GetAll(namespace string) ([]interface{}, error)

@@ -1,17 +1,17 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/content/item"
+	"net/http"
+	"strings"
+
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func NewDeleteHandler(r router.Router) http.HandlerFunc {
 	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
-	contentTypes := r.Context().Types().Content
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
@@ -26,85 +26,36 @@ func NewDeleteHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		id := req.FormValue("id")
-		t := req.FormValue("type")
-		ct := t
+		ids := make([]string, 0)
 
-		if id == "" || t == "" {
+		idParam := strings.TrimSpace(req.FormValue("id"))
+		idsParam := strings.TrimSpace(req.FormValue("ids"))
+		if idParam != "" {
+			ids = append(ids, idParam)
+		} else if idsParam != "" {
+			idsToDelete := strings.FieldsFunc(idsParam, func(c rune) bool {
+				return c == ','
+			})
+
+			for _, idToDelete := range idsToDelete {
+				ids = append(ids, strings.TrimSpace(idToDelete))
+			}
+		}
+
+		t := req.FormValue("type")
+
+		if len(ids) == 0 || t == "" {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		p, ok := contentTypes[ct]
-		if !ok {
-			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
-			r.Renderer().BadRequest(res)
-			return
-		}
-
-		post := p()
-		hook, ok := post.(item.Hookable)
-		if !ok {
-			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
-			r.Renderer().BadRequest(res)
-			return
-		}
-
-		post, err = contentService.GetContent(t, id)
-		if err != nil {
-			log.WithField("Error", err).Warning("Failed to get content")
-			r.Renderer().InternalServerError(res)
-			return
-		}
-
-		reject := req.URL.Query().Get("reject")
-		if reject == "true" {
-			err = hook.BeforeReject(res, req)
-			if err != nil {
-				log.Println("Error running BeforeReject method in deleteHandler for:", t, err)
-				return
-			}
-		}
-
-		err = hook.BeforeAdminDelete(res, req)
-		if err != nil {
-			log.Println("Error running BeforeAdminDelete method in deleteHandler for:", t, err)
-			return
-		}
-
-		err = hook.BeforeDelete(res, req)
-		if err != nil {
-			log.Println("Error running BeforeDelete method in deleteHandler for:", t, err)
-			return
-		}
-
-		err = contentService.DeleteContent(t, id)
+		err = contentService.DeleteContent(t, ids...)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to delete content")
 			r.Renderer().InternalServerError(res)
 			return
 		}
 
-		err = hook.AfterDelete(res, req)
-		if err != nil {
-			log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
-			return
-		}
-
-		err = hook.AfterAdminDelete(res, req)
-		if err != nil {
-			log.Println("Error running AfterDelete method in deleteHandler for:", t, err)
-			return
-		}
-
-		if reject == "true" {
-			err = hook.AfterReject(res, req)
-			if err != nil {
-				log.Println("Error running AfterReject method in deleteHandler for:", t, err)
-				return
-			}
-		}
-
-		r.Redirect(req, res, "/contents?type="+ct)
+		r.Redirect(req, res, "/contents?type="+t)
 	}
 }
