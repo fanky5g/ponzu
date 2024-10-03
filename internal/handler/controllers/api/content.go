@@ -85,7 +85,7 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		_, posts, err := contentService.GetAllWithOptions(t, search)
+		posts, _, err := contentService.GetAllWithOptions(t, search)
 		if err != nil {
 			log.Printf("Failed to list entities: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
