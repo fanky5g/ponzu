@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 )
@@ -22,6 +23,7 @@ func renderContentList(
 	res http.ResponseWriter,
 	t string,
 	search *entities.Search,
+	itemType interface{},
 	loader ResultLoader,
 ) {
 	matches, total, err := loader()
@@ -46,19 +48,13 @@ func renderContentList(
 		end = total
 	}
 
-	//		if _, ok := pt.(item.CSVFormattable); ok {
-	//			btn += `<br/>
-	//				<a href="{{ .PublicPath }}/contents/export?type={{ .Data.TypeName }}&format=csv" class="green darken-4 btn export-post waves-effect waves-light">
-	//					<i class="material-icons left">system_update_alt</i>
-	//					CSV
-	//				</a>`
-	//		}
-	//
 	buf := &bytes.Buffer{}
 	tableViewTmpl := r.Renderer().TemplateFromDir("datatable")
 
 	currentPage := int(math.Ceil(float64(start-1)/float64(count)) + 1)
 	numberOfPages := int(math.Ceil(float64(total) / float64(count)))
+
+	_, csvFormattable := itemType.(item.CSVFormattable)
 
 	data := struct {
 		TableName         string
@@ -74,6 +70,7 @@ func renderContentList(
 		NumberOfPages     int
 		PaginationOptions []int
 		Search            *entities.Search
+		CSVFormattable    bool
 	}{
 		TableName:         fmt.Sprintf("%s Items", t),
 		Items:             matches,
@@ -88,6 +85,7 @@ func renderContentList(
 		SortOrder:         search.SortOrder,
 		PaginationOptions: PaginationOptions,
 		Search:            search,
+		CSVFormattable:    csvFormattable,
 	}
 
 	if err := tableViewTmpl.Execute(buf, data); err != nil {

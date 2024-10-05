@@ -48,8 +48,26 @@
        }
     };
 
-    const clearRowSelectionInputs = () => {
-        updateRowSelectionInputs("");
+    const toggleCSVExportButtonEnabled = (hasSelectedItems) => {
+        csvExportButton = document.querySelector('button[name="csv-export"]');
+        if (csvExportButton) {
+            csvExportButton.disabled = hasSelectedItems;
+        }
+    };
+
+    const toggleDeleteButtonEnabled = (hasSelectedItems) => {
+        const deleteItemsButton = document.querySelector('button[name="delete-items"]');
+        if (deleteItemsButton) {
+            deleteItemsButton.disabled = !hasSelectedItems;
+        }
+    };
+
+    const triggerActions = (selectedItems) => {
+        const hasSelectedItems = selectedItems.length > 0;
+
+        updateRowSelectionInputs(selectedItems.join(','));
+        toggleCSVExportButtonEnabled(hasSelectedItems);
+        toggleDeleteButtonEnabled(hasSelectedItems);
     };
     
     (function() {
@@ -59,15 +77,15 @@
         if (tableView && hasItems) {
             const dataTable = new mdc.dataTable.MDCDataTable(tableView);
             window.addEventListener('MDCDataTable:selectedAll', function() {
-                updateRowSelectionInputs(dataTable.getSelectedRowIds().join(','));
+                triggerActions(dataTable.getSelectedRowIds());
             });
 
             window.addEventListener('MDCDataTable:unselectedAll', function() {
-               clearRowSelectionInputs(); 
+               triggerActions([]);
             });
 
             window.addEventListener('MDCDataTable:rowSelectionChanged', function(event) {
-                updateRowSelectionInputs(dataTable.getSelectedRowIds().join(','));
+                triggerActions(dataTable.getSelectedRowIds());
             });
         }
     })();

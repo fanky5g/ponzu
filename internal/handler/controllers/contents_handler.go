@@ -51,7 +51,7 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		renderContentList(r, res, t, search, func() ([]interface{}, int, error) {
+		renderContentList(r, res, t, search, pt, func() ([]interface{}, int, error) {
 			return contentService.GetAllWithOptions(t, search)
 		})
 	}

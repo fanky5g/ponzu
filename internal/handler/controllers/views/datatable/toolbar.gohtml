@@ -77,13 +77,25 @@
                 onsubmit="return deleteItems();" action="{{ .PublicPath }}/edit/delete" method="post">
                 <input type="hidden" name="type" value="{{ .TypeName }}" />
                 <input type="hidden" name="ids" value="" />
-                <button type="submit" class="mdc-button" aria-label="Delete">
+                <button type="submit" name="delete-items" class="mdc-button" aria-label="Delete" disabled>
                     <span class="mdc-button__ripple"></span>
                     <i class="material-icons mdc-button__icon" aria-hidden="true">delete</i>
                     <span class="mdc-button__label">Delete</span>
-              </button>
+                </button>
             </form>
-         </div>
+
+            {{ if .CSVFormattable }}
+                <form action="{{ .PublicPath }}/contents/export" method="get">
+                    <input type="hidden" name="type" value="{{ .TypeName }}" />
+                    <input type="hidden" name="format" value="csv" />
+                    <button type="submit" name="csv-export" class="mdc-button" aria-label="CSV Export">
+                        <span class="mdc-button__ripple"></span>
+                        <i class="material-icons mdc-button__icon" aria-hidden="true">system_update_alt</i>
+                        <span class="mdc-button__label">CSV Export</span>
+                    </button>
+                </form>
+            {{ end }}
+        </div>
       </div>
     </section>
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">

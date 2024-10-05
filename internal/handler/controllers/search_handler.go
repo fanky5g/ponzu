@@ -47,8 +47,13 @@ func NewSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		renderContentList(r, res, t, search, func() ([]interface{}, int, error) {
-			return searchService.Search(contentTypeConstructor(), searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		renderContentList(r, res, t, search, contentTypeConstructor(), func() ([]interface{}, int, error) {
+			return searchService.Search(
+				contentTypeConstructor(),
+				searchRequest.Query,
+				searchRequest.Count,
+				searchRequest.Offset,
+			)
 		})
 	}
 }
