@@ -1,8 +1,9 @@
 <script>
     $(function() {
-	    const hidden = $('.richtext-value.{{ .FieldName }}');
+	    const hidden = $('input[name="{{ .InputName }}"]');
+        const richtextSelector = '#richtext-{{ .InputName }}'.replaceAll('.', '\\.');
 
-        const quill = new Quill('.richtext.{{ .FieldName }}', {
+        const quill = new Quill(richtextSelector, {
             theme: 'snow',
             placeholder: '{{ index .Attrs "placeholder" }}',
         });

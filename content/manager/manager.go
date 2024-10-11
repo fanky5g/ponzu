@@ -34,7 +34,6 @@ type manager struct {
 	PublicPath string
 }
 
-// Manage ...
 func Manage(e editor.Editable, paths config.Paths, typeName string) ([]byte, error) {
 	v, err := e.MarshalEditor(paths)
 	if err != nil {

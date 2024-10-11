@@ -2,55 +2,21 @@ package renderer
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"time"
 
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/manager"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
 	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/views"
 	"github.com/fanky5g/ponzu/tokens"
-	"github.com/fanky5g/ponzu/util"
 	log "github.com/sirupsen/logrus"
-)
-
-var (
-	templateGlobFuncs = template.FuncMap{
-		"dict": func(values ...interface{}) (map[string]interface{}, error) {
-			if len(values)%2 != 0 {
-				return nil, errors.New("invalid call")
-			}
-
-			dict := make(map[string]interface{}, len(values)/2)
-			for i := 0; i < len(values); i += 2 {
-				key, ok := values[i].(string)
-				if !ok {
-					return nil, errors.New("dict keys must be strings")
-				}
-
-				dict[key] = values[i+1]
-			}
-
-			return dict, nil
-		},
-		"subtract": func(a, b int) int {
-			return a - b
-		},
-		"multiply": func(a, b int) int {
-			return a * b
-		},
-		"formatTime": func(t int64) string {
-			return time.Unix(t/1000, 0).Format("02.01.06 03:04 PM")
-		},
-	}
 )
 
 type View struct {
@@ -79,15 +45,7 @@ type Renderer interface {
 }
 
 type renderer struct {
-	ctx         context.Context
-	pathToViews string
-}
-
-var rootPath string
-
-func init() {
-	_, b, _, _ := runtime.Caller(0)
-	rootPath = filepath.Join(filepath.Dir(b), "../../../../..")
+	ctx context.Context
 }
 
 func (r *renderer) InjectInAdminView(res http.ResponseWriter, subView *bytes.Buffer) {
@@ -243,27 +201,27 @@ func (r *renderer) renderInAppFrame(template string) ([]byte, error) {
 func (r *renderer) Template(templates ...string) *template.Template {
 	templatePaths := make([]string, len(templates))
 	for i, templateName := range templates {
-		templatePaths[i] = fmt.Sprintf("%s/%s", r.pathToViews, templateName)
+		templatePaths[i] = fmt.Sprintf("%s/%s", views.Path, templateName)
 	}
 
 	return template.Must(template.New(strings.Join(templates, "_")).
-		Funcs(templateGlobFuncs).
-		Parse(util.Html(templatePaths...)))
+		Funcs(views.GlobFuncs).
+		Parse(views.Html(templatePaths...)))
 }
 
 func (r *renderer) TemplateString(templates ...string) string {
 	templatePaths := make([]string, len(templates))
 	for i, templateName := range templates {
-		templatePaths[i] = fmt.Sprintf("%s/%s", r.pathToViews, templateName)
+		templatePaths[i] = fmt.Sprintf("%s/%s", views.Path, templateName)
 	}
 
-	return util.Html(templatePaths...)
+	return views.Html(templatePaths...)
 }
 
 // Dir recursively walks directory and returns all go template files.
 func (r *renderer) TemplateFromDir(name string) *template.Template {
 	goTemplates := make([]string, 0)
-	rootPath := filepath.Join(r.pathToViews, name)
+	rootPath := filepath.Join(views.Path, name)
 	if err := filepath.WalkDir(rootPath, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -283,7 +241,6 @@ func (r *renderer) TemplateFromDir(name string) *template.Template {
 
 func New(ctx context.Context) (Renderer, error) {
 	return &renderer{
-		ctx:         ctx,
-		pathToViews: fmt.Sprintf("%s/internal/handler/controllers/views", rootPath),
+		ctx: ctx,
 	}, nil
 }

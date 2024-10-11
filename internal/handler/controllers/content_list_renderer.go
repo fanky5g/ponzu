@@ -49,7 +49,7 @@ func renderContentList(
 	}
 
 	buf := &bytes.Buffer{}
-	tableViewTmpl := r.Renderer().TemplateFromDir("datatable")
+	tableViewTmpl := r.Renderer().TemplateFromDir("templates/datatable")
 
 	currentPage := int(math.Ceil(float64(start-1)/float64(count)) + 1)
 	numberOfPages := int(math.Ceil(float64(total) / float64(count)))

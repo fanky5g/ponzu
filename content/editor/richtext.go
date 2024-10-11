@@ -11,9 +11,10 @@ import (
 // form of the struct field that this editor input is representing
 func Richtext(fieldName string, p interface{}, attrs map[string]string, args *FieldArgs) []byte {
 	// create wrapper for richtext editor, which isolates the editor's css
-	iso := []byte(`<div class="iso-texteditor input-field col s12"><label>` + attrs["label"] + `</label>`)
+	iso := []byte(`<div class="iso-texteditor control-block"><label>` + attrs["label"] + `</label>`)
 	isoClose := []byte(`</div>`)
 
+	name := TagNameFromStructField(fieldName, p, args)
 	if _, ok := attrs["class"]; ok {
 		attrs["class"] += "richtext " + fieldName
 	} else {
@@ -21,9 +22,9 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string, args *Fi
 	}
 
 	if _, ok := attrs["id"]; ok {
-		attrs["id"] += "richtext-" + fieldName
+		attrs["id"] += "richtext-" + name
 	} else {
-		attrs["id"] = "richtext-" + fieldName
+		attrs["id"] = "richtext-" + name
 	}
 
 	// create the target element for the editor to attach itself
@@ -38,7 +39,6 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string, args *Fi
 
 	// create a hidden input to store the value from the struct
 	val := ValueFromStructField(fieldName, p, args).(string)
-	name := TagNameFromStructField(fieldName, p, args)
 	input := `<input type="hidden" name="` + name + `" class="richtext-value ` + fieldName + `" value="` + html.EscapeString(val) + `"/>`
 
 	// build the dom tree for the entire richtext component
@@ -50,10 +50,10 @@ func Richtext(fieldName string, p interface{}, attrs map[string]string, args *Fi
 	scriptTmpl := makeScript("richtext")
 
 	if err := scriptTmpl.Execute(script, struct {
-		FieldName string
+		InputName string
 		Attrs     map[string]string
 	}{
-		FieldName: fieldName,
+		InputName: name,
 		Attrs:     attrs,
 	}); err != nil {
 		panic(err)

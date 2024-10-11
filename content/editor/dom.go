@@ -165,7 +165,7 @@ func DOMElement(e *Element) []byte {
 }
 
 func DOMElementWithChildrenSelect(e *Element, children []*Element) []byte {
-	_, err := e.ViewBuf.WriteString(`<div class="input-field col s6">`)
+	_, err := e.ViewBuf.WriteString(`<div class="control-block">`)
 	if err != nil {
 		log.Println("Error writing HTML string to buffer: DOMElementWithChildrenSelect")
 		return nil
