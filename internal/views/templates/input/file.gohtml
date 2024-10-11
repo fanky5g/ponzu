@@ -1,0 +1,137 @@
+<div class="file-input {{ .Name }} control-block">
+    <label class="active">{{ index .Attributes "label" }}</label>
+    <input class="storage" type="file">
+    <div class="control-block">
+        <button type="button" class="mdc-button" id="upload-trigger" aria-label="Select File">
+            <span class="mdc-button__ripple"></span>
+            <i class="material-icons mdc-button__icon" aria-hidden="true">cloud_upload</i>
+            <span class="mdc-button__label">Select File</span>
+        </button>
+    </div>
+    <div class="control-block selected-file"><span/></div>
+    <div class="preview">
+        <div class="img-clip"/>
+    </div>			
+    <input class="store {{ .Name }}" type="hidden" name="{{ .Name }}" value="{{ .Path }}" />
+</div>
+
+<script>
+    (function() {
+        const uploadTriggerButton = document.querySelector('#upload-trigger');
+        const fileInput = document.querySelector('input[type="file"].storage');
+        if (uploadTriggerButton && fileInput) {
+            uploadTriggerButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                const selectedFile = e.target.files?.[0];
+                document.querySelector('.selected-file span').innerHTML = selectedFile.name;
+            });
+        }
+    })();
+
+    $(function() {
+        var $file = $('.file-input.{{ .Name }}'),
+            storage = $file.find('input.storage'),
+            store = $file.find('input.store'),
+            preview = $file.find('.preview'),
+            clip = preview.find('.img-clip'),
+            reset = document.createElement('div'),
+            img = document.createElement('img'),
+            video = document.createElement('video'),
+            unknown = document.createElement('div'),
+            viewLink = document.createElement('a'),
+            viewLinkText = document.createTextNode('Open in New Tab'),
+            iconLaunch = document.createElement('i'),
+            iconLaunchText = document.createTextNode('launch')
+            relativePath = {{ .RelativePath }}
+            path = {{ .Path }};
+            video.setAttribute
+            preview.hide();
+            viewLink.setAttribute('href', '{{ .RelativePath }}');
+            viewLink.setAttribute('target', '_blank');
+            viewLink.appendChild(viewLinkText);
+            viewLink.style.display = 'block';
+            viewLink.style.marginRight = '10px';					
+            viewLink.style.textAlign = 'right';
+            iconLaunch.className = 'material-icons tiny';
+            iconLaunch.style.position = 'relative';
+            iconLaunch.style.top = '3px';
+            iconLaunch.appendChild(iconLaunchText);
+            viewLink.appendChild(iconLaunch);
+            preview.append(viewLink);
+
+        storage.on('change', function(e) {
+            resetImage();
+        });
+
+
+        if (path.length > 0) {
+            var ext = path.substring(path.lastIndexOf('.'));
+            ext = ext.toLowerCase();
+            switch (ext) {
+                case '.jpg':
+                case '.jpeg':
+                case '.webp':
+                case '.gif':
+                case '.png':
+                    $(img).attr('src', relativePath); 
+                    clip.append(img);
+                    break;
+                case '.mp4':
+                case '.webm':
+                    $(video)
+                        .attr('src', relativePath) 
+                        .attr('type', 'video/'+ext.substring(1))
+                        .attr('controls', true)
+                        .css('width', '100%');
+                    clip.append(video);
+                    break;
+                default:
+                    $(img).attr('src', '/static/dashboard/img/ponzu-file.png');
+                    $(unknown)
+                        .css({
+                            position: 'absolute', 
+                            top: '10px', 
+                            left: '10px',
+                            border: 'solid 1px #ddd',
+                            padding: '7px 7px 5px 12px',
+                            fontWeight: 'bold',
+                            background: '#888',
+                            color: '#fff',
+                            textTransform: 'uppercase',
+                            letterSpacing: '2px' 
+                        })
+                        .text(ext);
+                    clip.append(img);
+                    clip.append(unknown);
+                    clip.css('maxWidth', '200px');
+            }
+            preview.show();
+
+            $(reset).addClass('reset {{ .Name }} btn waves-effect waves-light grey');
+            $(reset).html('<i class="material-icons tiny">clear<i>');
+            $(reset).on('click', function(e) {
+                e.preventDefault();
+                preview.animate({"opacity": 0.1}, 200, function() {
+                    preview.slideUp(250, function() {
+                        resetImage();
+                    });
+                })
+                
+            });
+            clip.append(reset);
+        }
+
+        function resetImage() {
+            store.val('');
+            store.attr('name', '');
+            storage.attr('name', '{{ .Name }}');
+            preview.hide();
+            $('.file-attributes').hide();
+            clip.empty();
+        }
+    });	
+</script>
