@@ -653,7 +653,7 @@ div.col.s6:has(select.block-select) {
 }
 
 .file-attributes .mdc-list .mdc-list-item {
-    padding-bottom: 16px;
+  padding-bottom: 16px;
 }
 
 .file-attributes .mdc-list .mdc-list-item__secondary-text {

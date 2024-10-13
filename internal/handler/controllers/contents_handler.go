@@ -6,6 +6,7 @@ import (
 	"github.com/fanky5g/ponzu/content/editor"
 
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/tokens"
@@ -51,8 +52,18 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		renderContentList(r, res, t, search, pt, func() ([]interface{}, int, error) {
+		contentLoader := func() ([]interface{}, int, error) {
 			return contentService.GetAllWithOptions(t, search)
-		})
+		}
+
+		tableParams, err := table.New(t, pt, search, contentLoader)
+		if err != nil {
+			log.WithField("Error", err).Warning("Failed to build table params")
+			r.Renderer().InternalServerError(res)
+			return
+
+		}
+
+		r.Renderer().TableView(res, "templates/datatable", tableParams)
 	}
 }

@@ -1,11 +1,11 @@
-{{ define "search-bar" }}
+{{ define "uploads-search-bar" }}
 <div class="search-bar">
     <div class="search-bar-inner search-bar-inner-shadow">
         <span class="search-icon-wrapper">
             <i class="material-icons">search</i>
         </span>
         <div class="search-input-wrapper flex">
-            <form action="{{ .PublicPath }}/contents/search" method="get">
+            <form action="{{ .PublicPath }}/uploads/search" method="get">
                 <input type="hidden" name="type" value="{{ .TypeName }}" />
                 <input
                     name="q"

@@ -18,7 +18,7 @@ type service struct {
 type Service interface {
 	GetAllWithOptions(search *entities.Search) (int, []*entities.FileUpload, error)
 	GetFileUpload(target string) (*entities.FileUpload, error)
-	DeleteFile(target string) error
+	DeleteFile(target ...string) error
 	StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error)
 	driver.StaticFileSystemInterface
 }

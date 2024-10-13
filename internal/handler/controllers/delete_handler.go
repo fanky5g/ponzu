@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"net/http"
-	"strings"
 
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/tokens"
@@ -19,37 +19,25 @@ func NewDeleteHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		selectedItems, err := request.GetSelectedItems(req)
 		if err != nil {
-			log.WithField("Error", err).Warning("Failed to parse form")
+			log.WithField("Error", err).Warning("Failed to parse request")
 			r.Renderer().InternalServerError(res)
-			return
 		}
 
-		ids := make([]string, 0)
-
-		idParam := strings.TrimSpace(req.FormValue("id"))
-		idsParam := strings.TrimSpace(req.FormValue("ids"))
-		if idParam != "" {
-			ids = append(ids, idParam)
-		} else if idsParam != "" {
-			idsToDelete := strings.FieldsFunc(idsParam, func(c rune) bool {
-				return c == ','
-			})
-
-			for _, idToDelete := range idsToDelete {
-				ids = append(ids, strings.TrimSpace(idToDelete))
-			}
-		}
-
-		t := req.FormValue("type")
-
-		if len(ids) == 0 || t == "" {
+		if len(selectedItems) == 0 {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		err = contentService.DeleteContent(t, ids...)
+		t := req.FormValue("type")
+
+		if len(selectedItems) == 0 || t == "" {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err = contentService.DeleteContent(t, selectedItems...)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to delete content")
 			r.Renderer().InternalServerError(res)

@@ -1,14 +1,16 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
@@ -20,15 +22,13 @@ func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
+		selectedItems, err := request.GetSelectedItems(req)
 		if err != nil {
-			log.WithField("Error", err).Warning("Failed to parse form")
+			log.WithField("Error", err).Warning("Failed to parse request")
 			r.Renderer().InternalServerError(res)
-			return
 		}
 
-		id := req.FormValue("id")
-		if id == "" {
+		if len(selectedItems) == 0 {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -47,7 +47,7 @@ func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		err = storageService.DeleteFile(id)
+		err = storageService.DeleteFile(selectedItems...)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)

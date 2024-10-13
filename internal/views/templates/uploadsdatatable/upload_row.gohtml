@@ -1,4 +1,4 @@
-{{ define "table-row" }}
+{{ define "uploads-table-row" }}
 <tr data-row-id="{{ .Item.ItemID }}" class="mdc-data-table__row table-row"> 
   <td class="mdc-data-table__cell mdc-data-table__cell--checkbox col-checkbox">
     <div class="mdc-checkbox mdc-data-table__row-checkbox">
@@ -17,10 +17,12 @@
     {{ if eq $name "" }}
         {{ $name = .Item.ItemID }}
     {{ end }}
-    <a class="link" title="{{ $name }}" href="{{ .PublicPath }}/edit?type={{ .TypeName }}&id={{ .Item.ItemID }}">
+    <a class="link" title="{{ $name }}" href="{{ .PublicPath }}/edit/upload?type={{ .TypeName }}&id={{ .Item.ItemID }}">
         {{ $name }}
     </a>
   </td>
+  <td class="mdc-data-table__cell">{{ .Item.ContentType }}</td>
+  <td class="mdc-data-table__cell">{{ FmtBytes .Item.ContentLength }}</td>
   <td class="mdc-data-table__cell">{{ FmtTime .Item.Time }}</td>
   <td class="mdc-data-table__cell">{{ FmtTime .Item.Touch }}</td>
 </tr>

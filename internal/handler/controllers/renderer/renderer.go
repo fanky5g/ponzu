@@ -12,6 +12,7 @@ import (
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/manager"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
 	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/views"
@@ -42,6 +43,7 @@ type Renderer interface {
 	Template(templates ...string) *template.Template
 	TemplateString(templates ...string) string
 	TemplateFromDir(name string) *template.Template
+	TableView(w http.ResponseWriter, templateName string, params *table.Table)
 }
 
 type renderer struct {

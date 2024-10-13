@@ -1,0 +1,238 @@
+.table {
+  position: relative;
+}
+
+.flex {
+  display: flex;
+  flex: 1;
+  box-sizing: border-box;
+  --webkit-box-sizing: border-box;
+}
+
+.empty-text {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.654);
+  position: relative;
+  padding: 20px;
+}
+
+.table-toolbar {
+  background: #fff;
+  border-bottom: 1px solid #d3d3d3;
+  max-height: 56px;
+  min-height: 0;
+  --webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.title {
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: 0.005em;
+}
+
+.mdc-top-app-bar.table-toolbar {
+  position: relative !important;
+}
+
+.table-toolbar .actions {
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.table-toolbar .actions button {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  margin: 0 8px;
+}
+
+.table-toolbar .actions button > span {
+  white-space: nowrap;
+}
+
+.table-toolbar .actions.left-margin {
+  margin-left: 56px;
+}
+
+.table-toolbar .actions .actions-inner {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar {
+  max-width: 512px;
+  margin: 0 auto;
+  width: 100%;
+  z-index: 1;
+}
+
+.search-bar .search-bar-inner {
+  display: flex;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 2px;
+  cursor: text;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.search-bar .search-bar-inner.open {
+  background: #fff;
+}
+
+.search-bar .search-bar-inner.open .search-icon-wrapper {
+  color: #555;
+}
+
+.search-bar .search-bar-inner.search-bar-inner-shadow {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 1px 2px 0 rgba(0, 0, 0, 0.07),
+    0 2px 1px -2px rgba(0, 0, 0, 0.1),
+    0 1px 5px 0 rgba(0, 0, 0, 0.06);
+}
+
+.search-bar .search-icon-wrapper {
+  margin: 0 8px;
+  vertical-align: baseline;
+  line-height: 36px;
+}
+
+.search-bar .search-bar-inner .search-input-wrapper {
+  display: flex;
+  height: 36px;
+  background: none;
+  align-items: center;
+  overflow: auto;
+}
+
+.search-bar .flex {
+  --webkit-box-flex: 1;
+  --webkit-flex: 1;
+  flex: 1;
+  --webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.search-bar .search-input {
+  height: 36px;
+  line-height: 36px;
+  font-size: 15px;
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+  margin-right: 16px;
+}
+
+.search-icon-wrapper .material-icons {
+  line-height: 36px;
+  font-size: 24px;
+}
+
+tr.table-row {
+  min-height: 40px;
+  height: 0;
+  font-size: 0.925rem;
+}
+
+.mdc-data-table__cell {
+  font-size: 14px;
+  line-height: 21px;
+}
+
+tr.table-row td:first-child.col-checkbox {
+  padding-top: 6px;
+}
+
+tr.table-row .col-checkbox + td {
+  padding-left: 4px;
+  width: 280px;
+}
+
+tr.table-row td:first-child {
+  padding-left: 8px;
+}
+
+tr.table-row td {
+  color: rgba(0, 0, 0, 0.654);
+  padding: 7px 0 8px 0;
+  border-bottom: 1.1px solid rgba(0, 0, 0, 0.08);
+}
+
+tr.table-row td:not(:first-child) {
+  padding-left: 24px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.col-checkbox {
+  padding-bottom: 0;
+  padding-right: 8px;
+  width: 12px;
+  padding-top: 4px;
+}
+
+tr.table-row .link {
+  cursor: pointer;
+  text-decoration: none;
+  padding-bottom: 1px;
+  color: rgba(0, 0, 0, 0.987);
+  font-weight: normal;
+  max-width: 256px;
+  text-overflow: ellipsis;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+tr.table-row .link:hover {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
+.table-content {
+  padding: 4px 24px;
+  min-height: 0;
+  margin: 0 0 20px;
+}
+
+thead.table-head th:first-child.col-checkbox {
+  padding-top: 1px;
+}
+
+thead.table-head .col-checkbox + th {
+  padding-left: 4px;
+}
+
+thead.table-head th:first-child {
+  padding-left: 8px;
+}
+
+thead.table-head th {
+  vertical-align: middle;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 12px;
+  text-transform: inherit;
+  color: rgba(0, 0, 0, 0.654);
+  bottom: auto;
+  padding: 6.1px 0 5px;
+  border-bottom: 1.1px solid rgba(0, 0, 0, 0.16);
+}
+
+thead.table-head th:not(:first-child) {
+  padding-left: 24px;
+  white-space: nowrap;
+}

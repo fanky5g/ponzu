@@ -1,4 +1,4 @@
-{{ define "table-pagination" }}
+{{ define "uploads-table-pagination" }}
 <div class="mdc-data-table__pagination">
   <div class="mdc-data-table__pagination-trailing">
     <div class="mdc-data-table__pagination-rows-per-page">
@@ -57,7 +57,7 @@
         {{ .CurrentItemStart }}‑{{ .CurrentItemEnd }} of {{ .TotalItemCount }}
       </div>
 
-      <form action="{{ .PublicPath }}/contents" method="get">
+      <form action="{{ .PublicPath }}/uploads" method="get">
           <input type="hidden" name="type" value="{{ .TypeName }}" />
           <input type="hidden" name="order" value="{{ .SortOrder }}" />
           <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
@@ -70,7 +70,7 @@
           </button>
       </form>
 
-      <form action="{{ .PublicPath }}/contents" method="get">
+      <form action="{{ .PublicPath }}/uploads" method="get">
           <input type="hidden" name="type" value="{{ .TypeName }}" />
           <input type="hidden" name="order" value="{{ .SortOrder }}" />
           <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
@@ -84,7 +84,7 @@
           </button>
       </form>
 
-      <form action="{{ .PublicPath }}/contents" method="get">
+      <form action="{{ .PublicPath }}/uploads" method="get">
           <input type="hidden" name="type" value="{{ .TypeName }}" />
           <input type="hidden" name="order" value="{{ .SortOrder }}" />
           <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
@@ -98,7 +98,7 @@
           </button>
       </form>
 
-      <form action="{{ .PublicPath }}/contents" method="get">
+      <form action="{{ .PublicPath }}/uploads" method="get">
           <input type="hidden" name="type" value="{{ .TypeName }}" />
           <input type="hidden" name="order" value="{{ .SortOrder }}" />
           <input type="hidden" name="count" value="{{ .RowsPerPage }}" />

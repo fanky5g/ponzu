@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/search"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func NewSearchHandler(r router.Router) http.HandlerFunc {
@@ -34,7 +36,7 @@ func NewSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		contentTypeConstructor, ok := r.Context().Types().Content[t]
+		pt, ok := r.Context().Types().Content[t]
 		if !ok {
 			r.Redirect(req, res, "/admin")
 			return
@@ -47,13 +49,24 @@ func NewSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		renderContentList(r, res, t, search, contentTypeConstructor(), func() ([]interface{}, int, error) {
+		searchResultsLoader := func() ([]interface{}, int, error) {
 			return searchService.Search(
-				contentTypeConstructor(),
+				pt(),
+				// TODO: refactor search service to accept only one searchRequest argument
 				searchRequest.Query,
 				searchRequest.Count,
 				searchRequest.Offset,
 			)
-		})
+		}
+
+		params, err := table.New(t, pt, search, searchResultsLoader)
+		if err != nil {
+			log.WithField("Error", err).Warning("Failed to build table params")
+			r.Renderer().InternalServerError(res)
+			return
+
+		}
+
+		r.Renderer().TableView(res, "templates/datatable", params)
 	}
 }
