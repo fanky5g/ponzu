@@ -1,67 +1,147 @@
-<div class="card">
-    <div class="card-content">
-        <div class="card-title">Edit your account:</div>
-
-        <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users/edit" method="post">
-            <div class="col s9">
-                <label class="active">Email Address</label>
-                <input type="email" name="email" value="{{ .Data.User.Email }}"/>
+<form class="form-view-root" enctype="multipart/form-data" novalidate action="{{ .PublicPath }}/configure/users/edit" method="post">
+    <div class="form-view-content">
+        <div class="editor-content editor-content--active">
+            <h5 class="form-title">Edit your account</h5>
+            <div class="control-block">
+                <label class="mdc-text-field mdc-text-field--filled">
+                    <span class="mdc-text-field__ripple"></span>
+                    <span class="mdc-floating-label" id="email">Email Address</span>
+                    <input
+                        class="mdc-text-field__input"
+                        type="email"
+                        name="email"
+                        value={{ .Data.GetUserByEmail.Email }}
+                        aria-labelledby="email"
+                    />
+                    <span class="mdc-line-ripple"></span>
+                </label>
             </div>
 
-            <div class="col s9">
-                <div>To approve changes, enter your password:</div>
-
-                <label class="active">Current Password</label>
-                <input type="password" name="password"/>
+            <div class="control-block">
+                <div class="help-block">To approve changes, enter your password</div>
+                <label class="mdc-text-field mdc-text-field--filled">
+                    <span class="mdc-text-field__ripple"></span>
+                    <span class="mdc-floating-label" id="password">Current Password</span>
+                    <input
+                        class="mdc-text-field__input"
+                        type="password"
+                        name="password"
+                        aria-labelledby="password"
+                    />
+                    <span class="mdc-line-ripple"></span>
+                </label>
             </div>
 
-            <div class="col s9">
-                <label class="active">New Password: (leave blank if no password change needed)</label>
-                <input name="new_password" type="password"/>
+            <div class="control-block">
+                <label class="mdc-text-field mdc-text-field--filled">
+                    <span class="mdc-text-field__ripple"></span>
+                    <span class="mdc-floating-label" id="new_password">
+                        New Password: (leave blank if no password change needed)
+                    </span>
+                    <input
+                        class="mdc-text-field__input"
+                        type="password"
+                        name="new_password"
+                        aria-labelledby="new_password"
+                    />
+                    <span class="mdc-line-ripple"></span>
+                </label>
             </div>
-
-            <div class="col s9">
-                <button class="btn waves-effect waves-light green right" type="submit">Save</button>
-            </div>
-        </form>
-
-        <div class="card-title">Add a new user:</div>
-        <form class="row" enctype="multipart/form-data" action="{{ .PublicPath }}/configure/users" method="post">
-            <div class="col s9">
-                <label class="active">Email Address</label>
-                <input type="email" name="email" value=""/>
-            </div>
-
-            <div class="col s9">
-                <label class="active">Password</label>
-                <input type="password" name="password"/>
-            </div>
-
-            <div class="col s9">
-                <button class="btn waves-effect waves-light green right" type="submit">Add User</button>
-            </div>
-        </form>
-        {{ $numberOfUsers := len .Data.Users }}{{ if gt $numberOfUsers 0 }}
-            <div class="card-title">Remove Admin Users</div>
-            <ul class="users row">
-                {{ range .Data.Users }}
-                    <li class="col s9">
-                        {{ .Email }}
-                        <form enctype="multipart/form-data" class="delete-user __ponzu right" action="{{ .PublicPath }}/configure/users/delete" method="post">
-                            <span>Delete</span>
-                            <input type="hidden" name="email" value="{{ .Email }}"/>
-                            <input type="hidden" name="id" value="{{ .ID }}"/>
-                        </form>
-                    </li>
-                {{ end }}
-            </ul>
-        {{ end }}
+        </div>
     </div>
+    <hr class="divider" />
+    <div class="form-view-footer">
+        <div class="form-view-buttons">
+            <button type="submit" class="mdc-button mdc-button--raised">
+              <span class="mdc-button__label">Save</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+
+<form class="form-view-root" enctype="multipart/form-data" novalidate action="{{ .PublicPath }}/configure/users" method="post">
+    <div class="form-view-content">
+        <div class="editor-content editor-content--active">
+            <h5 class="form-title">Add a new user</h5>
+            <div class="control-block">
+                <label class="mdc-text-field mdc-text-field--filled">
+                    <span class="mdc-text-field__ripple"></span>
+                    <span class="mdc-floating-label" id="email">Email Address</span>
+                    <input
+                        class="mdc-text-field__input"
+                        type="email"
+                        name="email"
+                        aria-labelledby="email"
+                    />
+                    <span class="mdc-line-ripple"></span>
+                </label>
+            </div>
+
+            <div class="control-block">
+                <label class="mdc-text-field mdc-text-field--filled">
+                    <span class="mdc-text-field__ripple"></span>
+                    <span class="mdc-floating-label" id="password">Password</span>
+                    <input
+                        class="mdc-text-field__input"
+                        type="password"
+                        name="password"
+                        aria-labelledby="password"
+                    />
+                    <span class="mdc-line-ripple"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <hr class="divider" />
+    <div class="form-view-footer">
+        <div class="form-view-buttons">
+            <button type="submit" class="mdc-button mdc-button--raised">
+              <span class="mdc-button__label">Add User</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+{{ $numberOfUsers := len .Data.Users }}
+{{ if gt $numberOfUsers 0 }}
+<div class="users">
+    <h5 class="heading">Remove Admin Users</h5>
+    <ul class="mdc-list">
+        {{ range .Data.Users }}
+            <li class="mdc-list-item user" tabindex="0">
+                <span class="mdc-list-item__ripple"></span>
+                <span class="mdc-list-item__text">{{ .Email }}</span>
+                <form
+                    enctype="multipart/form-data"
+                    class="delete-user __ponzu right"
+                    action="{{ $.PublicPath }}/configure/users/delete"
+                    method="post">
+                     <button type="submit" tabindex="-1" class="mdc-button mdc-button--outlined">
+                       <span class="mdc-button__ripple"></span>
+                       <span class="mdc-button__label">Delete</span>
+                    </button>
+                    <input type="hidden" name="email" value="{{ .Email }}"/>
+                    <input type="hidden" name="id" value="{{ .ID }}"/>
+                </form>
+            </li>
+        {{ end }}
+    </ul>
 </div>
+{{ end }}
+
 <script>
+    (function() {
+        const inputElements = document.querySelectorAll('.form-view-root .mdc-text-field');
+        for (let i = 0; i < inputElements.length; i++) {
+            const mdcInput = new mdc.textField.MDCTextField(inputElements[i]);
+        }
+    })();
+
     $(function() {
         var del = $('.delete-user.__ponzu span');
         del.on('click', function(e) {
+            e.preventDefault();
             if (confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete this user?\nThis cannot be undone.")) {
                 $(e.target).parent().submit();
             }

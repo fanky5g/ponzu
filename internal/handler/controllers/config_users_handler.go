@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
@@ -8,8 +11,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"strings"
 )
 
 func NewConfigUsersHandler(r router.Router) http.HandlerFunc {

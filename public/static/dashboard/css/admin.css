@@ -50,7 +50,8 @@ fieldset {
 
 fieldset,
 legend,
-p {
+p,
+h5 {
   margin: 0;
   padding: 0;
 }
@@ -397,26 +398,6 @@ span.post-detail {
   font-style: italic;
 }
 
-.quick-delete-post,
-.delete-user {
-  display: none;
-}
-
-li:hover .quick-delete-post,
-li:hover .delete-user {
-  display: inline-block;
-}
-
-.quick-delete-post span,
-.delete-user span {
-  cursor: pointer;
-  color: #f44336;
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: bold;
-  margin-right: 20px;
-}
-
 .controls button {
   padding: 0px 10px 5px 10px;
   position: relative;
@@ -522,7 +503,8 @@ div.col.s6:has(select.block-select) {
 }
 
 .form-view-root,
-.form-view-content {
+.form-view-content,
+.users {
   max-width: 100% !important;
   padding: 8px 16px;
 }
@@ -560,10 +542,11 @@ div.col.s6:has(select.block-select) {
   justify-content: flex-end;
   flex-direction: row;
   gap: 16px;
+  padding: 0 32px;
 }
 
 .form-view-content .editor-content {
-  padding-top: 0 16px;
+  padding: 0 16px;
   display: none;
 }
 
@@ -585,7 +568,8 @@ div.col.s6:has(select.block-select) {
 
 @media screen and (min-width: 1024px) {
   .form-view-root,
-  .form-view-content {
+  .form-view-content,
+  .users {
     max-width: 768px !important;
   }
 }
@@ -639,4 +623,40 @@ div.col.s6:has(select.block-select) {
 .file-input.control-block button {
   align-self: flex-start;
   font-size: 12px;
+}
+
+h5.form-title, h5.heading {
+  color: #263238;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.05px;
+}
+
+.help-block {
+  display: block;
+  margin-top: 5px;
+  font-weight: 400;
+  color: #625471;
+  font-size: 90%;
+  margin-bottom: 0;
+}
+
+form + form {
+    margin-top: 40px;
+}
+
+.users {
+    margin-top: 40px;
+    padding: 0 40px;
+}
+
+.user {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    display: flex;
+}
+
+.user > span:last-of-type {
+    flex: 1;
 }
