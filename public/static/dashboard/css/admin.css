@@ -294,11 +294,6 @@ p {
   flex-direction: column;
 }
 
-.init {
-  float: none !important;
-  margin: auto !important;
-}
-
 .manager {
   margin-bottom: 2%;
 }
@@ -320,20 +315,6 @@ p {
   padding: 0px !important;
 }
 
-.post-search .search {
-  margin: 0px !important;
-}
-
-.post-search .search-icon {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-}
-
-.post-search {
-  position: relative;
-}
-
 li a {
   transition: color 0.3s ease;
 }
@@ -341,11 +322,6 @@ li a {
 li a:hover {
   color: #333;
   transition: color 0.3s ease;
-}
-
-a.new-post,
-a.export-post {
-  margin: 0.5rem 0 1rem 0.75rem;
 }
 
 textarea {

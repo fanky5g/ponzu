@@ -1,0 +1,150 @@
+.login-root {
+    zoom: 1;
+    padding: 30px 0 0;
+    width: 100%;
+    position: relative;
+}
+
+.login-container {
+    margin-right: auto;
+    margin-left: auto;
+    position: relative;
+    padding-left: 30px;
+    padding-right: 30px;
+    width: 100%;
+    padding-top: 15%;
+    max-width: 540px;
+}
+
+.login-container:before {
+    content: '';
+    display: table;
+}
+
+.login-container:after {
+    clear: both;
+    content: '';
+    display: table;
+}
+
+.box {
+    border: 0;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.1);
+    border-radius: 4px;
+    display: flex;
+    width: 100%;
+    background: #FFF;
+    margin: 0 0 20px;
+}
+
+.box-modal {
+    box-shadow: 0 1px 12px rgba(0,0,0,.15);
+    border-color: #cbc3d3;
+}
+
+.with-padding {
+    padding: 20px 30px 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.control-label {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.required-field:after {
+    margin-left: 10px;
+    vertical-align: bottom;
+    content: "required";
+    font-size: 12px;
+    color: #333;
+    text-transform: uppercase;
+}
+
+.asterisk-field {
+    display: none;
+}
+
+.controls {
+    margin-top: 8px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.controls input {
+    font-size: 14px;
+}
+
+.controls > * + * {
+    margin-top: 16px;
+}
+
+.form-actions {
+    border-top: 1px solid #e9ebec;
+    background: none;
+    margin: 20px 0 0;
+    padding: 20px 0;
+}
+
+.btn-wrapper {
+    margin: 8px;
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.auth-sidebar {
+    padding-top: 20px;
+    width: 60px;
+    background: '';
+    box-shadow: 0 2px 0 0 rgba(0,0,0,.1);
+    border-radius: 4px 0 0 4px;
+    margin-top: -1;
+    margin-bottom: -1;
+    text-align: center;
+}
+
+.auth-sidebar a {
+    color: #FFF;
+    font-size: 22px;
+    line-height: 1.5;
+}
+
+.header-icon img {
+    width: 40px;
+    height: auto;
+}
+
+.org-login {
+    flex: 1;
+}
+
+.org-login h3 {
+    font-size: 24px;
+    margin: 0 0 20px;
+    line-height: 1.2;
+}
+
+.auth-container {
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.background {
+    background: #f2f1f3;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    opacity: .7;
+}
