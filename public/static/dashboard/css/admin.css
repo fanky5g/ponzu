@@ -51,6 +51,7 @@ fieldset {
 fieldset,
 legend,
 p,
+h4,
 h5 {
   margin: 0;
   padding: 0;
@@ -642,7 +643,7 @@ h5.form-title, h5.heading {
   margin-bottom: 0;
 }
 
-form + form {
+form.form-view-root + form.form-view-root {
     margin-top: 40px;
 }
 
@@ -659,4 +660,41 @@ form + form {
 
 .user > span:last-of-type {
     flex: 1;
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.error-page-root {
+    padding: 24px;
+    padding-top: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    background: #FFF;
+}
+
+.error-page-root .error-image-container {
+    margin-top: 48px;
+    display: flex;
+    justify-content: center;
+}
+
+.error-page-root .error-image {
+    max-width: 100%;
+    width: 560px;
+    max-height: 300px;
+    height: auto;
+}
+
+.error-page-root .error-content {
+    margin-top: 48px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.align-center {
+    align-self: center;
 }

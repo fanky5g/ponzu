@@ -62,7 +62,7 @@ const rowsPerPageSelect = document.querySelector(
 );
 
 (function() {
-    const items = document.querySelectorAll('.table tr.table-row');
+    const items = document.querySelectorAll(".table tr.table-row");
     const hasItems = items?.length > 0;
     const tableView = document.querySelector(".mdc-data-table");
 
@@ -76,12 +76,9 @@ const rowsPerPageSelect = document.querySelector(
             triggerActions([]);
         });
 
-        window.addEventListener(
-            "MDCDataTable:rowSelectionChanged",
-            function() {
-                triggerActions(dataTable.getSelectedRowIds());
-            },
-        );
+        window.addEventListener("MDCDataTable:rowSelectionChanged", function() {
+            triggerActions(dataTable.getSelectedRowIds());
+        });
     }
 
     const rowsPerPageList = document.querySelector(

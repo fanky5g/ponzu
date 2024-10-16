@@ -1,59 +1,4 @@
 {{ define "table-toolbar" }}
-
-<style>
-.table-toolbar {
-    background: #fff;
-    border-bottom: 1px solid #d3d3d3;
-    max-height: 56px;
-    min-height: 0;
-    --webkit-box-sizing: content-box;
-    box-sizing: content-box;
-    color: rgba(0,0,0,0.87);
-}
-
-.title {
-    font-weight: 400;
-    font-size: 18px;
-    line-height: 20px;
-    letter-spacing: .005em;
-}
-
-.mdc-top-app-bar.table-toolbar {
-    position: relative!important;
-}
-
-.table-toolbar .actions {
-    flex: 1;
-    justify-content: flex-end;
-    min-width: 1px;
-    display: flex;
-    align-items: center;
-}
-
-.table-toolbar .actions button {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 18px;
-    height: 32px;
-    min-height: 32px;
-    padding: 0 10px;
-    margin: 0 8px;
-}
-
-.table-toolbar .actions button > span {
-    white-space: nowrap;
-}
-
-.table-toolbar .actions.left-margin {
-    margin-left: 56px;
-}
-
-.table-toolbar .actions .actions-inner {
-    display: flex;
-    align-items: center;
-}
-</style>
-
 <div class="mdc-top-app-bar table-toolbar"> 
   <div class="mdc-top-app-bar__row">
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
@@ -102,9 +47,4 @@
     </section>
   </div>
 </div>
-<script>
-    const deleteItems = (event) => {
-       return confirm("[Ponzu] Please confirm:\n\nAre you sure you want to delete selected items?\nThis cannot be undone")
-    };
-</script>
 {{ end }}

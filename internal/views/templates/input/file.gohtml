@@ -90,7 +90,7 @@
                     clip.append(video);
                     break;
                 default:
-                    $(img).attr('src', '/static/dashboard/img/ponzu-file.png');
+                    $(img).attr('src', '{{ .PublicPath }}/static/img/ponzu-file.png');
                     $(unknown)
                         .css({
                             position: 'absolute', 

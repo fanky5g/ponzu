@@ -26,11 +26,13 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 		Path         string
 		RelativePath string
 		Attributes   map[string]string
+		PublicPath   string
 	}{
 		Name:         name,
 		Path:         strings.TrimPrefix(value, publicPath),
 		RelativePath: value,
 		Attributes:   attrs,
+		PublicPath:   publicPath,
 	}
 	if err := views.ExecuteTemplate(w, "file.gohtml", file); err != nil {
 		panic(err)
