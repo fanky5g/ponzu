@@ -16,6 +16,14 @@
     max-width: 540px;
 }
 
+.init.login-root .login-container {
+    padding-top: 5%;
+}
+
+.account-recovery.login-root .login-container {
+    padding-top: 10%;
+}
+
 .login-container:before {
     content: '';
     display: table;
@@ -131,6 +139,11 @@
     font-size: 24px;
     margin: 0 0 20px;
     line-height: 1.2;
+}
+
+.org-login blockquote {
+    line-height: 1.2;
+    font-size: 13px;
 }
 
 .auth-container {

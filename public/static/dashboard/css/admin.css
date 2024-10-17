@@ -52,7 +52,8 @@ fieldset,
 legend,
 p,
 h4,
-h5 {
+h5,
+blockquote {
   margin: 0;
   padding: 0;
 }
@@ -626,12 +627,14 @@ div.col.s6:has(select.block-select) {
   font-size: 12px;
 }
 
-h5.form-title, h5.heading {
+h5.form-title,
+h5.heading {
   color: #263238;
   font-size: 16px;
   font-weight: 500;
   line-height: 20px;
   letter-spacing: -0.05px;
+  margin-bottom: 8px;
 }
 
 .help-block {
@@ -644,22 +647,22 @@ h5.form-title, h5.heading {
 }
 
 form.form-view-root + form.form-view-root {
-    margin-top: 40px;
+  margin-top: 40px;
 }
 
 .users {
-    margin-top: 40px;
-    padding: 0 40px;
+  margin-top: 40px;
+  padding: 0 40px;
 }
 
 .user {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    display: flex;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  display: flex;
 }
 
 .user > span:last-of-type {
-    flex: 1;
+  flex: 1;
 }
 
 .card-content {
@@ -667,34 +670,34 @@ form.form-view-root + form.form-view-root {
 }
 
 .error-page-root {
-    padding: 24px;
-    padding-top: 10vh;
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    background: #FFF;
+  padding: 24px;
+  padding-top: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  background: #fff;
 }
 
 .error-page-root .error-image-container {
-    margin-top: 48px;
-    display: flex;
-    justify-content: center;
+  margin-top: 48px;
+  display: flex;
+  justify-content: center;
 }
 
 .error-page-root .error-image {
-    max-width: 100%;
-    width: 560px;
-    max-height: 300px;
-    height: auto;
+  max-width: 100%;
+  width: 560px;
+  max-height: 300px;
+  height: auto;
 }
 
-.error-page-root .error-content {
-    margin-top: 48px;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
+error-page-root .error-content {
+  margin-top: 48px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .align-center {
-    align-self: center;
+  align-self: center;
 }
