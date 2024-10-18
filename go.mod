@@ -4,6 +4,7 @@ go 1.21.5
 
 require (
 	github.com/fanky5g/ponzu-driver-bleve v1.0.3
+	github.com/fanky5g/ponzu-driver-gcs v1.1.0
 	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
 	github.com/fanky5g/ponzu-driver-postgres v1.1.0
 	github.com/gofrs/uuid v4.4.0+incompatible
@@ -43,7 +44,6 @@ require (
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/fanky5g/ponzu-driver-gcs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
