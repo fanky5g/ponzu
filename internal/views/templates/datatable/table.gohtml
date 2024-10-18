@@ -1,0 +1,16 @@
+{{ $length := len .Items }}
+{{ $hasItems := gt $length 0 }}
+
+<link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/table.css" />
+<div class="mdc-data-table table flex">
+    {{ template "table-toolbar" . }}
+
+    {{ if $hasItems }}
+        {{ template "table-content" . }}
+        {{ template "table-pagination" . }}
+    {{ else}}
+        <p class="empty-text">No {{ .TypeName }} found</p>
+    {{ end }}
+</div>
+<script type="text/javascript" src="{{ .PublicPath }}/static/common/js/table.js"></script>
+

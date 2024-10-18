@@ -8,8 +8,8 @@ func Nested(fieldName string, p interface{}, args *FieldArgs, fields ...Field) [
 	}
 
 	tmpl := `
-		<fieldset class="col s12 ` + name + `" name="` + name + `">
-			<h6>` + name + `</h6>
+		<fieldset class="control-block ` + name + `" name="` + name + `">
+			<label>` + name + `</label>
 	`
 
 	for _, field := range fields {

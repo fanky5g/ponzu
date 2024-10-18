@@ -92,7 +92,7 @@ func (s *service) ExportCSV(entityName string) (*entities.ResponseStream, error)
 	var size int
 	var err error
 	// get entities data and loop through creating a csv row per result
-	size, data, err = s.GetAllWithOptions(entityName, &entities.Search{
+	data, size, err = s.GetAllWithOptions(entityName, &entities.Search{
 		SortOrder: constants.Descending,
 		Pagination: &entities.Pagination{
 			Count:  chunkSize,
@@ -119,7 +119,7 @@ func (s *service) ExportCSV(entityName string) (*entities.ResponseStream, error)
 		w:         w,
 		read:      len(data),
 		loadMore: func(offset int) ([]interface{}, error) {
-			_, d, e := s.GetAllWithOptions(entityName, &entities.Search{
+			d, _, e := s.GetAllWithOptions(entityName, &entities.Search{
 				SortOrder: constants.Descending,
 				Pagination: &entities.Pagination{
 					Count:  chunkSize,

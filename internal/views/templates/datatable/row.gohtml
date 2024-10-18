@@ -1,0 +1,27 @@
+{{ define "table-row" }}
+<tr data-row-id="{{ .Item.ItemID }}" class="mdc-data-table__row table-row"> 
+  <td class="mdc-data-table__cell mdc-data-table__cell--checkbox col-checkbox">
+    <div class="mdc-checkbox mdc-data-table__row-checkbox">
+      <input type="checkbox" class="mdc-checkbox__native-control" aria-labelledby="{{ .Item.ItemID }}"/>
+      <div class="mdc-checkbox__background">
+        <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+          <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+        </svg>
+        <div class="mdc-checkbox__mixedmark"></div>
+      </div>
+      <div class="mdc-checkbox__ripple"></div>
+    </div>
+  </td>
+  <td class="mdc-data-table__cell" scope="row" id="{{ .Item.ItemID }}">
+    {{ $name := .Item.GetTitle }}
+    {{ if eq $name "" }}
+        {{ $name = .Item.ItemID }}
+    {{ end }}
+    <a class="link" title="{{ $name }}" href="{{ .PublicPath }}/edit?type={{ .TypeName }}&id={{ .Item.ItemID }}">
+        {{ $name }}
+    </a>
+  </td>
+  <td class="mdc-data-table__cell">{{ FmtTime .Item.Time }}</td>
+  <td class="mdc-data-table__cell">{{ FmtTime .Item.Touch }}</td>
+</tr>
+{{ end }}

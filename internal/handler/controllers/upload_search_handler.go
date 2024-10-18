@@ -1,13 +1,12 @@
 package controllers
 
 import (
-	"bytes"
 	"net/http"
 
 	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/search"
 	"github.com/fanky5g/ponzu/tokens"
@@ -25,51 +24,26 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		// TODO: implement pagination using response size
-		matches, _, err := searchService.Search(new(entities.FileUpload), searchRequest.Query, searchRequest.Count, searchRequest.Offset)
+		search, err := request.MapSearchRequest(searchRequest)
 		if err != nil {
-			log.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
+			log.WithField("Error", err).Warning("Failed to map search request dto")
+			r.Renderer().BadRequest(res)
 			return
 		}
 
-		b := &bytes.Buffer{}
-
-		html := `<div class="col s9 card">
-					<div class="card-content">
-					<div class="row">
-					<div class="card-title col s7">Uploads Results</div>
-					<form class="col s4" action="{{ .PublicPath }}/uploads/search" method="get">
-						<div class="input-field post-search inline">
-							<label class="active">Find:</label>
-							<i class="right material-icons search-icon">search</i>
-							<input class="search" name="q" type="text" placeholder="Within all upload fields" class="search"/>
-							<input type="hidden" name="type" value="` + constants.UploadsEntityName + `" />
-						</div>
-                   </form>
-					</div>
-					<ul class="posts row">`
-
-		for i := range matches {
-			contentEntryTemplate := editor.BuildContentListEntryTemplate(matches[i].(editor.Editable), constants.UploadsEntityName)
-			_, err = b.Write([]byte(contentEntryTemplate))
-			if err != nil {
-				log.WithField("Error", err).Warning("Failed to write template")
-				r.Renderer().InternalServerError(res)
-				return
-			}
+		pt := new(entities.FileUpload)
+		uploadResultLoader := func() ([]interface{}, int, error) {
+			return searchService.Search(pt, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		}
 
-		_, err = b.WriteString(`</ul></div></div>`)
+		params, err := table.New(constants.UploadsEntityName, pt, search, uploadResultLoader)
 		if err != nil {
-			log.WithField("Error", err).Warning("Failed to write template")
+			log.WithField("Error", err).Warning("Failed to build table params")
 			r.Renderer().InternalServerError(res)
 			return
+
 		}
 
-		btn := `<div class="col s3"><a href="{{ .PublicPath }}/edit/upload" class="btn new-post waves-effect waves-light">New upload</a></div></div>`
-		html = html + b.String() + btn
-
-		r.Renderer().InjectTemplateInAdmin(res, html, nil)
+		r.Renderer().TableView(res, "templates/uploadsdatatable", params)
 	}
 }

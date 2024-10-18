@@ -1,0 +1,50 @@
+{{ define "table-toolbar" }}
+<div class="mdc-top-app-bar table-toolbar"> 
+  <div class="mdc-top-app-bar__row">
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+      <span class="mdc-top-app-bar__title title">{{ .TableName }}</span>
+
+      <div class="actions left-margin">
+         {{ template "search-bar" . }}
+         <div class="actions-inner">
+            <form action="{{ .PublicPath }}/edit" method="get">
+                <input type="hidden" name="type" value="{{ .TypeName }}" />
+                <button type="submit" class="mdc-button" aria-label="New {{ .TypeName }}">
+                    <span class="mdc-button__ripple"></span>
+                    <i class="material-icons mdc-button__icon" aria-hidden="true">add</i>
+                    <span class="mdc-button__label">New {{ .TypeName }}</span>
+              </button>
+            </form>
+
+            <form
+                enctype="multipart/form-data"
+                name="delete-item-form"
+                onsubmit="return deleteItems();" action="{{ .PublicPath }}/edit/delete" method="post">
+                <input type="hidden" name="type" value="{{ .TypeName }}" />
+                <input type="hidden" name="ids" value="" />
+                <button type="submit" name="delete-items" class="mdc-button" aria-label="Delete" disabled>
+                    <span class="mdc-button__ripple"></span>
+                    <i class="material-icons mdc-button__icon" aria-hidden="true">delete</i>
+                    <span class="mdc-button__label">Delete</span>
+                </button>
+            </form>
+
+            {{ if .CSVFormattable }}
+                <form action="{{ .PublicPath }}/contents/export" method="get">
+                    <input type="hidden" name="type" value="{{ .TypeName }}" />
+                    <input type="hidden" name="format" value="csv" />
+                    <button type="submit" name="csv-export" class="mdc-button" aria-label="CSV Export">
+                        <span class="mdc-button__ripple"></span>
+                        <i class="material-icons mdc-button__icon" aria-hidden="true">system_update_alt</i>
+                        <span class="mdc-button__label">CSV Export</span>
+                    </button>
+                </form>
+            {{ end }}
+        </div>
+      </div>
+    </section>
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+    </section>
+  </div>
+</div>
+{{ end }}

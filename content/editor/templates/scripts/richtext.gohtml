@@ -1,0 +1,20 @@
+<script>
+    $(function() {
+	    const hidden = $('input[name="{{ .InputName }}"]');
+        const richtextSelector = '#richtext-{{ .InputName }}'.replaceAll('.', '\\.');
+
+        const quill = new Quill(richtextSelector, {
+            theme: 'snow',
+            placeholder: '{{ index .Attrs "placeholder" }}',
+        });
+
+        if (hidden.val() !== "") {
+            const delta = quill.clipboard.convert({ html: hidden.val() });
+            quill.setContents(delta);
+		}
+
+        quill.on('text-change', () => {
+            hidden.val(replaceBadChars(quill.getSemanticHTML()));
+        });
+    });
+</script>

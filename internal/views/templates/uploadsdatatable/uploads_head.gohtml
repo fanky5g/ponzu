@@ -1,0 +1,51 @@
+{{ define "uploads-table-head" }}
+<thead class="table-head">
+    <tr class="mdc-data-table__header-row">
+      <th class="mdc-data-table__header-cell mdc-data-table__header-cell--checkbox col-checkbox" role="columnheader" scope="col">
+        <div class="mdc-checkbox mdc-data-table__header-row-checkbox mdc-checkbox--selected">
+          <input type="checkbox" class="mdc-checkbox__native-control" aria-label="Toggle all rows"/>
+          <div class="mdc-checkbox__background">
+            <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+              <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+            </svg>
+            <div class="mdc-checkbox__mixedmark"></div>
+          </div>
+          <div class="mdc-checkbox__ripple"></div>
+        </div>
+      </th>
+      <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Name</th>
+      <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Content Type</th>
+      <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Size</th>
+      <th
+        class="mdc-data-table__header-cell mdc-data-table__header-cell--with-sort"
+        role="columnheader"
+        scope="col"
+        data-column-id="timestamp">
+        <div class="mdc-data-table__header-cell-wrapper">
+            <div class="mdc-data-table__header-cell-label">Created</div>
+            <form action="{{ .PublicPath }}/uploads" method="get">
+                {{ $sortOrder := "desc" }}
+                {{ $sortIcon := "arrow_downward" }}
+                {{ if eq .SortOrder "desc" }}
+                    {{ $sortOrder = "asc" }}
+                    {{ $sortIcon = "arrow_upward" }}
+                {{ end }}
+                <input type="hidden" name="type" value="{{ .TypeName }}" />
+                <input type="hidden" name="order" value="{{ $sortOrder }}" />
+                <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+                <input type="hidden" name="offset" value="{{ subtract (subtract .CurrentItemStart .RowsPerPage) 1 }}" />
+                <button
+                    type="submit"
+                    class="mdc-icon-button material-icons mdc-data-table__sort-icon-button"
+                    aria-label="Sort by timestamp"
+                    aria-describedby="timestamp">
+                    {{ $sortIcon }}
+                </button>
+            </form>
+            <div class="mdc-data-table__sort-status-label" aria-hidden="true" id="timestamp"></div>
+        </div>
+      </th>
+      <th class="mdc-data-table__header-cell" role="columnheader" scope="col">Updated</th>
+    </tr>
+</thead>
+{{ end }}

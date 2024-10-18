@@ -9,9 +9,8 @@
         let templates = {};
 
         const getChildren = function() {
-            // TODO: add a better child selector
             const children = [];
-            const p = scope.find('fieldset.col.s12');
+            const p = scope.find('>fieldset.control-block');
             const scopeSelector = "{{ .Scope }}";
             for (let i = 0; i < p.length; i++) {
                 const el = p[i];
@@ -36,16 +35,15 @@
             }
         }
 
-        const onSelect = function(e) {
-            e.preventDefault();
-            activeBlock = e.target.value;
+        const onSelect = function(event) {
+            activeBlock = event.detail.value;
 
             const addButton = scope.find('button.add-block');
             addButton.prop('disabled', false);
         };
 
         const resetSelectBlock = function () {
-            const select = scope.find('select.{{ .BlockSelector }}');
+            const select = scope.find('.{{ .BlockSelector }}');
             if (select.length) {
                 select.val('');
             }
@@ -88,13 +86,14 @@
         }
 
         const createChildControls = function (elementIndex, blockType = activeBlock) {
-            const del = $('<button>-</button>');
-            del.addClass('repeater-del');
-            del.addClass('btn-flat waves-effect waves-red');
+            const del = $(`
+                <button class="mdc-icon-button material-symbols-rounded">
+                  <div class="mdc-icon-button__ripple"></div>
+                  remove
+                </button>
+            `);
 
-            const controls = $('<span></span>');
-            controls.addClass('controls');
-            controls.addClass('right');
+            const controls = $('<div class="repeater-del"></div>');
 
             // bind listeners to child's controls
             const deleteOperation = delRepeater.bind(this, elementIndex, blockType);
@@ -116,7 +115,7 @@
             const child = template.replace(new RegExp('{{ .PositionalPlaceholder }}', 'g'), i);
             const el = $('<div/>').html(child).contents();
 
-            const selectControl = $('.__ponzu-field-collection.{{ .Scope }} select.{{ .BlockSelector }}').parent();
+            const selectControl = $('.__ponzu-field-collection.{{ .Scope }} .{{ .BlockSelector }}').parent();
             if (selectControl.length) {
                 el.insertBefore(selectControl);
             } else {
@@ -132,22 +131,20 @@
         }
 
         const createSelectorControls = function() {
-            const container = $('<div></div>');
-            container.addClass('selector');
-            container.addClass('controls');
+            const container = $('<div class="selector"></div>');
 
-            const add = $('<button disabled>Add</button>');
-            add.addClass('add-block');
-            add.addClass('right waves-effect waves-light btn green');
+            const addButton = $(`
+                <button class="mdc-icon-button material-symbols-rounded" disabled>
+                  <div class="mdc-icon-button__ripple"></div>
+                  add_row_above
+                </button>
+            `);
+            addButton.addClass('add-block');
 
-            const controls = $('<span></span>');
-            controls.addClass('right');
-
-            add.on('click', function (e) {
+            addButton.on('click', function (e) {
                 addBlock(e, n);
             });
-            controls.append(add);
-            container.append(controls);
+            container.append(addButton);
 
             return container;
         }
@@ -161,9 +158,10 @@
                 $(el).append(controls);
             }
 
-            const select = scope.find('select.{{ .BlockSelector }}');
+            const select = scope.find('.{{ .BlockSelector }}');
             if (select.length) {
-                select.on("change", onSelect);
+                const mdcSelect = new mdc.select.MDCSelect(select[0]);
+                mdcSelect.listen('MDCSelect:change', onSelect);
                 const selectorControls = createSelectorControls();
                 selectorControls.insertAfter(select);
             }

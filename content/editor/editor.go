@@ -5,11 +5,12 @@ package editor
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/util"
 	"html/template"
 	"path/filepath"
 	"runtime"
+
+	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/internal/views"
 )
 
 var pathToTemplates string
@@ -46,11 +47,11 @@ type FieldArgs struct {
 }
 
 func makeScript(name string) *template.Template {
-	templateString := util.Html(fmt.Sprintf("%s/scripts/%s", pathToTemplates, name))
+	templateString := views.Html(fmt.Sprintf("%s/scripts/%s", pathToTemplates, name))
 
 	return template.Must(template.New(name).Parse(templateString))
 }
 
 func makeHtml(name string) string {
-	return util.Html(fmt.Sprintf("%s/html/%s", pathToTemplates, name))
+	return views.Html(fmt.Sprintf("%s/html/%s", pathToTemplates, name))
 }

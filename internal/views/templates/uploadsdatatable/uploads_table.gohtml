@@ -1,0 +1,14 @@
+{{ $length := len .Items }}
+{{ $hasItems := gt $length 0 }}
+<link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/table.css" />
+<div class="mdc-data-table table flex">
+    {{ template "uploads-table-toolbar" . }}
+
+    {{ if $hasItems }}
+        {{ template "uploads-table-content" . }}
+        {{ template "uploads-table-pagination" . }}
+    {{ else}}
+        <p class="empty-text">No uploads found</p>
+    {{ end }}
+</div>
+<script type="text/javascript" src="{{ .PublicPath }}/static/common/js/table.js"></script>

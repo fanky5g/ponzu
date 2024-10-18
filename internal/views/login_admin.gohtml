@@ -1,0 +1,69 @@
+<link rel="stylesheet" href="{{ .PublicPath }}/static/css/login.css" />
+<div class="login-root">
+  <div class="login-container">
+    <div class="login-content">
+      <div class="login-background"></div>
+      <div class="box box-modal">
+        <div class="auth-sidebar">
+          <a href="/">
+            <span class="header-icon">
+              <img src="{{ .PublicPath }}/static/img/logo.png" alt="logo" />
+            </span>
+          </a>
+        </div>
+        <section class="org-login">
+          <div class="box-content with-padding">
+            <section>
+              <form method="post" action="{{ .PublicPath }}/login" no-validate autocomplete="off">
+                <div class="form-group">
+                  <label class="control-label required-field">
+                    Email<span class="asterisk-field">*</span>
+                  </label>
+                  <div class="controls">
+                    <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
+                      <span class="mdc-text-field__ripple"></span>
+                      <input
+                        class="mdc-text-field__input"
+                        type="email"
+                        name="email"
+                        placeholder="Enter your email address e.g. you@example.com"
+                        aria-label="Email"
+                      />
+                      <span class="mdc-line-ripple"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label required-field">
+                    Password<span class="asterisk-field">*</span>
+                  </label>
+                  <div class="controls">
+                    <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
+                      <span class="mdc-text-field__ripple"></span>
+                      <input
+                        class="mdc-text-field__input"
+                        type="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        aria-label="Password"
+                      />
+                      <span class="mdc-line-ripple"></span>
+                    </label>
+                    <a href="{{ .PublicPath }}/recover">Forgot password?</a>
+                  </div>
+                </div>
+                <fieldset class="form-actions">
+                  <div class="btn-wrapper">
+                    <button type="submit" class="mdc-button mdc-button--raised">
+                      <span class="mdc-button__label">Log in</span>
+                    </button>
+                  </div>
+                </fieldset>
+              </form>
+            </section>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

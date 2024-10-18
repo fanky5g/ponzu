@@ -4,14 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/content"
 	"reflect"
+
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/internal/views"
 )
 
 func FieldCollection(fieldName, label string, p interface{}, types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
 	scope := TagNameFromStructField(fieldName, p, nil)
 	tmpl := `
-		<div class="input-field col s12 clearfix __ponzu-field-collection ` + scope + `">
+		<div class="control-block __ponzu-field-collection ` + scope + `">
 			<label class="active">` + label + `</label>
 	`
 
@@ -140,34 +142,33 @@ func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (i
 }
 
 func getBlockSelector(
-	selectorName string,
+	name string,
 	types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
-	var opts []*Element
-	sel := &Element{
-		TagName: "select",
-		Attrs: map[string]string{
-			"class": fmt.Sprintf("browser-default %s", selectorName),
-		},
-		Label:   "Blocks",
-		ViewBuf: &bytes.Buffer{},
-	}
-
-	cta := &Element{
-		TagName: "option",
-		Attrs:   map[string]string{"disabled": "true", "selected": "true", "value": ""},
-		Data:    "Select a block...",
-		ViewBuf: &bytes.Buffer{},
-	}
-
-	opts = append(opts, cta)
+	options := make([]string, len(types))
+	i := 0
 	for k := range types {
-		opts = append(opts, &Element{
-			TagName: "option",
-			Attrs:   map[string]string{"value": k},
-			Data:    k,
-			ViewBuf: &bytes.Buffer{},
-		})
+		options[i] = k
+		i += 1
 	}
 
-	return DOMElementWithChildrenSelect(sel, opts)
+	sel := struct {
+		Name     string
+		Label    string
+		Value    string
+		Options  []string
+		Selector string
+	}{
+		Label:    "Select a block...",
+		Selector: name,
+		Name:     name,
+		Options:  options,
+		Value:    "",
+	}
+
+	w := &bytes.Buffer{}
+	if err := views.ExecuteTemplate(w, "select.gohtml", sel); err != nil {
+		panic(err)
+	}
+
+	return w.Bytes()
 }

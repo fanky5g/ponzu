@@ -102,26 +102,6 @@ func NewEditUploadHandler(r router.Router) http.HandlerFunc {
 
 			r.Redirect(req, res, "/uploads")
 
-		case http.MethodPut:
-			files, err := request.GetRequestFiles(req)
-			if err != nil {
-				log.WithField("Error", err).Warning("Failed to get request files")
-				r.Renderer().InternalServerError(res)
-				return
-			}
-
-			urlPaths, err := storageService.StoreFiles(files)
-			if err != nil {
-				log.WithField("Error", err).Warning("Failed to save files")
-				r.Renderer().InternalServerError(res)
-				return
-			}
-
-			r.Renderer().Json(res, http.StatusOK, []map[string]interface{}{
-				{
-					"url": urlPaths["file"],
-				},
-			})
 		default:
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return

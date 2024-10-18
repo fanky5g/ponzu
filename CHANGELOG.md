@@ -23,3 +23,6 @@
 ### v0.4.0
 
 - Update ponzu-driver-gcs to v1.1.0
+
+### v0.5.0
+- Remove dependency on material-css and replace with [m2-material](https://m2.material.io/)

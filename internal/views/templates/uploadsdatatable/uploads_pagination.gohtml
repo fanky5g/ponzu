@@ -1,0 +1,117 @@
+{{ define "uploads-table-pagination" }}
+<div class="mdc-data-table__pagination">
+  <div class="mdc-data-table__pagination-trailing">
+    <div class="mdc-data-table__pagination-rows-per-page">
+      <div class="mdc-data-table__pagination-rows-per-page-label">
+        Rows per page
+      </div>
+
+      <div class="mdc-select mdc-select--outlined mdc-select--no-label mdc-data-table__pagination-rows-per-page-select">
+        <div class="mdc-select__anchor" role="button" aria-haspopup="listbox"
+              aria-labelledby="rows-per-page-select" tabindex="0">
+          <span class="mdc-select__selected-text-container">
+            <span id="rows-per-page-select" class="mdc-select__selected-text">{{ .RowsPerPage }}</span>
+          </span>
+          <span class="mdc-select__dropdown-icon">
+            <svg
+                class="mdc-select__dropdown-icon-graphic"
+                viewBox="7 10 10 5">
+              <polygon
+                  class="mdc-select__dropdown-icon-inactive"
+                  stroke="none"
+                  fill-rule="evenodd"
+                  points="7 10 12 15 17 10">
+              </polygon>
+              <polygon
+                  class="mdc-select__dropdown-icon-active"
+                  stroke="none"
+                  fill-rule="evenodd"
+                  points="7 15 12 10 17 15">
+              </polygon>
+            </svg>
+          </span>
+          <span class="mdc-notched-outline mdc-notched-outline--notched">
+            <span class="mdc-notched-outline__leading"></span>
+            <span class="mdc-notched-outline__trailing"></span>
+          </span>
+        </div>
+
+        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth" role="listbox">
+          <ul class="mdc-list">
+            {{ range .PaginationOptions }}
+                {{ if eq $.RowsPerPage . }}
+                <li class="mdc-list-item mdc-list-item--selected" role="option" aria-selected="true" data-value="{{ . }}">
+                {{ else }}
+                <li class="mdc-list-item" role="option" data-value="{{ . }}">
+                {{ end }}
+                    <span class="mdc-list-item__text">{{ . }}</span>
+                </li>
+            {{ end }}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="mdc-data-table__pagination-navigation">
+      <div class="mdc-data-table__pagination-total">
+        {{ .CurrentItemStart }}‑{{ .CurrentItemEnd }} of {{ .TotalItemCount }}
+      </div>
+
+      <form action="{{ .PublicPath }}/uploads" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          {{ if eq .CurrentPage 1 }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled>
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button">
+          {{ end }}
+            <div class="mdc-button__icon">first_page</div>
+          </button>
+      </form>
+
+      <form action="{{ .PublicPath }}/uploads" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          <input type="hidden" name="offset" value="{{ subtract (subtract .CurrentItemStart .RowsPerPage) 1 }}" />
+          {{ if eq .CurrentPage 1 }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled>
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button"> 
+          {{ end }}
+            <div class="mdc-button__icon">chevron_left</div>
+          </button>
+      </form>
+
+      <form action="{{ .PublicPath }}/uploads" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          <input type="hidden" name="offset" value="{{ .CurrentItemEnd }}" />
+          {{ if eq .CurrentPage .NumberOfPages }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled>
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button">
+          {{ end }}
+            <div class="mdc-button__icon">chevron_right</div>
+          </button>
+      </form>
+
+      <form action="{{ .PublicPath }}/uploads" method="get">
+          <input type="hidden" name="type" value="{{ .TypeName }}" />
+          <input type="hidden" name="order" value="{{ .SortOrder }}" />
+          <input type="hidden" name="count" value="{{ .RowsPerPage }}" />
+          <input type="hidden" name="offset" value="{{ multiply (subtract .NumberOfPages 1) .RowsPerPage }}" />
+          {{ if eq .CurrentPage .NumberOfPages }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" disabled> 
+          {{ else }}
+          <button class="mdc-icon-button material-icons mdc-data-table__pagination-button"> 
+          {{ end }}
+            <div class="mdc-button__icon">last_page</div>
+          </button>
+      </form>
+    </div>
+  </div>
+</div>
+{{ end }}
