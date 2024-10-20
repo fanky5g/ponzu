@@ -2,13 +2,15 @@ package generator
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/generator"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 	"go/format"
 	"strings"
 	"testing"
+
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/generator"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
 type GenerateTestSuite struct {
@@ -33,6 +35,10 @@ func (writer *testWriter) Write(filePath string, buf []byte) error {
 
 func (s *GenerateTestSuite) SetupSuite() {
 	var err error
+	type author struct {
+		item.Item
+		Name string `json:"name"`
+	}
 	s.gt, err = setupGenerator(generator.Config{
 		Target: generator.Target{
 			Path: generator.Path{
@@ -41,7 +47,13 @@ func (s *GenerateTestSuite) SetupSuite() {
 			},
 			Package: "entities",
 		},
-	}, content.Types{})
+	}, content.Types{
+		Content: map[string]content.Builder{
+			"Author": func() interface{} {
+				return new(author)
+			},
+		},
+	})
 	if err != nil {
 		s.T().Fatal(err)
 	}
@@ -384,6 +396,336 @@ func init() {
 	if assert.NoError(s.T(), err) {
 		assert.Equal(s.T(), expectedBuffer, w.buf)
 	}
+}
+
+func (s *GenerateTestSuite) TestGenerateWithReferenceField() {
+	typeDefinition := &generator.TypeDefinition{
+		Name:  "Blog",
+		Label: "Blog",
+		Blocks: []generator.Block{
+			{
+				Type:          generator.Field,
+				Name:          "Title",
+				Label:         "Title",
+				JSONName:      "title",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "title",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Author",
+				Label:         "Author",
+				JSONName:      "author",
+				TypeName:      "string",
+				ReferenceName: "Author",
+				Definition: generator.BlockDefinition{
+					Title:       "author",
+					Type:        "@author",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Category",
+				Label:         "Category",
+				JSONName:      "category",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "category",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Content",
+				Label:         "Content",
+				JSONName:      "content",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "content",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+		},
+		Type: generator.Content,
+		Metadata: generator.Metadata{
+			MethodReceiverName: "b",
+		},
+	}
+
+	// blog title:string author:@author category:string content:string
+	expectedBuffer, err := format.Source([]byte(`
+package entities
+
+import (
+        "fmt"
+        "github.com/fanky5g/ponzu/config"
+        "github.com/fanky5g/ponzu/content/editor"
+        "github.com/fanky5g/ponzu/content/item"
+        "github.com/fanky5g/ponzu/tokens"
+)
+
+type Blog struct {
+        item.Item
+
+		Title string ` + "`json:\"title\"`" + `
+		Author string ` + "`json:\"author\" reference:\"Author\"`" + ` 
+		Category string ` + "`json:\"category\"`" + `
+		Content string ` + "`json:\"content\"`" + `
+}
+
+// MarshalEditor writes a buffer of views to edit a Blog within the CMS
+// and implements editor.Editable
+func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
+        view, err := editor.Form(b,
+                paths,
+                // Take note that the first argument to these Input-like functions
+                // is the string version of each Blog field, and must follow
+                // this pattern for auto-decoding and auto-encoding reasons:
+                editor.Field{
+                        View: editor.Input("Title", b, map[string]string{
+                                "label":       "Title",
+                                "type":        "text",
+                                "placeholder": "Enter the Title here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.ReferenceSelect("Author", b, map[string]string{
+                                "label":       "Author",
+                        },
+						"Author",
+						` + "`Author: {{ .id }}`" + `,
+                    ),
+                },
+                editor.Field{
+                        View: editor.Input("Category", b, map[string]string{
+                                "label":       "Category",
+                                "type":        "text",
+                                "placeholder": "Enter the Category here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.Input("Content", b, map[string]string{
+                                "label":       "Content",
+                                "type":        "text",
+                                "placeholder": "Enter the Content here",
+                        }, nil),
+                },
+        )
+
+        if err != nil {
+                return nil, fmt.Errorf("failed to render Blog editor view: %s", err.Error())
+        }
+
+        return view, nil
+}
+
+func init() {
+        Content["Blog"] = func() interface{} { return new(Blog) }
+}
+
+func (b *Blog) EntityName() string {
+        return "Blog"
+}
+
+func (b *Blog) GetTitle() string {
+        return b.ID
+}
+
+func (b *Blog) GetRepositoryToken() tokens.RepositoryToken {
+        return "blog"
+}
+	`))
+
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
+	w := new(testWriter)
+
+	err = s.gt.Generate(typeDefinition, w)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
+	}
+
+}
+
+func (s *GenerateTestSuite) TestGenerateWithReferenceArrayField() {
+	typeDefinition := &generator.TypeDefinition{
+		Name:  "Blog",
+		Label: "Blog",
+		Blocks: []generator.Block{
+			{
+				Type:          generator.Field,
+				Name:          "Title",
+				Label:         "Title",
+				JSONName:      "title",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "title",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Authors",
+				Label:         "Authors",
+				JSONName:      "authors",
+				TypeName:      "[]string",
+				ReferenceName: "Author",
+				Definition: generator.BlockDefinition{
+					Title:       "authors",
+					Type:        "[]@author",
+					IsArray:     true,
+					IsReference: true,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Category",
+				Label:         "Category",
+				JSONName:      "category",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "category",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Content",
+				Label:         "Content",
+				JSONName:      "content",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "content",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+		},
+		Type: generator.Content,
+		Metadata: generator.Metadata{
+			MethodReceiverName: "b",
+		},
+	}
+
+	// blog title:string author:@author category:string content:string
+	expectedBuffer, err := format.Source([]byte(`
+package entities
+
+import (
+        "fmt"
+        "github.com/fanky5g/ponzu/config"
+        "github.com/fanky5g/ponzu/content/editor"
+        "github.com/fanky5g/ponzu/content/item"
+        "github.com/fanky5g/ponzu/tokens"
+)
+
+type Blog struct {
+        item.Item
+
+		Title string ` + "`json:\"title\"`" + `
+		Authors []string ` + "`json:\"authors\" reference:\"Author\"`" + ` 
+		Category string ` + "`json:\"category\"`" + `
+		Content string ` + "`json:\"content\"`" + `
+}
+
+// MarshalEditor writes a buffer of views to edit a Blog within the CMS
+// and implements editor.Editable
+func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
+        view, err := editor.Form(b,
+                paths,
+                // Take note that the first argument to these Input-like functions
+                // is the string version of each Blog field, and must follow
+                // this pattern for auto-decoding and auto-encoding reasons:
+                editor.Field{
+                        View: editor.Input("Title", b, map[string]string{
+                                "label":       "Title",
+                                "type":        "text",
+                                "placeholder": "Enter the Title here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.ReferenceSelectRepeater("Authors", b, map[string]string{
+                                "label":       "Authors",
+                        },
+						"Author",
+						` + "`Author: {{ .id }}`" + `,
+                    ),
+                },
+                editor.Field{
+                        View: editor.Input("Category", b, map[string]string{
+                                "label":       "Category",
+                                "type":        "text",
+                                "placeholder": "Enter the Category here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.Input("Content", b, map[string]string{
+                                "label":       "Content",
+                                "type":        "text",
+                                "placeholder": "Enter the Content here",
+                        }, nil),
+                },
+        )
+
+        if err != nil {
+                return nil, fmt.Errorf("failed to render Blog editor view: %s", err.Error())
+        }
+
+        return view, nil
+}
+
+func init() {
+        Content["Blog"] = func() interface{} { return new(Blog) }
+}
+
+func (b *Blog) EntityName() string {
+        return "Blog"
+}
+
+func (b *Blog) GetTitle() string {
+        return b.ID
+}
+
+func (b *Blog) GetRepositoryToken() tokens.RepositoryToken {
+        return "blog"
+}
+	`))
+
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
+	w := new(testWriter)
+
+	err = s.gt.Generate(typeDefinition, w)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
+	}
+
 }
 
 func TestGenerate(t *testing.T) {

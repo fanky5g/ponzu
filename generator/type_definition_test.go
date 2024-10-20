@@ -176,6 +176,180 @@ func (s *TypeDefinitionTestSuite) TestParseFieldCollection() {
 	}
 }
 
+func (s *TypeDefinitionTestSuite) TestParseTypeWithReferenceField() {
+	// blog title:string author:@author category:string content:string
+	args := []string{
+		"blog",
+		"title:string",
+		"author:@author",
+		"category:string",
+		"content:string",
+	}
+
+	definition, err := NewTypeDefinition(Content, args)
+	if err != nil {
+		s.T().Errorf("Failed: %s", err.Error())
+	}
+
+	expectedTypeDefinition := &TypeDefinition{
+		Name:  "Blog",
+		Label: "Blog",
+		Blocks: []Block{
+			{
+				Type:          Field,
+				Name:          "Title",
+				Label:         "Title",
+				JSONName:      "title",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "title",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Author",
+				Label:         "Author",
+				JSONName:      "author",
+				TypeName:      "string",
+				ReferenceName: "Author",
+				Definition: BlockDefinition{
+					Title:       "author",
+					Type:        "@author",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Category",
+				Label:         "Category",
+				JSONName:      "category",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "category",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Content",
+				Label:         "Content",
+				JSONName:      "content",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "content",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+		},
+		Type: Content,
+		Metadata: Metadata{
+			MethodReceiverName: "b",
+		},
+	}
+
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), expectedTypeDefinition, definition)
+	}
+}
+
+func (s *TypeDefinitionTestSuite) TestParseTypeWithReferenceArrayField() {
+	// blog title:string authors:[]@author category:string content:string
+	args := []string{
+		"blog",
+		"title:string",
+		"authors:[]@author",
+		"category:string",
+		"content:string",
+	}
+
+	definition, err := NewTypeDefinition(Content, args)
+	if err != nil {
+		s.T().Errorf("Failed: %s", err.Error())
+	}
+
+	expectedTypeDefinition := &TypeDefinition{
+		Name:  "Blog",
+		Label: "Blog",
+		Blocks: []Block{
+			{
+				Type:          Field,
+				Name:          "Title",
+				Label:         "Title",
+				JSONName:      "title",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "title",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Authors",
+				Label:         "Authors",
+				JSONName:      "authors",
+				TypeName:      "[]string",
+				ReferenceName: "Author",
+				Definition: BlockDefinition{
+					Title:       "authors",
+					Type:        "[]@author",
+					IsArray:     true,
+					IsReference: true,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Category",
+				Label:         "Category",
+				JSONName:      "category",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "category",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Content",
+				Label:         "Content",
+				JSONName:      "content",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "content",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+		},
+		Type: Content,
+		Metadata: Metadata{
+			MethodReceiverName: "b",
+		},
+	}
+
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), expectedTypeDefinition, definition)
+	}
+}
+
 func TestTypeDefinition(t *testing.T) {
 	suite.Run(t, new(TypeDefinitionTestSuite))
 }

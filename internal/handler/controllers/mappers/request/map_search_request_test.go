@@ -23,7 +23,7 @@ func (suite *MapSearchRequestTestSuite) TestGetSearchRequestDtoWithEmptyQueryVal
 	expectedSearchRequestDto := &request.SearchRequestDto{
 		SortOrder: constants.Descending,
 		PaginationRequestDto: request.PaginationRequestDto{
-			Count:  10,
+			Count:  RowsPerPage,
 			Offset: 0,
 		},
 	}

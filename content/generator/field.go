@@ -98,7 +98,6 @@ func mapBlockToField(contentTypes content.Types, block generator.Block) *Field {
 	}
 
 	if block.Definition.IsReference {
-		typeName = block.ReferenceName
 		if _, ok := contentTypes.Content[block.ReferenceName]; ok {
 			viewType = "reference"
 		} else if _, ok = contentTypes.FieldCollections[block.ReferenceName]; ok {
