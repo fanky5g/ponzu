@@ -1,5 +1,5 @@
-View: editor.ReferenceSelect("[[ $ | Path ]]", [[ $ | RootMethodReceiver ]], map[string]string{
-        "label": "[[ .Label ]]",
+View: editor.ReferenceSelect(paths, "[[ $ | Path ]]", [[ $ | RootMethodReceiver ]], map[string]string{
+        "label": "Select [[ .Label ]]",
     }, 
     "[[ .ReferenceName ]]", 
     `[[ range .ReferenceJSONTags ]]{{ .[[ . ]] }} [[ else ]][[ .ReferenceName ]]: {{ .id }}[[ end ]]`,

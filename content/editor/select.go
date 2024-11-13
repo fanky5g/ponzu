@@ -1,59 +1,80 @@
 package editor
 
-import "bytes"
+import (
+	"bytes"
+	"io"
+
+	"github.com/fanky5g/ponzu/internal/views"
+	log "github.com/sirupsen/logrus"
+)
+
+type SelectClientOptionsProvider interface {
+	RenderClientOptionsProvider(w io.Writer, selector string) error
+}
+
+type SelectInitialOptionsProvider interface {
+	GetInitialOptions() ([]string, error)
+}
 
 // Select returns the []byte of a <select> HTML element plus internal <options> with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func Select(fieldName string, p interface{}, attrs, options map[string]string) []byte {
-	// options are the value attr and the display value, i.e.
-	// <option value="{map key}">{map value}</option>
-
-	// find the field value in p to determine if an option is pre-selected
+func Select(fieldName string, p interface{}, attrs map[string]string, dataProvider interface{}) []byte {
+	value := ""
 	fieldVal := ValueFromStructField(fieldName, p, nil)
-
-	if _, ok := attrs["class"]; ok {
-		attrs["class"] += " browser-default"
-	} else {
-		attrs["class"] = "browser-default"
+	var ok bool
+	if value, ok = fieldVal.(string); !ok {
+		log.Warnf("Expected field value to be string. Got %T", fieldVal)
 	}
 
-	sel := NewElement("select", attrs["label"], fieldName, p, attrs, nil)
-	var opts []*Element
+	selector := TagNameFromStructField(fieldName, p, nil)
+	var err error
+	options := make([]string, 0)
 
-	// provide a call to action for the select element
-	cta := &Element{
-		TagName: "option",
-		Attrs:   map[string]string{"disabled": "true", "selected": "true"},
-		Data:    "Select an option...",
-		ViewBuf: &bytes.Buffer{},
-	}
-
-	// provide a selection reset (will store empty string in db)
-	reset := &Element{
-		TagName: "option",
-		Attrs:   map[string]string{"value": ""},
-		Data:    "None",
-		ViewBuf: &bytes.Buffer{},
-	}
-
-	opts = append(opts, cta, reset)
-
-	for k, v := range options {
-		optAttrs := map[string]string{"value": k}
-		if k == fieldVal {
-			optAttrs["selected"] = "true"
-		}
-		opt := &Element{
-			TagName: "option",
-			Attrs:   optAttrs,
-			Data:    v,
-			ViewBuf: &bytes.Buffer{},
+	templateBuffer := &bytes.Buffer{}
+	if dataProvider != nil {
+		if initialdataOptionsProvider, ok := dataProvider.(SelectInitialOptionsProvider); ok {
+			options, err = initialdataOptionsProvider.GetInitialOptions()
+			if err != nil {
+				log.Fatalf("Failed to get options for %s: %v", fieldName, err)
+			}
 		}
 
-		opts = append(opts, opt)
+		if clientDataOptionsProvider, ok := dataProvider.(SelectClientOptionsProvider); ok {
+			err = clientDataOptionsProvider.RenderClientOptionsProvider(templateBuffer, selector)
+			if err != nil {
+				log.Fatalf("Failed to render client options provider: %v", err)
+			}
+		}
 	}
 
-	return DOMElementWithChildrenSelect(sel, opts)
+	values := make([]string, len(options))
+	i := 0
+	for _, v := range options {
+		values[i] = v
+		i = i + 1
+	}
+
+	sel := struct {
+		Name        string
+		Label       string
+		Placeholder string
+		Value       string
+		Options     []string
+		Selector    string
+	}{
+		Label:       fieldName,
+		Placeholder: attrs["label"],
+		Selector:    fieldName,
+		Name:        fieldName,
+		Options:     options,
+		Value:       value,
+	}
+
+	if err := views.ExecuteTemplate(templateBuffer, "select.gohtml", sel); err != nil {
+		log.Fatalf("Failed to render select: %v", err)
+	}
+
+	return templateBuffer.Bytes()
 }

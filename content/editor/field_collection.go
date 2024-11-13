@@ -152,17 +152,18 @@ func getBlockSelector(
 	}
 
 	sel := struct {
-		Name     string
-		Label    string
-		Value    string
-		Options  []string
-		Selector string
+		Name        string
+		Label       string
+		Placeholder string
+		Value       string
+		Options     []string
+		Selector    string
 	}{
-		Label:    "Select a block...",
-		Selector: name,
-		Name:     name,
-		Options:  options,
-		Value:    "",
+		Placeholder: "Select a block...",
+		Selector:    name,
+		Name:        name,
+		Options:     options,
+		Value:       "",
 	}
 
 	w := &bytes.Buffer{}

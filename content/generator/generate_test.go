@@ -503,8 +503,8 @@ func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
                         }, nil),
                 },
                 editor.Field{
-                        View: editor.ReferenceSelect("Author", b, map[string]string{
-                                "label":       "Author",
+                        View: editor.ReferenceSelect(paths, "Author", b, map[string]string{
+                                "label":       "Select Author",
                         },
 						"Author",
 						` + "`Author: {{ .id }}`" + `,
@@ -668,7 +668,7 @@ func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
                         }, nil),
                 },
                 editor.Field{
-                        View: editor.ReferenceSelectRepeater("Authors", b, map[string]string{
+                        View: editor.ReferenceSelectRepeater(paths, "Authors", b, map[string]string{
                                 "label":       "Authors",
                         },
 						"Author",

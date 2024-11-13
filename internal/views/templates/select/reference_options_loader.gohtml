@@ -1,0 +1,20 @@
+<script type="text/javascript">
+(function() {
+    const scriptPath = "{{ .PublicPath }}/static/common/js/reference.js";
+    window.addEventListener("load", () => {
+        const template = "{{ .Template }}";
+        const contentType = "{{ .ContentType }}";
+
+        const callback = () => {
+            window.Ponzu.initializeReferenceLoader(contentType, template);
+        };
+
+        if (typeof window.Ponzu.initializeReferenceLoader !== "function") {
+           window.Ponzu.loadScript(scriptPath, callback); 
+           return;
+        }
+
+        callback();
+    });
+})(); 
+</script>

@@ -451,7 +451,8 @@ fieldset.col.s12:last-of-type {
 }
 
 .__ponzu-repeat > label:first-of-type,
-.__ponzu-field-collection > label:first-of-type {
+.__ponzu-field-collection > label:first-of-type,
+div.control-block > label:first-of-type {
   display: block;
   margin-bottom: 16px;
 }
@@ -700,4 +701,8 @@ form.form-view-root + form.form-view-root {
 
 .align-center {
   align-self: center;
+}
+
+.mdc-select ul.mdc-list {
+  max-height: 312px !important;
 }
