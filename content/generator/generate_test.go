@@ -53,6 +53,173 @@ func (s *GenerateTestSuite) SetupSuite() {
 				return new(author)
 			},
 		},
+		Definitions: map[string]generator.TypeDefinition{
+			"ImageGallery": {
+				Type:     generator.Plain,
+				Name:     "ImageGallery",
+				Label:    "Image Gallery",
+				Metadata: generator.Metadata{MethodReceiverName: "i"},
+				Blocks: []generator.Block{
+					{
+						Type:              generator.Field,
+						Name:              "Headline",
+						Label:             "Headline",
+						TypeName:          "string",
+						JSONName:          "headline",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "Headline",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:              generator.Field,
+						Name:              "Link",
+						Label:             "Link",
+						TypeName:          "string",
+						JSONName:          "link",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "Link",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:              generator.Field,
+						Name:              "ButtonText",
+						Label:             "ButtonText",
+						TypeName:          "string",
+						JSONName:          "button_text",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "ButtonText",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:              generator.Field,
+						Name:              "Image",
+						Label:             "Image",
+						TypeName:          "string",
+						JSONName:          "image",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "Image",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+				},
+			},
+			"TextBlock": {
+				Type:     generator.Plain,
+				Name:     "TextBlock",
+				Label:    "Text",
+				Metadata: generator.Metadata{MethodReceiverName: "t"},
+				Blocks: []generator.Block{
+					{
+						Type:              generator.Field,
+						Name:              "Text",
+						Label:             "Text",
+						TypeName:          "string",
+						JSONName:          "text",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "Text",
+							Type:        "string:richtext",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+				},
+			},
+			"ImageAndTextBlock": {
+				Type:     generator.Plain,
+				Name:     "ImageAndTextBlock",
+				Label:    "Image and Text",
+				Metadata: generator.Metadata{MethodReceiverName: "i"},
+				Blocks: []generator.Block{
+					{
+						Type:              generator.Field,
+						Name:              "Image",
+						Label:             "Image",
+						TypeName:          "string",
+						JSONName:          "image",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "Image",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:              generator.Field,
+						Name:              "ImagePosition",
+						Label:             "Image Position",
+						TypeName:          "string",
+						JSONName:          "image_position",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "ImagePosition",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:              generator.Field,
+						Name:              "Content",
+						Label:             "Content",
+						TypeName:          "string",
+						JSONName:          "content",
+						ReferenceName:     "",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "Content",
+							Type:        "string:richtext",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:              generator.Field,
+						Name:              "Link",
+						Label:             "Link",
+						TypeName:          "Link",
+						JSONName:          "link",
+						ReferenceName:     "Link",
+						ReferenceJSONTags: []string{},
+						Definition: generator.BlockDefinition{
+							Title:       "Link",
+							Type:        "Link",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+				},
+			},
+			"Link": link,
+		},
+		FieldCollections: map[string]content.Builder{
+			"PageContentBlocks": func() interface{} {
+				return new(pageContentBlocks)
+			},
+		},
 	})
 	if err != nil {
 		s.T().Fatal(err)
@@ -712,6 +879,229 @@ func (b *Blog) GetTitle() string {
 
 func (b *Blog) GetRepositoryToken() tokens.RepositoryToken {
         return "blog"
+}
+	`))
+
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
+	w := new(testWriter)
+
+	err = s.gt.Generate(typeDefinition, w)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
+	}
+
+}
+
+func (s *GenerateTestSuite) TestGenerateWithReferenceFieldAndFieldCollection() {
+	typeDefinition := &generator.TypeDefinition{
+		Name:  "Page",
+		Label: "Page",
+		Blocks: []generator.Block{
+			{
+				Type:          generator.Field,
+				Name:          "Author",
+				Label:         "Author",
+				JSONName:      "author",
+				TypeName:      "string",
+				ReferenceName: "Author",
+				Definition: generator.BlockDefinition{
+					Title:       "author",
+					Type:        "@author",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "ContentBlocks",
+				Label:         "ContentBlocks",
+				TypeName:      "string",
+				ReferenceName: "PageContentBlocks",
+				JSONName:      "content_blocks",
+				Definition: generator.BlockDefinition{
+					Title:       "content_blocks",
+					Type:        "@page_content_blocks",
+					IsReference: true,
+				},
+			},
+		},
+		Type: generator.Content,
+		Metadata: generator.Metadata{
+			MethodReceiverName: "p",
+		},
+	}
+
+	// blog title:string author:@author category:string content:string
+	expectedBuffer, err := format.Source([]byte(`
+package entities
+
+import (
+        "fmt"
+        "github.com/fanky5g/ponzu/config"
+        "github.com/fanky5g/ponzu/content/editor"
+        "github.com/fanky5g/ponzu/content/item"
+        "github.com/fanky5g/ponzu/tokens"
+)
+
+type Page struct {
+        item.Item
+
+		Author string ` + "`json:\"author\" reference:\"Author\"`" + ` 
+		ContentBlocks *PageContentBlocks ` + "`json:\"content_blocks\"`" + `
+}
+
+// MarshalEditor writes a buffer of views to edit a Page within the CMS
+// and implements editor.Editable
+func (p *Page) MarshalEditor(paths config.Paths) ([]byte, error) {
+        view, err := editor.Form(p,
+                paths,
+				// Take note that the first argument to these Input-like functions
+                // is the string version of each Page field, and must follow
+                // this pattern for auto-decoding and auto-encoding reasons:
+                editor.Field{
+                        View: editor.ReferenceSelect(paths, "Author", p, map[string]string{
+                                "label":       "Select Author",
+                        },
+						"Author",
+						` + "`Author: {{ .id }}`" + `,
+                    ),
+                },
+				editor.Field{
+					View: editor.FieldCollection(
+					"ContentBlocks",
+					"ContentBlocks",
+					p,
+					map[string]func(interface{}, *editor.FieldArgs, ...editor.Field) []byte{
+						"ImageAndTextBlock": func(
+							v interface{},
+							args *editor.FieldArgs,
+							injectFields ...editor.Field,
+						) []byte {
+							fields := append([]editor.Field{
+								{
+									View: editor.Input("Image", v, map[string]string{
+										"label":       "Image",
+										"type":        "text",
+										"placeholder": "Enter the Image here",
+									}, args),
+								},
+								{
+									View: editor.Input("ImagePosition", v, map[string]string{
+										"label":       "Image Position",
+										"type":        "text",
+										"placeholder": "Enter the Image Position here",
+									}, args),
+								},
+								{
+									View: editor.Richtext("Content", v, map[string]string{
+										"label":       "Content",
+										"placeholder": "Enter the Content here",
+									}, args),
+								},
+								{
+									View: editor.Nested("Link", v, args,
+										editor.Field{
+											View: editor.Input("Link.ExternalUrl", v, map[string]string{
+												"label":       "ExternalUrl",
+												"type":        "text",
+												"placeholder": "Enter the ExternalUrl here",
+											}, args),
+										},
+										editor.Field{
+											View: editor.Input("Link.Label", v, map[string]string{
+												"label":       "Label",
+												"type":        "text",
+												"placeholder": "Enter the Label here",
+											}, args),
+										},
+									),
+								},
+							}, injectFields...)
+
+							return editor.Nested("", v, args, fields...)
+						},
+						"ImageGallery": func(
+							v interface{},
+							args *editor.FieldArgs,
+							injectFields ...editor.Field,
+						) []byte {
+							fields := append([]editor.Field{
+								{
+									View: editor.Input("Headline", v, map[string]string{
+										"label":       "Headline",
+										"type":        "text",
+										"placeholder": "Enter the Headline here",
+									}, args),
+								},
+								{
+									View: editor.Input("Link", v, map[string]string{
+										"label":       "Link",
+										"type":        "text",
+										"placeholder": "Enter the Link here",
+									}, args),
+								},
+								{
+									View: editor.Input("ButtonText", v, map[string]string{
+										"label":       "ButtonText",
+										"type":        "text",
+										"placeholder": "Enter the ButtonText here",
+									}, args),
+								},
+								{
+									View: editor.Input("Image", v, map[string]string{
+										"label":       "Image",
+										"type":        "text",
+										"placeholder": "Enter the Image here",
+									}, args),
+								},
+							}, injectFields...)
+
+							return editor.Nested("", v, args, fields...)
+						},
+						"TextBlock": func(
+							v interface{},
+							args *editor.FieldArgs,
+							injectFields ...editor.Field,
+						) []byte {
+							fields := append([]editor.Field{
+								{
+									View: editor.Richtext("Text", v, map[string]string{
+										"label":       "Text",
+										"placeholder": "Enter the Text here",
+									}, args),
+								},
+							}, injectFields...)
+
+							return editor.Nested("", v, args, fields...)
+						},
+					}),
+				},
+        )
+
+        if err != nil {
+                return nil, fmt.Errorf("failed to render Page editor view: %s", err.Error())
+        }
+
+        return view, nil
+}
+
+func init() {
+        Content["Page"] = func() interface{} { return new(Page) }
+}
+
+func (p *Page) EntityName() string {
+        return "Page"
+}
+
+func (p *Page) GetTitle() string {
+        return p.ID
+}
+
+func (p *Page) GetRepositoryToken() tokens.RepositoryToken {
+        return "page"
 }
 	`))
 

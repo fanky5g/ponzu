@@ -350,6 +350,58 @@ func (s *TypeDefinitionTestSuite) TestParseTypeWithReferenceArrayField() {
 	}
 }
 
+func (s *TypeDefinitionTestSuite) TestParseFieldCollectionAndReferenceField() {
+	// page author:@author content_blocks:@page_content_blocks
+	args := []string{
+		"page",
+		"author:@author",
+		"content_blocks:@page_content_blocks",
+	}
+
+	expectedTypeDefinition := &TypeDefinition{
+		Name:  "Page",
+		Label: "Page",
+		Blocks: []Block{
+			{
+				Type:          Field,
+				Name:          "Author",
+				Label:         "Author",
+				JSONName:      "author",
+				TypeName:      "string",
+				ReferenceName: "Author",
+				Definition: BlockDefinition{
+					Title:       "author",
+					Type:        "@author",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "ContentBlocks",
+				Label:         "ContentBlocks",
+				TypeName:      "string",
+				ReferenceName: "PageContentBlocks",
+				JSONName:      "content_blocks",
+				Definition: BlockDefinition{
+					Title:       "content_blocks",
+					Type:        "@page_content_blocks",
+					IsReference: true,
+				},
+			},
+		},
+		Type: Content,
+		Metadata: Metadata{
+			MethodReceiverName: "p",
+		},
+	}
+
+	gt, err := NewTypeDefinition(Content, args)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), expectedTypeDefinition, gt)
+	}
+}
+
 func TestTypeDefinition(t *testing.T) {
 	suite.Run(t, new(TypeDefinitionTestSuite))
 }
