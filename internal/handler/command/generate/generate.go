@@ -3,17 +3,18 @@ package generate
 import (
 	"errors"
 	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
+
 	"github.com/fanky5g/ponzu/content"
 	contentGenerator "github.com/fanky5g/ponzu/content/generator"
 	"github.com/fanky5g/ponzu/generator"
 	modelGenerator "github.com/fanky5g/ponzu/models/generator"
 	"github.com/fanky5g/ponzu/util"
 	log "github.com/sirupsen/logrus"
-	"io/fs"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
 )
 
 var rootPath string
@@ -98,10 +99,16 @@ func RunGeneratorWithExistingTypes(contentType generator.Type, arguments []strin
 		return err
 	}
 
+	ponzuVersion, err := util.GetPonzuVersion()
+	if err != nil {
+		return err
+	}
+
 	if err = writeTemplateFile(filepath.Join(workingDir, "go.mod"), "go.mod.tmpl", map[string]interface{}{
-		"GoVersion":  strings.TrimPrefix(runtime.Version(), "go"),
-		"ModulePath": targetModule,
-		"WorkingDir": cwd,
+		"GoVersion":    strings.TrimPrefix(runtime.Version(), "go"),
+		"PonzuVersion": ponzuVersion,
+		"ModulePath":   targetModule,
+		"WorkingDir":   cwd,
 	}); err != nil {
 		return fmt.Errorf("failed to write template: %v", err)
 	}

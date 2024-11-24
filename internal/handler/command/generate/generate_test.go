@@ -151,6 +151,7 @@ func (suite *GenerateTestSuite) TestWriteTemplateGoMod() {
 	buf := &bytes.Buffer{}
 	if assert.NoError(suite.T(), writeTemplate("go.mod.tmpl", map[string]interface{}{
 		"GoVersion":  "1.16.0",
+		"PonzuVersion": "v0.5.1",
 		"ModulePath": "github.com/fanky5g/app",
 		"WorkingDir": "./testdata",
 	}, buf)) {
@@ -159,7 +160,7 @@ func (suite *GenerateTestSuite) TestWriteTemplateGoMod() {
 go 1.16.0
 
 require (
-	github.com/fanky5g/ponzu v0.5.1-0.20241020100544-20a56408a18d
+	github.com/fanky5g/ponzu v0.5.1
 )
 `)
 	}
