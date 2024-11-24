@@ -20,7 +20,11 @@ type SelectInitialOptionsProvider interface {
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func Select(fieldName string, p interface{}, attrs map[string]string, dataProvider interface{}) []byte {
+func Select(fieldName string, p interface{}, attrs, options map[string]string) []byte {
+	return SelectWithDataProvider(fieldName, p, attrs, makeGenericSelectDataProvider(options))
+}
+
+func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, dataProvider interface{}) []byte {
 	value := ""
 	fieldVal := ValueFromStructField(fieldName, p, nil)
 	var ok bool
@@ -77,4 +81,25 @@ func Select(fieldName string, p interface{}, attrs map[string]string, dataProvid
 	}
 
 	return templateBuffer.Bytes()
+}
+
+type selectInitialOptionsProvider struct {
+	options map[string]string
+}
+
+func (s *selectInitialOptionsProvider) GetInitialOptions() ([]string, error) {
+	options := make([]string, len(s.options))
+	i := 0
+	for k := range s.options {
+		options[i] = k
+		i = i + 1
+	}
+
+	return options, nil
+}
+
+func makeGenericSelectDataProvider(options map[string]string) SelectInitialOptionsProvider {
+	return &selectInitialOptionsProvider{
+		options: options,
+	}
 }

@@ -141,8 +141,7 @@ func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (i
 	return emptyType, nil
 }
 
-func getBlockSelector(
-	name string,
+func getBlockSelector(name string,
 	types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
 	options := make([]string, len(types))
 	i := 0

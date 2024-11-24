@@ -6,11 +6,11 @@ import (
 	"testing"
 )
 
-type ValuesTestSuite struct {
+type ReflectionUtilsTestSuite struct {
 	suite.Suite
 }
 
-func (suite *ValuesTestSuite) TestTagNameFromStructField() {
+func (suite *ReflectionUtilsTestSuite) TestTagNameFromStructField() {
 	type Review struct {
 		Title string `json:"title"`
 	}
@@ -23,7 +23,7 @@ func (suite *ValuesTestSuite) TestTagNameFromStructField() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestTagNameFromStructFieldNested() {
+func (suite *ReflectionUtilsTestSuite) TestTagNameFromStructFieldNested() {
 	type Author struct {
 		Name string `json:"name"`
 	}
@@ -41,7 +41,7 @@ func (suite *ValuesTestSuite) TestTagNameFromStructFieldNested() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestTagNameFromStructFieldNested2() {
+func (suite *ReflectionUtilsTestSuite) TestTagNameFromStructFieldNested2() {
 	type Book struct {
 		Name      string `json:"name"`
 		Published string `json:"published"`
@@ -65,7 +65,7 @@ func (suite *ValuesTestSuite) TestTagNameFromStructFieldNested2() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestTagNameFromStructFieldNestedArray() {
+func (suite *ReflectionUtilsTestSuite) TestTagNameFromStructFieldNestedArray() {
 	type Book struct {
 		Name      string `json:"name"`
 		Published string `json:"published"`
@@ -100,7 +100,7 @@ func (suite *ValuesTestSuite) TestTagNameFromStructFieldNestedArray() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestTagNameFromStructFieldNestedArray2() {
+func (suite *ReflectionUtilsTestSuite) TestTagNameFromStructFieldNestedArray2() {
 	type Book struct {
 		Name      string `json:"name"`
 		Published string `json:"published"`
@@ -137,7 +137,7 @@ func (suite *ValuesTestSuite) TestTagNameFromStructFieldNestedArray2() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestTagNameFromStructFieldWithPositionalArg() {
+func (suite *ReflectionUtilsTestSuite) TestTagNameFromStructFieldWithPositionalArg() {
 	type Book struct {
 		Name      string `json:"name"`
 		Published string `json:"published"`
@@ -174,7 +174,7 @@ func (suite *ValuesTestSuite) TestTagNameFromStructFieldWithPositionalArg() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestValueFromStructField() {
+func (suite *ReflectionUtilsTestSuite) TestValueFromStructField() {
 	type Review struct {
 		Title string `json:"title"`
 	}
@@ -187,7 +187,7 @@ func (suite *ValuesTestSuite) TestValueFromStructField() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestValueFromStructFieldNested() {
+func (suite *ReflectionUtilsTestSuite) TestValueFromStructFieldNested() {
 	type Author struct {
 		Name string `json:"name"`
 	}
@@ -209,7 +209,7 @@ func (suite *ValuesTestSuite) TestValueFromStructFieldNested() {
 	)
 }
 
-func (suite *ValuesTestSuite) TestValueFromStructFieldNested2() {
+func (suite *ReflectionUtilsTestSuite) TestValueFromStructFieldNested2() {
 	type Book struct {
 		Name      string `json:"name"`
 		Published string `json:"published"`
@@ -249,6 +249,36 @@ func (suite *ValuesTestSuite) TestValueFromStructFieldNested2() {
 	assert.Equal(suite.T(), books, ValueFromStructField("Author.Books", v, nil))
 }
 
+func (suite *ReflectionUtilsTestSuite) TestGetStructFieldInterface() {
+	type Book struct {
+		Name      string `json:"name"`
+		Published string `json:"published"`
+	}
+
+	type Author struct {
+		Name  string `json:"name"`
+		Books []Book `json:"books"`
+	}
+
+	type Review struct {
+		Title  string   `json:"title"`
+		Author Author   `json:"author"`
+		Tags   []string `json:"tags"`
+	}
+
+	iface := GetStructFieldInterface(&Review{}, "Author")
+	assert.NotNil(suite.T(), iface)
+	_, ok := iface.(*Author)
+	assert.True(suite.T(), ok)
+
+	iface = GetStructFieldInterface(&Review{}, "Author.Title")
+	assert.Nil(suite.T(), iface)
+
+	iface = GetStructFieldInterface(&Review{}, "Author.Books")
+	_, ok = iface.(*[]Book)
+	assert.True(suite.T(), ok)
+}
+
 func TestValuesStructHelpers(t *testing.T) {
-	suite.Run(t, new(ValuesTestSuite))
+	suite.Run(t, new(ReflectionUtilsTestSuite))
 }

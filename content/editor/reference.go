@@ -7,10 +7,20 @@ import (
 	"github.com/fanky5g/ponzu/internal/views"
 )
 
+var DefaultReferenceSelectTemplate = `
+<li class="mdc-list-item" role="option" data-value="@>id">
+    <span class="mdc-list-item__text">"@>name"</span>
+</li>
+`
+
 type ReferenceSelectDataProvider struct {
 	ContentType string
 	PublicPath  string
 	Template    string
+}
+
+type ReferenceSelectTemplateProvider interface {
+	GetTemplate() string
 }
 
 func (provider *ReferenceSelectDataProvider) RenderClientOptionsProvider(w io.Writer, selector string) error {
@@ -31,19 +41,25 @@ func (provider *ReferenceSelectDataProvider) RenderClientOptionsProvider(w io.Wr
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func ReferenceSelect(paths config.Paths, fieldName string, p interface{}, attrs map[string]string, contentType, tmplString string) []byte {
-	return Select(fieldName, p, attrs, &ReferenceSelectDataProvider{
+func ReferenceSelect(
+	paths config.Paths,
+	fieldName string,
+	p interface{},
+	attrs map[string]string,
+	contentType string,
+) []byte {
+	template := DefaultReferenceSelectTemplate
+	field := GetStructFieldInterface(p, fieldName)
+	if field != nil {
+		if customRowTemplateProvider, ok := field.(ReferenceSelectTemplateProvider); ok {
+			template = customRowTemplateProvider.GetTemplate()
+		}
+	}
+
+	return SelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{
 		ContentType: contentType,
 		PublicPath:  paths.PublicPath,
-		// TODO: remove tmplString definition from ReferenceSelect and Repeater
-		// Support getting option template string definition from content type (i.e get type from p.FieldName)
-		// and check if type supports an interface GetSelectOptionTemplate, else default to string below
-		// Select component must also support Option templates
-		Template: `
-<li class="mdc-list-item" role="option" data-value="@>id">
-    <span class="mdc-list-item__text">"@>name"</span>
-</li>
-		`,
+		Template:    template,
 	})
 }
 
@@ -53,6 +69,13 @@ func ReferenceSelect(paths config.Paths, fieldName string, p interface{}, attrs 
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func ReferenceSelectRepeater(paths config.Paths, fieldName string, p interface{}, attrs map[string]string, contentType, tmplString string) []byte {
+func ReferenceSelectRepeater(
+	paths config.Paths,
+	fieldName string,
+	p interface{},
+	attrs map[string]string,
+	contentType,
+	tmplString string,
+) []byte {
 	return nil
 }

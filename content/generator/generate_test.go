@@ -674,7 +674,6 @@ func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
                                 "label":       "Select Author",
                         },
 						"Author",
-						` + "`Author: {{ .id }}`" + `,
                     ),
                 },
                 editor.Field{
@@ -839,7 +838,6 @@ func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
                                 "label":       "Authors",
                         },
 						"Author",
-						` + "`Author: {{ .id }}`" + `,
                     ),
                 },
                 editor.Field{
@@ -966,7 +964,6 @@ func (p *Page) MarshalEditor(paths config.Paths) ([]byte, error) {
                                 "label":       "Select Author",
                         },
 						"Author",
-						` + "`Author: {{ .id }}`" + `,
                     ),
                 },
 				editor.Field{
