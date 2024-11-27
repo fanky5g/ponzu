@@ -110,28 +110,6 @@ func TagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 	return fmt.Sprintf("%s.%d", tag, i)
 }
 
-// GetStructFieldInterface returns a new instance of the struct field at the
-// given field name in the struct p as interface pointer or nil if invalid
-// Only supports nested struct fields, and not primitive types
-func GetStructFieldInterface(p interface{}, fieldName string) interface{} {
-	pType := reflect.TypeOf(p)
-	if pType.Kind() == reflect.Pointer {
-		pType = pType.Elem()
-	}
-
-	value := ValueByName(fieldName, reflect.New(pType).Interface(), nil)
-	if value.IsValid() {
-		vType := value.Type()
-		if value.Kind() == reflect.Ptr {
-			vType = vType.Elem()
-		}
-
-		return reflect.New(vType).Interface()
-	}
-
-	return nil
-}
-
 func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
 	if args != nil && args.Parent != "" {
 		name = strings.Join([]string{args.Parent, name}, ".")

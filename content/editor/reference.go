@@ -19,10 +19,6 @@ type ReferenceSelectDataProvider struct {
 	Template    string
 }
 
-type ReferenceSelectTemplateProvider interface {
-	GetTemplate() string
-}
-
 func (provider *ReferenceSelectDataProvider) RenderClientOptionsProvider(w io.Writer, selector string) error {
 	return views.ExecuteTemplate(w, "reference_options_loader.gohtml", struct {
 		PublicPath  string
@@ -48,18 +44,10 @@ func ReferenceSelect(
 	attrs map[string]string,
 	contentType string,
 ) []byte {
-	template := DefaultReferenceSelectTemplate
-	field := GetStructFieldInterface(p, fieldName)
-	if field != nil {
-		if customRowTemplateProvider, ok := field.(ReferenceSelectTemplateProvider); ok {
-			template = customRowTemplateProvider.GetTemplate()
-		}
-	}
-
 	return SelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{
 		ContentType: contentType,
 		PublicPath:  paths.PublicPath,
-		Template:    template,
+		Template:    DefaultReferenceSelectTemplate,
 	})
 }
 

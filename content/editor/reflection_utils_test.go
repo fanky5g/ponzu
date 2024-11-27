@@ -249,36 +249,6 @@ func (suite *ReflectionUtilsTestSuite) TestValueFromStructFieldNested2() {
 	assert.Equal(suite.T(), books, ValueFromStructField("Author.Books", v, nil))
 }
 
-func (suite *ReflectionUtilsTestSuite) TestGetStructFieldInterface() {
-	type Book struct {
-		Name      string `json:"name"`
-		Published string `json:"published"`
-	}
-
-	type Author struct {
-		Name  string `json:"name"`
-		Books []Book `json:"books"`
-	}
-
-	type Review struct {
-		Title  string   `json:"title"`
-		Author Author   `json:"author"`
-		Tags   []string `json:"tags"`
-	}
-
-	iface := GetStructFieldInterface(&Review{}, "Author")
-	assert.NotNil(suite.T(), iface)
-	_, ok := iface.(*Author)
-	assert.True(suite.T(), ok)
-
-	iface = GetStructFieldInterface(&Review{}, "Author.Title")
-	assert.Nil(suite.T(), iface)
-
-	iface = GetStructFieldInterface(&Review{}, "Author.Books")
-	_, ok = iface.(*[]Book)
-	assert.True(suite.T(), ok)
-}
-
 func TestValuesStructHelpers(t *testing.T) {
 	suite.Run(t, new(ReflectionUtilsTestSuite))
 }
