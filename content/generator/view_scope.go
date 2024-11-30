@@ -29,7 +29,7 @@ func (scope *ViewScope) Fields(parent *Field) ([]Field, error) {
 			field.Scope = scope
 			field.Parent = parent
 			if field.IsNested {
-				t, ok := scope.ContentTypes.Definitions[field.ReferenceName]
+				t, ok := scope.ContentTypes.Definitions[field.TypeName]
 				if !ok {
 					return nil, fmt.Errorf("no definition matched for %s type", field.Name)
 				}

@@ -378,7 +378,7 @@ func (s *GenerateNestedTestSuite) TestDoublyNestedFieldInContentType() {
 				Label:         "Author",
 				TypeName:      "Author",
 				JSONName:      "author",
-				ReferenceName: "Author",
+				ReferenceName: "",
 				Definition: generator.BlockDefinition{
 					Title:       "Author",
 					Type:        "Author",

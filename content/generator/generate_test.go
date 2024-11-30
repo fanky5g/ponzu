@@ -39,6 +39,11 @@ func (s *GenerateTestSuite) SetupSuite() {
 		item.Item
 		Name string `json:"name"`
 	}
+	type image struct {
+		item.Item
+		Headline string `json:"headline"`
+		URL      string `json:"url"`
+	}
 	s.gt, err = setupGenerator(generator.Config{
 		Target: generator.Target{
 			Path: generator.Path{
@@ -52,8 +57,63 @@ func (s *GenerateTestSuite) SetupSuite() {
 			"Author": func() interface{} {
 				return new(author)
 			},
+			"Image": func() interface{} {
+				return new(image)
+			},
 		},
 		Definitions: map[string]generator.TypeDefinition{
+			"Author": {
+				Name:  "Author",
+				Label: "Author",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Name",
+						Label:         "Name",
+						JSONName:      "name",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "name",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Age",
+						Label:         "Age",
+						JSONName:      "age",
+						TypeName:      "int",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "age",
+							Type:        "int",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Image",
+						Label:         "Image",
+						JSONName:      "image",
+						TypeName:      "string",
+						ReferenceName: "Image",
+						Definition: generator.BlockDefinition{
+							Title:       "image",
+							Type:        "@image",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+				},
+				Type: generator.Plain,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "a",
+				},
+			},
 			"ImageGallery": {
 				Type:     generator.Plain,
 				Name:     "ImageGallery",
@@ -726,7 +786,6 @@ func (b *Blog) GetRepositoryToken() tokens.RepositoryToken {
 	if assert.NoError(s.T(), err) {
 		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
 	}
-
 }
 
 func (s *GenerateTestSuite) TestGenerateWithReferenceArrayField() {
@@ -1113,6 +1172,300 @@ func (p *Page) GetRepositoryToken() tokens.RepositoryToken {
 		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
 	}
 
+}
+
+func (s *GenerateTestSuite) TestGeneratePlainTypeWithReferenceField() {
+	typeDefinition := &generator.TypeDefinition{
+		Name:  "Author",
+		Label: "Author",
+		Blocks: []generator.Block{
+			{
+				Type:          generator.Field,
+				Name:          "Name",
+				Label:         "Name",
+				JSONName:      "name",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "name",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Age",
+				Label:         "Age",
+				JSONName:      "age",
+				TypeName:      "int",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "age",
+					Type:        "int",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Image",
+				Label:         "Image",
+				JSONName:      "image",
+				TypeName:      "string",
+				ReferenceName: "Image",
+				Definition: generator.BlockDefinition{
+					Title:       "image",
+					Type:        "@image",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+		},
+		Type: generator.Plain,
+		Metadata: generator.Metadata{
+			MethodReceiverName: "a",
+		},
+	}
+
+	expectedBuffer, err := format.Source([]byte(`
+package entities
+
+import (
+        "github.com/fanky5g/ponzu/generator"
+)
+
+type Author struct {
+	Name string ` + "`json:\"name\"`" + `
+	Age int ` + "`json:\"age\"`" + `
+	Image string ` + "`json:\"image\" reference:\"Image\"`" + ` 
+}
+
+func init() {
+	Definitions["Author"] = generator.TypeDefinition{
+		Type:  generator.Plain,
+		Name:  "Author",
+		Label: "Author",
+		Metadata: generator.Metadata{
+			MethodReceiverName: "a",
+		},
+		Blocks: []generator.Block{
+			{
+				Type:              generator.Field,
+				Name:              "Name",
+				Label:             "Name",
+				TypeName:          "string",
+				JSONName:          "name",
+				ReferenceName:     "",
+				ReferenceJSONTags: []string{},
+				Definition: generator.BlockDefinition{
+					Title:       "name",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:              generator.Field,
+				Name:              "Age",
+				Label:             "Age",
+				TypeName:          "int",
+				JSONName:          "age",
+				ReferenceName:     "",
+				ReferenceJSONTags: []string{},
+				Definition: generator.BlockDefinition{
+					Title:       "age",
+					Type:        "int",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:              generator.Field,
+				Name:              "Image",
+				Label:             "Image",
+				TypeName:          "string",
+				JSONName:          "image",
+				ReferenceName:     "Image",
+				ReferenceJSONTags: []string{},
+				Definition: generator.BlockDefinition{
+					Title:       "image",
+					Type:        "@image",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+		},
+	}
+}
+	`))
+
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
+	w := new(testWriter)
+
+	err = s.gt.Generate(typeDefinition, w)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
+	}
+}
+
+func (s *GenerateTestSuite) TestGenerateContentWithPlainTypeHavingReferenceField() {
+	typeDefinition := &generator.TypeDefinition{
+		Name:  "Story",
+		Label: "Story",
+		Blocks: []generator.Block{
+			{
+				Type:          generator.Field,
+				Name:          "Title",
+				Label:         "Title",
+				JSONName:      "title",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "title",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Body",
+				Label:         "Body",
+				JSONName:      "body",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "body",
+					Type:        "string:richtext",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Author",
+				Label:         "Author",
+				JSONName:      "author",
+				TypeName:      "Author",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "author",
+					Type:        "Author",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+		},
+		Type: generator.Content,
+		Metadata: generator.Metadata{
+			MethodReceiverName: "s",
+		},
+	}
+
+	expectedBuffer, err := format.Source([]byte(`
+package entities
+
+import (
+        "fmt"
+        "github.com/fanky5g/ponzu/config"
+        "github.com/fanky5g/ponzu/content/editor"
+        "github.com/fanky5g/ponzu/content/item"
+        "github.com/fanky5g/ponzu/tokens"
+)
+
+type Story struct {
+	item.Item
+
+	Title string ` + "`json:\"title\"`" + ` 
+	Body string ` + "`json:\"body\"`" + ` 
+	Author Author ` + "`json:\"author\"`" + ` 
+}
+
+// MarshalEditor writes a buffer of views to edit a Story within the CMS
+// and implements editor.Editable
+func (s *Story) MarshalEditor(paths config.Paths) ([]byte, error) {
+        view, err := editor.Form(s,
+                paths,
+				// Take note that the first argument to these Input-like functions
+                // is the string version of each Story field, and must follow
+                // this pattern for auto-decoding and auto-encoding reasons:
+                editor.Field{
+					View: editor.Input("Title", s, map[string]string{
+						"label":       "Title",
+						"type":        "text",
+						"placeholder": "Enter the Title here",
+					}, nil),
+				},
+				editor.Field{
+					View: editor.Richtext("Body", s, map[string]string{
+						"label":       "Body",
+						"placeholder": "Enter the Body here",
+					}, nil),
+				},
+				editor.Field{
+					View: editor.Nested("Author", s, nil,
+						editor.Field{
+							View: editor.Input("Author.Name", s, map[string]string{
+								"label":       "Name",
+								"type":        "text",
+								"placeholder": "Enter the Name here",
+							}, nil),
+						},
+						editor.Field{
+							View: editor.Input("Author.Age", s, map[string]string{
+								"label":       "Age",
+								"type":        "text",
+								"placeholder": "Enter the Age here",
+							}, nil),
+						},
+						editor.Field{
+							View: editor.ReferenceSelect(paths, "Author.Image", s, map[string]string{
+									"label": "Select Image",
+								},
+								"Image",
+							),  
+ 						},
+					),
+				},
+        )
+
+        if err != nil {
+                return nil, fmt.Errorf("failed to render Story editor view: %s", err.Error())
+        }
+
+        return view, nil
+}
+
+func init() {
+        Content["Story"] = func() interface{} { return new(Story) }
+}
+
+func (s *Story) EntityName() string {
+        return "Story"
+}
+
+func (s *Story) GetTitle() string {
+        return s.ID
+}
+
+func (s *Story) GetRepositoryToken() tokens.RepositoryToken {
+        return "story"
+}
+`))
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
+	w := new(testWriter)
+
+	err = s.gt.Generate(typeDefinition, w)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
+	}
 }
 
 func TestGenerate(t *testing.T) {

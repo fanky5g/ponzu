@@ -5,9 +5,8 @@ import (
 )
 
 type {{ .Definition.Name }} struct {
-    {{ range .Fields nil }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
-    {{ end }}
-}
+    {{ range .Fields nil }}{{ if and .IsReference (not (or .IsFieldCollection .IsNested)) }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}" reference:"{{ .ReferenceName }}"`{{ else }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`{{ end }}
+    {{ end }}}
 
 func init() {
 	Definitions["{{ .Definition.Name }}"] = generator.TypeDefinition {

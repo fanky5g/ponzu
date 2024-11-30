@@ -10,6 +10,78 @@ type TypeDefinitionTestSuite struct {
 	suite.Suite
 }
 
+func (s *TypeDefinitionTestSuite) TestPlainTypeDefinitionWithReferenceField() {
+	// author name:string age:int image:@image
+	args := []string{
+		"author",
+		"name:string",
+		"age:int",
+		"image:@image",
+	}
+
+	definition, err := NewTypeDefinition(Plain, args)
+	if err != nil {
+		s.T().Errorf("Failed: %s", err.Error())
+	}
+
+	expectedTypeDefinition := &TypeDefinition{
+		Name:  "Author",
+		Label: "Author",
+		Blocks: []Block{
+			{
+				Type:          Field,
+				Name:          "Name",
+				Label:         "Name",
+				JSONName:      "name",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "name",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Age",
+				Label:         "Age",
+				JSONName:      "age",
+				TypeName:      "int",
+				ReferenceName: "",
+				Definition: BlockDefinition{
+					Title:       "age",
+					Type:        "int",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          Field,
+				Name:          "Image",
+				Label:         "Image",
+				JSONName:      "image",
+				TypeName:      "string",
+				ReferenceName: "Image",
+				Definition: BlockDefinition{
+					Title:       "image",
+					Type:        "@image",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+		},
+		Type: Plain,
+		Metadata: Metadata{
+			MethodReceiverName: "a",
+		},
+	}
+
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), definition, expectedTypeDefinition)
+	}
+}
+
 func (s *TypeDefinitionTestSuite) TestParseContent() {
 	// blog title:string Author:string PostCategory:string content:string some_thing:int
 	args := []string{
