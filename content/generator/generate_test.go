@@ -62,9 +62,9 @@ func (s *GenerateTestSuite) SetupSuite() {
 			},
 		},
 		Definitions: map[string]generator.TypeDefinition{
-			"Author": {
-				Name:  "Author",
-				Label: "Author",
+			"Creator": {
+				Name:  "Creator",
+				Label: "Creator",
 				Blocks: []generator.Block{
 					{
 						Type:          generator.Field,
@@ -1350,11 +1350,12 @@ func (s *GenerateTestSuite) TestGenerateContentWithPlainTypeHavingReferenceField
 				Name:          "Author",
 				Label:         "Author",
 				JSONName:      "author",
-				TypeName:      "Author",
-				ReferenceName: "",
+				// TODO: Split references and nested Types
+				TypeName:      "Creator",
+				ReferenceName: "Creator",
 				Definition: generator.BlockDefinition{
 					Title:       "author",
-					Type:        "Author",
+					Type:        "Creator",
 					IsArray:     false,
 					IsReference: true,
 				},
@@ -1382,7 +1383,7 @@ type Story struct {
 
 	Title string ` + "`json:\"title\"`" + ` 
 	Body string ` + "`json:\"body\"`" + ` 
-	Author Author ` + "`json:\"author\"`" + ` 
+	Author Creator ` + "`json:\"author\"`" + ` 
 }
 
 // MarshalEditor writes a buffer of views to edit a Story within the CMS
