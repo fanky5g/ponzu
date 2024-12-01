@@ -103,11 +103,11 @@ func mapBlockToField(contentTypes content.Types, block generator.Block) *Field {
 		} else if _, ok = contentTypes.FieldCollections[block.ReferenceName]; ok {
 			isFieldCollection = true
 			viewType = "field-collection"
-			typeName = block.ReferenceName
-			typeName = "*" + typeName
+			typeName = "*" + block.ReferenceName
 		} else {
 			isNested = true
 			viewType = "nested"
+			typeName = block.ReferenceName
 		}
 
 		if block.Definition.IsArray && !strings.HasPrefix(typeName, "[]") {
