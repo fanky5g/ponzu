@@ -298,7 +298,6 @@ func (s *GenerateFieldCollectionTestSuite) TestGenerateFieldCollectionField() {
 		},
 		Blocks: []generator.Block{
 			{
-
 				Type:     generator.Field,
 				Name:     "Title",
 				Label:    "Title",
@@ -310,7 +309,6 @@ func (s *GenerateFieldCollectionTestSuite) TestGenerateFieldCollectionField() {
 				},
 			},
 			{
-
 				Type:     generator.Field,
 				Name:     "URL",
 				Label:    "URL",
@@ -322,7 +320,6 @@ func (s *GenerateFieldCollectionTestSuite) TestGenerateFieldCollectionField() {
 				},
 			},
 			{
-
 				Type:          generator.Field,
 				Name:          "ContentBlocks",
 				Label:         "Content Blocks",

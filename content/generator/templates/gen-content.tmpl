@@ -11,7 +11,7 @@ import (
 type {{ .Definition.Name }} struct {
     item.Item
 
-    {{ range .Fields nil }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`
+    {{ range .Fields nil }}{{ if and .IsReference (not (or .IsFieldCollection .IsNested)) }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}" reference:"{{ .ReferenceName }}"`{{ else }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`{{ end }}
     {{ end }}	
 }
 

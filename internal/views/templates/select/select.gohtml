@@ -1,5 +1,9 @@
 <div class="control-block">
+    {{ if not (eq .Label "") }}
+        <label>{{ .Label }}</label>
+    {{ end }}
     <div class="mdc-select mdc-select--outlined mdc-select--no-label {{ .Selector }}">
+        <input type="hidden" name="{{ .Name }}" value="{{ .Value }}" />
         <div class="mdc-select__anchor" role="button" aria-haspopup="listbox" aria-labelledby="{{ .Name }}"
             tabindex="0">
             <span class="mdc-select__selected-text-container">
@@ -24,9 +28,9 @@
         <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth" role="listbox">
             <ul class="mdc-list">
                 {{ if eq .Value "" }}
-                <li class="mdc-list-item mdc-list-item--selected" role="option" aria-selected="true" data-value="">
-                    <span class="mdc-list-item__text">{{ .Label }}</span>
-                </li>
+                    <li class="mdc-list-item mdc-list-item--selected" role="option" aria-selected="true" data-value="">
+                        <span class="mdc-list-item__text">{{ .Placeholder }}</span>
+                    </li>
                 {{ end }}
 
                 {{ range .Options }}

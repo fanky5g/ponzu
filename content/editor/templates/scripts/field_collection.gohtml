@@ -112,6 +112,10 @@
             e.preventDefault();
 
             const template = templates[activeBlock];
+            if (!template) {
+                throw new Error(`No template matched for: ${activeBlock}`);
+            }
+
             const child = template.replace(new RegExp('{{ .PositionalPlaceholder }}', 'g'), i);
             const el = $('<div/>').html(child).contents();
 

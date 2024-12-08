@@ -2,13 +2,15 @@ package util
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/fs"
 	"os"
 	"regexp"
+	"runtime/debug"
 	"strings"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -68,4 +70,18 @@ func GetModulePath() (string, error) {
 	}
 
 	return matches[index], nil
+}
+
+func GetPonzuVersion() (string, error) {
+	ponzuVersion := os.Getenv("PONZU_VERSION")
+	if ponzuVersion != "" {
+		return ponzuVersion, nil
+	}
+
+	buildInfo, ok := debug.ReadBuildInfo()
+	if ok {
+		return buildInfo.Main.Version, nil
+	}
+
+	return "", nil
 }

@@ -1,6 +1,5 @@
-View: reference.SelectRepeater("[[ $ | Path ]]", [[ $ | RootMethodReceiver ]], map[string]string{
+View: editor.ReferenceSelectRepeater(paths, "[[ $ | Path ]]", [[ $ | RootMethodReceiver ]], map[string]string{
         "label": "[[ .Label ]]",
     }, 
     "[[ .ReferenceName ]]", 
-    `[[ range .ReferenceJSONTags ]]{{ .[[ . ]] }} [[ else ]][[ .ReferenceName ]]: {{ .id }}[[ end ]]`,
 ),
