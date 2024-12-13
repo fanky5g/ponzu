@@ -3,8 +3,11 @@ package content
 import (
 	"errors"
 	"fmt"
+
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/fanky5g/ponzu/util"
 )
 
@@ -32,6 +35,10 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 		}
 
 		sluggable.SetSlug(slug)
+	}
+
+	if workflowStateMutator, ok := entity.(interfaces.MutableWorkflowState); ok {
+		workflowStateMutator.SetState(workflow.DraftState)
 	}
 
 	content, err := repository.Insert(entity)

@@ -86,6 +86,8 @@ github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
 github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1/go.mod h1:eiHquC6KnDVZR79ELBbVqRque9F6oNfZO3M3ysA0OVs=
 github.com/fanky5g/ponzu-driver-postgres v1.1.0 h1:Zt1rMrrD5KLb6Nca+DefPtQdbzu6v0IIL/Vx8s7tulc=
 github.com/fanky5g/ponzu-driver-postgres v1.1.0/go.mod h1:3vZJJcdPhi4WHdyGkX82/WOxK34zYCkD6u9tmuvV8CQ=
+github.com/fanky5g/ponzu-driver-postgres v1.2.0 h1:V2OMMbn780tWid8CCqfkZH/17z7NJTzZMd6VfuiogWk=
+github.com/fanky5g/ponzu-driver-postgres v1.2.0/go.mod h1:3vZJJcdPhi4WHdyGkX82/WOxK34zYCkD6u9tmuvV8CQ=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=

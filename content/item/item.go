@@ -6,6 +6,8 @@ package item
 import (
 	"net/http"
 	"time"
+
+	"github.com/fanky5g/ponzu/content/workflow"
 )
 
 // Readable enables an entity to have a Title property
@@ -90,10 +92,15 @@ type Hookable interface {
 
 // Item should only be embedded into entities type structs.
 type Item struct {
-	ID        string `json:"id"`
-	Slug      string `json:"slug"`
-	Timestamp int64  `json:"timestamp"`
-	Updated   int64  `json:"updated"`
+	ID            string         `json:"id"`
+	WorkflowState workflow.State `json:"workflow_state"`
+	Slug          string         `json:"slug"`
+	Timestamp     int64          `json:"timestamp"`
+	Updated       int64          `json:"updated"`
+}
+
+func (i *Item) SetState(state workflow.State) {
+	i.WorkflowState = state
 }
 
 // Time partially implements the Sortable interface
