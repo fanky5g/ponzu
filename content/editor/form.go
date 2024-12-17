@@ -97,23 +97,7 @@ func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 		}
 	}
 
-	if _, err = viewBuf.WriteString(`</div>`); err != nil {
-		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
-	}
-
-	if _, err = viewBuf.WriteString(`<hr class="divider">`); err != nil {
-		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
-	}
-
-	script := &bytes.Buffer{}
-	scriptTmpl := makeScript("editor")
-	if err = scriptTmpl.Execute(script, paths); err != nil {
-		panic(err)
-	}
-
-	editorControls := makeHtml("editor_controls")
-	_, err = viewBuf.WriteString(editorControls + script.String() + `</div>`)
-	if err != nil {
+	if _, err = viewBuf.WriteString(`</div></div>`); err != nil {
 		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
 	}
 

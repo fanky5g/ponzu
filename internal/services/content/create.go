@@ -37,8 +37,8 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 		sluggable.SetSlug(slug)
 	}
 
-	if workflowStateMutator, ok := entity.(interfaces.MutableWorkflowState); ok {
-		workflowStateMutator.SetState(workflow.DraftState)
+	if workflowStateManager, ok := entity.(interfaces.WorkflowStateManager); ok {
+		workflowStateManager.SetState(workflow.DraftState)
 	}
 
 	content, err := repository.Insert(entity)

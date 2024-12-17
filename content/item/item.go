@@ -103,6 +103,10 @@ func (i *Item) SetState(state workflow.State) {
 	i.WorkflowState = state
 }
 
+func (i *Item) GetState() workflow.State {
+	return i.WorkflowState
+}
+
 // Time partially implements the Sortable interface
 func (i *Item) Time() int64 {
 	return i.Timestamp

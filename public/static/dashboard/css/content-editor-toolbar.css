@@ -1,0 +1,23 @@
+.content-editor-toolbar {
+  background: #fff;
+  border-bottom: 1px solid #d3d3d3;
+  min-height: 0;
+  --webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.content-editor-toolbar .mdc-top-app-bar__row {
+  max-height: 56px;
+}
+
+.content-editor-toolbar .title {
+  padding-left: 0;
+  max-width: 512px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: 0.005em;
+}

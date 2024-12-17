@@ -1,0 +1,41 @@
+.workflow-badge {
+    color: #fff;
+    margin-right: 5px;
+    height: 20px;
+    padding: 0.15em 4px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 15px;
+    display: inline-block;
+    margin-left: 12px;
+}
+
+.workflow-badge.draft {
+    background-color: #06a8a8;
+    color:#000000;
+    border: 1px solid #06a8a8;
+}
+
+.workflow-actions button {
+    font-size: 12px;
+    gap: 6px;
+}
+
+.workflow-actions {
+    position: relative;
+}
+
+.workflow-actions .mdc-menu {
+    top: 32px!important;
+    left: 8px!important;
+}
+
+.workflow-actions li.mdc-list-item {
+    white-space: nowrap;
+}
+
+.workflow-actions li.mdc-list-item i {
+    margin-right: 12px;
+}

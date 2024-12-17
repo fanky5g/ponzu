@@ -1,7 +1,20 @@
 package interfaces
 
-import "github.com/fanky5g/ponzu/content/workflow"
+import (
+	"text/template"
 
-type MutableWorkflowState interface {
+	"github.com/fanky5g/ponzu/content/workflow"
+)
+
+type HasWorkflowLifecycle interface {
+	GetSupportedWorkflows() []workflow.Workflow
+}
+
+type WorkflowStateManager interface {
 	SetState(state workflow.State)
+	GetState() workflow.State
+}
+
+type WorkflowActionDescriptor interface {
+	GetAction(source workflow.Workflow) (*template.Template, error)
 }

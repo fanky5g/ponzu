@@ -7,7 +7,7 @@ func (workflow *Draft) GetState() State {
 }
 
 func (workflow *Draft) GetValidTransitions() []Workflow {
-	return []Workflow{&Online{}}
+	return []Workflow{&Preview{}}
 }
 
 func (workflow *Draft) GetPastTransitions() []Workflow {
