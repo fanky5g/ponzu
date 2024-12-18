@@ -1,6 +1,6 @@
 module github.com/fanky5g/ponzu
 
-go 1.21.5
+go 1.23.4
 
 require (
 	github.com/fanky5g/ponzu-driver-bleve v1.0.3
