@@ -36,7 +36,7 @@ func RegisterRoutes(
 	r.AuthorizedRoute("/edit/delete", NewDeleteHandler)
 	r.AuthorizedRoute("/edit/upload", NewEditUploadHandler)
 	r.AuthorizedRoute("/edit/upload/delete", NewDeleteUploadHandler)
-	dashboard.RegisterRoutes(r, staticFileSystem, uploadsStaticFileSystem)
+	dashboard.RegisterRoutes(r)
 
 	api.RegisterRoutes(r, uploadsStaticFileSystem)
 

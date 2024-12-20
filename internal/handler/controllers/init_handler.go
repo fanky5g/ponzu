@@ -3,9 +3,9 @@ package controllers
 import (
 	"encoding/base64"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
-	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
@@ -15,7 +15,7 @@ import (
 )
 
 func NewInitHandler(r router.Router) http.HandlerFunc {
-	configService := r.Context().Service(tokens.ConfigServiceToken).(config.Service)
+	configService := r.Context().Service(tokens.ConfigServiceToken).(*config.Service)
 	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
 	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
 

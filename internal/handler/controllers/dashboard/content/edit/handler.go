@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/dashboard/mapper"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/dashboard/renderer"

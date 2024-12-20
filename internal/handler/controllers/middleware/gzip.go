@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"compress/gzip"
-	"github.com/fanky5g/ponzu/internal/services/config"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
+
+	"github.com/fanky5g/ponzu/internal/config"
+	log "github.com/sirupsen/logrus"
 )
 
 var GzipMiddleware Token = "GzipMiddleware"
@@ -36,17 +37,17 @@ func (gzw gzipResponseWriter) Push(target string, opts *http.PushOptions) error 
 	return gzw.pusher.Push(target, opts)
 }
 
-func NewGzipMiddleware(configService config.Service) Middleware {
+func NewGzipMiddleware(propCache config.ApplicationPropertiesCache) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(res http.ResponseWriter, req *http.Request) {
-			cfg, err := configService.Get()
+			gzipDisabled, err := propCache.GetGZipDisabled()
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to get get config")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			if cfg.DisableGZIP {
+			if gzipDisabled {
 				next.ServeHTTP(res, req)
 				return
 			}

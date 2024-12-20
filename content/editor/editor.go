@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/views"
 )
 
@@ -23,7 +22,7 @@ func init() {
 
 // Editable ensures data is editable
 type Editable interface {
-	MarshalEditor(paths config.Paths) ([]byte, error)
+	MarshalEditor(publicPath string) ([]byte, error)
 }
 
 // Editor is a view containing fields to manage entities

@@ -12,9 +12,9 @@ import (
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/manager"
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
-	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/views"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
@@ -51,9 +51,8 @@ type renderer struct {
 }
 
 func (r *renderer) InjectInAdminView(res http.ResponseWriter, subView *bytes.Buffer) {
-	configService := r.ctx.Service(tokens.ConfigServiceToken).(config.Service)
-	appName, err := configService.GetAppName()
-
+	propCache := r.ctx.Service(tokens.ApplicationPropertiesProviderToken).(config.ApplicationPropertiesCache)
+	appName, err := propCache.GetAppName()
 	if err != nil {
 		log.WithFields(log.Fields{"Error": err}).Warn("Failed to get app name")
 		r.InternalServerError(res)
@@ -178,8 +177,8 @@ func (r *renderer) InjectTemplateInAdmin(res http.ResponseWriter, templateText s
 }
 
 func (r *renderer) renderInAppFrame(template string) ([]byte, error) {
-	configService := r.ctx.Service(tokens.ConfigServiceToken).(config.Service)
-	appName, err := configService.GetAppName()
+	propCache := r.ctx.Service(tokens.ApplicationPropertiesProviderToken).(config.ApplicationPropertiesCache)
+	appName, err := propCache.GetAppName()
 	if err != nil {
 		return nil, err
 	}

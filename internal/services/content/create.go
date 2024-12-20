@@ -7,7 +7,6 @@ import (
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/domain/interfaces"
 	"github.com/fanky5g/ponzu/util"
 )
 
@@ -37,7 +36,7 @@ func (s *service) CreateContent(entityType string, entity interface{}) (string, 
 		sluggable.SetSlug(slug)
 	}
 
-	if workflowStateManager, ok := entity.(interfaces.WorkflowStateManager); ok {
+	if workflowStateManager, ok := entity.(workflow.StateManager); ok {
 		workflowStateManager.SetState(workflow.DraftState)
 	}
 

@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"github.com/fanky5g/ponzu/internal/services"
-	"github.com/fanky5g/ponzu/internal/services/config"
-	"github.com/fanky5g/ponzu/tokens"
+	"github.com/fanky5g/ponzu/internal/config"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
@@ -61,22 +59,25 @@ func responseWithCORS(
 	return res, true
 }
 
-func NewCORSMiddleware(
-	applicationServices services.Services,
-	cacheControlMiddleware Middleware) Middleware {
-	configService := applicationServices.Get(tokens.ConfigServiceToken).(config.Service)
-
+func NewCORSMiddleware(propCache config.ApplicationPropertiesCache, cacheControlMiddleware Middleware) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return cacheControlMiddleware(
 			func(res http.ResponseWriter, req *http.Request) {
-				cfg, err := configService.Get()
+				corsDisabled, err := propCache.GetCorsDisabled()
 				if err != nil {
 					log.WithField("Error", err).Warning("Failed to get get config")
 					res.WriteHeader(http.StatusInternalServerError)
 					return
 				}
 
-				res, cors := responseWithCORS(cfg.DisableCORS, cfg.Domain, res, req)
+				domain, err := propCache.GetDomain()
+				if err != nil {
+					log.WithField("Error", err).Warning("Failed to get get config")
+					res.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+
+				res, cors := responseWithCORS(corsDisabled, domain, res, req)
 				if !cors {
 					return
 				}

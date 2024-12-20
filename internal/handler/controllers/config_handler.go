@@ -4,14 +4,14 @@ import (
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
 func NewConfigHandler(r router.Router) http.HandlerFunc {
-	configService := r.Context().Service(tokens.ConfigServiceToken).(config.Service)
+	configService := r.Context().Service(tokens.ConfigServiceToken).(*config.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {

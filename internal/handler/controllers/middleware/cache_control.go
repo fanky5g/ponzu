@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/config"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
@@ -15,29 +15,40 @@ const (
 
 var CacheControlMiddleware Token = "CacheControlMiddleware"
 
-func NewCacheControlMiddleware(configService config.Service) Middleware {
+func NewCacheControlMiddleware(propCache config.ApplicationPropertiesCache) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 
 		return func(res http.ResponseWriter, req *http.Request) {
-			cfg, err := configService.Get()
+			httpCacheDisabled, err := propCache.GetHTTPCacheDisabled()
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to get get config")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			if cfg.DisableHTTPCache {
+			if httpCacheDisabled {
 				res.Header().Add("Cache-Control", "no-cache")
 				next.ServeHTTP(res, req)
 			} else {
-				age := cfg.CacheMaxAge
-				etag := cfg.Etag
-
-				if age == 0 {
-					age = DefaultMaxAge
+				cacheMaxAge, err := propCache.GetCacheControlMaxAge()
+				if err != nil {
+					log.WithField("Error", err).Warning("Failed to get get config")
+					res.WriteHeader(http.StatusInternalServerError)
+					return
 				}
 
-				policy := fmt.Sprintf("max-age=%d, public", age)
+				etag, err := propCache.GetETag()
+				if err != nil {
+					log.WithField("Error", err).Warning("Failed to get get config")
+					res.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+
+				if cacheMaxAge == 0 {
+					cacheMaxAge = DefaultMaxAge
+				}
+
+				policy := fmt.Sprintf("max-age=%d, public", cacheMaxAge)
 				res.Header().Add("ETag", etag)
 				res.Header().Add("Cache-Control", policy)
 

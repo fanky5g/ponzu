@@ -7,11 +7,11 @@ import (
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/infrastructure"
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/internal/services/analytics"
-	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/internal/services/tls"
 	"github.com/fanky5g/ponzu/tokens"
 	"net/http"
@@ -24,7 +24,7 @@ type Server interface {
 
 type server struct {
 	tlsService       tls.Service
-	configService    config.Service
+	configService    *config.Service
 	analyticsService analytics.Service
 	mux              *http.ServeMux
 	configRepository driver.Repository
@@ -40,7 +40,7 @@ func New(contentTypes content.Types, infra infrastructure.Infrastructure, svcs s
 		return nil, err
 	}
 
-	configService := svcs.Get(tokens.ConfigServiceToken).(config.Service)
+	configService := svcs.Get(tokens.ConfigServiceToken).(*config.Service)
 	analyticsService := svcs.Get(tokens.AnalyticsServiceToken).(analytics.Service)
 
 	cfg, err := configService.Get()
