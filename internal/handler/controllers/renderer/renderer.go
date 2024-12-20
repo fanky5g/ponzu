@@ -133,7 +133,7 @@ func (r *renderer) MethodNotAllowed(res http.ResponseWriter) {
 }
 
 func (r *renderer) Editable(res http.ResponseWriter, editable editor.Editable) {
-	b, err := editable.MarshalEditor(r.ctx.Paths())
+	b, err := editable.MarshalEditor(r.ctx.Paths().PublicPath)
 	if err != nil {
 		log.WithFields(log.Fields{"Error": err}).Warn("Failed to Render editable")
 		r.InternalServerError(res)
@@ -144,7 +144,7 @@ func (r *renderer) Editable(res http.ResponseWriter, editable editor.Editable) {
 }
 
 func (r *renderer) ManageEditable(res http.ResponseWriter, editable editor.Editable, typeName string) {
-	m, err := manager.Manage(editable, r.ctx.Paths(), typeName)
+	m, err := manager.Manage(editable, r.ctx.Paths().PublicPath, typeName)
 	if err != nil {
 		log.WithField("Error", err).Warning("Failed to execute editable manager")
 		return

@@ -1,41 +1,85 @@
 .workflow-badge {
-    color: #fff;
-    margin-right: 5px;
-    height: 20px;
-    padding: 0.15em 4px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 15px;
-    display: inline-block;
-    margin-left: 12px;
+  color: #fff;
+  margin-right: 5px;
+  height: 20px;
+  padding: 0.15em 4px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 15px;
+  display: inline-block;
+  margin-left: 12px;
 }
 
 .workflow-badge.draft {
-    background-color: #06a8a8;
-    color:#000000;
-    border: 1px solid #06a8a8;
+  background-color: #06a8a8;
+  color: #000000;
+  border: 1px solid #06a8a8;
+}
+
+.workflow-badge.online {
+  background-color: #0d440d;
+  color: #ffffff;
+  border: 1px solid #0d440d;
+}
+
+.workflow-badge.offline {
+  background-color: #ff0000;
+  color: #ffffff;
+  border: 1px solid #ff0000;
+}
+
+.workflow-badge.archived {
+  background-color: #bfbdbd;
+  color: #000000;
+  border: 1px solid #bfbdbd;
+}
+
+.workflow-badge.preview {
+  background-color: #ffa500;
+  color: #000000;
+  border: 1px solid #ffa500;
+}
+
+.workflow-actions li.mdc-list-item.offline i {
+    color: #ff0000;
+}
+
+.workflow-actions li.mdc-list-item.preview i {
+    color: #ffa500;
+}
+
+.workflow-actions li.mdc-list-item.archived i {
+    color: #bfbdbd;
+}
+
+.workflow-actions li.mdc-list-item.online i {
+    color: #0d440d;
+}
+
+workflow-actions li.mdc-list-item.draft {
+    color: #06a8a8;
 }
 
 .workflow-actions button {
-    font-size: 12px;
-    gap: 6px;
+  font-size: 12px;
+  gap: 6px;
 }
 
 .workflow-actions {
-    position: relative;
+  position: relative;
 }
 
 .workflow-actions .mdc-menu {
-    top: 32px!important;
-    left: 8px!important;
+  top: 32px !important;
+  left: 8px !important;
 }
 
 .workflow-actions li.mdc-list-item {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .workflow-actions li.mdc-list-item i {
-    margin-right: 12px;
+  margin-right: 12px;
 }
