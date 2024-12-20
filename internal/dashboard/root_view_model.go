@@ -1,11 +1,18 @@
-package services
+package dashboard
 
 import (
+	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/internal/config"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/dashboard/resources"
 )
 
-func GetRootRenderContext(propCache config.ApplicationPropertiesCache) (*resources.RootRenderContext, error) {
+type DashboardRootViewModel struct {
+	PublicPath string
+	AppName    string
+	Logo       string
+	Types      map[string]content.Builder
+}
+
+func NewDashboardRootViewModel(propCache config.ApplicationPropertiesCache) (*DashboardRootViewModel, error) {
 	appName, err := propCache.GetAppName()
 	if err != nil {
 		return nil, err
@@ -21,7 +28,7 @@ func GetRootRenderContext(propCache config.ApplicationPropertiesCache) (*resourc
 		return nil, err
 	}
 
-	return &resources.RootRenderContext{
+	return &DashboardRootViewModel{
 		PublicPath: publicPath,
 		AppName:    appName,
 		Logo:       appName,

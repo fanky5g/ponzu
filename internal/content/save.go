@@ -1,4 +1,4 @@
-package edit
+package content 
 
 func SaveContentHandler() {
 	//	cid := req.FormValue("id")

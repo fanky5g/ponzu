@@ -1,4 +1,4 @@
-package edit
+package content
 
 import (
 	"html/template"
@@ -7,11 +7,8 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/content/workflow"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/dashboard/mapper"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/dashboard/renderer"
-	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/views"
 )
 
@@ -21,19 +18,16 @@ var (
 
 func init() {
 	_, b, _, _ := runtime.Caller(0)
-	sharedTemplatesRoot := filepath.Join(filepath.Dir(b), "../../template")
+	sharedTemplatesRoot := filepath.Join(filepath.Dir(b), "../dashboard")
 
 	pageTemplates = []string{
-		filepath.Join(sharedTemplatesRoot, "admin.gohtml"),
+		filepath.Join(sharedTemplatesRoot, "dashboard.gohtml"),
 		filepath.Join(sharedTemplatesRoot, "app-frame.gohtml"),
-		filepath.Join(filepath.Dir(b), "edit_content_form.gohtml"),
+		filepath.Join(filepath.Dir(b), "edit_content_view.gohtml"),
 	}
 }
 
-func NewEditContentFormHandler(
-	propCache config.ApplicationPropertiesCache,
-	contentService content.Service,
-) http.HandlerFunc {
+func NewEditContentFormHandler(propCache config.ApplicationPropertiesCache, contentService *Service) http.HandlerFunc {
 	funcs := views.GlobFuncs
 	maps.Copy(funcs, workflow.TemplateFuncs)
 
@@ -47,34 +41,38 @@ func NewEditContentFormHandler(
 	}
 
 	return func(res http.ResponseWriter, req *http.Request) {
-		identifier, err := mapper.MapToContentIdentifier(req)
+		contentQuery, err := MapToContentQuery(req)
 		if err != nil {
 			// TODO: handle error
+			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		typeBuilder, ok := contentTypes[identifier.Type]
+		typeBuilder, ok := contentTypes[contentQuery.Type]
 		if !ok {
 			// TODO: handle error
+			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		entity := typeBuilder()
-		if identifier.ID != "" {
-			entity, err = contentService.GetContent(identifier.Type, identifier.ID)
+		if contentQuery.ID != "" {
+			entity, err = contentService.GetContent(contentQuery.Type, contentQuery.ID)
 			if err != nil {
 				// TODO: handle error
+				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 		}
 
-		editContentForm, err := NewEditContentForm(entity, propCache)
+		editContentForm, err := NewEditContentFormViewModel(entity, propCache)
 		if err != nil {
 			// TODO: handle error
+			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		renderer.WriteTemplate(res, editPage, editContentForm)
+		WriteTemplate(res, editPage, editContentForm)
 		return
 	}
 }

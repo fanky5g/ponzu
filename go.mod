@@ -2,6 +2,8 @@ module github.com/fanky5g/ponzu
 
 go 1.23.4
 
+replace github.com/fanky5g/ponzu-driver-postgres => ../ponzu-driver-postgres
+
 require (
 	github.com/fanky5g/ponzu-driver-bleve v1.0.3
 	github.com/fanky5g/ponzu-driver-gcs v1.1.0

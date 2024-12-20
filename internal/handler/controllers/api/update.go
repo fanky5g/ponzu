@@ -7,7 +7,7 @@ import (
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/tokens"
 	"log"
@@ -16,7 +16,7 @@ import (
 
 func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 	contentTypes := r.Context().Types().Content
-	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
 	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {

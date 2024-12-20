@@ -10,7 +10,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/memorycache"
 	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"github.com/fanky5g/ponzu/internal/services/auth"
-	contentService "github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/internal/services/search"
 	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/internal/services/tls"
@@ -74,17 +73,11 @@ func New(infra infrastructure.Infrastructure, types map[string]content.Builder) 
 	}
 	services[tokens.ConfigServiceToken] = configService
 
-	applicationPropertiesCache, err := config.NewApplicationPropertiesCache(memcache, types) 
+	applicationPropertiesCache, err := config.NewApplicationPropertiesCache(memcache, types)
 	if err != nil {
 		log.Fatalf("Failed to initialize application properties cache: %v", err)
 	}
 	services[tokens.ApplicationPropertiesProviderToken] = applicationPropertiesCache
-
-	contentSvc, err := contentService.New(db, types, searchClient)
-	if err != nil {
-		log.Fatalf("Failed to initialize entities service: %v", err)
-	}
-	services[tokens.ContentServiceToken] = contentSvc
 
 	contentSearchService, err := search.New(searchClient, db)
 	if err != nil {

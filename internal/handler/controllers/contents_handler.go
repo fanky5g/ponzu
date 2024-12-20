@@ -8,14 +8,14 @@ import (
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/tokens"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func NewContentsHandler(r router.Router) http.HandlerFunc {
-	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
 	contentTypes := r.Context().Types().Content
 
 	return func(res http.ResponseWriter, req *http.Request) {

@@ -1,17 +1,16 @@
-package edit
+package content
 
 import (
 	"errors"
 	"fmt"
 	"html/template"
 
-	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/content/workflow"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/dashboard/resources"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/dashboard/services"
+	"github.com/fanky5g/ponzu/internal/config"
+	"github.com/fanky5g/ponzu/internal/dashboard"
 )
 
 var ErrInvalidContentType = errors.New("invalid content type")
@@ -24,16 +23,13 @@ type ContentMetadata struct {
 	Workflow   workflow.Workflow
 }
 
-type EditContentForm struct {
-	resources.RootRenderContext
+type EditContentFormViewModel struct {
+	dashboard.DashboardRootViewModel
 	ContentMetadata
 	Form template.HTML
 }
 
-func NewEditContentForm(
-	entity interface{},
-	propCache config.ApplicationPropertiesCache,
-) (*EditContentForm, error) {
+func NewEditContentFormViewModel(entity interface{}, propCache config.ApplicationPropertiesCache) (*EditContentFormViewModel, error) {
 	entityInterface, ok := entity.(content.Entity)
 	if !ok {
 		return nil, ErrInvalidContentType
@@ -44,12 +40,12 @@ func NewEditContentForm(
 		return nil, fmt.Errorf("entities type %T is not editable", entityInterface.EntityName())
 	}
 
-	rootRenderContext, err := services.GetRootRenderContext(propCache)
+	publicPath, err := propCache.GetPublicPath()
 	if err != nil {
 		return nil, err
 	}
 
-	formBytes, err := editable.MarshalEditor(rootRenderContext.PublicPath)
+	formBytes, err := editable.MarshalEditor(publicPath)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +70,13 @@ func NewEditContentForm(
 		return nil, err
 	}
 
-	return &EditContentForm{
-		RootRenderContext: *rootRenderContext,
+	rootViewModel, err := dashboard.NewDashboardRootViewModel(propCache)
+	if err != nil {
+		return nil, err
+	}
+
+	return &EditContentFormViewModel{
+		DashboardRootViewModel: *rootViewModel,
 		ContentMetadata: ContentMetadata{
 			ID:         identifiable.ItemID(),
 			EntityName: entityInterface.EntityName(),

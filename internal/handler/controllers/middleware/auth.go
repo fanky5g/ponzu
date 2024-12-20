@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"net/http"
+
 	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
@@ -9,7 +11,6 @@ import (
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 var AuthMiddleware Token = "AuthMiddleware"
