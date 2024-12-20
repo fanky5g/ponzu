@@ -5,7 +5,6 @@ package manager
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"html/template"
@@ -34,8 +33,8 @@ type manager struct {
 	PublicPath string
 }
 
-func Manage(e editor.Editable, paths config.Paths, typeName string) ([]byte, error) {
-	v, err := e.MarshalEditor(paths)
+func Manage(e editor.Editable, publicPath string, typeName string) ([]byte, error) {
+	v, err := e.MarshalEditor(publicPath)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't marshal editor for entities %s. %s", typeName, err.Error())
 	}
@@ -55,7 +54,7 @@ func Manage(e editor.Editable, paths config.Paths, typeName string) ([]byte, err
 		Kind:       typeName,
 		Slug:       s.ItemSlug(),
 		Editor:     template.HTML(v),
-		PublicPath: paths.PublicPath,
+		PublicPath: publicPath,
 	}
 
 	// execute templates template into buffer for func return val

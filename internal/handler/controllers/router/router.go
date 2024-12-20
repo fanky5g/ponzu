@@ -1,23 +1,21 @@
 package router
 
 import (
-	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/middleware"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/renderer"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/application"
 	"net/http"
 )
 
 type Router interface {
 	Redirect(*http.Request, http.ResponseWriter, string)
-	Route(string, func(r Router) http.HandlerFunc)
-	AuthorizedRoute(string, func(r Router) http.HandlerFunc)
-	Handle(pattern string, handler http.Handler)
-	HandleWithCacheControl(pattern string, handler http.Handler)
-	APIRoute(string, func(r Router) http.HandlerFunc)
-	APIAuthorizedRoute(pattern string, handler func(r Router) http.HandlerFunc)
+	Route(string, http.HandlerFunc)
+	AuthorizedRoute(string, http.HandlerFunc)
+	Handle(string, http.Handler)
+	HandleWithCacheControl(string, http.Handler)
+	APIRoute(string, http.HandlerFunc)
+	APIAuthorizedRoute(string, http.HandlerFunc)
 
 	Context() context.Context
 	Renderer() renderer.Renderer
@@ -30,19 +28,7 @@ type router struct {
 	renderer    renderer.Renderer
 }
 
-func (r *router) Context() context.Context {
-	return r.ctx
-}
-
-func (r *router) Renderer() renderer.Renderer {
-	return r.renderer
-}
-
-func New(
-	mux *http.ServeMux,
-	paths conf.Paths,
-	svcs services.Services,
-	types content.Types) (Router, error) {
+func New(mux *http.ServeMux) (Router, error) {
 	middlewares, err := middleware.New(
 		paths,
 		svcs,

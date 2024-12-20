@@ -1,0 +1,73 @@
+package auth
+
+import (
+	"errors"
+	"fmt"
+
+	"github.com/fanky5g/ponzu/internal/entities"
+	emailer "github.com/nilslice/email"
+	log "github.com/sirupsen/logrus"
+)
+
+var (
+	// ErrNoUserExists is used for the db to report to controllers user of non-existing user
+	ErrNoUserExists = errors.New("error. No user exists")
+)
+
+func (s *Service) SendPasswordRecoveryInstructions(email string) error {
+	_, err := s.getUserByEmail(email)
+	if errors.Is(err, ErrNoUserExists) {
+		return errors.New("no user exists")
+	}
+
+	// create temporary key to verify user
+	key, err := s.SetRecoveryKey(email)
+	if err != nil {
+		return fmt.Errorf("failed to set account recovery key: %v", err)
+	}
+
+	cfgIface, err := s.config.Latest()
+	if err != nil {
+		return fmt.Errorf("failed to get config: %v", err)
+	}
+
+	if cfgIface == nil {
+		return errors.New("failed to get config")
+	}
+
+	cfg := cfgIface.(*entities.Config)
+	body := fmt.Sprintf(`
+There has been an account recovery request made for the user with email:
+%s
+
+To recover your account, please go to https://%s/recover/key and enter 
+this email address along with the following secret key:
+
+%s
+
+If you did not make the request, ignore this message and your password 
+will remain as-is.
+
+
+Thank you,
+Ponzu CMS at %s
+
+`, email, cfg.Domain, key, cfg.Domain)
+
+	msg := emailer.Message{
+		To:      email,
+		From:    fmt.Sprintf("ponzu@%s", cfg.Domain),
+		Subject: fmt.Sprintf("Account Recovery [%s]", cfg.Domain),
+		Body:    body,
+	}
+
+	// TODO: queue in application worker goroutines
+	go func() {
+		err = msg.Send()
+		if err != nil {
+			log.Println("Failed to send message to:", msg.To, "about", msg.Subject, "Error:", err)
+		}
+	}()
+
+	return nil
+}

@@ -3,7 +3,9 @@ package views
 import (
 	"errors"
 	"html/template"
+	"strings"
 
+	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/util"
 )
 
@@ -30,6 +32,20 @@ var GlobFuncs = template.FuncMap{
 	},
 	"multiply": func(a, b int) int {
 		return a * b
+	},
+	"lower": func(a interface{}) string {
+		switch a.(type) {
+		case string:
+			return strings.ToLower(a.(string))
+		case workflow.State:
+			workflowState, ok := a.(workflow.State)
+			if ok {
+				return strings.ToLower(string(workflowState))
+			}
+			return ""
+		default:
+			return ""
+		}
 	},
 	"FmtTime":  util.FmtTime,
 	"FmtBytes": util.FmtBytes,

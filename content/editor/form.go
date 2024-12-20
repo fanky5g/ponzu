@@ -3,7 +3,6 @@ package editor
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/item"
 	"strings"
 )
@@ -33,7 +32,7 @@ func getTabContent(tab Tab) string {
 
 // Form takes editable entities and any number of Field funcs to describe the edit
 // page for any entities struct added by a user
-func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
+func Form(post Editable, fields ...Field) ([]byte, error) {
 	viewBuf := &bytes.Buffer{}
 
 	tabs, err := getTabs(post, fields)

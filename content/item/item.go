@@ -21,10 +21,7 @@ type Sluggable interface {
 	ItemSlug() string
 }
 
-// Identifiable enables a struct to have its ID set/get. Typically, this is done
-// to set an ID to -1 indicating it is new for DB inserts, since by default
-// a newly initialized struct would have an ID of 0, the int zero-value, and
-// BoltDB's starting key per bucket is 0, thus overwriting the first record.
+// Identifiable enables a struct to have its ID set/get.
 type Identifiable interface {
 	ItemID() string
 	SetItemID(string)

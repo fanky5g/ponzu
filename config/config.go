@@ -3,10 +3,16 @@ package config
 import (
 	"errors"
 	"os"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
+)
+
+var (
+	once sync.Once
+	cfg  *Config
 )
 
 type Paths struct {
@@ -48,47 +54,58 @@ func defineFlags(flagSet *flag.FlagSet, workingDir string) {
 }
 
 func Get() (*Config, error) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
+	var err error
 
-	flags := flag.NewFlagSet("config", flag.ExitOnError)
-	defineFlags(flags, cwd)
+	once.Do(func() {
+		var cwd string
+		cwd, err = os.Getwd()
+		if err != nil {
+			return
+		}
 
-	if err = flags.Parse(os.Args[1:]); err != nil {
-		return nil, err
-	}
+		flags := flag.NewFlagSet("config", flag.ExitOnError)
+		defineFlags(flags, cwd)
 
-	viper.SetConfigName("ponzu")
-	viper.SetConfigType("props")
-	viper.AddConfigPath(cwd)
-	err = viper.ReadInConfig()
-	if err != nil && errors.As(err, &viper.ConfigFileNotFoundError{}) {
-		log.Info("config file not found. will default to provided flags")
-		err = nil
-	}
+		if err = flags.Parse(os.Args[1:]); err != nil {
+			return
+		}
 
-	if err = viper.BindPFlags(flags); err != nil {
-		return nil, err
-	}
+		viper.SetConfigName("ponzu")
+		viper.SetConfigType("props")
+		viper.AddConfigPath(cwd)
+		err = viper.ReadInConfig()
+		if err != nil {
+			if !errors.As(err, &viper.ConfigFileNotFoundError{}) {
+				return
+			}
 
-	return &Config{
-		Paths: Paths{
-			PublicPath: viper.GetString("public_path"),
-			DataDir:    viper.GetString("data_dir"),
-		},
-		ServeConfig: ServeConfig{
-			HttpsPort: viper.GetInt("https_port"),
-			HttpPort:  viper.GetInt("port"),
-			Bind:      viper.GetString("bind"),
-			DevHttps:  viper.GetBool("dev_https"),
-			Https:     viper.GetBool("https"),
-		},
-		DatabaseDriver: viper.GetString("database_driver"),
-		SearchDriver:   viper.GetString("search_driver"),
-		StorageDriver:  viper.GetString("storage_driver"),
-	}, nil
+			log.Info("config file not found. will default to provided flags")
+			err = nil
+		}
+
+		if err = viper.BindPFlags(flags); err != nil {
+			return
+		}
+
+		cfg = &Config{
+			Paths: Paths{
+				PublicPath: viper.GetString("public_path"),
+				DataDir:    viper.GetString("data_dir"),
+			},
+			ServeConfig: ServeConfig{
+				HttpsPort: viper.GetInt("https_port"),
+				HttpPort:  viper.GetInt("port"),
+				Bind:      viper.GetString("bind"),
+				DevHttps:  viper.GetBool("dev_https"),
+				Https:     viper.GetBool("https"),
+			},
+			DatabaseDriver: viper.GetString("database_driver"),
+			SearchDriver:   viper.GetString("search_driver"),
+			StorageDriver:  viper.GetString("storage_driver"),
+		} 
+	})
+
+	return cfg, err
 }
 
 func New() (*Config, error) {
