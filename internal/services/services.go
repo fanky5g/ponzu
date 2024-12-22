@@ -73,11 +73,11 @@ func New(infra infrastructure.Infrastructure, types map[string]content.Builder) 
 	}
 	services[tokens.ConfigServiceToken] = configService
 
-	applicationPropertiesCache, err := config.NewApplicationPropertiesCache(memcache, types)
+	configCache, err := config.NewCache(memcache, types)
 	if err != nil {
-		log.Fatalf("Failed to initialize application properties cache: %v", err)
+		log.Fatalf("Failed to initialize config cache: %v", err)
 	}
-	services[tokens.ApplicationPropertiesProviderToken] = applicationPropertiesCache
+	services[tokens.ConfigCache] = configCache
 
 	contentSearchService, err := search.New(searchClient, db)
 	if err != nil {

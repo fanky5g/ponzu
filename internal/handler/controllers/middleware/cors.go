@@ -59,7 +59,7 @@ func responseWithCORS(
 	return res, true
 }
 
-func NewCORSMiddleware(propCache config.ApplicationPropertiesCache, cacheControlMiddleware Middleware) Middleware {
+func NewCORSMiddleware(propCache config.ConfigCache, cacheControlMiddleware Middleware) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return cacheControlMiddleware(
 			func(res http.ResponseWriter, req *http.Request) {

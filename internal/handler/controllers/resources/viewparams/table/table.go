@@ -5,8 +5,8 @@ import (
 	"math"
 
 	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/datasource"
 )
 
 var PaginationOptions = []int{20, 50, 100}
@@ -59,7 +59,7 @@ func New(
 	currentPage := int(math.Ceil(float64(start-1)/float64(count)) + 1)
 	numberOfPages := int(math.Ceil(float64(total) / float64(count)))
 
-	_, csvFormattable := itemType.(item.CSVFormattable)
+	_, csvFormattable := itemType.(datasource.Row)
 
 	return &Table{
 		ItemType:          itemType,

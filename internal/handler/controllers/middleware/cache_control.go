@@ -15,7 +15,7 @@ const (
 
 var CacheControlMiddleware Token = "CacheControlMiddleware"
 
-func NewCacheControlMiddleware(propCache config.ApplicationPropertiesCache) Middleware {
+func NewCacheControlMiddleware(propCache config.ConfigCache) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 
 		return func(res http.ResponseWriter, req *http.Request) {

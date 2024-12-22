@@ -27,14 +27,14 @@ func (middlewares Middlewares) Get(token Token) Middleware {
 func New(paths conf.Paths, applicationServices services.Services) (Middlewares, error) {
 	middlewares := make(Middlewares)
 	analyticsService := applicationServices.Get(tokens.AnalyticsServiceToken).(analytics.Service)
-	propCache := applicationServices.Get(tokens.ApplicationPropertiesProviderToken).(config.ApplicationPropertiesCache)
+	configCache := applicationServices.Get(tokens.ConfigCache).(config.ConfigCache)
 
-	cacheControlMiddleware := NewCacheControlMiddleware(propCache)
+	cacheControlMiddleware := NewCacheControlMiddleware(configCache)
 	middlewares[CacheControlMiddleware] = cacheControlMiddleware
 	middlewares[AnalyticsRecorderMiddleware] = NewAnalyticsRecorderMiddleware(analyticsService)
 	middlewares[AuthMiddleware] = NewAuthMiddleware(paths, applicationServices)
-	middlewares[GzipMiddleware] = NewGzipMiddleware(propCache)
-	middlewares[CorsMiddleware] = NewCORSMiddleware(propCache, cacheControlMiddleware)
+	middlewares[GzipMiddleware] = NewGzipMiddleware(configCache)
+	middlewares[CorsMiddleware] = NewCORSMiddleware(configCache, cacheControlMiddleware)
 
 	return middlewares, nil
 }

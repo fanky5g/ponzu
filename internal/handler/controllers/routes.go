@@ -31,7 +31,7 @@ func RegisterRoutes(
 	r.AuthorizedRoute("/uploads/search", NewUploadSearchHandler)
 	r.AuthorizedRoute("/contents", NewContentsHandler)
 	r.AuthorizedRoute("/contents/search", NewSearchHandler)
-	r.AuthorizedRoute("/contents/export", NewExportHandler)
+	r.AuthorizedRoute("GET /contents/export", NewExportHandler)
 
 	r.AuthorizedRoute("/edit/delete", NewDeleteHandler)
 	r.AuthorizedRoute("/edit/upload", NewEditUploadHandler)

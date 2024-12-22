@@ -29,7 +29,12 @@ type EditContentFormViewModel struct {
 	Form template.HTML
 }
 
-func NewEditContentFormViewModel(entity interface{}, propCache config.ApplicationPropertiesCache) (*EditContentFormViewModel, error) {
+func NewEditContentFormViewModel(
+	entity interface{},
+	cfg config.ConfigCache,
+	publicPath string,
+	contentTypes map[string]content.Builder,
+) (*EditContentFormViewModel, error) {
 	entityInterface, ok := entity.(content.Entity)
 	if !ok {
 		return nil, ErrInvalidContentType
@@ -38,11 +43,6 @@ func NewEditContentFormViewModel(entity interface{}, propCache config.Applicatio
 	editable, ok := entity.(editor.Editable)
 	if !ok {
 		return nil, fmt.Errorf("entities type %T is not editable", entityInterface.EntityName())
-	}
-
-	publicPath, err := propCache.GetPublicPath()
-	if err != nil {
-		return nil, err
 	}
 
 	formBytes, err := editable.MarshalEditor(publicPath)
@@ -70,7 +70,11 @@ func NewEditContentFormViewModel(entity interface{}, propCache config.Applicatio
 		return nil, err
 	}
 
-	rootViewModel, err := dashboard.NewDashboardRootViewModel(propCache)
+	rootViewModel, err := dashboard.NewDashboardRootViewModel(
+		cfg,
+		publicPath,
+		contentTypes,
+	)
 	if err != nil {
 		return nil, err
 	}

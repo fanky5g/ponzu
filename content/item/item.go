@@ -43,12 +43,6 @@ type Temporal interface {
 	SetUpdatedAt(time.Time)
 }
 
-// CSVFormattable is implemented with the method FormatCSV, which must return the ordered
-// slice of JSON struct tag names for the type implementing it
-type CSVFormattable interface {
-	FormatCSV() []string
-}
-
 // Hookable provides our user with an easy way to intercept or add functionality
 // to the different lifecycles/events a struct may encounter. Item implements
 // Hookable with no-ops so our user can override only whichever ones necessary.

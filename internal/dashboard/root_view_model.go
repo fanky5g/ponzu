@@ -12,18 +12,12 @@ type DashboardRootViewModel struct {
 	Types      map[string]content.Builder
 }
 
-func NewDashboardRootViewModel(propCache config.ApplicationPropertiesCache) (*DashboardRootViewModel, error) {
-	appName, err := propCache.GetAppName()
-	if err != nil {
-		return nil, err
-	}
-
-	publicPath, err := propCache.GetPublicPath()
-	if err != nil {
-		return nil, err
-	}
-
-	contentTypes, err := propCache.GetContentTypes()
+func NewDashboardRootViewModel(
+	cfg config.ConfigCache,
+	publicPath string,
+	contentTypes map[string]content.Builder,
+) (*DashboardRootViewModel, error) {
+	appName, err := cfg.GetAppName()
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,19 @@
 package datasource
 
-type DataSource interface {
-	GetNumberOfRows() (int, error)
-	GetColumns() ([]string, error)
-	LoadData(offset int) ([]interface{}, error)
+import "io"
+
+type Datasource interface {
+	GetContentDisposition() string
+	GetContentType() string
+	io.Reader
+}
+
+type ChunkedData interface {
+	GetCount() (int, error)
+	GetChunkSize() int
+	LoadChunk(size int, offset int) ([]interface{}, error)
+}
+
+type RowFormatter interface {
+	FormatRow(interface{}) (interface{}, error)
 }

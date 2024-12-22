@@ -3,7 +3,6 @@ package content
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content"
@@ -11,33 +10,26 @@ import (
 	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/content/dataexporter"
 	"github.com/fanky5g/ponzu/internal/datasource"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 	"github.com/pkg/errors"
 )
 
-var CSVChunkSize = 50
-
 type Service struct {
-	repositories                     map[string]driver.Repository
-	slugRepository                   driver.Repository
-	searchClient                     driver.SearchInterface
-	types                            map[string]content.Builder
-	csvExportDatasourceReaderFactory datasource.DataSourceReaderFactory
-}
-
-type CSVExportDataSource struct {
-	entity         interface{}
-	entityName     string
-	contentService *Service
+	repositories   map[string]driver.Repository
+	slugRepository driver.Repository
+	searchClient   driver.SearchInterface
+	types          map[string]content.Builder
+	dataExporter   dataexporter.DataExporter
 }
 
 func New(
 	db driver.Database,
-	csvDataSourceFactory datasource.DataSourceReaderFactory,
 	types map[string]content.Builder,
 	searchClient driver.SearchInterface,
+	dataExporter dataexporter.DataExporter,
 ) (*Service, error) {
 	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
@@ -62,6 +54,7 @@ func New(
 		slugRepository: slugRepository,
 		searchClient:   searchClient,
 		types:          types,
+		dataExporter:   dataExporter,
 	}
 
 	return s, nil
@@ -74,6 +67,19 @@ func (s *Service) repository(entityType string) driver.Repository {
 	}
 
 	return repository
+}
+
+func (s *Service) ContentTypes() map[string]content.Builder {
+	return s.types
+}
+
+func (s *Service) Type(name string) (interface{}, error) {
+	ctor, ok := s.types[name]
+	if !ok {
+		return nil, ErrInvalidContentType
+	}
+
+	return ctor(), nil
 }
 
 func (s *Service) CreateContent(entityType string, entity interface{}) (string, error) {
@@ -226,26 +232,15 @@ func (s *Service) GetNumberOfRows(entityType string) (int, error) {
 	return s.repository(entityType).GetNumberOfRows()
 }
 
-func (s *Service) ExportCSV(entityName string) (*entities.ResponseStream, error) {
+func (s *Service) Export(entityName, exportType string) (datasource.Datasource, error) {
 	t, ok := s.types[entityName]
 	if !ok {
 		return nil, fmt.Errorf(content.ErrTypeNotRegistered.Error(), entityName)
 	}
 
-	entity := t()
-	csvExportDataSource, err := NewCSVExportDataSource(entity)
-	if err != nil {
-		return nil, err
-	}
-
-	r, err := s.csvExportDatasourceReaderFactory(csvExportDataSource)
-	if err != nil {
-		return nil, err
-	}
-
-	return &entities.ResponseStream{
-		ContentType:        "text/csv",
-		ContentDisposition: fmt.Sprintf(`attachment; filename="export-%s-%d.csv"`, entityName, time.Now().Unix()),
-		Payload:            r,
-	}, nil
+	return s.dataExporter.Export(exportType, entityName, &contentDatasource{
+		entity:         t(),
+		contentService: s,
+		entityName:     entityName,
+	})
 }

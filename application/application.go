@@ -1,12 +1,13 @@
 package application
 
 import (
-	"github.com/fanky5g/ponzu/application/server"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/infrastructure"
 	contentService "github.com/fanky5g/ponzu/internal/content"
-	"github.com/fanky5g/ponzu/internal/csv"
+	"github.com/fanky5g/ponzu/internal/content/dataexporter"
+	"github.com/fanky5g/ponzu/internal/content/dataexporter/formatter"
+	"github.com/fanky5g/ponzu/internal/http/server"
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
@@ -49,7 +50,22 @@ func New(conf Config) (Application, error) {
 	db := infra.Get(tokens.DatabaseInfrastructureToken).(driver.Database)
 	searchClient := infra.Get(tokens.SearchClientInfrastructureToken).(driver.SearchInterface)
 
-	contentSvc, err := contentService.New(db, csv.New, conf.ContentTypes.Content, searchClient)
+	rowFormatter, err := formatter.NewJSONRowFormatter()
+	if err != nil {
+		return nil, err
+	}
+
+	contentExporter, err := dataexporter.New(rowFormatter)
+	if err != nil {
+		return nil, err
+	}
+
+	contentSvc, err := contentService.New(
+		db,
+		conf.ContentTypes.Content,
+		searchClient,
+		contentExporter,
+	)
 	if err != nil {
 		log.Fatalf("Failed to initialize entities service: %v", err)
 	}

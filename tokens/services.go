@@ -12,5 +12,4 @@ var (
 	UploadSearchServiceToken           Service = "UploadSearchService"
 	TLSServiceToken                    Service = "TLSService"
 	UserServiceToken                   Service = "UserService"
-	ApplicationPropertiesProviderToken Service = "ApplicationPropertiesProvider"
 )

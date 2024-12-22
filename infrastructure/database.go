@@ -9,10 +9,7 @@ import (
 	postgres "github.com/fanky5g/ponzu-driver-postgres/database"
 )
 
-func getDatabaseDriver(
-	name string,
-	contentModels []models.ModelInterface,
-) (driver.Database, error) {
+func getDatabaseDriver(name string, contentModels []models.ModelInterface) (driver.Database, error) {
 	m := make([]models.ModelInterface, 0)
 	m = append(m, contentModels...)
 	m = append(m, models.GetPonzuModels()...)

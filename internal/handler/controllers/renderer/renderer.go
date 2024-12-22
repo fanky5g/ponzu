@@ -51,8 +51,8 @@ type renderer struct {
 }
 
 func (r *renderer) InjectInAdminView(res http.ResponseWriter, subView *bytes.Buffer) {
-	propCache := r.ctx.Service(tokens.ApplicationPropertiesProviderToken).(config.ApplicationPropertiesCache)
-	appName, err := propCache.GetAppName()
+	configCache := r.ctx.Service(tokens.ConfigCache).(config.ConfigCache)
+	appName, err := configCache.GetAppName()
 	if err != nil {
 		log.WithFields(log.Fields{"Error": err}).Warn("Failed to get app name")
 		r.InternalServerError(res)
@@ -177,8 +177,8 @@ func (r *renderer) InjectTemplateInAdmin(res http.ResponseWriter, templateText s
 }
 
 func (r *renderer) renderInAppFrame(template string) ([]byte, error) {
-	propCache := r.ctx.Service(tokens.ApplicationPropertiesProviderToken).(config.ApplicationPropertiesCache)
-	appName, err := propCache.GetAppName()
+	configCache := r.ctx.Service(tokens.ConfigCache).(config.ConfigCache)
+	appName, err := configCache.GetAppName()
 	if err != nil {
 		return nil, err
 	}

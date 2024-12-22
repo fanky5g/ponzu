@@ -37,7 +37,7 @@ func (gzw gzipResponseWriter) Push(target string, opts *http.PushOptions) error 
 	return gzw.pusher.Push(target, opts)
 }
 
-func NewGzipMiddleware(propCache config.ApplicationPropertiesCache) Middleware {
+func NewGzipMiddleware(propCache config.ConfigCache) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(res http.ResponseWriter, req *http.Request) {
 			gzipDisabled, err := propCache.GetGZipDisabled()

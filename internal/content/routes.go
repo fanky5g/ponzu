@@ -11,10 +11,10 @@ import (
 
 func RegisterRoutes(r router.Router) error {
 	contentService := r.Context().Service(tokens.ContentServiceToken).(*Service)
-	propCache := r.Context().Service(tokens.ApplicationPropertiesProviderToken).(config.ApplicationPropertiesCache)
+	configCache := r.Context().Service(tokens.ConfigCache).(config.ConfigCache)
 
 	r.AuthorizedRoute("GET /edit", func(r router.Router) http.HandlerFunc {
-		return NewEditContentFormHandler(propCache, contentService)
+		return NewEditContentFormHandler(contentService, configCache, r.Context().Paths().PublicPath)
 	})
 
 	return nil
