@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/tokens"

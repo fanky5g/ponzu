@@ -31,6 +31,6 @@ func NewExportHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		response.Write(res, response.NewStreamResponse(http.StatusOK, ds))
+		response.Respond(res, req, response.NewStreamResponse(http.StatusOK, ds))
 	}
 }

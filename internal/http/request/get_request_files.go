@@ -8,7 +8,7 @@ import (
 )
 
 func GetRequestFiles(req *http.Request) (map[string]*multipart.FileHeader, error) {
-	contentType := getContentType(req)
+	contentType := GetContentType(req)
 	if contentType != "multipart/form-data" {
 		return nil, nil
 	}

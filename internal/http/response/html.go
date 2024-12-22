@@ -10,7 +10,7 @@ type templateRenderer struct {
 	tmpl *template.Template
 }
 
-func (renderer *templateRenderer) Render(w http.ResponseWriter) error {
+func (renderer *templateRenderer) Render(w http.ResponseWriter, r *http.Request) error {
 	return renderer.tmpl.Execute(w, renderer.data)
 }
 

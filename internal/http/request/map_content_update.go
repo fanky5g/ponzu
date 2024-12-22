@@ -5,7 +5,7 @@ import (
 )
 
 func MapRequestToContentUpdate(req *http.Request) (map[string]interface{}, error) {
-	payload, err := getRequestAsURLValues(req)
+	payload, err := GetRequestAsURLValues(req)
 	if err != nil {
 		return nil, err
 	}

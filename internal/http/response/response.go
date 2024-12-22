@@ -7,7 +7,7 @@ import (
 )
 
 type ResponseRenderer interface {
-	Render(w http.ResponseWriter) error
+	Render(w http.ResponseWriter, r *http.Request) error
 }
 
 type Response struct {
@@ -17,7 +17,7 @@ type Response struct {
 	Renderer           ResponseRenderer
 }
 
-func Write(w http.ResponseWriter, response *Response) {
+func Respond(w http.ResponseWriter, r *http.Request, response *Response) {
 	if response.StatusCode != http.StatusOK {
 		w.WriteHeader(response.StatusCode)
 	}
@@ -25,7 +25,7 @@ func Write(w http.ResponseWriter, response *Response) {
 	w.Header().Add("Content-Type", response.ContentType)
 	w.Header().Add("Content-Disposition", response.ContentDisposition)
 
-	if err := response.Renderer.Render(w); err != nil {
+	if err := response.Renderer.Render(w, r); err != nil {
 		log.WithFields(log.Fields{"Error": err}).Warn("Failed to write response")
 		return
 	}

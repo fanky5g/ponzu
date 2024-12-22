@@ -13,7 +13,7 @@ var ErrInvalidRequest = errors.New("invalid request")
 
 func MapAuthRequest(req *http.Request) (string, *entities.Credential, error) {
 	var authRequest *request.AuthRequestDto
-	contentType := getContentType(req)
+	contentType := GetContentType(req)
 
 	if contentType == "application/x-www-form-urlencoded" || contentType == "multipart/form-data" {
 		if err := req.ParseMultipartForm(1024 * 1024 * 4); err != nil {

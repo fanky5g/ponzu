@@ -5,7 +5,7 @@ import (
 
 	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/tokens"

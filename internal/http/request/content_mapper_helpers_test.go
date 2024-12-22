@@ -1,13 +1,10 @@
 package request
 
 import (
-	"bytes"
-	"encoding/json"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"net/http"
 	"net/url"
 	"testing"
 )
@@ -60,80 +57,6 @@ type ContentMapperHelpersTestSuite struct {
 	suite.Suite
 }
 
-func (suite *ContentMapperHelpersTestSuite) TestMapJSONContentToURLValues() {
-	request := map[string]interface{}{
-		"title":     "API Content Title",
-		"body":      "API Content Value",
-		"rating":    20,
-		"tags":      []string{"API", "Ponzu"},
-		"trustable": true,
-	}
-
-	body := &bytes.Buffer{}
-	if err := json.NewEncoder(body).Encode(request); err != nil {
-		suite.FailNow(err.Error())
-	}
-
-	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
-
-	expectedContent := map[string][]string{
-		"title":     {"API Content Title"},
-		"body":      {"API Content Value"},
-		"rating":    {"20"},
-		"tags":      {"API", "Ponzu"},
-		"trustable": {"true"},
-	}
-
-	jsonContent, err := mapJSONContentToURLValues(req)
-	if assert.NoError(suite.T(), err) {
-		assert.Equal(suite.T(), expectedContent, jsonContent)
-	}
-}
-
-func (suite *ContentMapperHelpersTestSuite) TestMapNestedJSONContentToURLValues() {
-	request := map[string]interface{}{
-		"title":     "API Content Title",
-		"body":      "API Content Value",
-		"rating":    20,
-		"tags":      []string{"API", "Ponzu"},
-		"trustable": true,
-		"author": map[string]interface{}{
-			"name": "Ponzu",
-			"age":  25,
-			"location": map[string]interface{}{
-				"country":  "USA",
-				"timezone": "PST",
-			},
-		},
-	}
-
-	body := &bytes.Buffer{}
-	if err := json.NewEncoder(body).Encode(request); err != nil {
-		suite.FailNow(err.Error())
-	}
-
-	req, _ := http.NewRequest(http.MethodPost, "/", body)
-	req.Header.Set("Content-Type", "application/json")
-
-	expectedContent := map[string][]string{
-		"title":                    {"API Content Title"},
-		"body":                     {"API Content Value"},
-		"rating":                   {"20"},
-		"tags":                     {"API", "Ponzu"},
-		"trustable":                {"true"},
-		"author.name":              {"Ponzu"},
-		"author.age":               {"25"},
-		"author.location.country":  {"USA"},
-		"author.location.timezone": {"PST"},
-	}
-
-	mapped, err := mapJSONContentToURLValues(req)
-	if assert.NoError(suite.T(), err) {
-		assert.Equal(suite.T(), expectedContent, mapped)
-	}
-}
-
 func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntity() {
 	type Review struct {
 		item.Item
@@ -157,10 +80,6 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntity() {
 		"title":     []string{"API Content Title"},
 	}
 
-	var t content.Builder = func() interface{} {
-		return new(Review)
-	}
-
 	expectedEntity := &Review{
 		Item: item.Item{
 			ID:        "6",
@@ -174,7 +93,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntity() {
 		Tags:   []string{"API", "Ponzu"},
 	}
 
-	entity, err := mapPayloadToGenericEntity(t, payload)
+	entity, err := MapPayloadToGenericEntity(&Review{}, payload)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedEntity, entity)
 	}
@@ -211,10 +130,6 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		"author.name": []string{"Foo Bar"},
 	}
 
-	var t content.Builder = func() interface{} {
-		return new(Review)
-	}
-
 	expectedEntity := &Review{
 		Item: item.Item{
 			ID:        "6",
@@ -232,7 +147,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		},
 	}
 
-	entity, err := mapPayloadToGenericEntity(t, payload)
+	entity, err := MapPayloadToGenericEntity(&Review{}, payload)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedEntity, entity)
 	}
@@ -275,10 +190,6 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		".__ponzu-repeat.authors.removed": []string{"1,2,4"},
 	}
 
-	var t content.Builder = func() interface{} {
-		return new(Review)
-	}
-
 	expectedEntity := &Review{
 		Item: item.Item{
 			ID:        "6",
@@ -306,7 +217,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 		},
 	}
 
-	entity, err := mapPayloadToGenericEntity(t, payload)
+	entity, err := MapPayloadToGenericEntity(&Review{}, payload)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedEntity, entity)
 	}
@@ -323,10 +234,6 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		"url":                         []string{"https://ponzu.domain"},
 		"content_blocks.0.type":       []string{"TextBlock"},
 		"content_blocks.0.value.text": []string{"This is some WYSIWYG entities"},
-	}
-
-	var t content.Builder = func() interface{} {
-		return new(page)
 	}
 
 	expectedEntity := &page{
@@ -346,7 +253,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		},
 	}
 
-	entity, err := mapPayloadToGenericEntity(t, payload)
+	entity, err := MapPayloadToGenericEntity(&page{}, payload)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedEntity, entity)
 	}
@@ -369,10 +276,6 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		"content_blocks.5.value.text": []string{"This is some WYSIWYG entities 5"},
 		".__ponzu-field-collection.content_blocks.length":  []string{"3"},
 		".__ponzu-field-collection.content_blocks.removed": []string{"1,2,4"},
-	}
-
-	var t content.Builder = func() interface{} {
-		return new(page)
 	}
 
 	expectedEntity := &page{
@@ -400,7 +303,7 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 		},
 	}
 
-	entity, err := mapPayloadToGenericEntity(t, payload)
+	entity, err := MapPayloadToGenericEntity(&page{}, payload)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedEntity, entity)
 	}

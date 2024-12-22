@@ -11,7 +11,7 @@ type stream struct {
 	data io.Reader
 }
 
-func (s *stream) Render(w http.ResponseWriter) error {
+func (s *stream) Render(w http.ResponseWriter, r *http.Request) error {
 	var err error
 	_, err = io.Copy(w, s.data)
 

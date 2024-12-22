@@ -1,13 +1,14 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/config"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func NewConfigHandler(r router.Router) http.HandlerFunc {

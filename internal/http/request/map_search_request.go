@@ -11,7 +11,7 @@ import (
 )
 
 func GetSearchRequestDto(req *http.Request) (*request.SearchRequestDto, error) {
-	switch getContentType(req) {
+	switch GetContentType(req) {
 	case "multipart/form-data":
 		if err := req.ParseMultipartForm(1024 * 1024 * 4); err != nil {
 			return nil, err

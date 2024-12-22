@@ -1,28 +1,25 @@
 package request
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/util"
-	"github.com/gorilla/schema"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/util"
+	"github.com/gorilla/schema"
 )
 
 var (
-	ErrUnsupportedContentType  = errors.New("unsupported content type")
 	PonzuRepeatPrefix          = ".__ponzu-repeat"
 	PonzuFieldCollectionPrefix = ".__ponzu-field-collection"
 )
 
-func mapPayloadToGenericEntity(t content.Builder, payload map[string][]string) (interface{}, error) {
-	entity := t()
+func MapPayloadToGenericEntity(entity interface{}, payload map[string][]string) (interface{}, error) {
 	addContentMetadata(payload)
 	transformArrayFields(payload)
 
@@ -45,13 +42,17 @@ func mapPayloadToGenericEntity(t content.Builder, payload map[string][]string) (
 	return entity, nil
 }
 
-func mapJSONContentToURLValues(req *http.Request) (map[string][]string, error) {
-	var payload map[string]interface{}
-	if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+func GetEntityFromFormData(entity interface{}, data url.Values) (interface{}, error) {
+	return MapPayloadToGenericEntity(entity, data)
+}
+
+func GetEntity(entity interface{}, req *http.Request) (interface{}, error) {
+	payload, err := GetRequestAsURLValues(req)
+	if err != nil {
 		return nil, err
 	}
 
-	return util.MapToURLValues(payload), nil
+	return MapPayloadToGenericEntity(entity, payload)
 }
 
 func addContentMetadata(payload url.Values) {
