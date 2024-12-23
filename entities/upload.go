@@ -86,23 +86,7 @@ func (f *FileUpload) MarshalEditor(publicPath string) ([]byte, error) {
 		},
 	)
 
-	if err != nil {
-		return nil, err
-	}
-
-	script := []byte(`
-	<script>
-		$(function() {
-			// change form action to storage-specific endpoint
-			var form = $('form');
-			form.attr('action', '` + publicPath + `/edit/upload');
-		});
-	</script>
-	`)
-
-	view = append(view, script...)
-
-	return view, nil
+	return view, err
 }
 
 func (f *FileUpload) Push() []string {

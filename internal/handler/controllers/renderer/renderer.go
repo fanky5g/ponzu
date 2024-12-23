@@ -11,7 +11,6 @@ import (
 
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/editor"
-	"github.com/fanky5g/ponzu/content/manager"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
@@ -36,7 +35,6 @@ type Renderer interface {
 	InternalServerError(w http.ResponseWriter)
 	MethodNotAllowed(w http.ResponseWriter)
 	BadRequest(res http.ResponseWriter)
-	ManageEditable(res http.ResponseWriter, editable editor.Editable, typeName string)
 	Html(res http.ResponseWriter, data []byte)
 	Json(res http.ResponseWriter, statusCode int, data interface{})
 	Error(res http.ResponseWriter, statusCode int, err error)
@@ -140,16 +138,6 @@ func (r *renderer) Editable(res http.ResponseWriter, editable editor.Editable) {
 	}
 
 	r.InjectInAdminView(res, bytes.NewBuffer(b))
-}
-
-func (r *renderer) ManageEditable(res http.ResponseWriter, editable editor.Editable, typeName string) {
-	m, err := manager.Manage(editable, r.ctx.Paths().PublicPath, typeName)
-	if err != nil {
-		log.WithField("Error", err).Warning("Failed to execute editable manager")
-		return
-	}
-
-	r.InjectInAdminView(res, bytes.NewBuffer(m))
 }
 
 func (r *renderer) InjectTemplateInAdmin(res http.ResponseWriter, templateText string, data interface{}) {
