@@ -38,6 +38,11 @@ func NewEditContentFormHandler(contentService *Service, cfg config.ConfigCache, 
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+
+			if entity == nil {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
 		}
 
 		editContentForm, err := NewEditContentFormViewModel(
