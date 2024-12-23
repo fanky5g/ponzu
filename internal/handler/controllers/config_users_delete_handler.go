@@ -1,14 +1,15 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"net/http"
+	"strings"
+
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"strings"
 )
 
 func NewConfigUsersDeleteHandler(r router.Router) http.HandlerFunc {

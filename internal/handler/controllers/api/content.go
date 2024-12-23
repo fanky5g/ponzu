@@ -2,9 +2,9 @@ package api
 
 import (
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/content"
+	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
@@ -57,7 +57,7 @@ func NewContentHandler(r router.Router) http.HandlerFunc {
 
 func NewListContentHandler(r router.Router) http.HandlerFunc {
 	contentTypes := r.Context().Types().Content
-	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
@@ -123,7 +123,7 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 
 func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *http.Request) {
 	contentTypes := r.Context().Types().Content
-	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
 
 	return func(contentId string, res http.ResponseWriter, req *http.Request) {
 		q := req.URL.Query()
@@ -171,7 +171,7 @@ func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *h
 }
 
 func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, *http.Request) {
-	contentService := r.Context().Service(tokens.ContentServiceToken).(content.Service)
+	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
 
 	return func(contentId string, res http.ResponseWriter, req *http.Request) {
 		post, err := contentService.GetContentBySlug(contentId)

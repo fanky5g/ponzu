@@ -1,13 +1,14 @@
 package router
 
 import (
+	"net/http"
+
 	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/middleware"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/renderer"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
 	"github.com/fanky5g/ponzu/internal/services"
-	"net/http"
 )
 
 type Router interface {

@@ -1,19 +1,20 @@
 package services
 
 import (
+	"log"
+
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/infrastructure"
+	"github.com/fanky5g/ponzu/internal/config"
+	"github.com/fanky5g/ponzu/internal/memorycache"
 	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"github.com/fanky5g/ponzu/internal/services/auth"
-	"github.com/fanky5g/ponzu/internal/services/config"
-	contentService "github.com/fanky5g/ponzu/internal/services/content"
 	"github.com/fanky5g/ponzu/internal/services/search"
 	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/internal/services/tls"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
-	"log"
 )
 
 type Services map[tokens.Service]interface{}
@@ -27,10 +28,7 @@ func (services Services) Get(token tokens.Service) interface{} {
 	return nil
 }
 
-func New(
-	infra infrastructure.Infrastructure,
-	types map[string]content.Builder,
-) (Services, error) {
+func New(infra infrastructure.Infrastructure, types map[string]content.Builder) (Services, error) {
 	db := infra.Get(tokens.DatabaseInfrastructureToken).(driver.Database)
 	searchClient := infra.Get(tokens.SearchClientInfrastructureToken).(driver.SearchInterface)
 	storageClient := infra.Get(tokens.StorageClientInfrastructureToken).(driver.StorageClientInterface)
@@ -63,17 +61,23 @@ func New(
 	}
 	services[tokens.AnalyticsServiceToken] = analyticsService
 
-	configService, err := config.New(db)
+	memcache, err := memorycache.New()
+	if err != nil {
+		log.Fatalf("Failed to initialize memory cache: %v", err)
+	}
+
+	configRepository := db.GetRepositoryByToken(tokens.ConfigRepositoryToken)
+	configService, err := config.New(configRepository, memcache)
 	if err != nil {
 		log.Fatalf("Failed to initialize config services: %v", err)
 	}
 	services[tokens.ConfigServiceToken] = configService
 
-	contentSvc, err := contentService.New(db, types, searchClient)
+	configCache, err := config.NewCache(memcache, types)
 	if err != nil {
-		log.Fatalf("Failed to initialize entities service: %v", err)
+		log.Fatalf("Failed to initialize config cache: %v", err)
 	}
-	services[tokens.ContentServiceToken] = contentSvc
+	services[tokens.ConfigCache] = configCache
 
 	contentSearchService, err := search.New(searchClient, db)
 	if err != nil {

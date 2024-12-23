@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"

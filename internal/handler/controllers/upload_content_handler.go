@@ -6,7 +6,7 @@ import (
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services/storage"

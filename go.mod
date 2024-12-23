@@ -1,12 +1,12 @@
 module github.com/fanky5g/ponzu
 
-go 1.21.5
+go 1.23.4
 
 require (
 	github.com/fanky5g/ponzu-driver-bleve v1.0.3
 	github.com/fanky5g/ponzu-driver-gcs v1.1.0
 	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
-	github.com/fanky5g/ponzu-driver-postgres v1.1.0
+	github.com/fanky5g/ponzu-driver-postgres v1.3.0
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/schema v1.3.0
@@ -18,7 +18,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	github.com/tidwall/gjson v1.17.1
+	github.com/tidwall/gjson v1.18.0
 	golang.org/x/crypto v0.25.0
 	golang.org/x/text v0.16.0
 )

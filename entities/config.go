@@ -1,7 +1,6 @@
 package entities
 
 import (
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
@@ -42,9 +41,8 @@ func (*Config) Time() int64 {
 }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
-func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (c *Config) MarshalEditor(publicPath string) ([]byte, error) {
 	view, err := editor.Form(c,
-		paths,
 		editor.Field{
 			View: editor.Input("Name", c, map[string]string{
 				"label":       "Site Name",
@@ -140,7 +138,7 @@ func (c *Config) MarshalEditor(paths config.Paths) ([]byte, error) {
 	}
 
 	// Page Name: System Configuration
-	openingTag := []byte(`<form class="form-view-root" action="` + paths.PublicPath + `/configure" method="post">`)
+	openingTag := []byte(`<form class="form-view-root" action="` + publicPath + `/configure" method="post">`)
 	closingTag := []byte(`</form>`)
 	script := []byte(`
 	<script>

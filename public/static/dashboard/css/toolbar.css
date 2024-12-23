@@ -1,0 +1,33 @@
+.actions {
+  min-width: 1px;
+  display: flex;
+  align-items: center;
+  color: rgba(0, 0, 0, .87)!important;
+}
+
+.actions button {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  margin: 0 8px;
+}
+
+.actions button > span {
+  white-space: nowrap;
+}
+
+.actions.left-margin {
+  margin-left: 56px;
+}
+
+.actions .actions-inner {
+  display: flex;
+  align-items: center;
+}
+
+.save-content {
+
+}

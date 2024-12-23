@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
@@ -33,21 +32,20 @@ func (*FileUpload) GetRepositoryToken() tokens.RepositoryToken {
 }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
-func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (f *FileUpload) MarshalEditor(publicPath string) ([]byte, error) {
 	isEmptyFile := f.Path == ""
-	f.Path = filepath.Join(paths.PublicPath, f.Path)
+	f.Path = filepath.Join(publicPath, f.Path)
 	formLabel := "Edit Upload"
 	if isEmptyFile {
 		formLabel = "Upload New File"
 	}
 
 	view, err := editor.Form(f,
-		paths,
 		editor.Field{
 			View: editor.File("Path", f, map[string]string{
 				"label":       formLabel,
 				"placeholder": "Upload the file here",
-				"PublicPath":  paths.PublicPath,
+				"PublicPath":  publicPath,
 			}),
 		},
 		editor.Field{
@@ -88,23 +86,7 @@ func (f *FileUpload) MarshalEditor(paths config.Paths) ([]byte, error) {
 		},
 	)
 
-	if err != nil {
-		return nil, err
-	}
-
-	script := []byte(`
-	<script>
-		$(function() {
-			// change form action to storage-specific endpoint
-			var form = $('form');
-			form.attr('action', '` + paths.PublicPath + `/edit/upload');
-		});
-	</script>
-	`)
-
-	view = append(view, script...)
-
-	return view, nil
+	return view, err
 }
 
 func (f *FileUpload) Push() []string {

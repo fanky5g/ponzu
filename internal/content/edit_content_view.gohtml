@@ -1,0 +1,94 @@
+{{ define "scripts.gohtml" }}
+    <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/editor.js"></script>
+    <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/workflow.js"></script>
+{{ end }}
+
+{{ define "stylesheets.gohtml" }}
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/toolbar.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/content-editor.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/content-editor-toolbar.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/workflow.css" />
+{{ end }}
+
+{{ define "workflow.gohtml" }}
+    {{ if .Workflow }}
+        <div class="mdc-menu-surface--anchor workflow-actions">
+            <button type="button" class="mdc-button mdc-button--outlined">
+              <span class="mdc-button__ripple"></span>
+              <i class="material-icons">directions</i>
+              <span class="mdc-button__label">Actions</span>
+              <i class="material-icons">arrow_drop_down</i>
+            </button>
+
+            <div class="mdc-menu mdc-menu-surface">
+              <ul class="mdc-list" role="menu" aria-orientation="vertical" tabindex="-1">
+                {{ $transitions := .Workflow.GetValidTransitions }}
+                {{ $length := len $transitions }}
+                {{ range $i, $transition := $transitions }}
+                    <li class="mdc-list-item {{ WorkflowStateToLower $transition.GetState }}" role="menuitem">
+                      <span class="mdc-list-item__ripple"></span>
+                      <span class="mdc-list-item__graphic">
+                        <i class="material-symbols-rounded">workflow</i>
+                      </span>
+                      <span class="mdc-list-item__text">{{ WorkflowActionName $transition $.Workflow $ }}</span>
+                    </li>
+
+                    {{ if ne (subtract $length $i) 1 }}
+                        <li class="mdc-list-divider" role="separator"></li>
+                    {{ end }}
+                {{ end }}
+              </ul>
+            </div>
+        </div>
+
+        {{ if ne .Workflow.GetState "" }}
+            <div class="workflow-badge {{ WorkflowStateToLower .Workflow.GetState }}">{{ .Workflow.GetState }}</div>
+        {{ end }}
+    {{ end }}
+{{ end }}
+
+{{ define "edit-content-toolbar.gohtml" }}
+<div class="mdc-top-app-bar content-editor-toolbar"> 
+  <div class="mdc-top-app-bar__row">
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+      <span class="mdc-top-app-bar__title title">{{ .Title }}</span>
+    </section>
+  </div>
+
+  <div class="mdc-top-app-bar__row">
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+      <div class="actions">
+        <div class="actions-inner">
+            <button type="submit" class="mdc-button mdc-button--raised save-content">
+              <span class="mdc-button__label">Save</span>
+            </button>
+
+            <button
+                type="submit"
+                class="mdc-button mdc-button--outlined delete-content"
+                formaction="{{ .PublicPath }}/edit/delete">
+              <span class="mdc-button__label">Delete</span>
+            </button>
+
+            {{ if .Workflow }}
+                {{ template "workflow.gohtml" . }}
+            {{ end }}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{{ end }}
+
+{{ define "page.gohtml" }}
+    <div class="content-editor">
+        <form class="form-view-root" method="post" action="{{ .PublicPath }}/edit" enctype="multipart/form-data">
+            {{ template "edit-content-toolbar.gohtml" . }}
+            <div class="mdc-top-app-bar--fixed-adjust"></div>
+            <input type="hidden" name="id" value="{{.ID}}"/>
+            <input type="hidden" name="type" value="{{.EntityName}}"/>
+            <input type="hidden" name="slug" value="{{.Slug}}"/>
+            {{ .Form }}
+        </form>
+    </div>
+{{ end }}

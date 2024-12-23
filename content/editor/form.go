@@ -3,7 +3,6 @@ package editor
 import (
 	"bytes"
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/item"
 	"strings"
 )
@@ -33,7 +32,7 @@ func getTabContent(tab Tab) string {
 
 // Form takes editable entities and any number of Field funcs to describe the edit
 // page for any entities struct added by a user
-func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
+func Form(post Editable, fields ...Field) ([]byte, error) {
 	viewBuf := &bytes.Buffer{}
 
 	tabs, err := getTabs(post, fields)
@@ -97,23 +96,7 @@ func Form(post Editable, paths config.Paths, fields ...Field) ([]byte, error) {
 		}
 	}
 
-	if _, err = viewBuf.WriteString(`</div>`); err != nil {
-		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
-	}
-
-	if _, err = viewBuf.WriteString(`<hr class="divider">`); err != nil {
-		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
-	}
-
-	script := &bytes.Buffer{}
-	scriptTmpl := makeScript("editor")
-	if err = scriptTmpl.Execute(script, paths); err != nil {
-		panic(err)
-	}
-
-	editorControls := makeHtml("editor_controls")
-	_, err = viewBuf.WriteString(editorControls + script.String() + `</div>`)
-	if err != nil {
+	if _, err = viewBuf.WriteString(`</div></div>`); err != nil {
 		return nil, fmt.Errorf("failed to write HTML string to editor Form buffer: %v", err)
 	}
 

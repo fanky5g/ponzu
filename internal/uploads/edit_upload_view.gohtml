@@ -1,0 +1,38 @@
+{{ define "scripts.gohtml" }}
+    <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/editor.js"></script>
+{{ end }}
+
+{{ define "stylesheets.gohtml" }}
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/toolbar.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/content-editor.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/content-editor-toolbar.css" />
+{{ end }}
+
+{{ define "edit-upload-toolbar.gohtml" }}
+<div class="mdc-top-app-bar content-editor-toolbar"> 
+  <div class="mdc-top-app-bar__row">
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+      <div class="actions">
+        <div class="actions-inner">
+            <button type="submit" class="mdc-button mdc-button--raised save-content">
+              <span class="mdc-button__label">Save</span>
+            </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{{ end }}
+
+{{ define "page.gohtml" }}
+    <div class="content-editor upload">
+        <form class="form-view-root" method="post" action="{{ .PublicPath }}/edit/upload" enctype="multipart/form-data">
+            {{ template "edit-upload-toolbar.gohtml" . }}
+            <div class="mdc-top-app-bar--fixed-adjust"></div>
+            <input type="hidden" name="id" value="{{.ID}}"/>
+            <input type="hidden" name="type" value="{{.EntityName}}"/>
+            <input type="hidden" name="slug" value="{{.Slug}}"/>
+            {{ .Form }}
+        </form>
+    </div>
+{{ end }}
