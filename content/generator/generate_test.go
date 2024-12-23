@@ -726,7 +726,7 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                         }, nil),
                 },
                 editor.Field{
-                        View: editor.ReferenceSelect(paths, "Author", b, map[string]string{
+                        View: editor.ReferenceSelect(publicPath, "Author", b, map[string]string{
                                 "label":       "Select Author",
                         },
 						"Author",
@@ -887,7 +887,7 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                         }, nil),
                 },
                 editor.Field{
-                        View: editor.ReferenceSelectRepeater(paths, "Authors", b, map[string]string{
+                        View: editor.ReferenceSelectRepeater(publicPath, "Authors", b, map[string]string{
                                 "label":       "Authors",
                         },
 						"Author",
@@ -1011,7 +1011,7 @@ func (p *Page) MarshalEditor(publicPath string) ([]byte, error) {
                 // is the string version of each Page field, and must follow
                 // this pattern for auto-decoding and auto-encoding reasons:
                 editor.Field{
-                        View: editor.ReferenceSelect(paths, "Author", p, map[string]string{
+                        View: editor.ReferenceSelect(publicPath, "Author", p, map[string]string{
                                 "label":       "Select Author",
                         },
 						"Author",
@@ -1414,7 +1414,7 @@ func (s *Story) MarshalEditor(publicPath string) ([]byte, error) {
 							}, nil),
 						},
 						editor.Field{
-							View: editor.ReferenceSelect(paths, "Author.Image", s, map[string]string{
+							View: editor.ReferenceSelect(publicPath, "Author.Image", s, map[string]string{
 									"label": "Select Image",
 								},
 								"Image",
