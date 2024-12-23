@@ -18,7 +18,7 @@ type Response struct {
 }
 
 func Respond(w http.ResponseWriter, r *http.Request, response *Response) {
-	if response.StatusCode != http.StatusOK {
+	if response.StatusCode != 0 && response.StatusCode != http.StatusOK {
 		w.WriteHeader(response.StatusCode)
 	}
 

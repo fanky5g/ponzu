@@ -63,6 +63,11 @@ func NewEditContentFormHandler(contentService *Service, cfg config.ConfigCache, 
 func NewSaveContentHandler(contentService *Service, publicPath string) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		contentQuery, err := MapContentQueryFromRequest(req)
+		if err != nil {
+			// TODO: handle error
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
 		entity, err := contentService.Type(contentQuery.Type)
 		if err != nil {

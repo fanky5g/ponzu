@@ -1,6 +1,11 @@
 package content
 
-import "net/http"
+import (
+	"errors"
+	"net/http"
+)
+
+var ErrUnsupportedMethod = errors.New("http method unsupported")
 
 type ContentQuery struct {
 	ID   string
@@ -14,10 +19,21 @@ type TabularDatasource interface {
 }
 
 func MapContentQueryFromRequest(r *http.Request) (*ContentQuery, error) {
-	q := r.URL.Query()
+	method := r.Method
 
-	return &ContentQuery{
-		ID:   q.Get("id"),
-		Type: q.Get("type"),
-	}, nil
+	switch method {
+	case http.MethodGet:
+		q := r.URL.Query()
+		return &ContentQuery{
+			ID:   q.Get("id"),
+			Type: q.Get("type"),
+		}, nil
+	case http.MethodPost:
+		return &ContentQuery{
+			ID:   r.FormValue("id"),
+			Type: r.FormValue("type"),
+		}, nil
+	default:
+		return nil, ErrUnsupportedMethod
+	}
 }

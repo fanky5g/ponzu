@@ -11,10 +11,19 @@ type redirect struct {
 }
 
 func (r *redirect) Render(w http.ResponseWriter, req *http.Request) error {
-	base := req.URL.Scheme + req.URL.Host
-	location, err := url.JoinPath(base, r.publicPath, r.target)
+	u, err := url.Parse(r.target)
 	if err != nil {
 		return err
+	}
+
+	p, err := url.JoinPath(r.publicPath, u.Path)
+	if err != nil {
+		return err
+	}
+
+	location := req.URL.Scheme + req.URL.Host + p
+	if u.RawQuery != "" {
+		location += "?" + u.RawQuery
 	}
 
 	http.Redirect(w, req, location, http.StatusFound)
