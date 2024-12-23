@@ -63,6 +63,13 @@
               <span class="mdc-button__label">Save</span>
             </button>
 
+            <button
+                type="submit"
+                class="mdc-button mdc-button--outlined delete-content"
+                formaction="{{ .PublicPath }}/edit/delete">
+              <span class="mdc-button__label">Delete</span>
+            </button>
+
             {{ if .Workflow }}
                 {{ template "workflow.gohtml" . }}
             {{ end }}

@@ -21,3 +21,8 @@
   line-height: 20px;
   letter-spacing: 0.005em;
 }
+
+.content-editor-toolbar .delete-content {
+  border-color: #ff0000;
+  color: #ff0000;
+}
