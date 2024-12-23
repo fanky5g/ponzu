@@ -12,15 +12,14 @@ import (
 )
 
 var (
-	ErrInvalidConfig            = errors.New("invalid configuration")
-	ErrApplicationConfigMissing = errors.New("missing application config")
-	CacheDisabledJSONKey        = "cache_disabled"
-	AppNameJSONKey              = "name"
-	CacheMaxAgeJSONKey          = "cache_max_age"
-	ETagJSONKey                 = "etag"
-	CorsDisabledJSONKey         = "cors_disabled"
-	GzipDisabledJSONKey         = "gzip_disabled"
-	DomainJSONKey               = "domain"
+	ErrInvalidConfig     = errors.New("invalid configuration")
+	CacheDisabledJSONKey = "cache_disabled"
+	AppNameJSONKey       = "name"
+	CacheMaxAgeJSONKey   = "cache_max_age"
+	ETagJSONKey          = "etag"
+	CorsDisabledJSONKey  = "cors_disabled"
+	GzipDisabledJSONKey  = "gzip_disabled"
+	DomainJSONKey        = "domain"
 )
 
 type configCache struct {
@@ -73,6 +72,10 @@ func (c *configCache) getConfigString(key string) (string, error) {
 		return "", err
 	}
 
+	if value == nil {
+		return "", nil
+	}
+
 	if value.Kind() != reflect.String {
 		log.Warnf("%s is not a valid string value", key)
 		return "", ErrInvalidConfig
@@ -85,6 +88,10 @@ func (c *configCache) getConfigInt(key string) (int64, error) {
 	value, err := c.getConfigValue(key)
 	if err != nil {
 		return 0, err
+	}
+
+	if value == nil {
+		return 0, nil
 	}
 
 	if value.Kind() != reflect.Int64 {
@@ -101,6 +108,10 @@ func (c *configCache) getConfigBool(key string) (bool, error) {
 		return false, err
 	}
 
+	if value == nil {
+		return false, nil
+	}
+
 	if value.Kind() != reflect.Bool {
 		log.Warnf("%s is not a valid boolean value", key)
 		return false, ErrInvalidConfig
@@ -113,7 +124,7 @@ func (c *configCache) getConfigValue(key string) (*reflect.Value, error) {
 	cacheValue := c.cache.Get(ConfigCacheKey)
 	cfg, ok := cacheValue.(*entities.Config)
 	if !ok {
-		return nil, ErrApplicationConfigMissing
+		return nil, nil
 	}
 
 	value := util.FieldByJSONTagName(cfg, key)
