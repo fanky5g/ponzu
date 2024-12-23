@@ -222,7 +222,6 @@ package entities
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
@@ -238,9 +237,8 @@ type Author struct {
 
 // MarshalEditor writes a buffer of views to edit a Author within the CMS
 // and implements editor.Editable
-func (a *Author) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
 	view, err := editor.Form(a,
-		paths,
 		// Take note that the first argument to these Input-like functions
 		// is the string version of each Author field, and must follow
 		// this pattern for auto-decoding and auto-encoding reasons:
@@ -397,7 +395,6 @@ package entities
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
@@ -415,9 +412,8 @@ type Review struct {
 
 // MarshalEditor writes a buffer of views to edit a Review within the CMS
 // and implements editor.Editable
-func (r *Review) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (r *Review) MarshalEditor(publicPath string) ([]byte, error) {
 	view, err := editor.Form(r,
-		paths,
 		// Take note that the first argument to these Input-like functions
 		// is the string version of each Review field, and must follow
 		// this pattern for auto-decoding and auto-encoding reasons:

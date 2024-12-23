@@ -340,7 +340,6 @@ package entities
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
@@ -356,9 +355,8 @@ type Page struct {
 
 // MarshalEditor writes a buffer of views to edit a Page within the CMS
 // and implements editor.Editable
-func (p *Page) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (p *Page) MarshalEditor(publicPath string) ([]byte, error) {
 	view, err := editor.Form(p,
-		paths,
 		// Take note that the first argument to these Input-like functions
 		// is the string version of each Page field, and must follow
 		// this pattern for auto-decoding and auto-encoding reasons:

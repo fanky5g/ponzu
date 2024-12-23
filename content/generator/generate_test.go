@@ -447,7 +447,6 @@ package entities
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/tokens"
@@ -462,9 +461,8 @@ type Author struct {
 
 // MarshalEditor writes a buffer of views to edit a Author within the CMS
 // and implements editor.Editable
-func (a *Author) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
 	view, err := editor.Form(a,
-		paths,
 		// Take note that the first argument to these Input-like functions
 		// is the string version of each Author field, and must follow
 		// this pattern for auto-decoding and auto-encoding reasons:
@@ -699,7 +697,6 @@ package entities
 
 import (
         "fmt"
-        "github.com/fanky5g/ponzu/config"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
         "github.com/fanky5g/ponzu/tokens"
@@ -716,9 +713,8 @@ type Blog struct {
 
 // MarshalEditor writes a buffer of views to edit a Blog within the CMS
 // and implements editor.Editable
-func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
         view, err := editor.Form(b,
-                paths,
                 // Take note that the first argument to these Input-like functions
                 // is the string version of each Blog field, and must follow
                 // this pattern for auto-decoding and auto-encoding reasons:
@@ -862,7 +858,6 @@ package entities
 
 import (
         "fmt"
-        "github.com/fanky5g/ponzu/config"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
         "github.com/fanky5g/ponzu/tokens"
@@ -879,9 +874,8 @@ type Blog struct {
 
 // MarshalEditor writes a buffer of views to edit a Blog within the CMS
 // and implements editor.Editable
-func (b *Blog) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
         view, err := editor.Form(b,
-                paths,
                 // Take note that the first argument to these Input-like functions
                 // is the string version of each Blog field, and must follow
                 // this pattern for auto-decoding and auto-encoding reasons:
@@ -997,7 +991,6 @@ package entities
 
 import (
         "fmt"
-        "github.com/fanky5g/ponzu/config"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
         "github.com/fanky5g/ponzu/tokens"
@@ -1012,9 +1005,8 @@ type Page struct {
 
 // MarshalEditor writes a buffer of views to edit a Page within the CMS
 // and implements editor.Editable
-func (p *Page) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (p *Page) MarshalEditor(publicPath string) ([]byte, error) {
         view, err := editor.Form(p,
-                paths,
 				// Take note that the first argument to these Input-like functions
                 // is the string version of each Page field, and must follow
                 // this pattern for auto-decoding and auto-encoding reasons:
@@ -1346,10 +1338,10 @@ func (s *GenerateTestSuite) TestGenerateContentWithPlainTypeHavingReferenceField
 				},
 			},
 			{
-				Type:          generator.Field,
-				Name:          "Author",
-				Label:         "Author",
-				JSONName:      "author",
+				Type:     generator.Field,
+				Name:     "Author",
+				Label:    "Author",
+				JSONName: "author",
 				// TODO: Split references and nested Types
 				TypeName:      "Creator",
 				ReferenceName: "Creator",
@@ -1372,7 +1364,6 @@ package entities
 
 import (
         "fmt"
-        "github.com/fanky5g/ponzu/config"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
         "github.com/fanky5g/ponzu/tokens"
@@ -1388,9 +1379,8 @@ type Story struct {
 
 // MarshalEditor writes a buffer of views to edit a Story within the CMS
 // and implements editor.Editable
-func (s *Story) MarshalEditor(paths config.Paths) ([]byte, error) {
+func (s *Story) MarshalEditor(publicPath string) ([]byte, error) {
         view, err := editor.Form(s,
-                paths,
 				// Take note that the first argument to these Input-like functions
                 // is the string version of each Story field, and must follow
                 // this pattern for auto-decoding and auto-encoding reasons:
