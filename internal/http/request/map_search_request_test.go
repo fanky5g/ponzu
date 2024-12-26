@@ -3,9 +3,9 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/search"
+	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
+	"github.com/fanky5g/ponzu/internal/search"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -112,10 +112,8 @@ func (suite *MapSearchRequestTestSuite) TestMapSearchRequest() {
 	expectedSearch := &search.Search{
 		Query:     "Alpaka",
 		SortOrder: constants.Ascending,
-		Pagination: &search.Pagination{
-			Count:  100,
-			Offset: 5,
-		},
+		Count:     100,
+		Offset:    5,
 	}
 
 	search, err := MapSearchRequest(searchRequestDto)

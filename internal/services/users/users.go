@@ -1,13 +1,13 @@
 package users
 
 import (
-	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
 type service struct {
-	repository driver.Repository
+	repository database.Repository
 }
 
 type Service interface {
@@ -68,10 +68,6 @@ func (s *service) ListUsers() ([]auth.User, error) {
 
 	users := make([]auth.User, len(uu))
 	for i := range uu {
-		if err != nil {
-			return nil, err
-		}
-
 		u := uu[i].(*auth.User)
 		users[i] = *u
 	}
@@ -79,6 +75,6 @@ func (s *service) ListUsers() ([]auth.User, error) {
 	return users, nil
 }
 
-func New(db driver.Database) (Service, error) {
+func New(db database.Database) (Service, error) {
 	return &service{repository: db.GetRepositoryByToken(tokens.UserRepositoryToken)}, nil
 }

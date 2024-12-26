@@ -3,17 +3,19 @@
 package storage
 
 import (
+	"mime/multipart"
+
 	contentEntities "github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/search"
+	"github.com/fanky5g/ponzu/internal/database"
+	"github.com/fanky5g/ponzu/internal/search"
 	"github.com/fanky5g/ponzu/tokens"
-	"mime/multipart"
 )
 
 type service struct {
 	client       driver.StorageClientInterface
-	repository   driver.Repository
-	searchClient driver.SearchInterface
+	repository   database.Repository
+	searchClient search.SearchInterface
 }
 
 type Service interface {
@@ -25,8 +27,8 @@ type Service interface {
 }
 
 func New(
-	db driver.Database,
-	searchClient driver.SearchInterface,
+	db database.Database,
+	searchClient search.SearchInterface,
 	client driver.StorageClientInterface) (Service, error) {
 	s := &service{
 		client:       client,

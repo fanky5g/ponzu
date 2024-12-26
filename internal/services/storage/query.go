@@ -2,7 +2,7 @@ package storage
 
 import (
 	contentEntities "github.com/fanky5g/ponzu/content/entities"
-	"github.com/fanky5g/ponzu/search"
+	"github.com/fanky5g/ponzu/internal/search"
 )
 
 func (s *service) GetFileUpload(entityId string) (*contentEntities.FileUpload, error) {
@@ -19,7 +19,7 @@ func (s *service) GetFileUpload(entityId string) (*contentEntities.FileUpload, e
 }
 
 func (s *service) GetAllWithOptions(search *search.Search) (int, []*contentEntities.FileUpload, error) {
-	total, files, err := s.repository.Find(search.SortOrder, search.Pagination)
+	total, files, err := s.repository.Find(search.SortOrder, search.Count, search.Offset)
 	if err != nil {
 		return 0, nil, err
 	}

@@ -5,18 +5,18 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/config"
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/nilslice/jwt"
 )
 
 type service struct {
-	userRepository        driver.Repository
-	credentialRepository  driver.Repository
-	recoveryKeyRepository driver.Repository
-	configRepository      driver.Repository
+	userRepository        database.Repository
+	credentialRepository  database.Repository
+	recoveryKeyRepository database.Repository
+	configRepository      database.Repository
 }
 
 type Service interface {
@@ -112,7 +112,7 @@ func (s *service) SetRecoveryKey(email string) (*auth.RecoveryKey, error) {
 	return recoveryKey.(*auth.RecoveryKey), nil
 }
 
-func New(db driver.Database) (Service, error) {
+func New(db database.Database) (Service, error) {
 	configRepository := db.GetRepositoryByToken(tokens.ConfigRepositoryToken)
 	c, err := configRepository.Latest()
 	if err != nil {

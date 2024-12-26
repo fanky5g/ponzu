@@ -1,21 +1,21 @@
 package search
 
 import (
-	"github.com/fanky5g/ponzu/database"
-	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/internal/database"
+	"github.com/fanky5g/ponzu/internal/search"
 	"github.com/pkg/errors"
 )
 
 type service struct {
-	client   driver.SearchInterface
-	database driver.Database
+	client   search.SearchInterface
+	database database.Database
 }
 
 type Service interface {
 	Search(entity interface{}, query string, count, offset int) ([]interface{}, int, error)
 }
 
-func New(client driver.SearchInterface, database driver.Database) (Service, error) {
+func New(client search.SearchInterface, database database.Database) (Service, error) {
 	return &service{client: client, database: database}, nil
 }
 

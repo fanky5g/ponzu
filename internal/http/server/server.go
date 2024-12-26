@@ -2,18 +2,19 @@ package server
 
 import (
 	"fmt"
+	"net/http"
+
 	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/infrastructure"
 	"github.com/fanky5g/ponzu/internal/config"
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/handler/controllers"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"github.com/fanky5g/ponzu/internal/services/tls"
 	"github.com/fanky5g/ponzu/tokens"
-	"net/http"
 )
 
 type Server interface {
@@ -26,14 +27,19 @@ type server struct {
 	configService    *config.Service
 	analyticsService analytics.Service
 	mux              *http.ServeMux
-	configRepository driver.Repository
+	configRepository database.Repository
 }
 
 func (server *server) ServeMux() *http.ServeMux {
 	return server.mux
 }
 
-func New(contentTypes content.Types, infra infrastructure.Infrastructure, svcs services.Services) (Server, error) {
+func New(
+	contentTypes content.Types,
+	assetStorageClient driver.StorageClientInterface,
+	storageClient driver.StorageClientInterface,
+	svcs services.Services,
+) (Server, error) {
 	appConf, err := conf.Get()
 	if err != nil {
 		return nil, err
@@ -73,11 +79,7 @@ func New(contentTypes content.Types, infra infrastructure.Infrastructure, svcs s
 		return nil, err
 	}
 
-	err = controllers.RegisterRoutes(
-		rtr,
-		infra.Get(tokens.AssetStorageClientInfrastructureToken).(driver.StorageClientInterface),
-		infra.Get(tokens.StorageClientInfrastructureToken).(driver.StorageClientInterface),
-	)
+	err = controllers.RegisterRoutes(rtr, assetStorageClient, storageClient)
 	if err != nil {
 		return nil, err
 	}

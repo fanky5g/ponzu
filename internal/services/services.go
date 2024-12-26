@@ -5,12 +5,13 @@ import (
 
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/infrastructure"
 	"github.com/fanky5g/ponzu/internal/config"
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/memorycache"
+	"github.com/fanky5g/ponzu/internal/search"
 	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"github.com/fanky5g/ponzu/internal/services/auth"
-	"github.com/fanky5g/ponzu/internal/services/search"
+	searchSvc "github.com/fanky5g/ponzu/internal/services/search"
 	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/internal/services/tls"
 	"github.com/fanky5g/ponzu/internal/services/users"
@@ -28,11 +29,12 @@ func (services Services) Get(token tokens.Service) interface{} {
 	return nil
 }
 
-func New(infra infrastructure.Infrastructure, types map[string]content.Builder) (Services, error) {
-	db := infra.Get(tokens.DatabaseInfrastructureToken).(driver.Database)
-	searchClient := infra.Get(tokens.SearchClientInfrastructureToken).(driver.SearchInterface)
-	storageClient := infra.Get(tokens.StorageClientInfrastructureToken).(driver.StorageClientInterface)
-
+func New(
+	db database.Database,
+	searchClient search.SearchInterface,
+	storageClient driver.StorageClientInterface,
+	types map[string]content.Builder,
+) (Services, error) {
 	// Initialize services
 	services := make(Services)
 
@@ -79,13 +81,13 @@ func New(infra infrastructure.Infrastructure, types map[string]content.Builder) 
 	}
 	services[tokens.ConfigCache] = configCache
 
-	contentSearchService, err := search.New(searchClient, db)
+	contentSearchService, err := searchSvc.New(searchClient, db)
 	if err != nil {
 		log.Fatalf("Failed to initialize search service: %v", err)
 	}
 	services[tokens.ContentSearchServiceToken] = contentSearchService
 
-	uploadSearchService, err := search.New(searchClient, db)
+	uploadSearchService, err := searchSvc.New(searchClient, db)
 	if err != nil {
 		log.Fatalf("Failed to initialize search service: %v", err)
 	}

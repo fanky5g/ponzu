@@ -1,8 +1,8 @@
 package analytics
 
 import (
-	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/internal/analytics"
+	"github.com/fanky5g/ponzu/internal/constants"
 	log "github.com/sirupsen/logrus"
 	"runtime"
 	"time"

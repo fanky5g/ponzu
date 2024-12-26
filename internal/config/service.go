@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/cache"
 	"github.com/fanky5g/ponzu/util"
 )
 
 type Service struct {
-	config driver.Repository
+	config database.Repository
 	cache  cache.Cache
 }
 
@@ -87,7 +87,7 @@ func (s *Service) warmConfigCache() error {
 	return nil
 }
 
-func New(config driver.Repository, cache cache.Cache) (*Service, error) {
+func New(config database.Repository, cache cache.Cache) (*Service, error) {
 	s := &Service{
 		config: config,
 		cache:  cache,

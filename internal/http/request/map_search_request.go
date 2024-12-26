@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
-	"github.com/fanky5g/ponzu/search"
+	"github.com/fanky5g/ponzu/internal/search"
 )
 
 func GetSearchRequestDto(req *http.Request) (*request.SearchRequestDto, error) {
@@ -58,9 +58,7 @@ func MapSearchRequest(searchRequest *request.SearchRequestDto) (*search.Search, 
 	return &search.Search{
 		Query:     searchRequest.Query,
 		SortOrder: searchRequest.SortOrder,
-		Pagination: &search.Pagination{
-			Count:  searchRequest.Count,
-			Offset: searchRequest.Offset,
-		},
+		Count:     searchRequest.Count,
+		Offset:    searchRequest.Offset,
 	}, nil
 }
