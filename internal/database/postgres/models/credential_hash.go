@@ -3,12 +3,14 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
 	"strings"
+
+	"github.com/fanky5g/ponzu/database"
+	"github.com/fanky5g/ponzu/internal/auth"
 )
 
 type CredentialHashDocument struct {
-	*entities.CredentialHash
+	*auth.CredentialHash
 }
 
 func (document *CredentialHashDocument) Value() (interface{}, error) {
@@ -34,11 +36,11 @@ func (*CredentialHashModel) Name() string {
 }
 
 func (*CredentialHashModel) NewEntity() interface{} {
-	return new(entities.CredentialHash)
+	return new(auth.CredentialHash)
 }
 
-func (model *CredentialHashModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *CredentialHashModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &CredentialHashDocument{
-		CredentialHash: entity.(*entities.CredentialHash),
+		CredentialHash: entity.(*auth.CredentialHash),
 	}
 }

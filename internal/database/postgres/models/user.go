@@ -3,12 +3,13 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/auth"
+	"github.com/fanky5g/ponzu/database"
 	"strings"
 )
 
 type UserDocument struct {
-	*entities.User
+	*auth.User
 }
 
 func (document *UserDocument) Value() (interface{}, error) {
@@ -34,11 +35,11 @@ func (*UserModel) Name() string {
 }
 
 func (*UserModel) NewEntity() interface{} {
-	return new(entities.User)
+	return new(auth.User)
 }
 
-func (model *UserModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *UserModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &UserDocument{
-		User: entity.(*entities.User),
+		User: entity.(*auth.User),
 	}
 }

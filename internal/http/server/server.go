@@ -5,7 +5,6 @@ import (
 	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/infrastructure"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers"
@@ -50,7 +49,7 @@ func New(contentTypes content.Types, infra infrastructure.Infrastructure, svcs s
 
 	if cfg == nil {
 		// initialize config
-		cfg = &entities.Config{}
+		cfg = &config.Config{}
 
 		cfg.HTTPSPort = fmt.Sprintf("%d", appConf.ServeConfig.HttpsPort)
 		cfg.HTTPPort = fmt.Sprintf("%d", appConf.ServeConfig.HttpPort)

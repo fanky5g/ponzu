@@ -6,8 +6,6 @@ import (
 	"testing"
 
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
-	"github.com/fanky5g/ponzu-driver-postgres/database"
-	postgresSearch "github.com/fanky5g/ponzu-driver-postgres/search"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -30,15 +28,6 @@ func (s *SearchClientTestSuite) TestGetBleveSearchClient() {
 
 	if assert.NoError(s.T(), err) {
 		assert.IsType(s.T(), &bleveSearch.Client{}, searchClient)
-	}
-}
-
-func (s *SearchClientTestSuite) TestGetPostgresSearchClient() {
-	os.Args = append(os.Args, "--search_driver=postgres")
-	searchClient, err := getSearchClient(&database.Database{})
-
-	if assert.NoError(s.T(), err) {
-		assert.IsType(s.T(), &postgresSearch.Client{}, searchClient)
 	}
 }
 

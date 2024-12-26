@@ -21,7 +21,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	ponzuModels "github.com/fanky5g/ponzu/models"
+	"github.com/fanky5g/ponzu/database"
 	"github.com/fanky5g/testapp/entities"
 	"strings"
 )
@@ -56,7 +56,7 @@ func (*AuthorModel) NewEntity() interface{} {
 	return new(entities.Author)
 }
 
-func (model *AuthorModel) ToDocument(entity interface{}) ponzuModels.DocumentInterface {
+func (model *AuthorModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &AuthorDocument{
 		Author: entity.(*entities.Author),
 	}

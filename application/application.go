@@ -2,6 +2,7 @@ package application
 
 import (
 	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/database"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/infrastructure"
 	contentService "github.com/fanky5g/ponzu/internal/content"
@@ -9,14 +10,13 @@ import (
 	"github.com/fanky5g/ponzu/internal/content/dataexporter/formatter"
 	"github.com/fanky5g/ponzu/internal/http/server"
 	"github.com/fanky5g/ponzu/internal/services"
-	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type DatabaseConfig struct {
-	Models []models.ModelInterface
+	Models []database.ModelInterface
 }
 
 type Config struct {

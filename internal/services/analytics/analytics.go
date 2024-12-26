@@ -5,7 +5,7 @@ package analytics
 
 import (
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/analytics"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
@@ -16,7 +16,7 @@ type service struct {
 
 type Service interface {
 	StartRecorder()
-	Record(req entities.AnalyticsHTTPRequestMetadata)
+	Record(req analytics.AnalyticsHTTPRequestMetadata)
 	GetChartData() (map[string]interface{}, error)
 }
 

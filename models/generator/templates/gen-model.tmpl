@@ -3,7 +3,7 @@ package {{ .Package }}
 import (
 	"encoding/json"
 	"fmt"
-	ponzuModels "github.com/fanky5g/ponzu/models"
+	"github.com/fanky5g/ponzu/database"
 	{{- if eq .ContentPackage .ContentBase }}
     "{{ .ModulePath }}/{{ .ContentBase }}"
     {{- else }}
@@ -42,7 +42,7 @@ func (*{{ .Definition.Name }}Model) NewEntity() interface{} {
 	return new({{ .ContentPackage }}.{{ .Definition.Name }})
 }
 
-func (model *{{ .Definition.Name }}Model) ToDocument(entity interface{}) ponzuModels.DocumentInterface {
+func (model *{{ .Definition.Name }}Model) ToDocument(entity interface{}) database.DocumentInterface {
 	return &{{ .Definition.Name }}Document{
 		{{ .Definition.Name }}: entity.(*{{ .ContentPackage }}.{{ .Definition.Name }}),
 	}

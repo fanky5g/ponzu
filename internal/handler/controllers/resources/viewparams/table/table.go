@@ -5,8 +5,8 @@ import (
 	"math"
 
 	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/datasource"
+	"github.com/fanky5g/ponzu/search"
 )
 
 var PaginationOptions = []int{20, 50, 100}
@@ -27,14 +27,14 @@ type Table struct {
 	CurrentPage       int
 	NumberOfPages     int
 	PaginationOptions []int
-	Search            *entities.Search
+	Search            *search.Search
 	CSVFormattable    bool
 }
 
 func New(
 	t string,
 	itemType interface{},
-	search *entities.Search,
+	search *search.Search,
 	loader RowLoader,
 ) (*Table, error) {
 	matches, total, err := loader()

@@ -3,8 +3,10 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
 	"strings"
+
+	"github.com/fanky5g/ponzu/content/entities"
+	"github.com/fanky5g/ponzu/database"
 )
 
 type SlugDocument struct {
@@ -37,7 +39,7 @@ func (*SlugModel) NewEntity() interface{} {
 	return new(entities.Slug)
 }
 
-func (model *SlugModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *SlugModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &SlugDocument{
 		Slug: entity.(*entities.Slug),
 	}

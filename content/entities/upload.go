@@ -27,7 +27,7 @@ func (*FileUpload) EntityName() string {
 
 func (f *FileUpload) GetTitle() string { return f.Name }
 
-func (*FileUpload) GetRepositoryToken() tokens.RepositoryToken {
+func (*FileUpload) GetRepositoryToken() string {
 	return tokens.UploadRepositoryToken
 }
 

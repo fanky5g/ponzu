@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"golang.org/x/crypto/bcrypt"
 	mrand "math/rand"
 	"time"
@@ -19,9 +19,9 @@ var (
 )
 
 // SetCredential saves credential by userId. It is not responsible for checking if the user exists
-func (s *service) SetCredential(userId string, credential *entities.Credential) error {
+func (s *service) SetCredential(userId string, credential *auth.Credential) error {
 	switch credential.Type {
-	case entities.CredentialTypePassword:
+	case auth.CredentialTypePassword:
 		salt, err := randSalt()
 		if err != nil {
 			return err
@@ -32,7 +32,7 @@ func (s *service) SetCredential(userId string, credential *entities.Credential) 
 			return err
 		}
 
-		passwordHash := entities.PasswordHash{
+		passwordHash := auth.PasswordHash{
 			Hash: string(hash),
 			Salt: base64.StdEncoding.EncodeToString(salt),
 		}
@@ -42,9 +42,9 @@ func (s *service) SetCredential(userId string, credential *entities.Credential) 
 			return fmt.Errorf("failed to save credential: %v", err)
 		}
 
-		hashedCredential := &entities.CredentialHash{
+		hashedCredential := &auth.CredentialHash{
 			UserId: userId,
-			Type:   entities.CredentialTypePassword,
+			Type:   auth.CredentialTypePassword,
 			Value:  byteValue,
 		}
 
@@ -55,7 +55,7 @@ func (s *service) SetCredential(userId string, credential *entities.Credential) 
 	}
 }
 
-func (s *service) VerifyCredential(userId string, credential *entities.Credential) error {
+func (s *service) VerifyCredential(userId string, credential *auth.Credential) error {
 	c, err := s.credentialRepository.FindOneBy(map[string]interface{}{
 		"user_id": userId,
 		"type":    string(credential.Type),
@@ -69,10 +69,10 @@ func (s *service) VerifyCredential(userId string, credential *entities.Credentia
 		return errors.New("invalid credential. No match")
 	}
 
-	hashedCredential := c.(*entities.CredentialHash)
+	hashedCredential := c.(*auth.CredentialHash)
 	switch credential.Type {
-	case entities.CredentialTypePassword:
-		var passwordHash entities.PasswordHash
+	case auth.CredentialTypePassword:
+		var passwordHash auth.PasswordHash
 		if err = json.Unmarshal(hashedCredential.Value, &passwordHash); err != nil {
 			return fmt.Errorf("failed to unmarshal credential value: %v", err)
 		}

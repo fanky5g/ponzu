@@ -1,4 +1,4 @@
-package entities
+package config
 
 import (
 	"github.com/fanky5g/ponzu/content/editor"
@@ -28,7 +28,7 @@ type Config struct {
 
 func (c *Config) GetTitle() string { return c.Name }
 
-func (*Config) GetRepositoryToken() tokens.RepositoryToken {
+func (*Config) GetRepositoryToken() string {
 	return tokens.ConfigRepositoryToken
 }
 

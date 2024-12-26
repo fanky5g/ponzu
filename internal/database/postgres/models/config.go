@@ -3,12 +3,14 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
 	"strings"
+
+	"github.com/fanky5g/ponzu/database"
+	"github.com/fanky5g/ponzu/internal/config"
 )
 
 type ConfigDocument struct {
-	*entities.Config
+	*config.Config
 }
 
 func (document *ConfigDocument) Value() (interface{}, error) {
@@ -34,11 +36,11 @@ func (*ConfigModel) Name() string {
 }
 
 func (*ConfigModel) NewEntity() interface{} {
-	return new(entities.Config)
+	return new(config.Config)
 }
 
-func (model *ConfigModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *ConfigModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &ConfigDocument{
-		Config: entity.(*entities.Config),
+		Config: entity.(*config.Config),
 	}
 }

@@ -342,7 +342,6 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/tokens"
 )
 
 type Page struct {
@@ -505,7 +504,7 @@ func (p *Page) GetTitle() string {
 	return p.ID
 }
 
-func (p *Page) GetRepositoryToken() tokens.RepositoryToken {
+func (p *Page) GetRepositoryToken() string {
 	return "page"
 }`))
 

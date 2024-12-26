@@ -2,7 +2,7 @@ package analytics
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/analytics"
 	"time"
 )
 
@@ -99,7 +99,7 @@ CheckRequest:
 	for i := range dates {
 		_, ok := currentMetrics[dates[i]]
 		if !ok {
-			m := entities.AnalyticsMetric{
+			m := analytics.AnalyticsMetric{
 				Date:   dates[i],
 				Total:  total[i],
 				Unique: unique[i],
@@ -124,7 +124,7 @@ CheckRequest:
 		// check if we need to insert old data into cache - as long as it
 		// is not today's data
 		if dates[i] != today.Format("01/02") {
-			var metric *entities.AnalyticsMetric
+			var metric *analytics.AnalyticsMetric
 			metric, err = s.getMetricByDate(dates[i])
 			if err != nil {
 				return nil, err

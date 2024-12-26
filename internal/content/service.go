@@ -5,13 +5,15 @@ import (
 	"log"
 
 	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/content/workflow"
+	"github.com/fanky5g/ponzu/database"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/content/dataexporter"
 	"github.com/fanky5g/ponzu/internal/datasource"
+	"github.com/fanky5g/ponzu/search"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 	"github.com/pkg/errors"
@@ -36,7 +38,7 @@ func New(
 	contentRepositories := make(map[string]driver.Repository)
 	for entityName, entityConstructor := range types {
 		entity := entityConstructor()
-		persistable, ok := entity.(entities.Persistable)
+		persistable, ok := entity.(database.Persistable)
 		if !ok {
 			return nil, fmt.Errorf("entity %s does not implement Persistable", entityName)
 		}
@@ -223,7 +225,7 @@ func (s *Service) GetAll(entityType string) ([]interface{}, error) {
 	return s.repository(entityType).FindAll()
 }
 
-func (s *Service) GetAllWithOptions(entityType string, search *entities.Search) ([]interface{}, int, error) {
+func (s *Service) GetAllWithOptions(entityType string, search *search.Search) ([]interface{}, int, error) {
 	count, matches, err := s.repository(entityType).Find(search.SortOrder, search.Pagination)
 	return matches, count, err
 }

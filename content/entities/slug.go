@@ -8,7 +8,7 @@ type Slug struct {
 	Slug       string `json:"slug"`
 }
 
-func (*Slug) GetRepositoryToken() tokens.RepositoryToken {
+func (*Slug) GetRepositoryToken() string {
 	return tokens.SlugRepositoryToken
 }
 

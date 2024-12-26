@@ -3,13 +3,13 @@ package infrastructure
 import (
 	"fmt"
 
-    "github.com/pkg/errors"
 	localStorage "github.com/fanky5g/ponzu-driver-local-storage"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/database"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/models"
 	"github.com/fanky5g/ponzu/tokens"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -33,7 +33,7 @@ func (infra *infrastructure) Get(token tokens.Driver) interface{} {
 
 func New(
 	contentTypes map[string]content.Builder,
-	contentModels []models.ModelInterface,
+	contentModels []database.ModelInterface,
 ) (Infrastructure, error) {
 	svcs := make(map[tokens.Driver]interface{})
 	cfg, err := config.Get()
@@ -47,20 +47,20 @@ func New(
 		return nil, fmt.Errorf("failed to initialize database: %v", err)
 	}
 
-    uploadStorageClient, err := getUploadStorageClient()
-    if err != nil {
-        return nil, err
-    }
+	uploadStorageClient, err := getUploadStorageClient()
+	if err != nil {
+		return nil, err
+	}
 
 	assetStorageClient, err := localStorage.New(config.AssetStaticDir())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create asset storage file system: %v", err)
 	}
 
-    searchClient, err := getSearchClient(db)
-    if err != nil {
-        return nil, errors.Wrap(err, "Failed to get search client")
-    }
+	searchClient, err := getSearchClient(db)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to get search client")
+	}
 
 	svcs[tokens.StorageClientInfrastructureToken] = uploadStorageClient
 	svcs[tokens.AssetStorageClientInfrastructureToken] = assetStorageClient

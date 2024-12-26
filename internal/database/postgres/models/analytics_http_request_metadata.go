@@ -3,12 +3,14 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
 	"strings"
+
+	"github.com/fanky5g/ponzu/database"
+	"github.com/fanky5g/ponzu/internal/analytics"
 )
 
 type AnalyticsHTTPRequestMetadataDocument struct {
-	*entities.AnalyticsHTTPRequestMetadata
+	*analytics.AnalyticsHTTPRequestMetadata
 }
 
 func (document *AnalyticsHTTPRequestMetadataDocument) Value() (interface{}, error) {
@@ -34,11 +36,11 @@ func (*AnalyticsHTTPRequestMetadataModel) Name() string {
 }
 
 func (*AnalyticsHTTPRequestMetadataModel) NewEntity() interface{} {
-	return new(entities.AnalyticsHTTPRequestMetadata)
+	return new(analytics.AnalyticsHTTPRequestMetadata)
 }
 
-func (model *AnalyticsHTTPRequestMetadataModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *AnalyticsHTTPRequestMetadataModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &AnalyticsHTTPRequestMetadataDocument{
-		AnalyticsHTTPRequestMetadata: entity.(*entities.AnalyticsHTTPRequestMetadata),
+		AnalyticsHTTPRequestMetadata: entity.(*analytics.AnalyticsHTTPRequestMetadata),
 	}
 }

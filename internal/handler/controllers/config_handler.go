@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
@@ -33,13 +32,13 @@ func NewConfigHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			entity, err := request.GetEntityFromFormData(entities.ConfigBuilder, req.PostForm)
+			entity, err := request.GetEntityFromFormData(config.ConfigBuilder, req.PostForm)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to map config entity")
 				return
 			}
 
-			err = configService.SetConfig(entity.(*entities.Config))
+			err = configService.SetConfig(entity.(*config.Config))
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)

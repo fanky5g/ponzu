@@ -3,7 +3,7 @@ package request
 import (
 	"encoding/json"
 	"errors"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/http"
 	"net/url"
@@ -11,7 +11,7 @@ import (
 
 var ErrInvalidRequest = errors.New("invalid request")
 
-func MapAuthRequest(req *http.Request) (string, *entities.Credential, error) {
+func MapAuthRequest(req *http.Request) (string, *auth.Credential, error) {
 	var authRequest *request.AuthRequestDto
 	contentType := GetContentType(req)
 
@@ -47,7 +47,7 @@ func mapAuthRequestFromFormData(values url.Values) *request.AuthRequestDto {
 	return &request.AuthRequestDto{
 		AccountID: values.Get("account_id"),
 		Credential: request.Credential{
-			Type:  entities.CredentialType(values.Get("credential_type")),
+			Type:  auth.CredentialType(values.Get("credential_type")),
 			Value: values.Get("credential"),
 		},
 	}

@@ -224,7 +224,6 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/tokens"
 )
 
 type Author struct {
@@ -295,7 +294,7 @@ func (a *Author) GetTitle() string {
 	return a.ID
 }
 
-func (a *Author) GetRepositoryToken() tokens.RepositoryToken {
+func (a *Author) GetRepositoryToken() string {
 	return "author"
 }
 `))
@@ -397,7 +396,6 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/tokens"
 )
 
 type Review struct {
@@ -501,7 +499,7 @@ func (r *Review) GetTitle() string {
 	return r.ID
 }
 
-func (r *Review) GetRepositoryToken() tokens.RepositoryToken {
+func (r *Review) GetRepositoryToken() string {
 	return "review"
 }
 `))

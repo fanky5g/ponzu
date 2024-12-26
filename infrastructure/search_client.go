@@ -3,8 +3,6 @@ package infrastructure
 import (
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 
-	postgres "github.com/fanky5g/ponzu-driver-postgres/database"
-	postgresSearch "github.com/fanky5g/ponzu-driver-postgres/search"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/pkg/errors"
@@ -27,13 +25,6 @@ func getSearchClient(db driver.Database) (driver.SearchInterface, error) {
 
 	var searchClient driver.SearchInterface
 	switch cfg.SearchDriver {
-	case "postgres":
-		postgresDb, ok := db.(*postgres.Database)
-		if !ok {
-			return nil, errors.New("database driver incompatible with postgres search driver")
-		}
-
-		return postgresSearch.New(postgresDb)
 	case "bleve":
 		searchClient, err = bleveSearch.New(cfg.Paths.DataDir)
 		if err != nil {

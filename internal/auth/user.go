@@ -1,4 +1,4 @@
-package entities
+package auth
 
 import "github.com/fanky5g/ponzu/tokens"
 
@@ -11,7 +11,7 @@ func (*User) EntityName() string {
 	return "User"
 }
 
-func (*User) GetRepositoryToken() tokens.RepositoryToken {
+func (*User) GetRepositoryToken() string {
 	return tokens.UserRepositoryToken
 }
 

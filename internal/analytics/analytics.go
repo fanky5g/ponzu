@@ -1,4 +1,4 @@
-package entities
+package analytics
 
 import "github.com/fanky5g/ponzu/tokens"
 
@@ -9,7 +9,7 @@ type AnalyticsMetric struct {
 	Unique   int    `json:"unique"`
 }
 
-func (*AnalyticsMetric) GetRepositoryToken() tokens.RepositoryToken {
+func (*AnalyticsMetric) GetRepositoryToken() string {
 	return tokens.AnalyticsMetricsRepositoryToken
 }
 
@@ -28,7 +28,7 @@ type AnalyticsHTTPRequestMetadata struct {
 	External   bool   `json:"external_content"`
 }
 
-func (*AnalyticsHTTPRequestMetadata) GetRepositoryToken() tokens.RepositoryToken {
+func (*AnalyticsHTTPRequestMetadata) GetRepositoryToken() string {
 	return tokens.AnalyticsRequestsRepositoryToken
 }
 

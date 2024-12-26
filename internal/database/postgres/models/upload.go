@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fanky5g/ponzu/content/entities"
+	"github.com/fanky5g/ponzu/database"
 	"strings"
 )
 
@@ -37,7 +38,7 @@ func (*UploadModel) NewEntity() interface{} {
 	return new(entities.FileUpload)
 }
 
-func (model *UploadModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *UploadModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &UploadDocument{
 		FileUpload: entity.(*entities.FileUpload),
 	}

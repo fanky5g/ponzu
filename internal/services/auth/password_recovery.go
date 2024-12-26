@@ -3,7 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/config"
 	domainErrors "github.com/fanky5g/ponzu/errors"
 	emailer "github.com/nilslice/email"
 	log "github.com/sirupsen/logrus"
@@ -30,7 +30,7 @@ func (s *service) SendPasswordRecoveryInstructions(email string) error {
 		return errors.New("failed to get config")
 	}
 
-	cfg := cfgIface.(*entities.Config)
+	cfg := cfgIface.(*config.Config)
 	body := fmt.Sprintf(`
 There has been an account recovery request made for the user with email:
 %s

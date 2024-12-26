@@ -3,12 +3,14 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
 	"strings"
+
+	"github.com/fanky5g/ponzu/database"
+	"github.com/fanky5g/ponzu/internal/analytics"
 )
 
 type AnalyticsMetricDocument struct {
-	*entities.AnalyticsMetric
+	*analytics.AnalyticsMetric
 }
 
 func (document *AnalyticsMetricDocument) Value() (interface{}, error) {
@@ -34,11 +36,11 @@ func (*AnalyticsMetricModel) Name() string {
 }
 
 func (*AnalyticsMetricModel) NewEntity() interface{} {
-	return new(entities.AnalyticsMetric)
+	return new(analytics.AnalyticsMetric)
 }
 
-func (model *AnalyticsMetricModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *AnalyticsMetricModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &AnalyticsMetricDocument{
-		AnalyticsMetric: entity.(*entities.AnalyticsMetric),
+		AnalyticsMetric: entity.(*analytics.AnalyticsMetric),
 	}
 }

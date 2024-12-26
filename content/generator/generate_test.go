@@ -449,7 +449,6 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/tokens"
 )
 
 type Author struct {
@@ -501,7 +500,7 @@ func (a *Author) GetTitle() string {
 	return a.ID
 }
 
-func (a *Author) GetRepositoryToken() tokens.RepositoryToken {
+func (a *Author) GetRepositoryToken() string {
 	return "author"
 }`))
 
@@ -699,7 +698,6 @@ import (
         "fmt"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
-        "github.com/fanky5g/ponzu/tokens"
 )
 
 type Blog struct {
@@ -767,7 +765,7 @@ func (b *Blog) GetTitle() string {
         return b.ID
 }
 
-func (b *Blog) GetRepositoryToken() tokens.RepositoryToken {
+func (b *Blog) GetRepositoryToken() string {
         return "blog"
 }
 	`))
@@ -860,7 +858,6 @@ import (
         "fmt"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
-        "github.com/fanky5g/ponzu/tokens"
 )
 
 type Blog struct {
@@ -928,7 +925,7 @@ func (b *Blog) GetTitle() string {
         return b.ID
 }
 
-func (b *Blog) GetRepositoryToken() tokens.RepositoryToken {
+func (b *Blog) GetRepositoryToken() string {
         return "blog"
 }
 	`))
@@ -993,7 +990,6 @@ import (
         "fmt"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
-        "github.com/fanky5g/ponzu/tokens"
 )
 
 type Page struct {
@@ -1148,7 +1144,7 @@ func (p *Page) GetTitle() string {
         return p.ID
 }
 
-func (p *Page) GetRepositoryToken() tokens.RepositoryToken {
+func (p *Page) GetRepositoryToken() string {
         return "page"
 }
 	`))
@@ -1366,7 +1362,6 @@ import (
         "fmt"
         "github.com/fanky5g/ponzu/content/editor"
         "github.com/fanky5g/ponzu/content/item"
-        "github.com/fanky5g/ponzu/tokens"
 )
 
 type Story struct {
@@ -1443,7 +1438,7 @@ func (s *Story) GetTitle() string {
         return s.ID
 }
 
-func (s *Story) GetRepositoryToken() tokens.RepositoryToken {
+func (s *Story) GetRepositoryToken() string {
         return "story"
 }
 `))

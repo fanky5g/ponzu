@@ -1,9 +1,8 @@
 package search
 
 import (
+	"github.com/fanky5g/ponzu/database"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
 )
 
@@ -40,12 +39,12 @@ func (s *service) Search(entity interface{}, query string, count, offset int) ([
 		return matches, size, nil
 	}
 
-	persistable, ok := entity.(entities.Persistable)
+	persistable, ok := entity.(database.Persistable)
 	if !ok {
 		return matches, size, nil
 	}
 
-	repository := s.database.GetRepositoryByToken(tokens.RepositoryToken(persistable.GetRepositoryToken()))
+	repository := s.database.GetRepositoryByToken(persistable.GetRepositoryToken())
 	results := make([]interface{}, len(matches))
 	for i := range matches {
 		identifiable := matches[i].(interface {

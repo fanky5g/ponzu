@@ -1,4 +1,4 @@
-package entities
+package auth
 
 import (
 	"github.com/fanky5g/ponzu/tokens"
@@ -25,7 +25,7 @@ type CredentialHash struct {
 	Value  []byte         `json:"value"`
 }
 
-func (*CredentialHash) GetRepositoryToken() tokens.RepositoryToken {
+func (*CredentialHash) GetRepositoryToken() string {
 	return tokens.CredentialHashRepositoryToken
 }
 
@@ -43,7 +43,7 @@ type RecoveryKey struct {
 	Value string `json:"value"`
 }
 
-func (*RecoveryKey) GetRepositoryToken() tokens.RepositoryToken {
+func (*RecoveryKey) GetRepositoryToken() string {
 	return tokens.RecoveryKeyRepositoryToken
 }
 

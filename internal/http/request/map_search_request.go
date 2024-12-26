@@ -2,12 +2,13 @@ package request
 
 import (
 	"encoding/json"
-	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/request"
+	"github.com/fanky5g/ponzu/search"
 )
 
 func GetSearchRequestDto(req *http.Request) (*request.SearchRequestDto, error) {
@@ -53,11 +54,11 @@ func getSearchRequestFromURL(qs url.Values) (*request.SearchRequestDto, error) {
 	}, nil
 }
 
-func MapSearchRequest(searchRequest *request.SearchRequestDto) (*entities.Search, error) {
-	return &entities.Search{
+func MapSearchRequest(searchRequest *request.SearchRequestDto) (*search.Search, error) {
+	return &search.Search{
 		Query:     searchRequest.Query,
 		SortOrder: searchRequest.SortOrder,
-		Pagination: &entities.Pagination{
+		Pagination: &search.Pagination{
 			Count:  searchRequest.Count,
 			Offset: searchRequest.Offset,
 		},

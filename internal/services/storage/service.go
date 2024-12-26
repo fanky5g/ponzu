@@ -5,7 +5,7 @@ package storage
 import (
 	contentEntities "github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/search"
 	"github.com/fanky5g/ponzu/tokens"
 	"mime/multipart"
 )
@@ -17,7 +17,7 @@ type service struct {
 }
 
 type Service interface {
-	GetAllWithOptions(search *entities.Search) (int, []*contentEntities.FileUpload, error)
+	GetAllWithOptions(search *search.Search) (int, []*contentEntities.FileUpload, error)
 	GetFileUpload(target string) (*contentEntities.FileUpload, error)
 	DeleteFile(target ...string) error
 	StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error)

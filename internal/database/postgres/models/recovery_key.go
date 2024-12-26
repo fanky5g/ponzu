@@ -3,12 +3,14 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
 	"strings"
+
+	"github.com/fanky5g/ponzu/database"
+	"github.com/fanky5g/ponzu/internal/auth"
 )
 
 type RecoveryKeyDocument struct {
-	*entities.RecoveryKey
+	*auth.RecoveryKey
 }
 
 func (document *RecoveryKeyDocument) Value() (interface{}, error) {
@@ -34,11 +36,11 @@ func (*RecoveryKeyModel) Name() string {
 }
 
 func (*RecoveryKeyModel) NewEntity() interface{} {
-	return new(entities.RecoveryKey)
+	return new(auth.RecoveryKey)
 }
 
-func (model *RecoveryKeyModel) ToDocument(entity interface{}) DocumentInterface {
+func (model *RecoveryKeyModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &RecoveryKeyDocument{
-		RecoveryKey: entity.(*entities.RecoveryKey),
+		RecoveryKey: entity.(*auth.RecoveryKey),
 	}
 }
