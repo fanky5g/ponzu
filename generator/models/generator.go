@@ -1,11 +1,13 @@
-package generator
+package models
 
 import (
-	"github.com/fanky5g/ponzu/generator"
-	"github.com/fanky5g/ponzu/util"
+	"fmt"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/fanky5g/ponzu/generator"
+	"github.com/fanky5g/ponzu/util"
 )
 
 type modelGenerator struct {
@@ -30,10 +32,11 @@ func New(
 
 	_, b, _, _ := runtime.Caller(0)
 	rootPath := filepath.Join(filepath.Dir(b), "../..")
+	fmt.Println(rootPath)
 
 	return &modelGenerator{
 		modulePath:             modulePath,
-		templateDir:            filepath.Join(rootPath, "models", "generator", "templates"),
+		templateDir:            filepath.Join(rootPath, "generator", "models", "templates"),
 		config:                 config,
 		contentGeneratorConfig: contentGeneratorConfig,
 	}, nil

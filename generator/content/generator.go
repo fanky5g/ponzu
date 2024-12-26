@@ -1,4 +1,4 @@
-package generator
+package content
 
 import (
 	"github.com/fanky5g/ponzu/content"
@@ -15,8 +15,8 @@ type contentGenerator struct {
 
 func setupGenerator(config generator.Config, contentTypes content.Types) (*contentGenerator, error) {
 	_, b, _, _ := runtime.Caller(0)
-	rootPath := filepath.Join(filepath.Dir(b), "..")
-	templateDir := filepath.Join(rootPath, "generator", "templates")
+	rootPath := filepath.Join(filepath.Dir(b), "../..")
+	templateDir := filepath.Join(rootPath, "generator", "content", "templates")
 
 	return &contentGenerator{
 		templateDir:  templateDir,

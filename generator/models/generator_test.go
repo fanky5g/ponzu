@@ -1,4 +1,4 @@
-package generator
+package models
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func (s *GeneratorTestSuite) SetupSuite() {
 
 	m := &modelGenerator{
 		modulePath:  "github.com/fanky5g/testapp",
-		templateDir: filepath.Join(rootPath, "models", "generator", "templates"),
+		templateDir: filepath.Join(rootPath, "generator", "models", "templates"),
 		config: generator.Config{
 			Target: generator.Target{
 				Path: generator.Path{

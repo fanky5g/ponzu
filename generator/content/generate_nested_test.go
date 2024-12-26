@@ -1,4 +1,4 @@
-package generator
+package content
 
 import (
 	"github.com/fanky5g/ponzu/content"

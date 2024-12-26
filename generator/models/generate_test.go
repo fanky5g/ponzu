@@ -1,4 +1,4 @@
-package generator
+package models
 
 import (
 	"github.com/fanky5g/ponzu/generator"
