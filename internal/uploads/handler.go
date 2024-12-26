@@ -7,7 +7,7 @@ import (
 
 	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/http/request"

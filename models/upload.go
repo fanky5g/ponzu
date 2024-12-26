@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/content/entities"
 	"strings"
 )
 

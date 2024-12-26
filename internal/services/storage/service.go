@@ -3,6 +3,7 @@
 package storage
 
 import (
+	contentEntities "github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/tokens"
@@ -16,8 +17,8 @@ type service struct {
 }
 
 type Service interface {
-	GetAllWithOptions(search *entities.Search) (int, []*entities.FileUpload, error)
-	GetFileUpload(target string) (*entities.FileUpload, error)
+	GetAllWithOptions(search *entities.Search) (int, []*contentEntities.FileUpload, error)
+	GetFileUpload(target string) (*contentEntities.FileUpload, error)
 	DeleteFile(target ...string) error
 	StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error)
 	driver.StaticFileSystemInterface
@@ -28,9 +29,9 @@ func New(
 	searchClient driver.SearchInterface,
 	client driver.StorageClientInterface) (Service, error) {
 	s := &service{
-		client:     client,
-        searchClient: searchClient,
-		repository: db.GetRepositoryByToken(tokens.UploadRepositoryToken),
+		client:       client,
+		searchClient: searchClient,
+		repository:   db.GetRepositoryByToken(tokens.UploadRepositoryToken),
 	}
 
 	return s, nil
