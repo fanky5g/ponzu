@@ -2,7 +2,7 @@ package request
 
 import (
 	"errors"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/auth"
 )
 
 var (
@@ -13,8 +13,8 @@ var (
 )
 
 type Credential struct {
-	Type  entities.CredentialType `json:"type"`
-	Value interface{}             `json:"value"`
+	Type  auth.CredentialType `json:"type"`
+	Value interface{}         `json:"value"`
 }
 
 type AuthRequestDto struct {
@@ -22,32 +22,32 @@ type AuthRequestDto struct {
 	Credential Credential `json:"credential"`
 }
 
-func (auth *AuthRequestDto) Validate() error {
-	if auth.AccountID == "" {
+func (request *AuthRequestDto) Validate() error {
+	if request.AccountID == "" {
 		return ErrInvalidAccountID
 	}
 
-	if auth.Credential.Type == "" {
+	if request.Credential.Type == "" {
 		return ErrInvalidCredentialType
 	}
 
-	if auth.Credential.Value == "" {
+	if request.Credential.Value == "" {
 		return ErrInvalidCredential
 	}
 
 	return nil
 }
 
-func (auth *AuthRequestDto) ToCredential() (*entities.Credential, error) {
-	switch auth.Credential.Type {
-	case entities.CredentialTypePassword:
-		password, ok := auth.Credential.Value.(string)
+func (request *AuthRequestDto) ToCredential() (*auth.Credential, error) {
+	switch request.Credential.Type {
+	case auth.CredentialTypePassword:
+		password, ok := request.Credential.Value.(string)
 		if !ok {
 			return nil, ErrInvalidCredential
 		}
 
-		return &entities.Credential{
-			Type:  entities.CredentialTypePassword,
+		return &auth.Credential{
+			Type:  auth.CredentialTypePassword,
 			Value: password,
 		}, nil
 	default:

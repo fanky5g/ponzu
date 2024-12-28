@@ -6,10 +6,10 @@ require (
 	github.com/fanky5g/ponzu-driver-bleve v1.0.3
 	github.com/fanky5g/ponzu-driver-gcs v1.1.0
 	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
-	github.com/fanky5g/ponzu-driver-postgres v1.3.0
-	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/schema v1.3.0
+	github.com/jackc/pgtype v1.14.4
+	github.com/jackc/pgx/v5 v5.7.2
 	github.com/nilslice/email v0.1.0
 	github.com/nilslice/jwt v1.0.0
 	github.com/pkg/errors v0.9.1
@@ -19,8 +19,8 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/tidwall/gjson v1.18.0
-	golang.org/x/crypto v0.25.0
-	golang.org/x/text v0.16.0
+	golang.org/x/crypto v0.31.0
+	golang.org/x/text v0.21.0
 )
 
 require (
@@ -58,10 +58,8 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
-	github.com/jackc/pgtype v1.14.3 // indirect
-	github.com/jackc/pgx/v5 v5.6.0 // indirect
-	github.com/jackc/puddle/v2 v2.2.1 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
@@ -88,8 +86,8 @@ require (
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/api v0.189.0 // indirect
 	google.golang.org/genproto v0.0.0-20240730163845-b1a4ccb954bf // indirect

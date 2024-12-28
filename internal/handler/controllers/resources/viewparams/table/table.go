@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/fanky5g/ponzu/constants"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/datasource"
+	"github.com/fanky5g/ponzu/internal/search"
 )
 
 var PaginationOptions = []int{20, 50, 100}
@@ -27,14 +27,14 @@ type Table struct {
 	CurrentPage       int
 	NumberOfPages     int
 	PaginationOptions []int
-	Search            *entities.Search
+	Search            *search.Search
 	CSVFormattable    bool
 }
 
 func New(
 	t string,
 	itemType interface{},
-	search *entities.Search,
+	search *search.Search,
 	loader RowLoader,
 ) (*Table, error) {
 	matches, total, err := loader()
@@ -43,8 +43,8 @@ func New(
 	}
 
 	// set up pagination values
-	count := search.Pagination.Count
-	offset := search.Pagination.Offset
+	count := search.Count
+	offset := search.Offset
 	if total < count {
 		count = total
 	}
@@ -66,7 +66,7 @@ func New(
 		TableName:         fmt.Sprintf("%s Items", t),
 		Items:             matches,
 		TypeName:          t,
-		RowsPerPage:       search.Pagination.Count,
+		RowsPerPage:       search.Count,
 		TotalItemCount:    total,
 		CurrentItemStart:  start,
 		CurrentItemEnd:    end,

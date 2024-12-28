@@ -13,6 +13,7 @@
 {{ define "workflow.gohtml" }}
     {{ if .Workflow }}
         <div class="mdc-menu-surface--anchor workflow-actions">
+            <input type="hidden" name="workflow-action" value="" />
             <button type="button" class="mdc-button mdc-button--outlined">
               <span class="mdc-button__ripple"></span>
               <i class="material-icons">directions</i>
@@ -21,11 +22,14 @@
             </button>
 
             <div class="mdc-menu mdc-menu-surface">
-              <ul class="mdc-list" role="menu" aria-orientation="vertical" tabindex="-1">
+              <ul id="workflow-actions" class="mdc-list" role="menu" aria-orientation="vertical" tabindex="-1">
                 {{ $transitions := .Workflow.GetValidTransitions }}
                 {{ $length := len $transitions }}
                 {{ range $i, $transition := $transitions }}
-                    <li class="mdc-list-item {{ WorkflowStateToLower $transition.GetState }}" role="menuitem">
+                    <li
+                        class="mdc-list-item {{ WorkflowStateToLower $transition.GetState }}"
+                        data-value="{{ $transition.GetState }}"
+                        role="menuitem">
                       <span class="mdc-list-item__ripple"></span>
                       <span class="mdc-list-item__graphic">
                         <i class="material-symbols-rounded">workflow</i>

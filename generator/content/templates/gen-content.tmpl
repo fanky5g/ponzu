@@ -1,0 +1,50 @@
+package {{ .Target.Package }}
+
+import (
+	"fmt"
+	"github.com/fanky5g/ponzu/content/editor"
+	"github.com/fanky5g/ponzu/content/item"
+)
+
+type {{ .Definition.Name }} struct {
+    item.Item
+
+    {{ range .Fields nil }}{{ if and .IsReference (not (or .IsFieldCollection .IsNested)) }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}" reference:"{{ .ReferenceName }}"`{{ else }}{{ .Name }} {{ .TypeName }} `json:"{{ .JSONName }}"`{{ end }}
+    {{ end }}	
+}
+
+// MarshalEditor writes a buffer of views to edit a {{ .Definition.Name }} within the CMS
+// and implements editor.Editable
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) MarshalEditor(publicPath string) ([]byte, error) {
+	view, err := editor.Form({{ .Definition.Metadata.MethodReceiverName }},
+        // Take note that the first argument to these Input-like functions 
+        // is the string version of each {{ .Definition.Name }} field, and must follow
+        // this pattern for auto-decoding and auto-encoding reasons:
+        {{ range .Fields nil }}editor.Field{
+			{{ .View }}
+		},
+		{{ end }}
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to render {{ .Definition.Name }} editor view: %s", err.Error())
+	}
+
+	return view, nil
+}
+
+func init() {
+	Content["{{ .Definition.Name }}"] = func() interface{} { return new({{ .Definition.Name }}) }
+}
+
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) EntityName() string {
+    return "{{ .Definition.Name }}"
+}
+
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) GetTitle() string {
+    return {{ .Definition.Metadata.MethodReceiverName }}.ID
+}
+
+func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) GetRepositoryToken() string {
+	return "{{ .Definition.Name | RepositoryToken }}"
+}

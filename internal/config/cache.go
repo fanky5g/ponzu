@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/cache"
 	"github.com/fanky5g/ponzu/util"
 	log "github.com/sirupsen/logrus"
@@ -122,7 +121,7 @@ func (c *configCache) getConfigBool(key string) (bool, error) {
 
 func (c *configCache) getConfigValue(key string) (*reflect.Value, error) {
 	cacheValue := c.cache.Get(ConfigCacheKey)
-	cfg, ok := cacheValue.(*entities.Config)
+	cfg, ok := cacheValue.(*Config)
 	if !ok {
 		return nil, nil
 	}

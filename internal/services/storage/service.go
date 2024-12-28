@@ -3,34 +3,37 @@
 package storage
 
 import (
-	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/tokens"
 	"mime/multipart"
+
+	contentEntities "github.com/fanky5g/ponzu/content/entities"
+	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/internal/database"
+	"github.com/fanky5g/ponzu/internal/search"
+	"github.com/fanky5g/ponzu/tokens"
 )
 
 type service struct {
 	client       driver.StorageClientInterface
-	repository   driver.Repository
-	searchClient driver.SearchInterface
+	repository   database.Repository
+	searchClient search.SearchInterface
 }
 
 type Service interface {
-	GetAllWithOptions(search *entities.Search) (int, []*entities.FileUpload, error)
-	GetFileUpload(target string) (*entities.FileUpload, error)
+	GetAllWithOptions(search *search.Search) (int, []*contentEntities.FileUpload, error)
+	GetFileUpload(target string) (*contentEntities.FileUpload, error)
 	DeleteFile(target ...string) error
 	StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error)
 	driver.StaticFileSystemInterface
 }
 
 func New(
-	db driver.Database,
-	searchClient driver.SearchInterface,
+	db database.Database,
+	searchClient search.SearchInterface,
 	client driver.StorageClientInterface) (Service, error) {
 	s := &service{
-		client:     client,
-        searchClient: searchClient,
-		repository: db.GetRepositoryByToken(tokens.UploadRepositoryToken),
+		client:       client,
+		searchClient: searchClient,
+		repository:   db.GetRepositoryByToken(tokens.UploadRepositoryToken),
 	}
 
 	return s, nil

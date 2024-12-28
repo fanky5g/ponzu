@@ -4,11 +4,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *service) LoginByEmail(email string, credential *entities.Credential) (*entities.AuthToken, error) {
+func (s *service) LoginByEmail(email string, credential *auth.Credential) (*auth.AuthToken, error) {
 	user, err := s.getUserByEmail(email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user by email: %v", err)

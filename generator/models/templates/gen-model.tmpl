@@ -1,0 +1,53 @@
+package {{ .Package }}
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/fanky5g/ponzu/database"
+	{{- if eq .ContentPackage .ContentBase }}
+    "{{ .ModulePath }}/{{ .ContentBase }}"
+    {{- else }}
+    {{ .ContentPackage }} "{{ .ModulePath }}/{{ .ContentBase }}"
+    {{- end }}
+	"strings"
+)
+
+type {{ .Definition.Name }}Document struct {
+	*{{ .ContentPackage }}.{{ .Definition.Name }}
+}
+
+func (document *{{ .Definition.Name }}Document) Value() (interface{}, error) {
+	return json.Marshal(document)
+}
+
+func (document *{{ .Definition.Name }}Document) Scan(src interface{}) error {
+	if byteSrc, ok := src.([]byte); ok {
+		return json.Unmarshal(byteSrc, &document)
+	}
+
+	if stringSrc, ok := src.(string); ok {
+		return json.NewDecoder(strings.NewReader(stringSrc)).Decode(&document)
+	}
+
+	return fmt.Errorf("unsupported type %T", src)
+}
+
+type {{ .Definition.Name }}Model struct{}
+
+func (*{{ .Definition.Name }}Model) Name() string {
+	return "{{ .Definition.Name | TableName }}"
+}
+
+func (*{{ .Definition.Name }}Model) NewEntity() interface{} {
+	return new({{ .ContentPackage }}.{{ .Definition.Name }})
+}
+
+func (model *{{ .Definition.Name }}Model) ToDocument(entity interface{}) database.DocumentInterface {
+	return &{{ .Definition.Name }}Document{
+		{{ .Definition.Name }}: entity.(*{{ .ContentPackage }}.{{ .Definition.Name }}),
+	}
+}
+
+func init() {
+	Models = append(Models, new({{ .Definition.Name }}Model))
+}

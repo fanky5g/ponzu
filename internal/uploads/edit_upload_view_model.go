@@ -4,7 +4,7 @@ import (
 	"html/template"
 
 	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/dashboard"
 )

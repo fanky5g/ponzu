@@ -4,17 +4,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/services/auth"
+	service "github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
 
 func NewConfigUsersEditHandler(r router.Router) http.HandlerFunc {
-	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+	authService := r.Context().Service(tokens.AuthServiceToken).(service.Service)
 	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
@@ -34,8 +34,8 @@ func NewConfigUsersEditHandler(r router.Router) http.HandlerFunc {
 			}
 
 			// check if password matches
-			password := &entities.Credential{
-				Type:  entities.CredentialTypePassword,
+			password := &auth.Credential{
+				Type:  auth.CredentialTypePassword,
 				Value: req.PostFormValue("password"),
 			}
 
@@ -48,8 +48,8 @@ func NewConfigUsersEditHandler(r router.Router) http.HandlerFunc {
 			email := strings.ToLower(req.PostFormValue("email"))
 			newPassword := req.PostFormValue("new_password")
 			if newPassword != "" {
-				if err = authService.SetCredential(user.ID, &entities.Credential{
-					Type:  entities.CredentialTypePassword,
+				if err = authService.SetCredential(user.ID, &auth.Credential{
+					Type:  auth.CredentialTypePassword,
 					Value: newPassword,
 				}); err != nil {
 					log.WithField("Error", err).Warning("Failed to update password")
@@ -59,7 +59,7 @@ func NewConfigUsersEditHandler(r router.Router) http.HandlerFunc {
 			}
 
 			if email != "" {
-				update := &entities.User{
+				update := &auth.User{
 					ID:    user.ID,
 					Email: email,
 				}

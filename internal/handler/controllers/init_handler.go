@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"encoding/base64"
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/auth"
+	authServicePkg "github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
@@ -16,7 +16,7 @@ import (
 
 func NewInitHandler(r router.Router) http.HandlerFunc {
 	configService := r.Context().Service(tokens.ConfigServiceToken).(*config.Service)
-	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+	authService := r.Context().Service(tokens.AuthServiceToken).(authServicePkg.Service)
 	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
@@ -45,7 +45,7 @@ func NewInitHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			var cfg *entities.Config
+			var cfg *config.Config
 			cfg, err = configService.Get()
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to get config")
@@ -64,7 +64,7 @@ func NewInitHandler(r router.Router) http.HandlerFunc {
 			// create and save controllers user
 			email := strings.ToLower(req.FormValue("email"))
 			password := req.FormValue("password")
-			var user *entities.User
+			var user *auth.User
 			user, err = userService.CreateUser(email)
 			if err != nil {
 				log.Println(err)
@@ -72,8 +72,8 @@ func NewInitHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			if err = authService.SetCredential(user.ID, &entities.Credential{
-				Type:  entities.CredentialTypePassword,
+			if err = authService.SetCredential(user.ID, &auth.Credential{
+				Type:  auth.CredentialTypePassword,
 				Value: password,
 			}); err != nil {
 				log.WithField("Error", err).Warning("Failed to create admin user")
@@ -90,7 +90,7 @@ func NewInitHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			var authToken *entities.AuthToken
+			var authToken *auth.AuthToken
 			authToken, err = authService.NewToken(user)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to generate auth token")

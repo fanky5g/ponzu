@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/cache"
-	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
 	"github.com/fanky5g/ponzu/util"
 )
 
 type Service struct {
-	config driver.Repository
+	config database.Repository
 	cache  cache.Cache
 }
 
@@ -42,7 +41,7 @@ func (s *Service) GetBoolValue(key string) (bool, error) {
 	return value.Bool(), nil
 }
 
-func (s *Service) SetConfig(config *entities.Config) error {
+func (s *Service) SetConfig(config *Config) error {
 	cfg, err := s.Get()
 	if err != nil {
 		return err
@@ -62,7 +61,7 @@ func (s *Service) SetConfig(config *entities.Config) error {
 	return nil
 }
 
-func (s *Service) Get() (*entities.Config, error) {
+func (s *Service) Get() (*Config, error) {
 	cfg, err := s.config.Latest()
 	if err != nil {
 		return nil, err
@@ -72,7 +71,7 @@ func (s *Service) Get() (*entities.Config, error) {
 		return nil, nil
 	}
 
-	return cfg.(*entities.Config), nil
+	return cfg.(*Config), nil
 }
 
 func (s *Service) warmConfigCache() error {
@@ -88,7 +87,7 @@ func (s *Service) warmConfigCache() error {
 	return nil
 }
 
-func New(config driver.Repository, cache cache.Cache) (*Service, error) {
+func New(config database.Repository, cache cache.Cache) (*Service, error) {
 	s := &Service{
 		config: config,
 		cache:  cache,

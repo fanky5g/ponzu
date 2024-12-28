@@ -4,39 +4,40 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/fanky5g/ponzu/constants"
 	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/content/workflow"
-	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
+	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/content/dataexporter"
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/datasource"
+	"github.com/fanky5g/ponzu/internal/search"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 	"github.com/pkg/errors"
 )
 
 type Service struct {
-	repositories   map[string]driver.Repository
-	slugRepository driver.Repository
-	searchClient   driver.SearchInterface
+	repositories   map[string]database.Repository
+	slugRepository database.Repository
+	searchClient   search.SearchInterface
 	types          map[string]content.Builder
 	dataExporter   dataexporter.DataExporter
 }
 
 func New(
-	db driver.Database,
+	db database.Database,
 	types map[string]content.Builder,
-	searchClient driver.SearchInterface,
+	searchClient search.SearchInterface,
 	dataExporter dataexporter.DataExporter,
 ) (*Service, error) {
 	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
-	contentRepositories := make(map[string]driver.Repository)
+	contentRepositories := make(map[string]database.Repository)
 	for entityName, entityConstructor := range types {
 		entity := entityConstructor()
-		persistable, ok := entity.(entities.Persistable)
+		persistable, ok := entity.(database.Persistable)
 		if !ok {
 			return nil, fmt.Errorf("entity %s does not implement Persistable", entityName)
 		}
@@ -60,7 +61,7 @@ func New(
 	return s, nil
 }
 
-func (s *Service) repository(entityType string) driver.Repository {
+func (s *Service) repository(entityType string) database.Repository {
 	repository := s.repositories[entityType]
 	if repository == nil {
 		log.Panicf("Failed to get repository for: %v", entityType)
@@ -223,8 +224,8 @@ func (s *Service) GetAll(entityType string) ([]interface{}, error) {
 	return s.repository(entityType).FindAll()
 }
 
-func (s *Service) GetAllWithOptions(entityType string, search *entities.Search) ([]interface{}, int, error) {
-	count, matches, err := s.repository(entityType).Find(search.SortOrder, search.Pagination)
+func (s *Service) GetAllWithOptions(entityType string, search *search.Search) ([]interface{}, int, error) {
+	count, matches, err := s.repository(entityType).Find(search.SortOrder, search.Count, search.Offset)
 	return matches, count, err
 }
 
