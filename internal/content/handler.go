@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/http/response"
@@ -113,6 +114,40 @@ func NewSaveContentHandler(contentService *Service, publicPath string) http.Hand
 			response.NewRedirectResponse(
 				publicPath,
 				req.URL.Path+"?type="+contentQuery.Type+"&id="+contentQuery.ID,
+			),
+		)
+	}
+}
+
+func NewContentWorkflowTransitionHandler(contentService *Service, publicPath string) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		contentTransitionInput, err := MapContentTransitionInputFromRequest(req)
+		if err != nil {
+			// TODO: handle error
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		_, err = contentService.TransitionWorkflowState(
+			contentTransitionInput.Type,
+			contentTransitionInput.ID,
+			workflow.State(contentTransitionInput.TargetState),
+		)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"Error": err,
+			}).Warning("Failed to transition workflow state")
+			// we still don't have a way to efficiently determine the error kind
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		response.Respond(
+			res,
+			req,
+			response.NewRedirectResponse(
+				publicPath,
+				"/edit?type="+contentTransitionInput.Type+"&id="+contentTransitionInput.ID,
 			),
 		)
 	}

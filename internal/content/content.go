@@ -12,6 +12,11 @@ type ContentQuery struct {
 	Type string
 }
 
+type ContentTransitionInput struct {
+	ContentQuery
+	TargetState string
+}
+
 type TabularDatasource interface {
 	GetNumberOfRows() (int, error)
 	GetColumns() ([]string, error)
@@ -32,6 +37,32 @@ func MapContentQueryFromRequest(r *http.Request) (*ContentQuery, error) {
 		return &ContentQuery{
 			ID:   r.FormValue("id"),
 			Type: r.FormValue("type"),
+		}, nil
+	default:
+		return nil, ErrUnsupportedMethod
+	}
+}
+
+func MapContentTransitionInputFromRequest(r *http.Request) (*ContentTransitionInput, error) {
+	method := r.Method
+
+	switch method {
+	case http.MethodGet:
+		q := r.URL.Query()
+		return &ContentTransitionInput{
+			ContentQuery: ContentQuery{
+				ID:   q.Get("id"),
+				Type: q.Get("type"),
+			},
+			TargetState: q.Get("state"),
+		}, nil
+	case http.MethodPost:
+		return &ContentTransitionInput{
+			ContentQuery: ContentQuery{
+				ID:   r.FormValue("id"),
+				Type: r.FormValue("type"),
+			},
+			TargetState: r.FormValue("state"),
 		}, nil
 	default:
 		return nil, ErrUnsupportedMethod

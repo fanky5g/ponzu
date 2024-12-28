@@ -104,7 +104,7 @@ func (s *Service) CreateContent(entityType string, entity interface{}) (string, 
 		sluggable.SetSlug(slug)
 	}
 
-	if workflowStateManager, ok := entity.(workflow.StateManager); ok {
+	if workflowStateManager, ok := entity.(workflow.LifecycleSupportedEntity); ok {
 		workflowStateManager.SetState(workflow.DraftState)
 	}
 

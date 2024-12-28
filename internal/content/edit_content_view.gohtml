@@ -11,39 +11,42 @@
 {{ end }}
 
 {{ define "workflow.gohtml" }}
-    {{ if .Workflow }}
-        <div class="mdc-menu-surface--anchor workflow-actions">
-            <input type="hidden" name="workflow-action" value="" />
-            <button type="button" class="mdc-button mdc-button--outlined">
-              <span class="mdc-button__ripple"></span>
-              <i class="material-icons">directions</i>
-              <span class="mdc-button__label">Actions</span>
-              <i class="material-icons">arrow_drop_down</i>
-            </button>
+    {{ if and .Workflow (ne .ID "") }}
+        {{ $transitions := .Workflow.GetValidTransitions }}
+        {{ $length := len $transitions }}
 
-            <div class="mdc-menu mdc-menu-surface">
-              <ul id="workflow-actions" class="mdc-list" role="menu" aria-orientation="vertical" tabindex="-1">
-                {{ $transitions := .Workflow.GetValidTransitions }}
-                {{ $length := len $transitions }}
-                {{ range $i, $transition := $transitions }}
-                    <li
-                        class="mdc-list-item {{ WorkflowStateToLower $transition.GetState }}"
-                        data-value="{{ $transition.GetState }}"
-                        role="menuitem">
-                      <span class="mdc-list-item__ripple"></span>
-                      <span class="mdc-list-item__graphic">
-                        <i class="material-symbols-rounded">workflow</i>
-                      </span>
-                      <span class="mdc-list-item__text">{{ WorkflowActionName $transition $.Workflow $ }}</span>
-                    </li>
+        {{ if gt $length 0 }}
+            <div class="mdc-menu-surface--anchor workflow-actions">
+                <input type="hidden" name="state" value="{{ .Workflow.GetState }}" />
+                <button type="button" class="mdc-button mdc-button--outlined">
+                  <span class="mdc-button__ripple"></span>
+                  <i class="material-icons">directions</i>
+                  <span class="mdc-button__label">Actions</span>
+                  <i class="material-icons">arrow_drop_down</i>
+                </button>
 
-                    {{ if ne (subtract $length $i) 1 }}
-                        <li class="mdc-list-divider" role="separator"></li>
+                <div class="mdc-menu mdc-menu-surface">
+                  <ul id="workflow-actions" class="mdc-list" role="menu" aria-orientation="vertical" tabindex="-1">
+                    {{ range $i, $transition := $transitions }}
+                        <li
+                            class="mdc-list-item {{ WorkflowStateToLower $transition.GetState }}"
+                            data-value="{{ $transition.GetState }}"
+                            role="menuitem">
+                          <span class="mdc-list-item__ripple"></span>
+                          <span class="mdc-list-item__graphic">
+                            <i class="material-symbols-rounded">workflow</i>
+                          </span>
+                          <span class="mdc-list-item__text">{{ WorkflowActionName $transition $.Workflow $ }}</span>
+                        </li>
+
+                        {{ if ne (subtract $length $i) 1 }}
+                            <li class="mdc-list-divider" role="separator"></li>
+                        {{ end }}
                     {{ end }}
-                {{ end }}
-              </ul>
+                  </ul>
+                </div>
             </div>
-        </div>
+        {{ end }}
 
         {{ if ne .Workflow.GetState "" }}
             <div class="workflow-badge {{ WorkflowStateToLower .Workflow.GetState }}">{{ .Workflow.GetState }}</div>

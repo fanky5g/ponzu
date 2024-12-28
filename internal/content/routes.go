@@ -22,5 +22,9 @@ func RegisterRoutes(r router.Router) error {
 		return NewSaveContentHandler(contentService, publicPath)
 	})
 
+	r.AuthorizedRoute("POST /edit/workflow", func(r router.Router) http.HandlerFunc {
+		return NewContentWorkflowTransitionHandler(contentService, publicPath)
+	})
+
 	return nil
 }

@@ -1,25 +1,24 @@
 window.addEventListener("load", () => {
-  const workflowActions = document.querySelector(".workflow-actions");
-  const mdcMenu = workflowActions?.querySelector(".mdc-menu");
-  const workflowActionInput = workflowActions.querySelector(
-    'input[name="workflow-action"]',
-  );
+    const workflowActions = document.querySelector(".workflow-actions");
+    const mdcMenu = workflowActions?.querySelector(".mdc-menu");
+    const workflowState = workflowActions?.querySelector('input[name="state"]');
 
-  if (mdcMenu) {
-    const mdcMenuInstance = new mdc.menu.MDCMenu(mdcMenu);
-    const workflowActionsList = mdcMenu.querySelector(".mdc-list");
-    const mdcList = new mdc.list.MDCList(workflowActionsList);
-    const button = workflowActions.querySelector("button");
+    if (mdcMenu) {
+        const mdcMenuInstance = new mdc.menu.MDCMenu(mdcMenu);
+        const workflowActionsList = mdcMenu.querySelector(".mdc-list");
+        const mdcList = new mdc.list.MDCList(workflowActionsList);
+        const button = workflowActions.querySelector("button");
 
-    button?.addEventListener("click", function () {
-      mdcMenuInstance.open = true;
-    });
+        button?.addEventListener("click", function() {
+            mdcMenuInstance.open = true;
+        });
 
-    workflowActionsList?.addEventListener("MDCList:action", function (event) {
-      event.preventDefault();
-      const selected = mdcList.listElements[event.detail.index];
-      workflowActionInput.value = selected.value;
-      workflowActionInput.form.requestSubmit();
-    });
-  }
+        workflowActionsList?.addEventListener("MDCList:action", function(event) {
+            event.preventDefault();
+            const selected = mdcList.listElements[event.detail.index];
+            workflowState.value = selected.dataset.value;
+            workflowState.form.action = `${window.Ponzu.publicPath}/edit/workflow`;
+            workflowState.form.requestSubmit();
+        });
+    }
 });
