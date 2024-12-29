@@ -1,7 +1,9 @@
 window.addEventListener("load", () => {
     const workflowActions = document.querySelector(".workflow-actions");
     const mdcMenu = workflowActions?.querySelector(".mdc-menu");
-    const workflowState = workflowActions?.querySelector('input[name="state"]');
+    const workflowState = workflowActions?.querySelector(
+        'input[name="workflow_state"]',
+    );
 
     if (mdcMenu) {
         const mdcMenuInstance = new mdc.menu.MDCMenu(mdcMenu);

@@ -153,7 +153,7 @@ func (suite *WorkflowTestSuite) TestTransitionWorkflowStateReturnsWorkflowStateC
 
 	result, err := suite.service.TransitionWorkflowState(entityType, entityId, workflow.PreviewState)
 	assert.EqualError(suite.T(), err, expectedError.Error())
-	assert.Nil(suite.T(), result)
+	assert.NotNil(suite.T(), result)
 }
 
 func (suite *WorkflowTestSuite) TestTransitionWorkflow() {

@@ -43,11 +43,8 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 		return updated, nil
 	}
 
-	if err = trigger.OnWorkflowStateChange(currentState); err != nil {
-		return nil, err
-	}
-
-	return updated, nil
+	err = trigger.OnWorkflowStateChange(currentState)
+	return updated, err
 }
 
 func (s *Service) transitionWorkflowState(entity workflow.LifecycleSupportedEntity, targetState workflow.State) error {

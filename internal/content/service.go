@@ -104,8 +104,14 @@ func (s *Service) CreateContent(entityType string, entity interface{}) (string, 
 		sluggable.SetSlug(slug)
 	}
 
-	if workflowStateManager, ok := entity.(workflow.LifecycleSupportedEntity); ok {
-		workflowStateManager.SetState(workflow.DraftState)
+	workflowStateManager, ok := entity.(workflow.LifecycleSupportedEntity)
+	if ok && workflowStateManager.GetState() == "" {
+		rootWorkflow, err := getContentWorkflow(entity)
+		if err != nil {
+			return "", err
+		}
+
+		workflowStateManager.SetState(rootWorkflow.GetState())
 	}
 
 	content, err := repository.Insert(entity)

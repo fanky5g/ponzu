@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/fanky5g/ponzu/exceptions"
 	"github.com/fanky5g/ponzu/internal/views"
 
 	"github.com/fanky5g/ponzu/content"
@@ -61,7 +62,8 @@ type (
 	EditContentFormViewModel struct {
 		dashboard.DashboardRootViewModel
 		ContentMetadata
-		Form template.HTML
+		Form  template.HTML
+		Error error
 	}
 )
 
@@ -86,6 +88,7 @@ func NewEditContentFormViewModel(
 	cfg config.ConfigCache,
 	publicPath string,
 	contentTypes map[string]content.Builder,
+	exception error,
 ) (*EditContentFormViewModel, error) {
 	entityInterface, ok := entity.(content.Entity)
 	if !ok {
@@ -127,8 +130,14 @@ func NewEditContentFormViewModel(
 		publicPath,
 		contentTypes,
 	)
+
 	if err != nil {
 		return nil, err
+	}
+
+	var clientException *exceptions.ClientException
+	if exception != nil && errors.As(exception, &clientException) {
+		clientException = exception.(*exceptions.ClientException)
 	}
 
 	return &EditContentFormViewModel{
@@ -140,6 +149,7 @@ func NewEditContentFormViewModel(
 			Slug:       slug,
 			Workflow:   currentWorkflow,
 		},
-		Form: template.HTML(formBytes),
+		Form:  template.HTML(formBytes),
+		Error: clientException,
 	}, nil
 }

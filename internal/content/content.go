@@ -54,7 +54,7 @@ func MapContentTransitionInputFromRequest(r *http.Request) (*ContentTransitionIn
 				ID:   q.Get("id"),
 				Type: q.Get("type"),
 			},
-			TargetState: q.Get("state"),
+			TargetState: q.Get("workflow_state"),
 		}, nil
 	case http.MethodPost:
 		return &ContentTransitionInput{
@@ -62,7 +62,7 @@ func MapContentTransitionInputFromRequest(r *http.Request) (*ContentTransitionIn
 				ID:   r.FormValue("id"),
 				Type: r.FormValue("type"),
 			},
-			TargetState: r.FormValue("state"),
+			TargetState: r.FormValue("workflow_state"),
 		}, nil
 	default:
 		return nil, ErrUnsupportedMethod

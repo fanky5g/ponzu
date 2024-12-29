@@ -1,14 +1,14 @@
 package content
 
 import (
-	"net/http"
-
-	log "github.com/sirupsen/logrus"
-
+	"errors"
 	"github.com/fanky5g/ponzu/content/workflow"
+	"github.com/fanky5g/ponzu/exceptions"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/http/response"
+	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 func NewEditContentFormHandler(contentService *Service, cfg config.ConfigCache, publicPath string) http.HandlerFunc {
@@ -51,6 +51,7 @@ func NewEditContentFormHandler(contentService *Service, cfg config.ConfigCache, 
 			cfg,
 			publicPath,
 			contentService.ContentTypes(),
+			nil,
 		)
 		if err != nil {
 			// TODO: handle error
@@ -119,36 +120,59 @@ func NewSaveContentHandler(contentService *Service, publicPath string) http.Hand
 	}
 }
 
-func NewContentWorkflowTransitionHandler(contentService *Service, publicPath string) http.HandlerFunc {
+func NewContentWorkflowTransitionHandler(contentService *Service, cfg config.ConfigCache, publicPath string) http.HandlerFunc {
+	tmpl, err := getEditPageTemplate()
+	if err != nil {
+		log.Fatalf("Failed to build page template: %v", err)
+	}
+
 	return func(res http.ResponseWriter, req *http.Request) {
 		contentTransitionInput, err := MapContentTransitionInputFromRequest(req)
 		if err != nil {
-			// TODO: handle error
-			res.WriteHeader(http.StatusBadRequest)
+			exceptions.Log(err)
+			res.WriteHeader(getResponseCode(err))
 			return
 		}
 
-		_, err = contentService.TransitionWorkflowState(
+		entity, workflowTransitionErr := contentService.TransitionWorkflowState(
 			contentTransitionInput.Type,
 			contentTransitionInput.ID,
 			workflow.State(contentTransitionInput.TargetState),
 		)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"Error": err,
-			}).Warning("Failed to transition workflow state")
-			// we still don't have a way to efficiently determine the error kind
-			res.WriteHeader(http.StatusInternalServerError)
+			exceptions.Log(err)
+		}
+
+		editContentForm, err := NewEditContentFormViewModel(
+			entity,
+			cfg,
+			publicPath,
+			contentService.ContentTypes(),
+			workflowTransitionErr,
+		)
+		if err != nil {
+			exceptions.Log(err)
+			res.WriteHeader(getResponseCode(err))
 			return
 		}
 
 		response.Respond(
 			res,
 			req,
-			response.NewRedirectResponse(
-				publicPath,
-				"/edit?type="+contentTransitionInput.Type+"&id="+contentTransitionInput.ID,
-			),
+			response.NewHTMLResponse(getResponseCode(workflowTransitionErr), tmpl, editContentForm),
 		)
 	}
+}
+
+func getResponseCode(err error) int {
+	if err == nil {
+		return http.StatusOK
+	}
+
+	var clientException *exceptions.ClientException
+	if errors.As(err, &clientException) {
+		return http.StatusBadRequest
+	}
+
+	return http.StatusInternalServerError
 }

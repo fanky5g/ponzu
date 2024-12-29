@@ -7,6 +7,12 @@ window.addEventListener("load", () => {
         ".form-view-content .editor-content",
     );
 
+    const exceptionBanner = document.querySelector(".mdc-banner.exception");
+    if (exceptionBanner) {
+        const mdcExceptionBanner = new mdc.banner.MDCBanner(exceptionBanner);
+        mdcExceptionBanner.open();
+    }
+
     if (tabBar) {
         const mdcTabBar = new mdc.tabBar.MDCTabBar(tabBar);
 

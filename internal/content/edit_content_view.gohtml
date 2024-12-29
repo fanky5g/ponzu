@@ -17,7 +17,7 @@
 
         {{ if gt $length 0 }}
             <div class="mdc-menu-surface--anchor workflow-actions">
-                <input type="hidden" name="state" value="{{ .Workflow.GetState }}" />
+                <input type="hidden" name="workflow_state" value="{{ .Workflow.GetState }}" />
                 <button type="button" class="mdc-button mdc-button--outlined">
                   <span class="mdc-button__ripple"></span>
                   <i class="material-icons">directions</i>
@@ -92,6 +92,27 @@
         <form class="form-view-root" method="post" action="{{ .PublicPath }}/edit" enctype="multipart/form-data">
             {{ template "edit-content-toolbar.gohtml" . }}
             <div class="mdc-top-app-bar--fixed-adjust"></div>
+
+            {{ if .Error }}
+                <div class="mdc-banner exception" role="banner">
+                  <div class="mdc-banner__content"
+                       role="alertdialog"
+                       aria-live="assertive">
+                    <div class="mdc-banner__graphic-text-wrapper">
+                      <div class="mdc-banner__text">
+                        {{ .Error }} 
+                      </div>
+                    </div>
+                    <div class="mdc-banner__actions">
+                      <button type="button" class="mdc-icon-button material-symbols-rounded mdc-banner__primary-action"> 
+                        <div class="mdc-button__ripple"></div>
+                        close
+                      </button>
+                    </div>
+                  </div>
+                </div> 
+            {{ end }}
+
             <input type="hidden" name="id" value="{{.ID}}"/>
             <input type="hidden" name="type" value="{{.EntityName}}"/>
             <input type="hidden" name="slug" value="{{.Slug}}"/>
