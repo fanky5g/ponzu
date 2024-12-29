@@ -16,6 +16,10 @@ type LifecycleSupportedEntity interface {
 	GetState() State
 }
 
+type WorkflowStateChangeTrigger interface {
+	OnWorkflowStateChange(prevState State) error
+}
+
 type ActionDescriptor interface {
 	GetAction(source Workflow) (*template.Template, error)
 }

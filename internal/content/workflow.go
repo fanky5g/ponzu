@@ -23,16 +23,31 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 		return nil, err
 	}
 
-	workflowLifecycleSupportedEntity, ok := entity.(workflow.LifecycleSupportedEntity)
+	workflowEntity, ok := entity.(workflow.LifecycleSupportedEntity)
 	if !ok {
 		return nil, ErrWorkflowUnsupported
 	}
 
-	if err := s.transitionWorkflowState(workflowLifecycleSupportedEntity, targetState); err != nil {
+	currentState := workflowEntity.GetState()
+	if err := s.transitionWorkflowState(workflowEntity, targetState); err != nil {
 		return nil, err
 	}
 
-	return s.UpdateContent(entityType, entityId, entity)
+	updated, err := s.UpdateContent(entityType, entityId, entity)
+	if err != nil {
+		return nil, err
+	}
+
+	trigger, ok := updated.(workflow.WorkflowStateChangeTrigger)
+	if !ok {
+		return updated, nil
+	}
+
+	if err = trigger.OnWorkflowStateChange(currentState); err != nil {
+		return nil, err
+	}
+
+	return updated, nil
 }
 
 func (s *Service) transitionWorkflowState(entity workflow.LifecycleSupportedEntity, targetState workflow.State) error {
