@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
-	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"net/http"
+
+	"github.com/fanky5g/ponzu/internal/http/request"
+	"github.com/fanky5g/ponzu/internal/services/analytics"
 )
 
 var AnalyticsRecorderMiddleware Token = "AnalyticsRecorderMiddleware"

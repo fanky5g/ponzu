@@ -63,7 +63,7 @@ blockquote {
 }
 
 :root {
-  --mdc-theme-primary: #141414;
+  --mdc-theme-primary: #3367d6;
   --mdc-theme-secondary: #2979ff;
   --rem: 16;
 }
@@ -105,9 +105,11 @@ blockquote {
   align-items: center;
   padding-left: 20px;
   padding-right: 20px;
-  color: #fff;
+  color: rgba(0, 0, 0, 0.87);
   height: 48px;
   min-height: 48px;
+  background-color: #fff;
+  border-bottom: 1px solid #d3d3d3;
 }
 
 .toolbar-override {
@@ -218,9 +220,20 @@ blockquote {
 
 .sidebar-wrapper {
   padding-top: 8px;
-  border-top: 1.1px solid rgba(0, 0, 0, 0.12);
   flex-grow: 1;
   overflow-y: auto;
+}
+
+.mdc-list-group__subheader {
+  font-size: 14px;
+}
+
+.sidebar-wrapper .mdc-list-group__subheader {
+    margin-top: 12px;
+}
+
+.sidebar-wrapper .mdc-list-group__subheader:first-of-type {
+    margin-top: 0;
 }
 
 .mdc-list-item {
@@ -389,11 +402,6 @@ footer p {
   color: #9e9e9e;
 }
 
-.post-controls .save-post,
-.post-controls .approve-post {
-  margin-left: 10px;
-}
-
 span.post-detail {
   font-size: 11px;
   color: #9e9e9e;
@@ -529,23 +537,11 @@ div.col.s6:has(select.block-select) {
   margin-top: 16px;
 }
 
-.form-view-footer {
-  align-content: flex-end;
-}
-
 .control-block {
   margin-top: 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
-}
-
-.form-view-buttons {
-  display: flex;
-  justify-content: flex-end;
-  flex-direction: row;
-  gap: 16px;
-  padding: 0 32px;
 }
 
 .form-view-content .editor-content {

@@ -1,17 +1,17 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"net/http"
+
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/config"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func NewConfigHandler(r router.Router) http.HandlerFunc {
-	configService := r.Context().Service(tokens.ConfigServiceToken).(config.Service)
+	configService := r.Context().Service(tokens.ConfigServiceToken).(*config.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
@@ -32,13 +32,13 @@ func NewConfigHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			entity, err := request.GetEntityFromFormData(entities.ConfigBuilder, req.PostForm)
+			entity, err := request.GetEntityFromFormData(config.ConfigBuilder, req.PostForm)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to map config entity")
 				return
 			}
 
-			err = configService.SetConfig(entity.(*entities.Config))
+			err = configService.SetConfig(entity.(*config.Config))
 			if err != nil {
 				log.Println(err)
 				res.WriteHeader(http.StatusInternalServerError)

@@ -3,15 +3,15 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"github.com/fanky5g/ponzu/entities"
-	domainErrors "github.com/fanky5g/ponzu/errors"
+	"github.com/fanky5g/ponzu/exceptions"
+	"github.com/fanky5g/ponzu/internal/config"
 	emailer "github.com/nilslice/email"
 	log "github.com/sirupsen/logrus"
 )
 
 func (s *service) SendPasswordRecoveryInstructions(email string) error {
 	_, err := s.getUserByEmail(email)
-	if errors.Is(err, domainErrors.ErrNoUserExists) {
+	if errors.Is(err, exceptions.ErrNoUserExists) {
 		return errors.New("no user exists")
 	}
 
@@ -30,7 +30,7 @@ func (s *service) SendPasswordRecoveryInstructions(email string) error {
 		return errors.New("failed to get config")
 	}
 
-	cfg := cfgIface.(*entities.Config)
+	cfg := cfgIface.(*config.Config)
 	body := fmt.Sprintf(`
 There has been an account recovery request made for the user with email:
 %s

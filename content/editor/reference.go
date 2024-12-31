@@ -3,7 +3,6 @@ package editor
 import (
 	"io"
 
-	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/internal/views"
 )
 
@@ -38,7 +37,7 @@ func (provider *ReferenceSelectDataProvider) RenderClientOptionsProvider(w io.Wr
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func ReferenceSelect(
-	paths config.Paths,
+	publicPath,
 	fieldName string,
 	p interface{},
 	attrs map[string]string,
@@ -46,7 +45,7 @@ func ReferenceSelect(
 ) []byte {
 	return SelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{
 		ContentType: contentType,
-		PublicPath:  paths.PublicPath,
+		PublicPath:  publicPath,
 		Template:    DefaultReferenceSelectTemplate,
 	})
 }
@@ -58,7 +57,7 @@ func ReferenceSelect(
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
 func ReferenceSelectRepeater(
-	paths config.Paths,
+	publicPath,
 	fieldName string,
 	p interface{},
 	attrs map[string]string,

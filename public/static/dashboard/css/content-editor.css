@@ -1,0 +1,21 @@
+.content-editor .mdc-top-app-bar--fixed-adjust {
+  padding-top: 112px;
+}
+
+.content-editor.upload .mdc-top-app-bar--fixed-adjust {
+  padding-top: 56px !important;
+}
+
+.content-editor .form-view-root {
+  padding: 0;
+}
+
+.mdc-banner.exception {
+  background: #faf0f0;
+  border-color: #e28e8d;
+  color: #7a0400;
+}
+
+.mdc-banner.exception .mdc-banner__text {
+  font-size: 14px;
+}

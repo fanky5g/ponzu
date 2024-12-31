@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/http/request"
+	authServicePkg "github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
@@ -14,7 +14,7 @@ import (
 
 func NewLoginHandler(r router.Router) http.HandlerFunc {
 	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
-	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+	authService := r.Context().Service(tokens.AuthServiceToken).(authServicePkg.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		systemUsers, err := userService.ListUsers()
@@ -56,9 +56,9 @@ func NewLoginHandler(r router.Router) http.HandlerFunc {
 
 			email := strings.ToLower(req.FormValue("email"))
 			password := req.FormValue("password")
-			var authToken *entities.AuthToken
-			authToken, err = authService.LoginByEmail(email, &entities.Credential{
-				Type:  entities.CredentialTypePassword,
+			var authToken *auth.AuthToken
+			authToken, err = authService.LoginByEmail(email, &auth.Credential{
+				Type:  auth.CredentialTypePassword,
 				Value: password,
 			})
 

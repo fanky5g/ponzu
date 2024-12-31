@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/entities"
-    "github.com/pkg/errors"
+	"github.com/pkg/errors"
 )
 
 // StoreFiles stores file uploads at paths like /YYYY/MM/filename.ext
@@ -54,15 +54,15 @@ func (s *service) storeFileInfo(size int64, filename, urlPath string, file *mult
 	}
 
 	upload, err := s.repository.Insert(entity)
-    if err != nil {
+	if err != nil {
 		return fmt.Errorf("error saving file storage record to database: %v", err)
 	}
 
-    if identifiable, ok := upload.(item.Identifiable); ok {
-        if err = s.searchClient.Update(identifiable.ItemID(), upload); err != nil {
-            return errors.Wrap(err, "Failed to update upload for search")
-        }
-    }
+	if identifiable, ok := upload.(item.Identifiable); ok {
+		if err = s.searchClient.Update(identifiable.ItemID(), upload); err != nil {
+			return errors.Wrap(err, "Failed to update upload for search")
+		}
+	}
 
 	return nil
 }

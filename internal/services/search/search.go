@@ -1,22 +1,21 @@
 package search
 
 import (
-	"github.com/fanky5g/ponzu/driver"
-	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/tokens"
+	"github.com/fanky5g/ponzu/internal/database"
+	"github.com/fanky5g/ponzu/internal/search"
 	"github.com/pkg/errors"
 )
 
 type service struct {
-	client   driver.SearchInterface
-	database driver.Database
+	client   search.SearchInterface
+	database database.Database
 }
 
 type Service interface {
 	Search(entity interface{}, query string, count, offset int) ([]interface{}, int, error)
 }
 
-func New(client driver.SearchInterface, database driver.Database) (Service, error) {
+func New(client search.SearchInterface, database database.Database) (Service, error) {
 	return &service{client: client, database: database}, nil
 }
 
@@ -40,12 +39,12 @@ func (s *service) Search(entity interface{}, query string, count, offset int) ([
 		return matches, size, nil
 	}
 
-	persistable, ok := entity.(entities.Persistable)
+	persistable, ok := entity.(database.Persistable)
 	if !ok {
 		return matches, size, nil
 	}
 
-	repository := s.database.GetRepositoryByToken(tokens.RepositoryToken(persistable.GetRepositoryToken()))
+	repository := s.database.GetRepositoryByToken(persistable.GetRepositoryToken())
 	results := make([]interface{}, len(matches))
 	for i := range matches {
 		identifiable := matches[i].(interface {

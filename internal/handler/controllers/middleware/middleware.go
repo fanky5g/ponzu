@@ -2,9 +2,9 @@ package middleware
 
 import (
 	conf "github.com/fanky5g/ponzu/config"
+	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/services"
 	"github.com/fanky5g/ponzu/internal/services/analytics"
-	"github.com/fanky5g/ponzu/internal/services/config"
 	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
@@ -27,14 +27,14 @@ func (middlewares Middlewares) Get(token Token) Middleware {
 func New(paths conf.Paths, applicationServices services.Services) (Middlewares, error) {
 	middlewares := make(Middlewares)
 	analyticsService := applicationServices.Get(tokens.AnalyticsServiceToken).(analytics.Service)
-	configService := applicationServices.Get(tokens.ConfigServiceToken).(config.Service)
+	configCache := applicationServices.Get(tokens.ConfigCache).(config.ConfigCache)
 
-	cacheControlMiddleware := NewCacheControlMiddleware(configService)
+	cacheControlMiddleware := NewCacheControlMiddleware(configCache)
 	middlewares[CacheControlMiddleware] = cacheControlMiddleware
 	middlewares[AnalyticsRecorderMiddleware] = NewAnalyticsRecorderMiddleware(analyticsService)
 	middlewares[AuthMiddleware] = NewAuthMiddleware(paths, applicationServices)
-	middlewares[GzipMiddleware] = NewGzipMiddleware(configService)
-	middlewares[CorsMiddleware] = NewCORSMiddleware(applicationServices, cacheControlMiddleware)
+	middlewares[GzipMiddleware] = NewGzipMiddleware(configCache)
+	middlewares[CorsMiddleware] = NewCORSMiddleware(configCache, cacheControlMiddleware)
 
 	return middlewares, nil
 }

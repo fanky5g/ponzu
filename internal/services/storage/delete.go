@@ -3,7 +3,7 @@ package storage
 import (
 	"fmt"
 
-	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/pkg/errors"
 )
 

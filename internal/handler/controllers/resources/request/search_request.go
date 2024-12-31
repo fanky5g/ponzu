@@ -1,6 +1,6 @@
 package request
 
-import "github.com/fanky5g/ponzu/constants"
+import "github.com/fanky5g/ponzu/internal/constants"
 
 type PaginationRequestDto struct {
 	Count  int `json:"count"`

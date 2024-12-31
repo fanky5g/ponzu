@@ -4,17 +4,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fanky5g/ponzu/entities"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/mappers/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services/auth"
+	"github.com/fanky5g/ponzu/internal/http/request"
+	service "github.com/fanky5g/ponzu/internal/services/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
 
 func NewConfigUsersHandler(r router.Router) http.HandlerFunc {
-	authService := r.Context().Service(tokens.AuthServiceToken).(auth.Service)
+	authService := r.Context().Service(tokens.AuthServiceToken).(service.Service)
 	userService := r.Context().Service(tokens.UserServiceToken).(users.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
@@ -69,13 +69,13 @@ func NewConfigUsersHandler(r router.Router) http.HandlerFunc {
 				return
 			}
 
-			if err = authService.SetCredential(user.ID, &entities.Credential{
-				Type:  entities.CredentialTypePassword,
+			if err = authService.SetCredential(user.ID, &auth.Credential{
+				Type:  auth.CredentialTypePassword,
 				Value: password,
 			}); err != nil {
 				log.WithFields(
 					log.Fields{
-						"CredentialType": entities.CredentialTypePassword,
+						"CredentialType": auth.CredentialTypePassword,
 					},
 				).Warning("Failed to update user credential")
 				r.Renderer().InternalServerError(res)

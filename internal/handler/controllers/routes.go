@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/fanky5g/ponzu/driver"
+	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/api"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"net/http"
+	"github.com/fanky5g/ponzu/internal/uploads"
 )
 
 func RegisterRoutes(
@@ -29,12 +32,12 @@ func RegisterRoutes(
 	r.AuthorizedRoute("/uploads/search", NewUploadSearchHandler)
 	r.AuthorizedRoute("/contents", NewContentsHandler)
 	r.AuthorizedRoute("/contents/search", NewSearchHandler)
-	r.AuthorizedRoute("/contents/export", NewExportHandler)
+	r.AuthorizedRoute("GET /contents/export", NewExportHandler)
 
-	r.AuthorizedRoute("/edit", NewEditHandler)
 	r.AuthorizedRoute("/edit/delete", NewDeleteHandler)
-	r.AuthorizedRoute("/edit/upload", NewEditUploadHandler)
 	r.AuthorizedRoute("/edit/upload/delete", NewDeleteUploadHandler)
+	content.RegisterRoutes(r)
+	uploads.RegisterRoutes(r)
 
 	api.RegisterRoutes(r, uploadsStaticFileSystem)
 

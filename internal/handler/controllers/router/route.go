@@ -2,7 +2,7 @@ package router
 
 import (
 	"context"
-	"github.com/fanky5g/ponzu/constants"
+	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/middleware"
 	"net/http"
 )

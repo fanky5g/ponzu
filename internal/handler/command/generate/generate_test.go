@@ -3,9 +3,7 @@ package generate
 import (
 	"bytes"
 	"errors"
-	"github.com/fanky5g/ponzu/generator"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"fmt"
 	"go/format"
 	"io"
 	"io/fs"
@@ -13,6 +11,10 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/fanky5g/ponzu/generator"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
 type GenerateTestSuite struct {
@@ -45,11 +47,11 @@ func (suite *GenerateTestSuite) TestWriteTemplateMain() {
 package main
 
 import (
-	"github.com/fanky5g/ponzu/generator"
-	"github.com/fanky5g/ponzu/content"
-	contentGenerator "github.com/fanky5g/ponzu/content/generator"
-	modelGenerator "github.com/fanky5g/ponzu/models/generator"
 	types "github.com/fanky5g/app/entities"
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/generator"
+	contentGenerator "github.com/fanky5g/ponzu/generator/content"
+	modelGenerator "github.com/fanky5g/ponzu/generator/models"
 	"log"
 )
 
@@ -143,6 +145,7 @@ func main() {
 			},
 		},
 	}, buf)) {
+		fmt.Println(string(buf.Bytes()))
 		assert.Equal(suite.T(), buf.Bytes(), expectedResult)
 	}
 }
@@ -150,10 +153,10 @@ func main() {
 func (suite *GenerateTestSuite) TestWriteTemplateGoMod() {
 	buf := &bytes.Buffer{}
 	if assert.NoError(suite.T(), writeTemplate("go.mod.tmpl", map[string]interface{}{
-		"GoVersion":  "1.16.0",
+		"GoVersion":    "1.16.0",
 		"PonzuVersion": "v0.5.1",
-		"ModulePath": "github.com/fanky5g/app",
-		"WorkingDir": "./testdata",
+		"ModulePath":   "github.com/fanky5g/app",
+		"WorkingDir":   "./testdata",
 	}, buf)) {
 		assert.Equal(suite.T(), buf.String(), `module github.com/fanky5g/app
 
