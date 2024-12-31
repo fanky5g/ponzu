@@ -14,13 +14,13 @@ var (
 )
 
 func (s *Service) TransitionWorkflowState(entityType, entityId string, targetState workflow.State) (interface{}, error) {
-	if _, err := s.Type(entityType); err != nil {
-		return nil, err
+	if _, typeErr := s.Type(entityType); typeErr != nil {
+		return nil, typeErr
 	}
 
-	entity, err := s.GetContent(entityType, entityId)
-	if err != nil {
-		return nil, err
+	entity, getContentErr := s.GetContent(entityType, entityId)
+	if getContentErr != nil {
+		return nil, getContentErr
 	}
 
 	workflowEntity, ok := entity.(workflow.LifecycleSupportedEntity)
@@ -29,13 +29,13 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 	}
 
 	currentState := workflowEntity.GetState()
-	if err := s.transitionWorkflowState(workflowEntity, targetState); err != nil {
-		return nil, err
+	if transitionWorkflowStateErr := s.transitionWorkflowState(workflowEntity, targetState); transitionWorkflowStateErr != nil {
+		return nil, transitionWorkflowStateErr
 	}
 
-	updated, err := s.UpdateContent(entityType, entityId, entity)
-	if err != nil {
-		return nil, err
+	updated, updateContentErr := s.UpdateContent(entityType, entityId, entity)
+	if updateContentErr != nil {
+		return nil, updateContentErr
 	}
 
 	trigger, ok := updated.(workflow.WorkflowStateChangeTrigger)
@@ -43,8 +43,27 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 		return updated, nil
 	}
 
-	err = trigger.OnWorkflowStateChange(currentState)
-	return updated, err
+	if workflowStateChangeTriggerErr := trigger.OnWorkflowStateChange(currentState); workflowStateChangeTriggerErr != nil {
+		// TODO: remove after introducing (unit of work concept - transactions).
+		updatedWorkflow, getContentWorkflowErr := getContentWorkflow(updated)
+		if getContentWorkflowErr != nil {
+			return nil, getContentWorkflowErr
+		}
+
+		if updatedWorkflow.GetState() == targetState {
+			setContentWorkflow(updated, currentState.ToWorkflow())
+			reverted, revertErr := s.UpdateContent(entityType, entityId, updated)
+			if revertErr != nil {
+				return nil, revertErr
+			}
+
+			return reverted, workflowStateChangeTriggerErr
+		}
+
+		return updated, workflowStateChangeTriggerErr
+	}
+
+	return updated, updateContentErr
 }
 
 func (s *Service) transitionWorkflowState(entity workflow.LifecycleSupportedEntity, targetState workflow.State) error {

@@ -147,8 +147,10 @@ func (suite *WorkflowTestSuite) TestTransitionWorkflowStateReturnsWorkflowStateC
 	expectedError := errors.New("Something bad happened")
 
 	suite.m.On("FindOneById", entityId).Once().Return(entity, nil)
-	suite.m.On("UpdateById", entityId, update).Once().Return(update, nil)
+	suite.m.On("UpdateById", entityId, update).Return(update, nil).Once()
+	suite.m.On("UpdateById", entityId, mock.Anything).Return(entity, nil).Once()
 	suite.m.On("Update", entityId, update).Once().Return(nil)
+	suite.m.On("Update", entityId, entity).Once().Return(nil)
 	suite.m.On("OnWorkflowStateChange", workflow.DraftState).Once().Return(expectedError)
 
 	result, err := suite.service.TransitionWorkflowState(entityType, entityId, workflow.PreviewState)
