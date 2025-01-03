@@ -18,7 +18,7 @@ func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
 	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
-		pt := new(entities.FileUpload)
+		pt := new(entities.Upload)
 		_, ok := interface{}(pt).(editor.Editable)
 		if !ok {
 			log.Warning("entities.FileUpload is not editable")
@@ -56,7 +56,7 @@ func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
 			return nil, 0, nil
 		}
 
-		params, err := table.New(constants.UploadsEntityName, pt, search, uploadResultLoader)
+		params, err := table.New(constants.UploadEntityName, pt, search, uploadResultLoader)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to build table params")
 			r.Renderer().InternalServerError(res)

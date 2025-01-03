@@ -9,7 +9,7 @@ import (
 )
 
 type UploadDocument struct {
-	*entities.FileUpload
+	*entities.Upload
 }
 
 func (document *UploadDocument) Value() (interface{}, error) {
@@ -31,15 +31,15 @@ func (document *UploadDocument) Scan(src interface{}) error {
 type UploadModel struct{}
 
 func (*UploadModel) Name() string {
-	return WrapPonzuModelNameSpace("uploads")
+	return WrapPonzuModelNameSpace("upload")
 }
 
 func (*UploadModel) NewEntity() interface{} {
-	return new(entities.FileUpload)
+	return new(entities.Upload)
 }
 
 func (model *UploadModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &UploadDocument{
-		FileUpload: entity.(*entities.FileUpload),
+		Upload: entity.(*entities.Upload),
 	}
 }

@@ -7,5 +7,5 @@ import (
 )
 
 func GetFileUploadFromFormData(data url.Values) (interface{}, error) {
-	return MapPayloadToGenericEntity(new(entities.FileUpload), data)
+	return MapPayloadToGenericEntity(new(entities.Upload), data)
 }

@@ -45,7 +45,7 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 
 		if len(files) > 0 {
 			var urlPaths map[string]string
-			urlPaths, err = storageService.StoreFiles(files)
+			urlPaths, err = storageService.UploadFiles(files)
 			if err != nil {
 				log.Println("[Update] error:", err)
 				res.WriteHeader(http.StatusInternalServerError)

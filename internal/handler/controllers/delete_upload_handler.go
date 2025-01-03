@@ -33,21 +33,21 @@ func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		post := interface{}(&entities.FileUpload{})
+		post := interface{}(&entities.Upload{})
 		hook, ok := post.(item.Hookable)
 		if !ok {
-			log.Println("Type", constants.UploadsEntityName, "does not implement item.Hookable or embed item.Item.")
+			log.Println("Type", constants.UploadEntityName, "does not implement item.Hookable or embed item.Item.")
 			r.Renderer().BadRequest(res)
 			return
 		}
 
 		err = hook.BeforeDelete(res, req)
 		if err != nil {
-			log.Println("Error running BeforeDelete method in deleteHandler for:", constants.UploadsEntityName, err)
+			log.Println("Error running BeforeDelete method in deleteHandler for:", constants.UploadEntityName, err)
 			return
 		}
 
-		err = storageService.DeleteFile(selectedItems...)
+		err = storageService.DeleteUpload(selectedItems...)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -56,7 +56,7 @@ func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
 
 		err = hook.AfterDelete(res, req)
 		if err != nil {
-			log.Println("Error running AfterDelete method in deleteHandler for:", constants.UploadsEntityName, err)
+			log.Println("Error running AfterDelete method in deleteHandler for:", constants.UploadEntityName, err)
 			return
 		}
 

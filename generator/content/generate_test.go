@@ -782,6 +782,122 @@ func (b *Blog) GetRepositoryToken() string {
 	}
 }
 
+func (s *GenerateTestSuite) TestGenerateWithUploadReferenceField() {
+	typeDefinition := &generator.TypeDefinition{
+		Name:  "Author",
+		Label: "Author",
+		Blocks: []generator.Block{
+			{
+				Type:          generator.Field,
+				Name:          "Name",
+				Label:         "Name",
+				JSONName:      "name",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "name",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Image",
+				Label:         "Image",
+				JSONName:      "image",
+				TypeName:      "string",
+				ReferenceName: "Upload",
+				Definition: generator.BlockDefinition{
+					Title:       "image",
+					Type:        "@upload",
+					IsArray:     false,
+					IsReference: true,
+				},
+			},
+		},
+		Type: generator.Content,
+		Metadata: generator.Metadata{
+			MethodReceiverName: "a",
+		},
+	}
+
+	// blog title:string author:@author category:string content:string
+	expectedBuffer, err := format.Source([]byte(`
+package entities
+
+import (
+        "fmt"
+        "github.com/fanky5g/ponzu/content/editor"
+        "github.com/fanky5g/ponzu/content/item"
+)
+
+type Author struct {
+        item.Item
+
+		Name string ` + "`json:\"name\"`" + `
+		Image string ` + "`json:\"image\" reference:\"Upload\"`" + ` 
+}
+
+// MarshalEditor writes a buffer of views to edit a Author within the CMS
+// and implements editor.Editable
+func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
+        view, err := editor.Form(a,
+                // Take note that the first argument to these Input-like functions
+                // is the string version of each Author field, and must follow
+                // this pattern for auto-decoding and auto-encoding reasons:
+                editor.Field{
+                        View: editor.Input("Name", a, map[string]string{
+                                "label":       "Name",
+                                "type":        "text",
+                                "placeholder": "Enter the Name here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.ReferenceSelect(publicPath, "Image", a, map[string]string{
+                                "label":       "Select Image",
+                        },
+						"Upload",
+                    ),
+                },
+        )
+
+        if err != nil {
+                return nil, fmt.Errorf("failed to render Author editor view: %s", err.Error())
+        }
+
+        return view, nil
+}
+
+func init() {
+        Content["Author"] = func() interface{} { return new(Author) }
+}
+
+func (a *Author) EntityName() string {
+        return "Author"
+}
+
+func (a *Author) GetTitle() string {
+        return a.ID
+}
+
+func (a *Author) GetRepositoryToken() string {
+        return "author"
+}
+	`))
+
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
+	w := new(testWriter)
+
+	err = s.gt.Generate(typeDefinition, w)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
+	}
+}
+
 func (s *GenerateTestSuite) TestGenerateWithReferenceArrayField() {
 	typeDefinition := &generator.TypeDefinition{
 		Name:  "Blog",

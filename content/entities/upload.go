@@ -11,8 +11,8 @@ import (
 	"github.com/fanky5g/ponzu/util"
 )
 
-// FileUpload represents the file uploaded to the system
-type FileUpload struct {
+// Upload represents the file uploaded to the system
+type Upload struct {
 	item.Item
 
 	Name          string `json:"name"`
@@ -21,18 +21,18 @@ type FileUpload struct {
 	ContentType   string `json:"content_type"`
 }
 
-func (*FileUpload) EntityName() string {
-	return constants.UploadsEntityName
+func (*Upload) EntityName() string {
+	return constants.UploadEntityName
 }
 
-func (f *FileUpload) GetTitle() string { return f.Name }
+func (f *Upload) GetTitle() string { return f.Name }
 
-func (*FileUpload) GetRepositoryToken() string {
+func (*Upload) GetRepositoryToken() string {
 	return tokens.UploadRepositoryToken
 }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
-func (f *FileUpload) MarshalEditor(publicPath string) ([]byte, error) {
+func (f *Upload) MarshalEditor(publicPath string) ([]byte, error) {
 	isEmptyFile := f.Path == ""
 	f.Path = filepath.Join(publicPath, f.Path)
 	formLabel := "Edit Upload"
@@ -89,13 +89,13 @@ func (f *FileUpload) MarshalEditor(publicPath string) ([]byte, error) {
 	return view, err
 }
 
-func (f *FileUpload) Push() []string {
+func (f *Upload) Push() []string {
 	return []string{
 		"path",
 	}
 }
 
 // IndexContent determines if FileUpload should be indexed for searching
-func (f *FileUpload) IndexContent() bool {
+func (f *Upload) IndexContent() bool {
 	return true
 }

@@ -30,10 +30,10 @@ func NewEditUploadFormHandler(
 		q := req.URL.Query()
 		i := q.Get("id")
 
-		var fileUpload *entities.FileUpload
+		var fileUpload *entities.Upload
 		var err error
 		if i != "" {
-			fileUpload, err = storageService.GetFileUpload(i)
+			fileUpload, err = storageService.GetUpload(i)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to get file upload")
 				return
@@ -46,11 +46,11 @@ func NewEditUploadFormHandler(
 		} else {
 			_, ok := interface{}(fileUpload).(item.Identifiable)
 			if !ok {
-				log.Println("Content type", constants.UploadsEntityName, "doesn't implement item.Identifiable")
+				log.Println("Content type", constants.UploadEntityName, "doesn't implement item.Identifiable")
 				return
 			}
 
-			fileUpload = &entities.FileUpload{}
+			fileUpload = &entities.Upload{}
 		}
 
 		editUploadForm, err := NewEditUploadFormViewModel(fileUpload, cfg, publicPath, contentService.ContentTypes())
@@ -111,7 +111,7 @@ func NewSaveUploadHandler(storageService storage.Service, publicPath string) htt
 			return
 		}
 
-		urlPaths, err := storageService.StoreFiles(files)
+		urlPaths, err := storageService.UploadFiles(files)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to save files")
 			// TODO: handle error

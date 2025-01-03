@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// StoreFiles stores file uploads at paths like /YYYY/MM/filename.ext
-func (s *service) StoreFiles(files map[string]*multipart.FileHeader) (map[string]string, error) {
+// UploadFiles stores file uploads at paths like /YYYY/MM/filename.ext
+func (s *service) UploadFiles(files map[string]*multipart.FileHeader) (map[string]string, error) {
 	paths := make(map[string]string)
 	for name, fileHeader := range files {
 		nameParts := strings.Split(name, ":")
@@ -42,7 +42,7 @@ func (s *service) StoreFiles(files map[string]*multipart.FileHeader) (map[string
 
 func (s *service) storeFileInfo(size int64, filename, urlPath string, file *multipart.FileHeader) error {
 	ts := int64(time.Nanosecond) * time.Now().UTC().UnixNano() / int64(time.Millisecond)
-	entity := &entities.FileUpload{
+	entity := &entities.Upload{
 		Name:          filename,
 		Path:          urlPath,
 		ContentLength: size,

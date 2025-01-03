@@ -3,12 +3,14 @@ package content
 import (
 	"bytes"
 	"fmt"
+	"path/filepath"
+	"slices"
+	"strings"
+	"text/template"
+
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/generator"
 	log "github.com/sirupsen/logrus"
-	"path/filepath"
-	"strings"
-	"text/template"
 )
 
 type Field struct {
@@ -39,12 +41,22 @@ var (
 		"timestamp": "Timestamp",
 		"updated":   "Updated",
 	}
+
+	reservedTypeNames = []string{"Upload"}
+
+	referenceAllowedSystemTypes = []string{"Upload"}
 )
 
 func (field *Field) Validate() error {
 	for jsonName, fieldName := range reservedFieldNames {
 		if field.JSONName == jsonName || field.Name == fieldName {
 			return fmt.Errorf("reserved field name: %s (%s)", jsonName, fieldName)
+		}
+	}
+
+	for _, typeName := range reservedTypeNames {
+		if field.Name == typeName {
+			return fmt.Errorf("Type name: %s is reserved", field.Name)
 		}
 	}
 
@@ -98,7 +110,8 @@ func mapBlockToField(contentTypes content.Types, block generator.Block) *Field {
 	}
 
 	if block.Definition.IsReference {
-		if _, ok := contentTypes.Content[block.ReferenceName]; ok {
+		if _, ok := contentTypes.Content[block.ReferenceName]; ok ||
+			slices.Contains(referenceAllowedSystemTypes, block.ReferenceName) {
 			viewType = "reference"
 		} else if _, ok = contentTypes.FieldCollections[block.ReferenceName]; ok {
 			isFieldCollection = true

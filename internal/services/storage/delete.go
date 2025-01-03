@@ -7,9 +7,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (s *service) DeleteFile(entityIds ...string) error {
+func (s *service) DeleteUpload(entityIds ...string) error {
 	for _, entityId := range entityIds {
-		f, err := s.GetFileUpload(entityId)
+		f, err := s.GetUpload(entityId)
 		if err != nil {
 			return err
 		}
@@ -26,7 +26,7 @@ func (s *service) DeleteFile(entityIds ...string) error {
 			return errors.Wrap(err, "Failed to delete item from database")
 		}
 
-		if err = s.searchClient.Delete(constants.UploadsEntityName, entityId); err != nil {
+		if err = s.searchClient.Delete(constants.UploadEntityName, entityId); err != nil {
 			return errors.Wrap(err, "Failed to delete search index entry")
 		}
 	}
