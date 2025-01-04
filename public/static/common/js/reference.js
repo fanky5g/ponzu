@@ -153,10 +153,11 @@
 
   const createSelectElement = (
     contentType,
+    selector,
     rowTemplate,
     loadOptions = async () => {},
   ) => {
-    const select = document.querySelector(`.mdc-select.${contentType}`);
+    const select = document.querySelector(`.mdc-select.${selector}`);
     const initialValue = select.querySelector('input[type="hidden"]')?.value;
     let mdcSelect = new mdc.select.MDCSelect(select);
     const mdcMenu = mdcSelect.menu;
@@ -217,6 +218,7 @@
     rowTemplate,
   ) => {
     const select = createSelectElement(
+      contentType,
       selector,
       rowTemplate,
       createOptionsLoader(contentType),
