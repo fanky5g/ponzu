@@ -1,8 +1,8 @@
 package response
 
 import (
-	"net/http"
 	"html/template"
+	"net/http"
 )
 
 type templateRenderer struct {
@@ -16,11 +16,13 @@ func (renderer *templateRenderer) Render(w http.ResponseWriter, r *http.Request)
 
 func NewHTMLResponse(statusCode int, tmpl *template.Template, data interface{}) *Response {
 	return &Response{
-		StatusCode:  statusCode,
-		ContentType: "text/html",
+		StatusCode: statusCode,
+		Headers: map[string]string{
+			"Content-Type": "text/html",
+		},
 		Renderer: &templateRenderer{
 			tmpl: tmpl,
 			data: data,
 		},
-	} 
+	}
 }

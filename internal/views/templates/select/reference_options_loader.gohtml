@@ -4,9 +4,10 @@
     window.addEventListener("load", () => {
         const template = "{{ .Template }}";
         const contentType = "{{ .ContentType }}";
+        const selector = "{{ .Selector }}";
 
         const callback = () => {
-            window.Ponzu.initializeReferenceLoader(contentType, template);
+            window.Ponzu.initializeReferenceLoader(contentType, selector, template);
         };
 
         if (typeof window.Ponzu.initializeReferenceLoader !== "function") {

@@ -19,7 +19,7 @@ type EditUploadFormViewModel struct {
 
 // TODO: upload is a valid content type. refactor common content mapping
 func NewEditUploadFormViewModel(
-	upload *entities.FileUpload,
+	upload *entities.Upload,
 	cfg config.ConfigCache,
 	publicPath string,
 	contentTypes map[string]content.Builder) (*EditUploadFormViewModel, error) {

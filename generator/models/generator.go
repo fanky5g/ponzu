@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -32,7 +31,6 @@ func New(
 
 	_, b, _, _ := runtime.Caller(0)
 	rootPath := filepath.Join(filepath.Dir(b), "../..")
-	fmt.Println(rootPath)
 
 	return &modelGenerator{
 		modulePath:             modulePath,

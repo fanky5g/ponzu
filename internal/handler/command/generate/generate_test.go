@@ -3,7 +3,6 @@ package generate
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"go/format"
 	"io"
 	"io/fs"
@@ -145,7 +144,6 @@ func main() {
 			},
 		},
 	}, buf)) {
-		fmt.Println(string(buf.Bytes()))
 		assert.Equal(suite.T(), buf.Bytes(), expectedResult)
 	}
 }

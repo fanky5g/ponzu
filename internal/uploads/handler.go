@@ -12,11 +12,10 @@ import (
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/http/response"
-	"github.com/fanky5g/ponzu/internal/services/storage"
 )
 
 func NewEditUploadFormHandler(
-	storageService storage.Service,
+	uploadsService *Service,
 	contentService *content.Service,
 	cfg config.ConfigCache,
 	publicPath string,
@@ -30,10 +29,10 @@ func NewEditUploadFormHandler(
 		q := req.URL.Query()
 		i := q.Get("id")
 
-		var fileUpload *entities.FileUpload
+		var fileUpload *entities.Upload
 		var err error
 		if i != "" {
-			fileUpload, err = storageService.GetFileUpload(i)
+			fileUpload, err = uploadsService.GetUpload(i)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to get file upload")
 				return
@@ -46,11 +45,11 @@ func NewEditUploadFormHandler(
 		} else {
 			_, ok := interface{}(fileUpload).(item.Identifiable)
 			if !ok {
-				log.Println("Content type", constants.UploadsEntityName, "doesn't implement item.Identifiable")
+				log.Println("Content type", constants.UploadEntityName, "doesn't implement item.Identifiable")
 				return
 			}
 
-			fileUpload = &entities.FileUpload{}
+			fileUpload = &entities.Upload{}
 		}
 
 		editUploadForm, err := NewEditUploadFormViewModel(fileUpload, cfg, publicPath, contentService.ContentTypes())
@@ -69,7 +68,7 @@ func NewEditUploadFormHandler(
 	}
 }
 
-func NewSaveUploadHandler(storageService storage.Service, publicPath string) http.HandlerFunc {
+func NewSaveUploadHandler(uploadService *Service, publicPath string) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
@@ -79,54 +78,31 @@ func NewSaveUploadHandler(storageService storage.Service, publicPath string) htt
 			return
 		}
 
-		t := req.FormValue("type")
-		post, err := request.GetFileUploadFromFormData(req.Form)
-		if err != nil {
-			log.WithField("Error", err).Warning("Failed to get form file")
-			// TODO: handle error
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		hook, ok := post.(item.Hookable)
-		if !ok {
-			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
-			// TODO: handle error
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		err = hook.BeforeSave(res, req)
-		if err != nil {
-			log.WithField("Error", err).Warningf("Error running BeforeSave method in editHandler for: %s", t)
-			return
-		}
-
 		// StoreFiles has the SetUpload call (which is equivalent of CreateContent in other controllers)
 		files, err := request.GetRequestFiles(req)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to get request files")
-			// TODO: handle error
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		urlPaths, err := storageService.StoreFiles(files)
+		savedFiles, err := uploadService.UploadFiles(files)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to save files")
-			// TODO: handle error
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		for name, urlPath := range urlPaths {
-			req.PostForm.Set(name, urlPath)
+		for _, savedFile := range savedFiles {
+			req.PostForm.Set(savedFile.Name, savedFile.Path)
 		}
 
-		err = hook.AfterSave(res, req)
-		if err != nil {
-			log.WithField("Error", err).
-				Warningf("Error running AfterSave method in editHandler for: %s", t)
+		if len(savedFiles) == 1 {
+			response.Respond(
+				res,
+				req,
+				response.NewRedirectResponse(publicPath, "/edit/upload?type=upload&id="+savedFiles[0].ID),
+			)
 			return
 		}
 

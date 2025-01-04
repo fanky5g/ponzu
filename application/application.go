@@ -2,6 +2,7 @@ package application
 
 import (
 	"fmt"
+
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	gcsStorage "github.com/fanky5g/ponzu-driver-gcs"
 	localStorage "github.com/fanky5g/ponzu-driver-local-storage"
@@ -18,6 +19,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/search"
 	pgSearch "github.com/fanky5g/ponzu/internal/search/postgres"
 	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -77,12 +79,7 @@ func New(conf Config) (Application, error) {
 		return nil, errors.Wrap(err, "Failed to get search client")
 	}
 
-	svcs, err := services.New(
-		db,
-		searchClient,
-		uploadStorageClient,
-		conf.ContentTypes.Content,
-	)
+	svcs, err := services.New(db, searchClient, conf.ContentTypes.Content)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +104,12 @@ func New(conf Config) (Application, error) {
 		log.Fatalf("Failed to initialize entities service: %v", err)
 	}
 	svcs[tokens.ContentServiceToken] = contentSvc
+
+	storageService, err := uploads.New(db, searchClient, uploadStorageClient)
+	if err != nil {
+		log.Fatalf("Failed to initialize storage services: %v", err)
+	}
+	svcs[tokens.UploadServiceToken] = storageService
 
 	svr, err := server.New(conf.ContentTypes, assetStorageClient, uploadStorageClient, svcs)
 	if err != nil {

@@ -9,16 +9,16 @@ import (
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/services/storage"
+	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
 
 func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
-	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
-		pt := new(entities.FileUpload)
+		pt := new(entities.Upload)
 		_, ok := interface{}(pt).(editor.Editable)
 		if !ok {
 			log.Warning("entities.FileUpload is not editable")
@@ -39,24 +39,10 @@ func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
 		}
 
 		uploadResultLoader := func() ([]interface{}, int, error) {
-			total, matches, err := storageService.GetAllWithOptions(search)
-			if err != nil {
-				return nil, 0, err
-			}
-
-			if len(matches) > 0 {
-				out := make([]interface{}, len(matches))
-				for i := 0; i < len(matches); i++ {
-					out[i] = matches[i]
-				}
-
-				return out, total, err
-			}
-
-			return nil, 0, nil
+			return uploadService.GetAllWithOptions(search)
 		}
 
-		params, err := table.New(constants.UploadsEntityName, pt, search, uploadResultLoader)
+		params, err := table.New(constants.UploadEntityName, pt, search, uploadResultLoader)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to build table params")
 			r.Renderer().InternalServerError(res)

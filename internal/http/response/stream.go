@@ -20,9 +20,11 @@ func (s *stream) Render(w http.ResponseWriter, r *http.Request) error {
 
 func NewStreamResponse(statusCode int, ds datasource.Datasource) *Response {
 	return &Response{
-		StatusCode:         statusCode,
-		ContentType:        ds.GetContentType(),
-		ContentDisposition: ds.GetContentDisposition(),
+		StatusCode: statusCode,
+		Headers: map[string]string{
+			"Content-Type":        ds.GetContentType(),
+			"Content-Disposition": ds.GetContentDisposition(),
+		},
 		Renderer: &stream{
 			data: ds,
 		},

@@ -74,11 +74,11 @@
   ) =>
     request(
       "GET",
-      `${publicPath}/api/content/?type=${contentType}&count=${count}&offset=${offset}&order=${order}`,
+      `${publicPath}/api/references?type=${contentType}&count=${count}&offset=${offset}&order=${order}`,
     );
 
   const loadOption = async (contentType, id) =>
-    request("GET", `${publicPath}/api/content/${id}?type=${contentType}`);
+    request("GET", `${publicPath}/api/references/${id}?type=${contentType}`);
 
   const appendRow = (node, row) => {
     node.appendChild(row);
@@ -136,22 +136,28 @@
         return [];
       }
 
-      const options = await loadOptions(contentType, pageSize, offset, order);
-      offset = offset + options.length;
-      if (options.length < pageSize) {
+      const { references, size } = await loadOptions(
+        contentType,
+        pageSize,
+        offset,
+        order,
+      );
+      offset = offset + references.length;
+      if (offset === size) {
         hasMore = false;
       }
 
-      return options.filter(filterFunc);
+      return references.filter(filterFunc);
     };
   };
 
   const createSelectElement = (
     contentType,
+    selector,
     rowTemplate,
     loadOptions = async () => {},
   ) => {
-    const select = document.querySelector(`.mdc-select.${contentType}`);
+    const select = document.querySelector(`.mdc-select.${selector}`);
     const initialValue = select.querySelector('input[type="hidden"]')?.value;
     let mdcSelect = new mdc.select.MDCSelect(select);
     const mdcMenu = mdcSelect.menu;
@@ -206,9 +212,14 @@
     };
   };
 
-  window.Ponzu.initializeReferenceLoader = async (contentType, rowTemplate) => {
+  window.Ponzu.initializeReferenceLoader = async (
+    contentType,
+    selector,
+    rowTemplate,
+  ) => {
     const select = createSelectElement(
       contentType,
+      selector,
       rowTemplate,
       createOptionsLoader(contentType),
     );

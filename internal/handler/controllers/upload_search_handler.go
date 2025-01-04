@@ -31,12 +31,12 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		pt := new(entities.FileUpload)
+		pt := new(entities.Upload)
 		uploadResultLoader := func() ([]interface{}, int, error) {
 			return searchService.Search(pt, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		}
 
-		params, err := table.New(constants.UploadsEntityName, pt, search, uploadResultLoader)
+		params, err := table.New(constants.UploadEntityName, pt, search, uploadResultLoader)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to build table params")
 			r.Renderer().InternalServerError(res)

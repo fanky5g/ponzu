@@ -3,21 +3,22 @@ package api
 import (
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+
 	contentPkg "github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/services/storage"
+	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
-	"log"
-	"net/http"
 )
 
 func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 	contentTypes := r.Context().Types().Content
 	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
-	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)
@@ -44,16 +45,15 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 		}
 
 		if len(files) > 0 {
-			var urlPaths map[string]string
-			urlPaths, err = storageService.StoreFiles(files)
+			savedFiles, err := uploadService.UploadFiles(files)
 			if err != nil {
 				log.Println("[Update] error:", err)
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			for name, urlPath := range urlPaths {
-				req.PostForm.Set(name, urlPath)
+			for _, file := range savedFiles {
+				req.PostForm.Set(file.Name, file.Path)
 			}
 		}
 

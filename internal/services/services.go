@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/memorycache"
@@ -12,7 +11,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/services/analytics"
 	"github.com/fanky5g/ponzu/internal/services/auth"
 	searchSvc "github.com/fanky5g/ponzu/internal/services/search"
-	"github.com/fanky5g/ponzu/internal/services/storage"
 	"github.com/fanky5g/ponzu/internal/services/tls"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
@@ -29,12 +27,7 @@ func (services Services) Get(token tokens.Service) interface{} {
 	return nil
 }
 
-func New(
-	db database.Database,
-	searchClient search.SearchInterface,
-	storageClient driver.StorageClientInterface,
-	types map[string]content.Builder,
-) (Services, error) {
+func New(db database.Database, searchClient search.SearchInterface, types map[string]content.Builder) (Services, error) {
 	// Initialize services
 	services := make(Services)
 
@@ -89,15 +82,9 @@ func New(
 
 	uploadSearchService, err := searchSvc.New(searchClient, db)
 	if err != nil {
-		log.Fatalf("Failed to initialize search service: %v", err)
+		log.Fatalf("Failed to initialize upload search service: %v", err)
 	}
 	services[tokens.UploadSearchServiceToken] = uploadSearchService
-
-	storageService, err := storage.New(db, searchClient, storageClient)
-	if err != nil {
-		log.Fatalf("Failed to initialize storage services: %v", err)
-	}
-	services[tokens.StorageServiceToken] = storageService
 
 	return services, nil
 }
