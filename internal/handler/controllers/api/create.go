@@ -10,7 +10,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/services/storage"
+	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,7 +18,7 @@ import (
 func NewCreateContentHandler(r router.Router) http.HandlerFunc {
 	contentTypes := r.Context().Types().Content
 	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
-	storageService := r.Context().Service(tokens.StorageServiceToken).(storage.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		t := req.URL.Query().Get("type")
@@ -46,7 +46,7 @@ func NewCreateContentHandler(r router.Router) http.HandlerFunc {
 
 		if len(files) > 0 {
 			var urlPaths map[string]string
-			urlPaths, err = storageService.UploadFiles(files)
+			urlPaths, err = uploadService.UploadFiles(files)
 			if err != nil {
 				log.Println("[Create] error:", err)
 				res.WriteHeader(http.StatusInternalServerError)

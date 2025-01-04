@@ -12,11 +12,10 @@ import (
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/http/response"
-	"github.com/fanky5g/ponzu/internal/services/storage"
 )
 
 func NewEditUploadFormHandler(
-	storageService storage.Service,
+	uploadsService *Service,
 	contentService *content.Service,
 	cfg config.ConfigCache,
 	publicPath string,
@@ -33,7 +32,7 @@ func NewEditUploadFormHandler(
 		var fileUpload *entities.Upload
 		var err error
 		if i != "" {
-			fileUpload, err = storageService.GetUpload(i)
+			fileUpload, err = uploadsService.GetUpload(i)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to get file upload")
 				return
@@ -69,7 +68,7 @@ func NewEditUploadFormHandler(
 	}
 }
 
-func NewSaveUploadHandler(storageService storage.Service, publicPath string) http.HandlerFunc {
+func NewSaveUploadHandler(uploadService *Service, publicPath string) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		err := req.ParseMultipartForm(1024 * 1024 * 4) // maxMemory 4MB
 		if err != nil {
@@ -111,7 +110,7 @@ func NewSaveUploadHandler(storageService storage.Service, publicPath string) htt
 			return
 		}
 
-		urlPaths, err := storageService.UploadFiles(files)
+		urlPaths, err := uploadService.UploadFiles(files)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to save files")
 			// TODO: handle error

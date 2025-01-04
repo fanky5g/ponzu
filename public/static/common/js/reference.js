@@ -74,11 +74,11 @@
   ) =>
     request(
       "GET",
-      `${publicPath}/api/content/?type=${contentType}&count=${count}&offset=${offset}&order=${order}`,
+      `${publicPath}/api/references?type=${contentType}&count=${count}&offset=${offset}&order=${order}`,
     );
 
   const loadOption = async (contentType, id) =>
-    request("GET", `${publicPath}/api/content/${id}?type=${contentType}`);
+    request("GET", `${publicPath}/api/references/${id}?type=${contentType}`);
 
   const appendRow = (node, row) => {
     node.appendChild(row);
