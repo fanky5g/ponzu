@@ -211,9 +211,13 @@
     };
   };
 
-  window.Ponzu.initializeReferenceLoader = async (contentType, rowTemplate) => {
+  window.Ponzu.initializeReferenceLoader = async (
+    contentType,
+    selector,
+    rowTemplate,
+  ) => {
     const select = createSelectElement(
-      contentType,
+      selector,
       rowTemplate,
       createOptionsLoader(contentType),
     );

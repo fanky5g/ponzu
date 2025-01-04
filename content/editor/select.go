@@ -32,7 +32,6 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 		log.Warnf("Expected field value to be string. Got %T", fieldVal)
 	}
 
-	selector := TagNameFromStructField(fieldName, p, nil)
 	var err error
 	options := make([]string, 0)
 
@@ -46,7 +45,7 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 		}
 
 		if clientDataOptionsProvider, ok := dataProvider.(SelectClientOptionsProvider); ok {
-			err = clientDataOptionsProvider.RenderClientOptionsProvider(templateBuffer, selector)
+			err = clientDataOptionsProvider.RenderClientOptionsProvider(templateBuffer, fieldName)
 			if err != nil {
 				log.Fatalf("Failed to render client options provider: %v", err)
 			}
