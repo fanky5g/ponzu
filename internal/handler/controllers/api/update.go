@@ -45,16 +45,15 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 		}
 
 		if len(files) > 0 {
-			var urlPaths map[string]string
-			urlPaths, err = uploadService.UploadFiles(files)
+			savedFiles, err := uploadService.UploadFiles(files)
 			if err != nil {
 				log.Println("[Update] error:", err)
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			for name, urlPath := range urlPaths {
-				req.PostForm.Set(name, urlPath)
+			for _, file := range savedFiles {
+				req.PostForm.Set(file.Name, file.Path)
 			}
 		}
 

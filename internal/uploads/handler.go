@@ -78,54 +78,31 @@ func NewSaveUploadHandler(uploadService *Service, publicPath string) http.Handle
 			return
 		}
 
-		t := req.FormValue("type")
-		post, err := request.GetFileUploadFromFormData(req.Form)
-		if err != nil {
-			log.WithField("Error", err).Warning("Failed to get form file")
-			// TODO: handle error
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		hook, ok := post.(item.Hookable)
-		if !ok {
-			log.Println("Type", t, "does not implement item.Hookable or embed item.Item.")
-			// TODO: handle error
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		err = hook.BeforeSave(res, req)
-		if err != nil {
-			log.WithField("Error", err).Warningf("Error running BeforeSave method in editHandler for: %s", t)
-			return
-		}
-
 		// StoreFiles has the SetUpload call (which is equivalent of CreateContent in other controllers)
 		files, err := request.GetRequestFiles(req)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to get request files")
-			// TODO: handle error
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		urlPaths, err := uploadService.UploadFiles(files)
+		savedFiles, err := uploadService.UploadFiles(files)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to save files")
-			// TODO: handle error
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		for name, urlPath := range urlPaths {
-			req.PostForm.Set(name, urlPath)
+		for _, savedFile := range savedFiles {
+			req.PostForm.Set(savedFile.Name, savedFile.Path)
 		}
 
-		err = hook.AfterSave(res, req)
-		if err != nil {
-			log.WithField("Error", err).
-				Warningf("Error running AfterSave method in editHandler for: %s", t)
+		if len(savedFiles) == 1 {
+			response.Respond(
+				res,
+				req,
+				response.NewRedirectResponse(publicPath, "/edit/upload?type=upload&id="+savedFiles[0].ID),
+			)
 			return
 		}
 

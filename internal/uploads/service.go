@@ -93,8 +93,9 @@ func (s *Service) DeleteUpload(entityIds ...string) error {
 }
 
 // UploadFiles stores file uploads at paths like /YYYY/MM/filename.ext
-func (s *Service) UploadFiles(files map[string]*multipart.FileHeader) (map[string]string, error) {
-	paths := make(map[string]string)
+func (s *Service) UploadFiles(files map[string]*multipart.FileHeader) ([]*entities.Upload, error) {
+	uploadedFiles := make([]*entities.Upload, len(files))
+	i := 0
 	for name, fileHeader := range files {
 		nameParts := strings.Split(name, ":")
 		fileName := nameParts[0]
@@ -112,16 +113,20 @@ func (s *Service) UploadFiles(files map[string]*multipart.FileHeader) (map[strin
 			return nil, err
 		}
 
-		paths[fileName] = u
-		if err = s.storeFileInfo(size, fileName, u, fileHeader); err != nil {
+		var upload *entities.Upload
+		upload, err = s.storeFileInfo(size, fileName, u, fileHeader)
+		if err != nil {
 			return nil, err
 		}
+
+		uploadedFiles[i] = upload
+		i = i + 1
 	}
 
-	return paths, nil
+	return uploadedFiles, nil
 }
 
-func (s *Service) storeFileInfo(size int64, filename, urlPath string, file *multipart.FileHeader) error {
+func (s *Service) storeFileInfo(size int64, filename, urlPath string, file *multipart.FileHeader) (*entities.Upload, error) {
 	ts := int64(time.Nanosecond) * time.Now().UTC().UnixNano() / int64(time.Millisecond)
 	entity := &entities.Upload{
 		Name:          filename,
@@ -136,14 +141,14 @@ func (s *Service) storeFileInfo(size int64, filename, urlPath string, file *mult
 
 	upload, err := s.repository.Insert(entity)
 	if err != nil {
-		return fmt.Errorf("error saving file storage record to database: %v", err)
+		return nil, fmt.Errorf("error saving file storage record to database: %v", err)
 	}
 
 	if identifiable, ok := upload.(item.Identifiable); ok {
 		if err = s.searchClient.Update(identifiable.ItemID(), upload); err != nil {
-			return errors.Wrap(err, "Failed to update upload for search")
+			return nil, errors.Wrap(err, "Failed to update upload for search")
 		}
 	}
 
-	return nil
+	return entity, nil
 }
