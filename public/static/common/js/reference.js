@@ -136,13 +136,18 @@
         return [];
       }
 
-      const options = await loadOptions(contentType, pageSize, offset, order);
-      offset = offset + options.length;
-      if (options.length < pageSize) {
+      const { references, size } = await loadOptions(
+        contentType,
+        pageSize,
+        offset,
+        order,
+      );
+      offset = offset + references.length;
+      if (offset === size) {
         hasMore = false;
       }
 
-      return options.filter(filterFunc);
+      return references.filter(filterFunc);
     };
   };
 
