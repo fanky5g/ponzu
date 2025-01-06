@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	contentPkg "github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
@@ -63,50 +62,15 @@ func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		hook, ok := pt().(item.Hookable)
-		if !ok {
-			log.Println("[Update] error: Type", t, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
 		update, err := request.GetEntity(pt, req)
 		if err != nil {
 			r.Renderer().Error(res, http.StatusBadRequest, err)
 			return
 		}
 
-		err = hook.BeforeAPIUpdate(res, req)
-		if err != nil {
-			log.Println("[Update] error calling BeforeUpdate:", err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = hook.BeforeSave(res, req)
-		if err != nil {
-			log.Println("[Create] error calling BeforeSave:", err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		u, err := contentService.UpdateContent(t, identifier, update)
 		if err != nil {
 			log.Printf("[Update] error: %v\n", err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = hook.AfterSave(res, req)
-		if err != nil {
-			log.Println("[Create] error calling AfterSave:", err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = hook.AfterAPIUpdate(res, req)
-		if err != nil {
-			log.Println("[Update] error calling AfterUpdate:", err)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}

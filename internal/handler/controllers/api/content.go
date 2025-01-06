@@ -1,10 +1,9 @@
 package api
 
 import (
-	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/content"
+	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/tokens"
 	"log"
 	"net/http"
@@ -67,7 +66,7 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		it, ok := contentTypes[t]
+		_, ok := contentTypes[t]
 		if !ok {
 			res.WriteHeader(http.StatusNotFound)
 			return
@@ -92,32 +91,7 @@ func NewListContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		// assert hookable
-		get := it()
-		hook, ok := get.(item.Hookable)
-		if !ok {
-			log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// hook before response
-		p, err := hook.BeforeAPIResponse(res, req, posts)
-		if err != nil {
-			log.Println("[Response] error calling BeforeAPIResponse:", err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		posts = p.([]interface{})
 		r.Renderer().Json(res, http.StatusOK, posts)
-
-		// hook after response
-		err = hook.AfterAPIResponse(res, req, posts)
-		if err != nil {
-			log.Println("[Response] error calling AfterAPIResponse:", err)
-			return
-		}
 	}
 }
 
@@ -129,7 +103,7 @@ func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *h
 		q := req.URL.Query()
 		t := q.Get("type")
 
-		pt, ok := contentTypes[t]
+		_, ok := contentTypes[t]
 		if !ok {
 			res.WriteHeader(http.StatusNotFound)
 			return
@@ -142,31 +116,7 @@ func NewContentByIdHandler(r router.Router) func(string, http.ResponseWriter, *h
 			return
 		}
 
-		// assert hookable
-		get := pt()
-		hook, ok := get.(item.Hookable)
-		if !ok {
-			log.Println("[Response] error: Type", t, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// hook before response
-		post, err = hook.BeforeAPIResponse(res, req, post)
-		if err != nil {
-			log.Println("[Response] error calling BeforeAPIResponse:", err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		r.Renderer().Json(res, http.StatusOK, post)
-
-		// hook after response
-		err = hook.AfterAPIResponse(res, req, post)
-		if err != nil {
-			log.Println("[Response] error calling AfterAPIResponse:", err)
-			return
-		}
 	}
 }
 
@@ -186,29 +136,6 @@ func NewContentBySlugHandler(r router.Router) func(string, http.ResponseWriter, 
 			return
 		}
 
-		// assert hookable
-		hook, ok := post.(item.Hookable)
-		if !ok {
-			log.Println("[Response] error: Type does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// hook before response
-		post, err = hook.BeforeAPIResponse(res, req, post)
-		if err != nil {
-			log.Println("[Response] error calling BeforeAPIResponse:", err)
-			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		r.Renderer().Json(res, http.StatusOK, post)
-
-		// hook after response
-		err = hook.AfterAPIResponse(res, req, post)
-		if err != nil {
-			log.Println("[Response] error calling AfterAPIResponse:", err)
-			return
-		}
 	}
 }
