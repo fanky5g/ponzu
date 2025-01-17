@@ -35,14 +35,13 @@ func New(
 	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
 	contentRepositories := make(map[string]database.Repository)
-	for entityName, entityConstructor := range types {
-		entity := entityConstructor()
-		persistable, ok := entity.(database.Persistable)
+	for entityName, ctor := range types {
+		entity, ok := ctor().(database.Persistable)
 		if !ok {
 			return nil, fmt.Errorf("entity %s does not implement Persistable", entityName)
 		}
 
-		repository := db.GetRepositoryByToken(persistable.GetRepositoryToken())
+		repository := db.GetRepositoryByToken(entity.GetRepositoryToken())
 		if repository == nil {
 			return nil, fmt.Errorf("content repository for %s not implemented", entityName)
 		}
@@ -114,12 +113,12 @@ func (s *Service) CreateContent(entityType string, entity interface{}) (string, 
 		workflowStateManager.SetState(rootWorkflow.GetState())
 	}
 
-	content, err := repository.Insert(entity)
+	insert, err := repository.Insert(entity)
 	if err != nil {
 		return "", fmt.Errorf("failed to create content: %v", err)
 	}
 
-	identifiable = content.(item.Identifiable)
+	identifiable = insert.(item.Identifiable)
 	if _, err = s.slugRepository.Insert(&entities.Slug{
 		EntityType: entityType,
 		EntityId:   identifiable.ItemID(),
@@ -190,6 +189,10 @@ func (s *Service) DeleteContent(entityType string, entityIds ...string) error {
 
 func (s *Service) GetContent(entityType, entityId string) (interface{}, error) {
 	return s.repository(entityType).FindOneById(entityId)
+}
+
+func (s *Service) GetContentByIds(entityType string, entityIds ...string) ([]interface{}, error) {
+	return s.repository(entityType).FindByIds(entityIds...)
 }
 
 func (s *Service) GetContentBySlug(slug string) (interface{}, error) {

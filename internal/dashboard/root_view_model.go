@@ -5,7 +5,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/config"
 )
 
-type DashboardRootViewModel struct {
+type RootViewModel struct {
 	PublicPath string
 	AppName    string
 	Logo       string
@@ -16,13 +16,13 @@ func NewDashboardRootViewModel(
 	cfg config.ConfigCache,
 	publicPath string,
 	contentTypes map[string]content.Builder,
-) (*DashboardRootViewModel, error) {
+) (*RootViewModel, error) {
 	appName, err := cfg.GetAppName()
 	if err != nil {
 		return nil, err
 	}
 
-	return &DashboardRootViewModel{
+	return &RootViewModel{
 		PublicPath: publicPath,
 		AppName:    appName,
 		Logo:       appName,

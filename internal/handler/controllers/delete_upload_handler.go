@@ -11,7 +11,7 @@ import (
 )
 
 func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.UploadService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {

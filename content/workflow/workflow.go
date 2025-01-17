@@ -16,7 +16,7 @@ type LifecycleSupportedEntity interface {
 	GetState() State
 }
 
-type WorkflowStateChangeTrigger interface {
+type StateChangeTrigger interface {
 	OnWorkflowStateChange(prevState State) error
 }
 

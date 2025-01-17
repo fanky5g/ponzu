@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/lib/pq"
 	"strings"
 
 	"github.com/fanky5g/ponzu/internal/constants"
@@ -177,6 +178,44 @@ func (repo *Repository) FindAll() ([]interface{}, error) {
 	}
 
 	return allResults, nil
+}
+
+func (repo *Repository) FindByIds(ids ...string) ([]interface{}, error) {
+	ctx := context.Background()
+	conn, err := repo.pool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	defer conn.Release()
+
+	sqlString := fmt.Sprintf(`
+			SELECT id, created_at, updated_at, document
+			FROM %s
+			WHERE id = ANY($1::uuid[]) AND deleted_at IS NULL
+	`, repo.model.Name())
+
+	rows, err := conn.Query(ctx, sqlString, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	results := make([]interface{}, 0)
+	for rows.Next() {
+		var result interface{}
+		if result, err = repo.ScanRow(rows); err != nil {
+			return nil, err
+		}
+
+		results = append(results, result)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }
 
 func (repo *Repository) findOneByIdWithConn(id string, conn *pgxpool.Conn) (interface{}, error) {

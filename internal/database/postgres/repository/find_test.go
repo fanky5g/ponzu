@@ -234,6 +234,44 @@ func (s *FindTestSuite) TestFindAll() {
 	}
 }
 
+func (s *FindTestSuite) TestFindByIds() {
+	inserted := make([]*testEntity, 0)
+	for _, entity := range []*testEntity{
+		testEntities[0],
+		testEntities[1],
+		testEntities[2],
+		{
+			Name:  "Foo Bar 4",
+			Email: "foo@bar4.domain",
+			Age:   40,
+		},
+		{
+			Name:  "Foo Bar 5",
+			Email: "foo@bar5.domain",
+			Age:   50,
+		},
+	} {
+		insert, err := s.repo.Insert(entity)
+		if err != nil {
+			s.T().Fatal(err)
+		}
+
+		inserted = append(inserted, insert.(*testEntity))
+		<-time.After(time.Microsecond)
+	}
+
+	if assert.Len(s.T(), inserted, 5) {
+		matches, err := s.repo.FindByIds(inserted[0].ID, inserted[1].ID, inserted[2].ID)
+		if assert.NoError(s.T(), err) {
+			assert.Equal(s.T(), len(matches), 3)
+			assert.Equal(s.T(), inserted[0].ID, matches[0].(*testEntity).ID)
+			assert.Equal(s.T(), inserted[1].ID, matches[1].(*testEntity).ID)
+			assert.Equal(s.T(), inserted[2].ID, matches[2].(*testEntity).ID)
+		}
+	}
+
+}
+
 func TestFind(t *testing.T) {
 	suite.Run(t, new(FindTestSuite))
 }

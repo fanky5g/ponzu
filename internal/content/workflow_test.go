@@ -7,7 +7,7 @@ import (
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/content/workflow"
-	"github.com/fanky5g/ponzu/internal/mocks"
+	"github.com/fanky5g/ponzu/internal/test/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -144,7 +144,7 @@ func (suite *WorkflowTestSuite) TestTransitionWorkflowStateReturnsWorkflowStateC
 		suite.m,
 	}
 
-	expectedError := errors.New("Something bad happened")
+	expectedError := errors.New("something bad happened")
 
 	suite.m.On("FindOneById", entityId).Once().Return(entity, nil)
 	suite.m.On("UpdateById", entityId, update).Return(update, nil).Once()

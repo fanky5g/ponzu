@@ -17,7 +17,7 @@ import (
 func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 	contentTypes := r.Context().Types().Content
 	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.UploadService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)

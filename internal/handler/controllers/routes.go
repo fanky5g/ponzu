@@ -1,14 +1,15 @@
 package controllers
 
 import (
+	"github.com/fanky5g/ponzu/internal/dashboard"
+	"github.com/fanky5g/ponzu/internal/references"
+	"github.com/fanky5g/ponzu/internal/uploads"
 	"net/http"
 
 	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/api"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/references"
-	"github.com/fanky5g/ponzu/internal/uploads"
 )
 
 func RegisterRoutes(
@@ -16,6 +17,11 @@ func RegisterRoutes(
 	staticFileSystem driver.StaticFileSystemInterface,
 	uploadsStaticFileSystem driver.StaticFileSystemInterface,
 ) error {
+	dashboardHandler, err := dashboard.NewHandler(r)
+	if err != nil {
+		return err
+	}
+
 	r.AuthorizedRoute("/", NewAdminHandler)
 
 	r.Route("/init", NewInitHandler)
@@ -37,8 +43,12 @@ func RegisterRoutes(
 
 	r.AuthorizedRoute("/edit/delete", NewDeleteHandler)
 	r.AuthorizedRoute("/edit/upload/delete", NewDeleteUploadHandler)
-	content.RegisterRoutes(r)
-	uploads.RegisterRoutes(r)
+	err = content.RegisterRoutes(r)
+	if err != nil {
+		return err
+	}
+
+	uploads.RegisterRoutes(r, dashboardHandler)
 	references.RegisterRoutes(r)
 
 	api.RegisterRoutes(r, uploadsStaticFileSystem)

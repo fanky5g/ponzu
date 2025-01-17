@@ -15,7 +15,7 @@ import (
 )
 
 func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.UploadService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		pt := new(entities.Upload)

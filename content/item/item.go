@@ -14,21 +14,6 @@ type Readable interface {
 	GetTitle() string
 }
 
-type Sluggable interface {
-	Readable
-	SetSlug(string)
-	ItemSlug() string
-}
-
-// Identifiable enables a struct to have its ID set/get. Typically, this is done
-// to set an ID to -1 indicating it is new for DB inserts, since by default
-// a newly initialized struct would have an ID of 0, the int zero-value, and
-// BoltDB's starting key per bucket is 0, thus overwriting the first record.
-type Identifiable interface {
-	ItemID() string
-	SetItemID(string)
-}
-
 // Sortable ensures data is sortable by time
 type Sortable interface {
 	Time() int64
@@ -51,64 +36,79 @@ type Item struct {
 	Updated       int64          `json:"updated"`
 }
 
-func (i *Item) SetState(state workflow.State) {
-	i.WorkflowState = state
-}
-
-func (i *Item) GetState() workflow.State {
-	return i.WorkflowState
-}
-
-// Time partially implements the Sortable interface
-func (i *Item) Time() int64 {
-	return i.Timestamp
-}
-
-// Touch partially implements the Sortable interface
-func (i *Item) Touch() int64 {
-	return i.Updated
-}
-
-// SetSlug sets the item's slug for its URL
-func (i *Item) SetSlug(slug string) {
-	i.Slug = slug
-}
-
-func (i *Item) CreatedAt() int64 {
-	return i.Timestamp
-}
-
-func (i *Item) UpdatedAt() int64 {
-	return i.Updated
-}
-
-func (i *Item) SetCreatedAt(t time.Time) {
-	i.Timestamp = t.UnixMilli()
-}
-
-func (i *Item) SetUpdatedAt(t time.Time) {
-	i.Updated = t.UnixMilli()
-}
-
-// ItemSlug sets the item's slug for its URL
-func (i *Item) ItemSlug() string {
-	return i.Slug
+// Identifiable enables a struct to have its ID set/get. Typically, this is done
+// to set an ID to -1 indicating it is new for DB inserts, since by default
+// a newly initialized struct would have an ID of 0, the int zero-value, and
+// BoltDB's starting key per bucket is 0, thus overwriting the first record.
+type Identifiable interface {
+	ItemID() string
+	SetItemID(string)
 }
 
 // ItemID gets the Item's ID field
 // partially implements the Identifiable interface
-func (i *Item) ItemID() string {
-	return i.ID
+func (item *Item) ItemID() string {
+	return item.ID
 }
 
 // SetItemID sets the Item's ID field
 // partially implements the Identifiable interface
-func (i *Item) SetItemID(id string) {
-	i.ID = id
+func (item *Item) SetItemID(id string) {
+	item.ID = id
+}
+
+type Sluggable interface {
+	Readable
+	SetSlug(string)
+	ItemSlug() string
+}
+
+// SetSlug sets the item's slug for its URL
+func (item *Item) SetSlug(slug string) {
+	item.Slug = slug
+}
+
+// ItemSlug sets the item's slug for its URL
+func (item *Item) ItemSlug() string {
+	return item.Slug
+}
+
+func (item *Item) SetState(state workflow.State) {
+	item.WorkflowState = state
+}
+
+func (item *Item) GetState() workflow.State {
+	return item.WorkflowState
+}
+
+// Time partially implements the Sortable interface
+func (item *Item) Time() int64 {
+	return item.Timestamp
+}
+
+// Touch partially implements the Sortable interface
+func (item *Item) Touch() int64 {
+	return item.Updated
+}
+
+func (item *Item) CreatedAt() int64 {
+	return item.Timestamp
+}
+
+func (item *Item) UpdatedAt() int64 {
+	return item.Updated
+}
+
+func (item *Item) SetCreatedAt(t time.Time) {
+	item.Timestamp = t.UnixMilli()
+}
+
+func (item *Item) SetUpdatedAt(t time.Time) {
+	item.Updated = t.UnixMilli()
 }
 
 // IndexContent determines if a type should be indexed for searching
 // partially implements search.Searchable
-func (i *Item) IndexContent() bool {
+func (item *Item) IndexContent() bool {
 	return false
 }

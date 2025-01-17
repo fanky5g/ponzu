@@ -1,22 +1,27 @@
 package uploads
 
 import (
+	"github.com/fanky5g/ponzu/internal/views"
 	"html/template"
 	"path/filepath"
 	"runtime"
-
-	"github.com/fanky5g/ponzu/internal/views"
+	"sync"
 )
 
-func getEditUploadTemplate() (*template.Template, error) {
-	_, b, _, _ := runtime.Caller(0)
-	sharedTemplatesRoot := filepath.Join(filepath.Dir(b), "../dashboard")
+var (
+	tmpl *template.Template
+	once sync.Once
+)
 
-	return template.New("edit-upload").Funcs(views.GlobFuncs).Parse(
-		views.Html(
-			filepath.Join(sharedTemplatesRoot, "dashboard.gohtml"),
-			filepath.Join(sharedTemplatesRoot, "app-frame.gohtml"),
-			filepath.Join(filepath.Dir(b), "edit_upload_view.gohtml"),
-		),
-	)
+func getEditUploadTemplate(layoutTmpl *template.Template) (*template.Template, error) {
+	var err error
+
+	once.Do(func() {
+		_, b, _, _ := runtime.Caller(0)
+		workingDirectory := filepath.Dir(b)
+
+		tmpl, err = layoutTmpl.Parse(views.Html(filepath.Join(workingDirectory, "edit_upload_view.gohtml")))
+	})
+
+	return tmpl, err
 }

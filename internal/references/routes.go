@@ -11,7 +11,7 @@ import (
 
 func RegisterRoutes(r router.Router) {
 	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.UploadService)
 
 	service, err := New(contentService, uploadService)
 	if err != nil {
