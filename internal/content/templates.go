@@ -1,4 +1,4 @@
-package uploads
+package content
 
 import (
 	"github.com/fanky5g/ponzu/internal/views"
@@ -9,19 +9,19 @@ import (
 )
 
 var (
-	tmpl *template.Template
-	once sync.Once
+	editUploadTemplate        *template.Template
+	editUploadTemplateCreator sync.Once
 )
 
 func getEditUploadTemplate(layoutTmpl *template.Template) (*template.Template, error) {
 	var err error
 
-	once.Do(func() {
+	editUploadTemplateCreator.Do(func() {
 		_, b, _, _ := runtime.Caller(0)
 		workingDirectory := filepath.Dir(b)
 
-		tmpl, err = layoutTmpl.Parse(views.Html(filepath.Join(workingDirectory, "edit_upload_view.gohtml")))
+		editUploadTemplate, err = layoutTmpl.Parse(views.Html(filepath.Join(workingDirectory, "edit_upload_view.gohtml")))
 	})
 
-	return tmpl, err
+	return editUploadTemplate, err
 }

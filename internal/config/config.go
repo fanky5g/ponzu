@@ -10,20 +10,20 @@ import (
 type Config struct {
 	item.Item
 
-	Name                    string   `json:"name"`
-	Domain                  string   `json:"domain"`
-	BindAddress             string   `json:"bind_addr"`
-	HTTPPort                string   `json:"http_port"`
-	HTTPSPort               string   `json:"https_port"`
-	AdminEmail              string   `json:"admin_email"`
-	ClientSecret            string   `json:"client_secret"`
-	Etag                    string   `json:"etag"`
-	DisableCORS             bool     `json:"cors_disabled"`
-	DisableGZIP             bool     `json:"gzip_disabled"`
-	DisableHTTPCache        bool     `json:"cache_disabled"`
-	CacheMaxAge             int64    `json:"cache_max_age"`
-	BackupBasicAuthUser     string   `json:"backup_basic_auth_user"`
-	BackupBasicAuthPassword string   `json:"backup_basic_auth_password"`
+	Name                    string `json:"name"`
+	Domain                  string `json:"domain"`
+	BindAddress             string `json:"bind_addr"`
+	HTTPPort                string `json:"http_port"`
+	HTTPSPort               string `json:"https_port"`
+	AdminEmail              string `json:"admin_email"`
+	ClientSecret            string `json:"client_secret"`
+	Etag                    string `json:"etag"`
+	DisableCORS             bool   `json:"cors_disabled"`
+	DisableGZIP             bool   `json:"gzip_disabled"`
+	DisableHTTPCache        bool   `json:"cache_disabled"`
+	CacheMaxAge             int64  `json:"cache_max_age"`
+	BackupBasicAuthUser     string `json:"backup_basic_auth_user"`
+	BackupBasicAuthPassword string `json:"backup_basic_auth_password"`
 }
 
 func (c *Config) GetTitle() string { return c.Name }
@@ -37,7 +37,7 @@ func (*Config) EntityName() string {
 }
 
 func (*Config) Time() int64 {
-    return 0
+	return 0
 }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable

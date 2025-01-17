@@ -25,17 +25,16 @@ func TestAddClassName(t *testing.T) {
 		"class": "h1 pad-50 my-new-class",
 	}, attrs)
 
+	attrs = map[string]string{
+		"class": "my-new-class h1",
+	}
 
-    attrs = map[string]string{
-        "class": "my-new-class h1",
-    }
+	addClassName(attrs, "my-new-class")
+	assert.Equal(t, map[string]string{
+		"class": "my-new-class h1",
+	}, attrs)
 
-    addClassName(attrs, "my-new-class")
-    assert.Equal(t, map[string]string{
-        "class": "my-new-class h1",
-    }, attrs)
-
-    attrs = map[string]string{}
-    addClassName(attrs, "")
-    assert.Equal(t, map[string]string{}, attrs)
+	attrs = map[string]string{}
+	addClassName(attrs, "")
+	assert.Equal(t, map[string]string{}, attrs)
 }

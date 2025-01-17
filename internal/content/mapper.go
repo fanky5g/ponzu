@@ -1,4 +1,4 @@
-package references
+package content
 
 import (
 	"errors"
@@ -81,7 +81,7 @@ func (m *Mapper) MapReqToListReferencesInputResource(req *http.Request) (*ListRe
 func (m *Mapper) MapRequestToGetReferenceInputResource(req *http.Request) (*GetReferenceInputResource, error) {
 	q := req.URL.Query()
 	id := req.PathValue("id")
-	
+
 	typeName := q.Get("type")
 	if typeName == "" {
 		return nil, exceptions.NewClientException(

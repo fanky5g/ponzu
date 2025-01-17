@@ -1,6 +1,6 @@
 // Package uploads provides a re-usable file storage and storage utility for Ponzu
 // systems to handle multipart form data.
-package uploads
+package content
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ type UploadService struct {
 	searchClient search.SearchInterface
 }
 
-func New(
+func NewUploadService(
 	db database.Database,
 	searchClient search.SearchInterface,
 	client driver.StorageClientInterface) (*UploadService, error) {

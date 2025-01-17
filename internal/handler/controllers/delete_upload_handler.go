@@ -1,17 +1,17 @@
 package controllers
 
 import (
+	"github.com/fanky5g/ponzu/internal/content"
 	"net/http"
 
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
 
 func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.UploadService)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*content.UploadService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {

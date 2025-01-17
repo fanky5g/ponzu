@@ -24,6 +24,7 @@ type Service struct {
 	searchClient   search.SearchInterface
 	types          map[string]content.Builder
 	dataExporter   dataexporter.DataExporter
+	uploadService  *UploadService
 }
 
 func New(
@@ -31,6 +32,7 @@ func New(
 	types map[string]content.Builder,
 	searchClient search.SearchInterface,
 	dataExporter dataexporter.DataExporter,
+	uploadService *UploadService,
 ) (*Service, error) {
 	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
@@ -55,6 +57,7 @@ func New(
 		searchClient:   searchClient,
 		types:          types,
 		dataExporter:   dataExporter,
+		uploadService:  uploadService,
 	}
 
 	return s, nil

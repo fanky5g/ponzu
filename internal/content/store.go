@@ -1,4 +1,4 @@
-package references
+package content
 
 import (
 	"fmt"

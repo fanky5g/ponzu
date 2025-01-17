@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	authServicePkg "github.com/fanky5g/ponzu/internal/services/auth"
-	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/services/users"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"

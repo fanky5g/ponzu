@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/fanky5g/ponzu/internal/database/postgres/connection"
 	"github.com/fanky5g/ponzu/internal/database"
+	"github.com/fanky5g/ponzu/internal/database/postgres/connection"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"

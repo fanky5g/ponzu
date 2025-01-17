@@ -3,8 +3,8 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/database"
+	"github.com/fanky5g/ponzu/internal/auth"
 	"strings"
 )
 

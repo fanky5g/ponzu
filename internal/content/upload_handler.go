@@ -1,17 +1,15 @@
-package uploads
+package content
 
 import (
-	"github.com/fanky5g/ponzu/internal/dashboard"
-	"html/template"
-	"net/http"
-
-	log "github.com/sirupsen/logrus"
-
 	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/constants"
+	"github.com/fanky5g/ponzu/internal/dashboard"
 	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/http/response"
+	log "github.com/sirupsen/logrus"
+	"html/template"
+	"net/http"
 )
 
 func NewEditUploadFormHandler(uploadsService *UploadService) dashboard.Handler {

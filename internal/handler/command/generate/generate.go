@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/fanky5g/ponzu/content"
-	contentGenerator "github.com/fanky5g/ponzu/generator/content"
 	"github.com/fanky5g/ponzu/generator"
+	contentGenerator "github.com/fanky5g/ponzu/generator/content"
 	modelGenerator "github.com/fanky5g/ponzu/generator/models"
 	"github.com/fanky5g/ponzu/util"
 	log "github.com/sirupsen/logrus"

@@ -19,7 +19,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/search"
 	pgSearch "github.com/fanky5g/ponzu/internal/search/postgres"
 	"github.com/fanky5g/ponzu/internal/services"
-	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -74,7 +73,7 @@ func New(conf Config) (Application, error) {
 		return nil, fmt.Errorf("failed to create asset storage file system: %v", err)
 	}
 
-	searchClient, err := getSearchDriver(cfg.SearchDriver, db)
+	searchClient, err := getSearchDriver(db)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get search client")
 	}
@@ -94,22 +93,23 @@ func New(conf Config) (Application, error) {
 		return nil, err
 	}
 
+	storageService, err := contentService.NewUploadService(db, searchClient, uploadStorageClient)
+	if err != nil {
+		log.Fatalf("Failed to initialize storage services: %v", err)
+	}
+	svcs[tokens.UploadServiceToken] = storageService
+
 	contentSvc, err := contentService.New(
 		db,
 		conf.ContentTypes.Content,
 		searchClient,
 		contentExporter,
+		storageService,
 	)
 	if err != nil {
 		log.Fatalf("Failed to initialize entities service: %v", err)
 	}
 	svcs[tokens.ContentServiceToken] = contentSvc
-
-	storageService, err := uploads.New(db, searchClient, uploadStorageClient)
-	if err != nil {
-		log.Fatalf("Failed to initialize storage services: %v", err)
-	}
-	svcs[tokens.UploadServiceToken] = storageService
 
 	svr, err := server.New(conf.ContentTypes, assetStorageClient, uploadStorageClient, svcs)
 	if err != nil {
@@ -151,7 +151,7 @@ func getDatabaseDriver(driver string, contentModels []databasePkg.ModelInterface
 	}
 }
 
-func getSearchDriver(driver string, db database.Database) (search.SearchInterface, error) {
+func getSearchDriver(db database.Database) (search.SearchInterface, error) {
 	cfg, err := config.Get()
 	if err != nil {
 		return nil, err

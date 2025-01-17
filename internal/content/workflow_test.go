@@ -58,7 +58,12 @@ func (suite *WorkflowTestSuite) SetupSuite() {
 
 	suite.m = &mock.Mock{}
 	var err error
-	suite.service, err = New(&mocks.DB{Mock: suite.m}, contentTypes, &mocks.SearchClient{Mock: suite.m}, nil)
+	suite.service, err = New(
+		&mocks.DB{Mock: suite.m},
+		contentTypes, &mocks.SearchClient{Mock: suite.m},
+		nil,
+		nil,
+	)
 	if err != nil {
 		suite.T().Fatal(err)
 		return

@@ -10,14 +10,13 @@ import (
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 )
 
 func NewUpdateContentHandler(r router.Router) http.HandlerFunc {
 	contentTypes := r.Context().Types().Content
 	contentService := r.Context().Service(tokens.ContentServiceToken).(*content.Service)
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.UploadService)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*content.UploadService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		isSlug, identifier := request.GetRequestContentId(req)

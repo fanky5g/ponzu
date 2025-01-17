@@ -224,7 +224,7 @@ func DOMElementWithChildrenSelect(e *Element, children []*Element) []byte {
 
 func addClassName(attrs map[string]string, className string) {
 	if attrs == nil || strings.TrimSpace(className) == "" {
-        return
+		return
 	}
 
 	if _, ok := attrs["class"]; !ok {

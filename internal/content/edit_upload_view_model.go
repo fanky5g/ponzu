@@ -1,4 +1,4 @@
-package uploads
+package content
 
 import (
 	"html/template"

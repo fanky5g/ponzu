@@ -11,8 +11,7 @@ import (
 	"strings"
 )
 
-
-var ErrUnsupportedContentType  = errors.New("unsupported content type")
+var ErrUnsupportedContentType = errors.New("unsupported content type")
 
 func GetContentType(req *http.Request) string {
 	contentType := req.Header.Get("Content-Type")
