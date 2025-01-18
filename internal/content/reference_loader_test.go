@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type HelpersTestSuite struct {
+type ReferenceLoaderTestSuite struct {
 	suite.Suite
 }
 
-func (s *HelpersTestSuite) TestBuildReferenceMap() {
+func (s *ReferenceLoaderTestSuite) Test_buildReferences() {
 	cases := []struct {
 		Type                 interface{}
 		ExpectedReferenceMap map[string][]string
@@ -87,11 +87,11 @@ func (s *HelpersTestSuite) TestBuildReferenceMap() {
 		assert.Equal(
 			s.T(),
 			cases[i].ExpectedReferenceMap,
-			NewStore(cases[i].Type).references,
+			buildReferences(cases[i].Type),
 		)
 	}
 }
 
 func TestItem(t *testing.T) {
-	suite.Run(t, new(HelpersTestSuite))
+	suite.Run(t, new(ReferenceLoaderTestSuite))
 }

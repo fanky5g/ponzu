@@ -2,6 +2,16 @@ package content
 
 import "github.com/fanky5g/ponzu/internal/search"
 
+type Query struct {
+	ID   string
+	Type string
+}
+
+type TransitionInput struct {
+	Query
+	TargetState string
+}
+
 type Reference struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`

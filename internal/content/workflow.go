@@ -43,7 +43,10 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 		return updated, nil
 	}
 
-	if workflowStateChangeTriggerErr := trigger.OnWorkflowStateChange(currentState); workflowStateChangeTriggerErr != nil {
+	if workflowStateChangeTriggerErr := trigger.OnWorkflowStateChange(
+		currentState,
+		newReferenceLoader(updated, s),
+	); workflowStateChangeTriggerErr != nil {
 		// TODO(B.B): remove after introducing (unit of work concept - transactions).
 		updatedWorkflow, getContentWorkflowErr := getContentWorkflow(updated)
 		if getContentWorkflowErr != nil {

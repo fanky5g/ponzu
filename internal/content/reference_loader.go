@@ -13,27 +13,30 @@ type ReferenceLoaderInterface interface {
 	GetReferences(entityName string, entityIds ...string) ([]interface{}, error)
 }
 
-type Store struct {
+type ReferenceLoader struct {
 	data       map[string]interface{}
 	references map[string][]string
+	populated  bool
+	loader     ReferenceLoaderInterface
 }
 
-func NewStore(entity interface{}) *Store {
-	return &Store{
+func newReferenceLoader(entity interface{}, loader ReferenceLoaderInterface) *ReferenceLoader {
+	return &ReferenceLoader{
 		references: buildReferences(entity),
 		data:       make(map[string]interface{}),
+		loader:     loader,
 	}
 }
 
-func (s *Store) PopulateReferences(referenceLoader ReferenceLoaderInterface) error {
-	if len(s.references) == 0 {
+func (l *ReferenceLoader) populateReferences() error {
+	if len(l.references) == 0 || l.populated {
 		return nil
 	}
 
 	// TODO(B.B): will benefit from parallel execution
-	for entityName, entityIds := range s.references {
+	for entityName, entityIds := range l.references {
 		for chunk := range slices.Chunk(entityIds, ReferenceLoaderChunkSize) {
-			data, err := referenceLoader.GetReferences(entityName, chunk...)
+			data, err := l.loader.GetReferences(entityName, chunk...)
 			if err != nil {
 				return err
 			}
@@ -45,23 +48,30 @@ func (s *Store) PopulateReferences(referenceLoader ReferenceLoaderInterface) err
 					return fmt.Errorf("reference %s is not an Identifiable", reference)
 				}
 
-				s.data[s.key(entityName, identifiable.ItemID())] = reference
+				l.data[l.key(entityName, identifiable.ItemID())] = reference
 			}
 		}
 	}
 
+	l.populated = true
 	return nil
 }
 
-func (s *Store) GetReference(entityName, entityId string) interface{} {
-	if entity, ok := s.data[s.key(entityName, entityId)]; ok {
-		return entity
+func (l *ReferenceLoader) GetEntity(entityName, entityId string) (interface{}, error) {
+	if !l.populated {
+		if err := l.populateReferences(); err != nil {
+			return nil, err
+		}
 	}
 
-	return nil
+	if entity, ok := l.data[l.key(entityName, entityId)]; ok {
+		return entity, nil
+	}
+
+	return nil, nil
 }
 
-func (s *Store) key(entityName, entityId string) string {
+func (l *ReferenceLoader) key(entityName, entityId string) string {
 	return fmt.Sprintf("%s:%s", entityName, entityId)
 }
 

@@ -44,8 +44,11 @@ func (s *storyWithWorkflowStateChangeTrigger) GetRepositoryToken() string {
 	return "Story"
 }
 
-func (s *storyWithWorkflowStateChangeTrigger) OnWorkflowStateChange(prevState workflow.State) error {
-	args := s.m.Called(prevState)
+func (s *storyWithWorkflowStateChangeTrigger) OnWorkflowStateChange(
+	prevState workflow.State,
+	entityLoader workflow.EntityLoader,
+) error {
+	args := s.m.Called(prevState, entityLoader)
 	return args.Error(0)
 }
 
@@ -121,7 +124,7 @@ func (suite *WorkflowTestSuite) TestTransitionWorkflowStateCallsWorkflowStateCha
 	suite.m.On("FindOneById", entityId).Once().Return(entity, nil)
 	suite.m.On("UpdateById", entityId, update).Once().Return(update, nil)
 	suite.m.On("Update", entityId, update).Once().Return(nil)
-	suite.m.On("OnWorkflowStateChange", workflow.DraftState).Once().Return(nil)
+	suite.m.On("OnWorkflowStateChange", workflow.DraftState, mock.Anything).Once().Return(nil)
 
 	result, err := suite.service.TransitionWorkflowState(entityType, entityId, workflow.PreviewState)
 	if assert.NoError(suite.T(), err) {
@@ -156,7 +159,7 @@ func (suite *WorkflowTestSuite) TestTransitionWorkflowStateReturnsWorkflowStateC
 	suite.m.On("UpdateById", entityId, mock.Anything).Return(entity, nil).Once()
 	suite.m.On("Update", entityId, update).Once().Return(nil)
 	suite.m.On("Update", entityId, entity).Once().Return(nil)
-	suite.m.On("OnWorkflowStateChange", workflow.DraftState).Once().Return(expectedError)
+	suite.m.On("OnWorkflowStateChange", workflow.DraftState, mock.Anything).Once().Return(expectedError)
 
 	result, err := suite.service.TransitionWorkflowState(entityType, entityId, workflow.PreviewState)
 	assert.EqualError(suite.T(), err, expectedError.Error())

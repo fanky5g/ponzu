@@ -1,5 +1,3 @@
-// Package uploads provides a re-usable file storage and storage utility for Ponzu
-// systems to handle multipart form data.
 package content
 
 import (
@@ -19,6 +17,8 @@ import (
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
 )
+
+var UploadType = "Upload"
 
 type UploadService struct {
 	client       driver.StorageClientInterface
