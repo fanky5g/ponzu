@@ -56,9 +56,9 @@ type (
 
 	EditContentFormViewModel struct {
 		dashboard.RootViewModel
-		ContentMetadata Metadata
-		Form            template.HTML
-		Error           error
+		Metadata
+		Form  template.HTML
+		Error error
 	}
 )
 
@@ -121,7 +121,7 @@ func NewEditContentFormViewModel(
 
 	return &EditContentFormViewModel{
 		RootViewModel: *rootViewModel,
-		ContentMetadata: Metadata{
+		Metadata: Metadata{
 			ID:         identifiable.ItemID(),
 			EntityName: entityInterface.EntityName(),
 			Title:      itemTitle,
