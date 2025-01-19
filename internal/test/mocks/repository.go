@@ -61,6 +61,17 @@ func (repo *Repository) FindAll() ([]interface{}, error) {
 	return nil, args.Error(1)
 }
 
+func (repo *Repository) FindByIds(ids ...string) ([]interface{}, error) {
+	args := repo.Called(ids)
+
+	result := args.Get(1)
+	if result != nil {
+		return nil, result.(error)
+	}
+
+	return args.Get(0).([]interface{}), args.Error(1)
+}
+
 func (repo *Repository) DeleteById(id string) error {
 	args := repo.Called(id)
 	return args.Error(0)

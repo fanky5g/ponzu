@@ -6,9 +6,9 @@ import (
 	"github.com/fanky5g/ponzu/content/editor"
 
 	"github.com/fanky5g/ponzu/internal/content"
-	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/tokens"
 
 	log "github.com/sirupsen/logrus"

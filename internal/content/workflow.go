@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	ErrWorkflowIncorrectlyConfigured = errors.New("Workflow is incorrectly configured")
-	ErrInvalidWorkflowState          = errors.New("Invalid workflow state")
-	ErrWorkflowUnsupported           = errors.New("Workflow not supported for selected content type")
-	ErrWorkflowTransitionFailed      = errors.New("Workflow transition failed")
+	ErrWorkflowIncorrectlyConfigured = errors.New("workflow is incorrectly configured")
+	ErrInvalidWorkflowState          = errors.New("invalid workflow state")
+	ErrWorkflowUnsupported           = errors.New("workflow not supported for selected content type")
+	ErrWorkflowTransitionFailed      = errors.New("workflow transition failed")
 )
 
 func (s *Service) TransitionWorkflowState(entityType, entityId string, targetState workflow.State) (interface{}, error) {
@@ -38,20 +38,27 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 		return nil, updateContentErr
 	}
 
-	trigger, ok := updated.(workflow.WorkflowStateChangeTrigger)
+	trigger, ok := updated.(workflow.StateChangeTrigger)
 	if !ok {
 		return updated, nil
 	}
 
-	if workflowStateChangeTriggerErr := trigger.OnWorkflowStateChange(currentState); workflowStateChangeTriggerErr != nil {
-		// TODO: remove after introducing (unit of work concept - transactions).
+	if workflowStateChangeTriggerErr := trigger.OnWorkflowStateChange(
+		currentState,
+		newReferenceLoader(updated, s),
+	); workflowStateChangeTriggerErr != nil {
+		// TODO(B.B): remove after introducing (unit of work concept - transactions).
 		updatedWorkflow, getContentWorkflowErr := getContentWorkflow(updated)
 		if getContentWorkflowErr != nil {
 			return nil, getContentWorkflowErr
 		}
 
 		if updatedWorkflow.GetState() == targetState {
-			setContentWorkflow(updated, currentState.ToWorkflow())
+			err := setContentWorkflow(updated, currentState.ToWorkflow())
+			if err != nil {
+				return nil, err
+			}
+
 			reverted, revertErr := s.UpdateContent(entityType, entityId, updated)
 			if revertErr != nil {
 				return nil, revertErr
@@ -144,13 +151,13 @@ func getRootWorkflow(workflows []workflow.Workflow) (workflow.Workflow, error) {
 	}
 
 	var rootWorkflow workflow.Workflow
-	for _, workflow := range workflows {
-		if len(workflow.GetPastTransitions()) == 0 {
+	for _, w := range workflows {
+		if len(w.GetPastTransitions()) == 0 {
 			if rootWorkflow != nil {
 				return nil, ErrWorkflowIncorrectlyConfigured
 			}
 
-			rootWorkflow = workflow
+			rootWorkflow = w
 		}
 	}
 

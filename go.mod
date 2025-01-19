@@ -10,6 +10,7 @@ require (
 	github.com/gorilla/schema v1.3.0
 	github.com/jackc/pgtype v1.14.4
 	github.com/jackc/pgx/v5 v5.7.2
+	github.com/lib/pq v1.10.2
 	github.com/nilslice/email v0.1.0
 	github.com/nilslice/jwt v1.0.0
 	github.com/pkg/errors v0.9.1

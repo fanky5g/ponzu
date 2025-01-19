@@ -1,8 +1,8 @@
 package users
 
 import (
-	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/auth"
+	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/tokens"
 )
 

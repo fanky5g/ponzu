@@ -1,6 +1,4 @@
-// Package storage provides a re-usable file storage and storage utility for Ponzu
-// systems to handle multipart form data.
-package uploads
+package content
 
 import (
 	"fmt"
@@ -20,17 +18,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Service struct {
+var UploadType = "Upload"
+
+type UploadService struct {
 	client       driver.StorageClientInterface
 	repository   database.Repository
 	searchClient search.SearchInterface
 }
 
-func New(
+func NewUploadService(
 	db database.Database,
 	searchClient search.SearchInterface,
-	client driver.StorageClientInterface) (*Service, error) {
-	s := &Service{
+	client driver.StorageClientInterface) (*UploadService, error) {
+	s := &UploadService{
 		client:       client,
 		searchClient: searchClient,
 		repository:   db.GetRepositoryByToken(tokens.UploadRepositoryToken),
@@ -39,7 +39,7 @@ func New(
 	return s, nil
 }
 
-func (s *Service) GetUpload(entityId string) (*contentEntities.Upload, error) {
+func (s *UploadService) GetUpload(entityId string) (*contentEntities.Upload, error) {
 	file, err := s.repository.FindOneById(entityId)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,21 @@ func (s *Service) GetUpload(entityId string) (*contentEntities.Upload, error) {
 	return file.(*contentEntities.Upload), nil
 }
 
-func (s *Service) GetAllWithOptions(search *search.Search) ([]interface{}, int, error) {
+func (s *UploadService) GetUploads(entityIds ...string) ([]*contentEntities.Upload, error) {
+	matches, err := s.repository.FindByIds(entityIds...)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]*contentEntities.Upload, 0, len(matches))
+	for i, match := range matches {
+		out[i] = match.(*contentEntities.Upload)
+	}
+
+	return out, nil
+}
+
+func (s *UploadService) GetAllWithOptions(search *search.Search) ([]interface{}, int, error) {
 	total, files, err := s.repository.Find(search.SortOrder, search.Count, search.Offset)
 	if err != nil {
 		return nil, 0, err
@@ -61,11 +75,11 @@ func (s *Service) GetAllWithOptions(search *search.Search) ([]interface{}, int, 
 	return files, total, nil
 }
 
-func (s *Service) Open(name string) (http.File, error) {
+func (s *UploadService) Open(name string) (http.File, error) {
 	return s.client.Open(name)
 }
 
-func (s *Service) DeleteUpload(entityIds ...string) error {
+func (s *UploadService) DeleteUpload(entityIds ...string) error {
 	for _, entityId := range entityIds {
 		f, err := s.GetUpload(entityId)
 		if err != nil {
@@ -93,7 +107,7 @@ func (s *Service) DeleteUpload(entityIds ...string) error {
 }
 
 // UploadFiles stores file uploads at paths like /YYYY/MM/filename.ext
-func (s *Service) UploadFiles(files map[string]*multipart.FileHeader) ([]*entities.Upload, error) {
+func (s *UploadService) UploadFiles(files map[string]*multipart.FileHeader) ([]*entities.Upload, error) {
 	uploadedFiles := make([]*entities.Upload, len(files))
 	i := 0
 	for name, fileHeader := range files {
@@ -126,7 +140,7 @@ func (s *Service) UploadFiles(files map[string]*multipart.FileHeader) ([]*entiti
 	return uploadedFiles, nil
 }
 
-func (s *Service) storeFileInfo(size int64, filename, urlPath string, file *multipart.FileHeader) (*entities.Upload, error) {
+func (s *UploadService) storeFileInfo(size int64, filename, urlPath string, file *multipart.FileHeader) (*entities.Upload, error) {
 	ts := int64(time.Nanosecond) * time.Now().UTC().UnixNano() / int64(time.Millisecond)
 	entity := &entities.Upload{
 		Name:          filename,

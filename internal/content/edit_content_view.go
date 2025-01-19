@@ -2,22 +2,17 @@ package content
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
-	"maps"
-	"path/filepath"
-	"runtime"
 	"strings"
 
-	"errors"
 	"fmt"
-
-	"github.com/fanky5g/ponzu/exceptions"
-	"github.com/fanky5g/ponzu/internal/views"
 
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/content/workflow"
+	"github.com/fanky5g/ponzu/exceptions"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/dashboard"
 )
@@ -51,7 +46,7 @@ var (
 )
 
 type (
-	ContentMetadata struct {
+	Metadata struct {
 		ID         string
 		EntityName string
 		Slug       string
@@ -60,28 +55,12 @@ type (
 	}
 
 	EditContentFormViewModel struct {
-		dashboard.DashboardRootViewModel
-		ContentMetadata
+		dashboard.RootViewModel
+		Metadata
 		Form  template.HTML
 		Error error
 	}
 )
-
-func getEditPageTemplate() (*template.Template, error) {
-	_, b, _, _ := runtime.Caller(0)
-	sharedTemplatesRoot := filepath.Join(filepath.Dir(b), "../dashboard")
-
-	funcs := views.GlobFuncs
-	maps.Copy(funcs, TemplateFuncs)
-
-	return template.New("edit").Funcs(funcs).Parse(
-		views.Html(
-			filepath.Join(sharedTemplatesRoot, "dashboard.gohtml"),
-			filepath.Join(sharedTemplatesRoot, "app-frame.gohtml"),
-			filepath.Join(filepath.Dir(b), "edit_content_view.gohtml"),
-		),
-	)
-}
 
 func NewEditContentFormViewModel(
 	entity interface{},
@@ -121,7 +100,7 @@ func NewEditContentFormViewModel(
 	}
 
 	currentWorkflow, err := getContentWorkflow(entity)
-	if err != nil && err != ErrWorkflowUnsupported {
+	if err != nil && !errors.Is(err, ErrWorkflowUnsupported) {
 		return nil, err
 	}
 
@@ -136,13 +115,13 @@ func NewEditContentFormViewModel(
 	}
 
 	var clientException *exceptions.ClientException
-	if exception != nil && errors.As(exception, &clientException) {
-		clientException = exception.(*exceptions.ClientException)
+	if exception != nil {
+		errors.As(exception, &clientException)
 	}
 
 	return &EditContentFormViewModel{
-		DashboardRootViewModel: *rootViewModel,
-		ContentMetadata: ContentMetadata{
+		RootViewModel: *rootViewModel,
+		Metadata: Metadata{
 			ID:         identifiable.ItemID(),
 			EntityName: entityInterface.EntityName(),
 			Title:      itemTitle,

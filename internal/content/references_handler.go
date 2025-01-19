@@ -1,12 +1,11 @@
-package references
+package content
 
 import (
 	"errors"
-	"net/http"
-
 	"github.com/fanky5g/ponzu/exceptions"
 	"github.com/fanky5g/ponzu/internal/http/response"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 var ErrInternalServerError = errors.New("internal server error")

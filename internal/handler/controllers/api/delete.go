@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
@@ -32,49 +31,17 @@ func NewDeleteContentHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		p, found := contentTypes[t]
+		_, found := contentTypes[t]
 		if !found {
 			log.Println("[Delete] attempt to delete entities of unknown type:", t, "from:", req.RemoteAddr)
 			res.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		hook, ok := p().(item.Hookable)
-		if !ok {
-			log.Println("[Delete] error: Type", t, "does not implement item.Hookable or embed item.Item.")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		err := hook.BeforeAPIDelete(res, req)
-		if err != nil {
-			log.Println("[Delete] error calling BeforeAPIDelete:", err)
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		err = hook.BeforeDelete(res, req)
-		if err != nil {
-			log.Println("[Delete] error calling BeforeDelete:", err)
-			return
-		}
-
-		err = contentService.DeleteContent(t, identifier)
+		err := contentService.DeleteContent(t, identifier)
 		if err != nil {
 			log.Printf("[Delete] error: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = hook.AfterDelete(res, req)
-		if err != nil {
-			log.Println("[Delete] error calling AfterDelete:", err)
-			return
-		}
-
-		err = hook.AfterAPIDelete(res, req)
-		if err != nil {
-			log.Println("[Delete] error calling AfterAPIDelete:", err)
 			return
 		}
 

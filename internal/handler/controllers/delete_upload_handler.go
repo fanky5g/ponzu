@@ -1,20 +1,17 @@
 package controllers
 
 import (
+	"github.com/fanky5g/ponzu/internal/content"
 	"net/http"
 
-	"github.com/fanky5g/ponzu/content/entities"
-	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
 
 func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*content.UploadService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
@@ -33,30 +30,10 @@ func NewDeleteUploadHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		post := interface{}(&entities.Upload{})
-		hook, ok := post.(item.Hookable)
-		if !ok {
-			log.Println("Type", constants.UploadEntityName, "does not implement item.Hookable or embed item.Item.")
-			r.Renderer().BadRequest(res)
-			return
-		}
-
-		err = hook.BeforeDelete(res, req)
-		if err != nil {
-			log.Println("Error running BeforeDelete method in deleteHandler for:", constants.UploadEntityName, err)
-			return
-		}
-
 		err = uploadService.DeleteUpload(selectedItems...)
 		if err != nil {
 			log.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = hook.AfterDelete(res, req)
-		if err != nil {
-			log.Println("Error running AfterDelete method in deleteHandler for:", constants.UploadEntityName, err)
 			return
 		}
 

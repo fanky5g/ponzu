@@ -24,6 +24,7 @@ type Service struct {
 	searchClient   search.SearchInterface
 	types          map[string]content.Builder
 	dataExporter   dataexporter.DataExporter
+	uploadService  *UploadService
 }
 
 func New(
@@ -31,18 +32,18 @@ func New(
 	types map[string]content.Builder,
 	searchClient search.SearchInterface,
 	dataExporter dataexporter.DataExporter,
+	uploadService *UploadService,
 ) (*Service, error) {
 	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
 
 	contentRepositories := make(map[string]database.Repository)
-	for entityName, entityConstructor := range types {
-		entity := entityConstructor()
-		persistable, ok := entity.(database.Persistable)
+	for entityName, ctor := range types {
+		entity, ok := ctor().(database.Persistable)
 		if !ok {
 			return nil, fmt.Errorf("entity %s does not implement Persistable", entityName)
 		}
 
-		repository := db.GetRepositoryByToken(persistable.GetRepositoryToken())
+		repository := db.GetRepositoryByToken(entity.GetRepositoryToken())
 		if repository == nil {
 			return nil, fmt.Errorf("content repository for %s not implemented", entityName)
 		}
@@ -56,6 +57,7 @@ func New(
 		searchClient:   searchClient,
 		types:          types,
 		dataExporter:   dataExporter,
+		uploadService:  uploadService,
 	}
 
 	return s, nil
@@ -114,12 +116,12 @@ func (s *Service) CreateContent(entityType string, entity interface{}) (string, 
 		workflowStateManager.SetState(rootWorkflow.GetState())
 	}
 
-	content, err := repository.Insert(entity)
+	insert, err := repository.Insert(entity)
 	if err != nil {
 		return "", fmt.Errorf("failed to create content: %v", err)
 	}
 
-	identifiable = content.(item.Identifiable)
+	identifiable = insert.(item.Identifiable)
 	if _, err = s.slugRepository.Insert(&entities.Slug{
 		EntityType: entityType,
 		EntityId:   identifiable.ItemID(),
@@ -192,6 +194,10 @@ func (s *Service) GetContent(entityType, entityId string) (interface{}, error) {
 	return s.repository(entityType).FindOneById(entityId)
 }
 
+func (s *Service) GetContentByIds(entityType string, entityIds ...string) ([]interface{}, error) {
+	return s.repository(entityType).FindByIds(entityIds...)
+}
+
 func (s *Service) GetContentBySlug(slug string) (interface{}, error) {
 	match, err := s.slugRepository.FindOneBy(map[string]interface{}{
 		"slug": slug,
@@ -250,4 +256,41 @@ func (s *Service) Export(entityName, exportType string) (datasource.Datasource, 
 		contentService: s,
 		entityName:     entityName,
 	})
+}
+
+func (s *Service) ListReferences(typeName string, searchQuery *search.Search) ([]interface{}, int, error) {
+	switch typeName {
+	case UploadType:
+		return s.uploadService.GetAllWithOptions(searchQuery)
+	default:
+		return s.GetAllWithOptions(typeName, searchQuery)
+	}
+}
+
+func (s *Service) GetReference(entityName, entityId string) (interface{}, error) {
+	switch entityName {
+	case UploadType:
+		return s.uploadService.GetUpload(entityId)
+	default:
+		return s.GetContent(entityName, entityId)
+	}
+}
+
+func (s *Service) GetReferences(entityName string, entityIds ...string) ([]interface{}, error) {
+	switch entityName {
+	case UploadType:
+		ups, err := s.uploadService.GetUploads(entityIds...)
+		if err != nil {
+			return nil, err
+		}
+
+		out := make([]interface{}, len(ups))
+		for i, up := range ups {
+			out[i] = up
+		}
+
+		return out, nil
+	default:
+		return s.GetContentByIds(entityName, entityIds...)
+	}
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/fanky5g/ponzu/internal/content"
 	"net/http"
 
 	"github.com/fanky5g/ponzu/content/editor"
@@ -9,13 +10,12 @@ import (
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
 	"github.com/fanky5g/ponzu/internal/http/request"
-	"github.com/fanky5g/ponzu/internal/uploads"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
 
 func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
-	uploadService := r.Context().Service(tokens.UploadServiceToken).(*uploads.Service)
+	uploadService := r.Context().Service(tokens.UploadServiceToken).(*content.UploadService)
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		pt := new(entities.Upload)

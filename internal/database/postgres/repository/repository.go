@@ -12,12 +12,12 @@ import (
 
 var (
 	migrator migrations.Migrator
-	once sync.Once
+	once     sync.Once
 )
 
 type Repository struct {
-	pool     *pgxpool.Pool
-	model    database.ModelInterface
+	pool  *pgxpool.Pool
+	model database.ModelInterface
 }
 
 func (repo *Repository) TableName() string {

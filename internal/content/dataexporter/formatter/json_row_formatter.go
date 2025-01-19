@@ -10,12 +10,12 @@ import (
 
 var ErrInvalidRow = errors.New("not a valid row")
 
-type jsonFormatter struct {}
+type jsonFormatter struct{}
 
 func (f *jsonFormatter) FormatRow(row interface{}) (interface{}, error) {
 	rowType, ok := row.(datasource.Row)
 	if !ok {
-		return nil, ErrInvalidRow 
+		return nil, ErrInvalidRow
 	}
 
 	rowBuf := make([]string, 0)
