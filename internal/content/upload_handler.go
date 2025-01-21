@@ -14,9 +14,9 @@ import (
 
 func NewEditUploadFormHandler(uploadsService *UploadService) dashboard.Handler {
 	return func(rootTemplate *template.Template, rootViewModel *dashboard.RootViewModel) http.HandlerFunc {
-		tmpl, err := getEditUploadTemplate(rootTemplate)
-		if err != nil {
-			log.Fatalf("Failed to build page template: %v", err)
+		tmpl, tmplErr := getEditUploadTemplate(rootTemplate)
+		if tmplErr != nil {
+			log.Fatalf("Failed to build page template: %v", tmplErr)
 		}
 
 		return func(res http.ResponseWriter, req *http.Request) {
@@ -46,9 +46,10 @@ func NewEditUploadFormHandler(uploadsService *UploadService) dashboard.Handler {
 				fileUpload = &entities.Upload{}
 			}
 
-			editUploadForm, err := NewEditUploadFormViewModel(fileUpload, rootViewModel)
+			var viewModel *EditUploadFormViewModel
+			viewModel, err = NewEditUploadFormViewModel(fileUpload, rootViewModel)
 			if err != nil {
-				// TODO: handle error
+				log.WithField("Error", err).Warning("Failed to build view model")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -56,7 +57,7 @@ func NewEditUploadFormHandler(uploadsService *UploadService) dashboard.Handler {
 			response.Respond(
 				res,
 				req,
-				response.NewHTMLResponse(http.StatusOK, tmpl, editUploadForm),
+				response.NewHTMLResponse(http.StatusOK, tmpl, viewModel),
 			)
 		}
 	}

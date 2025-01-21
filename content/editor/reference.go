@@ -61,8 +61,7 @@ func ReferenceSelectRepeater(
 	fieldName string,
 	p interface{},
 	attrs map[string]string,
-	contentType,
-	tmplString string,
+	contentType string,
 ) []byte {
 	return nil
 }
