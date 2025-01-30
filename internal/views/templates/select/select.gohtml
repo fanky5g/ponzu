@@ -2,7 +2,7 @@
     {{ if not (eq .Label "") }}
         <label>{{ .Label }}</label>
     {{ end }}
-    <div class="mdc-select mdc-select--outlined mdc-select--no-label {{ .Selector }}">
+    <div class="mdc-select mdc-select--outlined mdc-select--no-label single-select {{ .Selector }}">
         <input type="hidden" name="{{ .Name }}" value="{{ .Value }}" />
         <div class="mdc-select__anchor" role="button" aria-haspopup="listbox" aria-labelledby="{{ .Name }}"
             tabindex="0">
@@ -51,7 +51,7 @@
 (function() {
     const select = document.querySelector('.mdc-select.{{ .Selector }}');
     if (select) {
-        const mdcSelect = new mdc.select.MDCSelect(select);
+        new mdc.select.MDCSelect(select);
     }
 })();
 </script>

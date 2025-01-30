@@ -18,7 +18,7 @@
   }
 
   const get = function (object, path) {
-    path = path.replace(/\[(\w+)\]/g, ".$1");
+    path = path.replace(/\[(\w+)]/g, ".$1");
     path = path.replace(/^\./, "");
 
     let keys = path.split(".");
@@ -92,6 +92,21 @@
     node.insertBefore(row, node.firstChild);
   };
 
+  const newNodeReplacerFromJSONValue = (node, value) => {
+      const replacer = newJsonValueReplacer(value);
+
+      if (node.nodeType === Node.TEXT_NODE) {
+        processTextNode(node, /"@>(.*)"/gm, replacer);
+        return;
+      }
+
+      if (node.nodeType === Node.ELEMENT_NODE && node.hasAttributes()) {
+        for (const attr of node.attributes) {
+          processAttr(attr, /@>(.*)/, replacer);
+        }
+      }
+  };
+
   // renderOptionsIntoNode renders passed options into HTML Node.
   // @param mode = enum(PREPEND | APPEND)
   const parser = new DOMParser();
@@ -100,30 +115,19 @@
     template,
     node,
     mode = "APPEND",
+    onNodeInsertCallback = () => {},
   ) {
     const rows = options.map((option) => {
       const optionRow = parser.parseFromString(template, "text/html");
-      const replacer = newJsonValueReplacer(option);
-
-      eachNode(optionRow, (node) => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          processTextNode(node, /"@>(.*)"/gm, replacer);
-          return;
-        }
-
-        if (node.nodeType === Node.ELEMENT_NODE && node.hasAttributes()) {
-          for (const attr of node.attributes) {
-            processAttr(attr, /@>(.*)/, replacer);
-          }
-        }
-      });
-
+      eachNode(optionRow, (node) => newNodeReplacerFromJSONValue(node, option));
       return optionRow;
     });
 
     const insertRow = mode === "APPEND" ? appendRow : prependRow;
     for (let row of rows) {
-      insertRow(node, row.body.firstChild);
+      const childNode = row.body.firstChild;
+      insertRow(node, childNode);
+      onNodeInsertCallback(childNode);
     }
   }
 
@@ -151,13 +155,8 @@
     };
   };
 
-  const createSelectElement = (
-    contentType,
-    selector,
-    rowTemplate,
-    loadOptions = async () => {},
-  ) => {
-    const select = document.querySelector(`.mdc-select.${selector}`);
+  const createSingleSelect = (contentType, selector, rowTemplate, loadOptions = async () => {}) => {
+    const select = document.querySelector(`.mdc-select.single-select.${selector}`);
     const initialValue = select.querySelector('input[type="hidden"]')?.value;
     let mdcSelect = new mdc.select.MDCSelect(select);
     const mdcMenu = mdcSelect.menu;
@@ -212,17 +211,163 @@
     };
   };
 
+  const createMultiSelect = async (contentType, selector, rowTemplate, selectedItemTemplate, loadOptions = async () => {}) => {
+    const parentSelector = `.__ponzu-repeat.${selector}`;
+    const childSelector = `.mdc-chip`;
+
+    const select = document.querySelector(`.mdc-select.multi-select.${selector}`);
+    const chipContainer = select.querySelector('div.mdc-chip-set');
+    const selectedOptions = [];
+
+    let mdcSelect = new mdc.select.MDCSelect(select);
+    const mdcMenu = mdcSelect.menu;
+
+    const repeatController = window.Ponzu.RepeatController(
+        selector,
+        parentSelector,
+        childSelector,
+        chipContainer.querySelectorAll(childSelector).length,
+    );
+
+    const onRemoveChip = (event) => {
+      event.stopPropagation();
+
+      const chip = event.target.offsetParent;
+      const value = chip.dataset.value;
+
+      if (value === mdcSelect.value) {
+        mdcSelect.setSelectedIndex(-1);
+      }
+
+      selectedOptions.splice(selectedOptions.indexOf(value), 1);
+      repeatController.onChildRemoved(chip);
+
+      chip.parentNode.removeChild(chip);
+    };
+
+    const onChildAdd = (childNode) => {
+      const removeButton = childNode.querySelector('i[role="button"]');
+      removeButton?.addEventListener('click', onRemoveChip);
+
+      repeatController.onChildAdded(childNode);
+    };
+
+    const initializeSelect = (reset = false) => {
+      if (reset && mdcSelect) {
+          mdcSelect.destroy();
+          mdcSelect = new mdc.select.MDCSelect(select);
+      }
+
+      mdcSelect.listen('MDCSelect:change', async (event) => {
+        const { detail: { value } } = event;
+
+        if (value && !selectedOptions.includes(value)) {
+          selectedOptions.push(value);
+          const option = await loadOption(contentType, value);
+          await renderOptionsIntoNode(
+              [option],
+              selectedItemTemplate,
+              chipContainer,
+              "APPEND",
+              onChildAdd
+          );
+        }
+      });
+    };
+
+    let filterFunc = () => true;
+    const initialValue = "";
+    if (initialValue) {
+        filterFunc = (option) => {
+          return  selectedOptions.indexOf(option.id) === -1;
+        };
+    }
+
+    async function update() {
+      const options = await loadOptions(filterFunc);
+      if (options.length) {
+        await renderOptionsIntoNode(options, rowTemplate, mdcMenu.list.root, onChildAdd);
+        initializeSelect(true);
+      }
+    }
+
+    return {
+      initialize: async function () {
+        initializeSelect();
+
+        const chipNodes = chipContainer.querySelectorAll(childSelector);
+        const chipNodePromises = [];
+
+        chipNodes.forEach((chipNode) => {
+          const removeButton = chipNode.querySelector('i[role="button"]');
+          removeButton?.addEventListener('click', onRemoveChip);
+
+          chipNodePromises.push(new Promise((resolve, reject) => {
+            const value = chipNode.dataset.value;
+            selectedOptions.push(value);
+
+            loadOption(contentType, value).then(referencedData => {
+              eachNode(chipNode, (node) => newNodeReplacerFromJSONValue(node, referencedData));
+              resolve();
+            }).catch(reject);
+          }));
+        });
+
+        await Promise.all(chipNodePromises);
+
+        const hasValidOptions = mdcMenu.items.some((item) => {
+          return Boolean(item.dataset.value);
+        });
+
+        if (!hasValidOptions) {
+          await update();
+        }
+      },
+      registerScrollHandlers: function () {
+        mdcMenu.root.addEventListener("scroll", async function (e) {
+          const element = e.target;
+          const scrollHeight = element.scrollHeight - element.clientHeight;
+          const hasScrolledToBottom = element.scrollTop === scrollHeight;
+
+          if (hasScrolledToBottom) {
+            await update();
+          }
+        });
+      },
+    };
+  };
+
   window.Ponzu.initializeReferenceLoader = async (
-    contentType,
-    selector,
-    rowTemplate,
-  ) => {
-    const select = createSelectElement(
       contentType,
       selector,
-      rowTemplate,
-      createOptionsLoader(contentType),
-    );
+      selectType,
+      optionTemplate,
+      selectedOptionTemplate,
+  ) => {
+    let select;
+
+    switch (selectType) {
+      case "single":
+        select = createSingleSelect(
+            contentType,
+            selector,
+            optionTemplate,
+            createOptionsLoader(contentType),
+        );
+        break;
+      case "multiple":
+        select = await createMultiSelect(
+              contentType,
+              selector,
+              optionTemplate,
+              selectedOptionTemplate,
+              createOptionsLoader(contentType),
+        );
+        break;
+      default:
+        console.error(`Invalid select type: ${selectType}`);
+        break;
+    }
 
     await select.initialize();
     select.registerScrollHandlers();

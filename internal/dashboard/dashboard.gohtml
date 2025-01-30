@@ -28,27 +28,48 @@
         <script type="text/javascript">
             const publicPath = "{{ .PublicPath }}";
 
+            const loadScript = (path, callback = () => {}) => {
+                if (!path.startsWith(publicPath)) {
+                    path = `${publicPath}${path}`;
+                }
+
+                if (this.loadedScripts?.[path] === true) {
+                    callback();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.onload = callback;
+                script.src = path;
+                document.head.appendChild(script);
+                this.loadedScripts = {
+                    ...(this.loadedScripts || {}),
+                    [path]: true,
+                };
+            };
+
+            const loadScripts = (paths, callback = () => {}) => {
+                if (!Array.isArray(paths) || paths.length === 0) {
+                    callback();
+                    return;
+                }
+
+                const path = paths.shift();
+                loadScript(path, function() {
+                    if (paths.length === 0) {
+                        callback();
+                        return;
+                    }
+
+                    loadScripts(paths, callback);
+                });
+            };
+
             (function() {
                 window.Ponzu = {
                     publicPath,
-                    loadScript: (path, callback = () => {}) => {
-                        if (!path.startsWith(publicPath)) {
-                            path = `${publicPath}${path}`;
-                        }
-
-                        if (this.loadedScripts?.[path] === true) {
-                            return;
-                        }
-
-                        const script = document.createElement('script');
-                        script.onload = callback;
-                        script.src = path;
-                        document.head.appendChild(script);
-                        this.loadedScripts = {
-                            ...(this.loadedScripts || {}),
-                            [path]: true,
-                        };
-                    },
+                    loadScript,
+                    loadScripts,
                 };
             })();
         </script>

@@ -8,6 +8,47 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type SelectType string
+
+type SelectData struct {
+	Name        string
+	Label       string
+	Placeholder string
+	Value       string
+	Options     []string
+	Selector    string
+}
+
+type MultiSelectData struct {
+	SelectData
+	Selected []string
+}
+
+var (
+	SingleSelect         SelectType = "single"
+	MultipleSelect       SelectType = "multiple"
+	SelectOptionTemplate            = `
+	<li class="mdc-list-item" role="option" data-value="@>id">
+		<span class="mdc-list-item__text">"@>name"</span>
+	</li>
+	`
+	// SelectedOptionTemplate is used on the client to render selected entry as a chip.
+	// Must be synced with chip_template in multi_select.gohtml
+	SelectedOptionTemplate = `
+    <div class="mdc-chip" role="row" data-value="@>id">
+      <div class="mdc-chip__ripple"></div>
+      <span role="gridcell">
+        <span role="button" tabindex="0" class="mdc-chip__primary-action">
+          <span class="mdc-chip__text">"@>name"</span>
+        </span>
+      </span>
+      <span role="gridcell">
+        <i class="material-icons mdc-chip__icon mdc-chip__icon--trailing" tabindex="-1" role="button">cancel</i>
+      </span>
+    </div>
+  `
+)
+
 type SelectClientOptionsProvider interface {
 	RenderClientOptionsProvider(w io.Writer, selector string) error
 }
@@ -26,6 +67,8 @@ func Select(fieldName string, p interface{}, attrs, options map[string]string) [
 
 func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, dataProvider interface{}) []byte {
 	value := ""
+
+	selector := TagNameFromStructField(fieldName, p, nil)
 	fieldVal := ValueFromStructField(fieldName, p, nil)
 	var ok bool
 	if value, ok = fieldVal.(string); !ok {
@@ -37,18 +80,21 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 
 	templateBuffer := &bytes.Buffer{}
 	if dataProvider != nil {
-		if initialdataOptionsProvider, ok := dataProvider.(SelectInitialOptionsProvider); ok {
-			options, err = initialdataOptionsProvider.GetInitialOptions()
+		switch dataProvider.(type) {
+		case SelectInitialOptionsProvider:
+			options, err = dataProvider.(SelectInitialOptionsProvider).GetInitialOptions()
 			if err != nil {
 				log.Fatalf("Failed to get options for %s: %v", fieldName, err)
 			}
-		}
-
-		if clientDataOptionsProvider, ok := dataProvider.(SelectClientOptionsProvider); ok {
-			err = clientDataOptionsProvider.RenderClientOptionsProvider(templateBuffer, fieldName)
+		case SelectClientOptionsProvider:
+			clientDataOptionsProvider := dataProvider.(SelectClientOptionsProvider)
+			err = clientDataOptionsProvider.RenderClientOptionsProvider(templateBuffer, selector)
 			if err != nil {
 				log.Fatalf("Failed to render client options provider: %v", err)
 			}
+		default:
+			log.Fatalf("Unsupported Select Options provider: %T", dataProvider)
+			return nil
 		}
 	}
 
@@ -59,23 +105,16 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 		i = i + 1
 	}
 
-	sel := struct {
-		Name        string
-		Label       string
-		Placeholder string
-		Value       string
-		Options     []string
-		Selector    string
-	}{
+	sel := SelectData{
 		Label:       fieldName,
 		Placeholder: attrs["label"],
-		Selector:    fieldName,
+		Selector:    selector,
 		Name:        fieldName,
 		Options:     options,
 		Value:       value,
 	}
 
-	if err := views.ExecuteTemplate(templateBuffer, "select.gohtml", sel); err != nil {
+	if err = views.ExecuteTemplate(templateBuffer, "select.gohtml", sel); err != nil {
 		log.Fatalf("Failed to render select: %v", err)
 	}
 

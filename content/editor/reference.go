@@ -6,29 +6,29 @@ import (
 	"github.com/fanky5g/ponzu/internal/views"
 )
 
-var DefaultReferenceSelectTemplate = `
-<li class="mdc-list-item" role="option" data-value="@>id">
-    <span class="mdc-list-item__text">"@>name"</span>
-</li>
-`
-
 type ReferenceSelectDataProvider struct {
-	ContentType string
-	PublicPath  string
-	Template    string
+	ContentType            string
+	PublicPath             string
+	OptionTemplate         string
+	SelectedOptionTemplate string
+	SelectType
 }
 
 func (provider *ReferenceSelectDataProvider) RenderClientOptionsProvider(w io.Writer, selector string) error {
 	return views.ExecuteTemplate(w, "reference_options_loader.gohtml", struct {
-		PublicPath  string
-		ContentType string
-		Selector    string
-		Template    string
+		PublicPath             string
+		ContentType            string
+		Selector               string
+		OptionTemplate         string
+		SelectedOptionTemplate string
+		SelectType
 	}{
-		PublicPath:  provider.PublicPath,
-		ContentType: provider.ContentType,
-		Selector:    selector,
-		Template:    provider.Template,
+		PublicPath:             provider.PublicPath,
+		ContentType:            provider.ContentType,
+		Selector:               selector,
+		OptionTemplate:         provider.OptionTemplate,
+		SelectedOptionTemplate: provider.SelectedOptionTemplate,
+		SelectType:             provider.SelectType,
 	})
 }
 
@@ -44,9 +44,10 @@ func ReferenceSelect(
 	contentType string,
 ) []byte {
 	return SelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{
-		ContentType: contentType,
-		PublicPath:  publicPath,
-		Template:    DefaultReferenceSelectTemplate,
+		ContentType:    contentType,
+		PublicPath:     publicPath,
+		OptionTemplate: SelectOptionTemplate,
+		SelectType:     SingleSelect,
 	})
 }
 
@@ -63,5 +64,11 @@ func ReferenceSelectRepeater(
 	attrs map[string]string,
 	contentType string,
 ) []byte {
-	return nil
+	return MultiSelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{
+		ContentType:            contentType,
+		PublicPath:             publicPath,
+		OptionTemplate:         SelectOptionTemplate,
+		SelectedOptionTemplate: SelectedOptionTemplate,
+		SelectType:             MultipleSelect,
+	})
 }

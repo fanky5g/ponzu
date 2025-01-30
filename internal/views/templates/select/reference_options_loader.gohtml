@@ -1,21 +1,33 @@
 <script type="text/javascript">
 (function() {
-    const scriptPath = "{{ .PublicPath }}/static/common/js/reference.js";
     window.addEventListener("load", () => {
-        const template = "{{ .Template }}";
+        const optionTemplate = "{{ .OptionTemplate }}";
         const contentType = "{{ .ContentType }}";
         const selector = "{{ .Selector }}";
+        const selectType = "{{ .SelectType }}";
+        const selectedOptionTemplate = "{{ .SelectedOptionTemplate }}";
 
         const callback = () => {
-            window.Ponzu.initializeReferenceLoader(contentType, selector, template);
+            window.Ponzu.initializeReferenceLoader(
+                contentType,
+                selector,
+                selectType,
+                optionTemplate,
+                selectedOptionTemplate,
+            );
         };
 
+        const scriptDependencies = [
+            "{{ .PublicPath }}/static/common/js/repeat-controller.js",
+            "{{ .PublicPath }}/static/common/js/reference.js",
+        ];
+
         if (typeof window.Ponzu.initializeReferenceLoader !== "function") {
-           window.Ponzu.loadScript(scriptPath, callback); 
-           return;
+            window.Ponzu.loadScripts(scriptDependencies, callback);
+            return;
         }
 
         callback();
     });
-})(); 
+})();
 </script>

@@ -123,9 +123,9 @@ blockquote {
   align-items: center;
 }
 
-.app-bar-right: {
+.app-bar-right {
   justify-content: flex-end;
-  padding-right: 8;
+  padding-right: 8px;
   flex: 1 0 auto;
   display: flex;
   align-items: center;
@@ -142,8 +142,7 @@ blockquote {
 .logo {
   display: flex;
   box-sizing: border-box;
-  margin-right: 4;
-  font-size: 16;
+  font-size: 16px;
   line-height: 24px;
   font-weight: 500;
   margin-right: 0;
@@ -153,7 +152,7 @@ blockquote {
   align-items: center;
   vertical-align: middle;
   border-bottom: 0;
-  padding-right: 5;
+  padding-right: 5px;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -164,7 +163,7 @@ blockquote {
   display: flex;
   pointer-events: none;
   align-items: center;
-  margin-right: 5;
+  margin-right: 5px;
 }
 
 .logo-text {
@@ -173,7 +172,7 @@ blockquote {
   line-height: 24px;
   padding-left: 4px;
   position: relative;
-  top: -1.5;
+  top: -1.5px;
   vertical-align: middle;
 }
 
@@ -215,7 +214,7 @@ blockquote {
   height: 100%;
   color: rgba(0, 0, 0, 0.87);
   background-color: #f4f6f8;
-  border-right: 1.1px solid rgba(0, 0, 0, 0.12);
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .sidebar-wrapper {
@@ -253,7 +252,6 @@ blockquote {
 }
 
 .main-panel {
-  width: calc(100% - 260px);
   overflow: hidden;
   position: relative;
   float: right;
@@ -282,7 +280,7 @@ blockquote {
 .content-root {
   display: flex;
   flex: 1;
-  minwidth: 0;
+  min-width: 0;
 }
 
 .content-base-root {
@@ -324,11 +322,11 @@ blockquote {
 }
 
 .left-nav .card-title:first-child {
-  margin-top: 0px !important;
+  margin-top: 0 !important;
 }
 
 .col.card-title {
-  padding: 0px !important;
+  padding: 0 !important;
 }
 
 li a {
@@ -409,7 +407,7 @@ span.post-detail {
 }
 
 .controls button {
-  padding: 0px 10px 5px 10px;
+  padding: 0 10px 5px 10px;
   position: relative;
   top: -10px;
 }
@@ -521,9 +519,7 @@ div.col.s6:has(select.block-select) {
 }
 
 .form-view-root .mdc-text-field__input,
-.form-view-root
-  .mdc-text-field:not(.mdc-text-field--label-floating)
-  .mdc-floating-label,
+.form-view-root .mdc-text-field:not(.mdc-text-field--label-floating) .mdc-floating-label,
 .mdc-form-field > label {
   font-size: 14px;
 }
@@ -597,9 +593,7 @@ div.col.s6:has(select.block-select) {
   padding-bottom: 8px;
 }
 
-.__ponzu-field-collection.control-block
-  > fieldset.control-block
-  > label:first-of-type {
+.__ponzu-field-collection.control-block > fieldset.control-block > label:first-of-type {
   font-style: italic;
 }
 
@@ -667,8 +661,7 @@ form.form-view-root + form.form-view-root {
 }
 
 .error-page-root {
-  padding: 24px;
-  padding-top: 10vh;
+  padding: 10vh 24px 24px;
   display: flex;
   flex-direction: column;
   align-content: center;
@@ -701,4 +694,25 @@ form.form-view-root + form.form-view-root {
 
 .mdc-select ul.mdc-list {
   max-height: 312px !important;
+}
+
+.mdc-select.multi-select .mdc-select__selected-text-container {
+  display: none;
+}
+
+.mdc-select.multi-select .mdc-select__selected-text-container:has(+ .mdc-chip-set:empty) {
+  display: inline-flex!important;
+}
+
+.mdc-select.multi-select.mdc-select--outlined .mdc-select__anchor {
+  min-height: 56px !important;
+  height: auto;
+}
+
+.mdc-select li.mdc-list-item.mdc-list-item--selected {
+  background: rgba(25, 118, 210, 0.08);
+}
+
+.mdc-select .mdc-chip-set {
+  flex-grow: 1;
 }

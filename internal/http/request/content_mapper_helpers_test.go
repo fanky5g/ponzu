@@ -223,6 +223,50 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedS
 	}
 }
 
+func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityNestedStruct3() {
+	type Product struct {
+		item.Item
+
+		Name        string   `json:"name"`
+		Description string   `json:"description"`
+		Images      []string `json:"images" reference:"Photo"`
+	}
+
+	payload := url.Values{
+		".__ponzu-repeat.images.length":  []string{"3"},
+		".__ponzu-repeat.images.removed": []string{"1"},
+		"description":                    []string{"<p>Product Description</p>"},
+		"id":                             []string{"f62df6d9-9031-44a4-8db2-f73a5d5977db"},
+		"images-selected":                []string{"60cbe180-3610-47de-a1eb-ac2cdb6bf4c5"},
+		"images.0":                       []string{"1ee2a499-12cc-4bd0-9394-5f918b7785cd"},
+		"images.2":                       []string{"35144bc4-e543-4423-9f18-e5d6f0d38176"},
+		"images.3":                       []string{"60cbe180-3610-47de-a1eb-ac2cdb6bf4c5"},
+		"name":                           []string{"Product Name"},
+		"timestamp":                      []string{"1738212589056"},
+		"updated":                        []string{"1738212589056"},
+	}
+
+	expectedEntity := &Product{
+		Item: item.Item{
+			ID:        "f62df6d9-9031-44a4-8db2-f73a5d5977db",
+			Timestamp: 1738212589056,
+			Updated:   1738212589056,
+		},
+		Name:        "Product Name",
+		Description: "<p>Product Description</p>",
+		Images: []string{
+			"1ee2a499-12cc-4bd0-9394-5f918b7785cd",
+			"35144bc4-e543-4423-9f18-e5d6f0d38176",
+			"60cbe180-3610-47de-a1eb-ac2cdb6bf4c5",
+		},
+	}
+
+	entity, err := MapPayloadToGenericEntity(&Product{}, payload)
+	if assert.NoError(suite.T(), err) {
+		assert.Equal(suite.T(), expectedEntity, entity)
+	}
+}
+
 func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCollections() {
 	payload := url.Values{
 		"id":                          []string{"6"},

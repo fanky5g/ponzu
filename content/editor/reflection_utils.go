@@ -183,16 +183,18 @@ func ValueFromStructField(name string, post interface{}, args *FieldArgs) interf
 
 	case reflect.Slice:
 		t := reflect.TypeOf(field.Interface()).Elem()
-		// this is how string repeaters currently works in ponzu. Improve later
 		if t.Kind() == reflect.String {
-			s := make([]string, 0)
+			s := make([]string, field.Len())
 
 			for i := 0; i < field.Len(); i++ {
-				pos := field.Index(i)
-				s = append(s, fmt.Sprintf("%v", pos))
+				s[i] = field.Index(i).Interface().(string)
 			}
 
-			return strings.Join(s, "__ponzu")
+			// TODO(B.B): commented: prior implementation of string array.
+			// this is re-implemented for supporting Reference multi-select and so we need to re-implement
+			// input_repeater and possibly select_repeater.
+			//return strings.Join(s, "__ponzu")
+			return s
 		}
 
 		return field.Interface()

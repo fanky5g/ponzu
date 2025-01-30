@@ -1,0 +1,75 @@
+{{ define "chip_template" }}
+    <div class="mdc-chip" role="row" data-value="{{ .Value }}">
+        <div class="mdc-chip__ripple"></div>
+        <span role="gridcell">
+                        <span role="button" tabindex="0" class="mdc-chip__primary-action">
+                          <!-- @>name template must be replaced on client initialisation based on implementation -->
+                          <span class="mdc-chip__text">"@>name"</span>
+                        </span>
+                      </span>
+        <span role="gridcell">
+                        <i class="material-icons mdc-chip__icon mdc-chip__icon--trailing" tabindex="-1" role="button">cancel</i>
+                      </span>
+        <input type="hidden" name="{{ .Selector }}.{{ .Index }}" value="{{ .Value }}" />
+    </div>
+{{ end }}
+
+<div class="control-block">
+    {{ if not (eq .Label "") }}
+        <label>{{ .Label }}</label>
+    {{ end }}
+    <div class="mdc-select mdc-select--outlined mdc-select--no-label multi-select __ponzu-repeat {{ .Selector }}">
+        <!-- MDC select auto-update trap. -->
+        <input type="hidden" name="{{ .Selector }}-__ponzu-selected" />
+        <!-- End mdc-select auto-update trap -->
+
+        <div class="mdc-select__anchor" aria-haspopup="listbox" aria-labelledby="{{ .Name }}"
+            tabindex="0">
+            <div class="mdc-select__selected-text-container">
+                <span class="mdc-select__selected-text">{{ .Placeholder }}</span>
+            </div>
+
+            {{ if eq (len .Selected) 0 }}
+                <div class="mdc-chip-set" role="grid"></div>
+            {{ else }}
+                <div class="mdc-chip-set" role="grid">
+                    <!-- Insertion point for selected options -->
+                    {{ range $index, $value := .Selected }}
+                        {{ template "chip_template" dict "Value" $value "Index" $index "Selector" $.Selector }}
+                    {{ end }}
+                </div>
+            {{ end }}
+
+            <span class="mdc-select__dropdown-icon">
+                <svg class="mdc-select__dropdown-icon-graphic" viewBox="7 10 10 5">
+                    <polygon class="mdc-select__dropdown-icon-inactive" stroke="none" fill-rule="evenodd"
+                        points="7 10 12 15 17 10">
+                    </polygon>
+                    <polygon class="mdc-select__dropdown-icon-active" stroke="none" fill-rule="evenodd"
+                        points="7 15 12 10 17 15">
+                    </polygon>
+                </svg>
+            </span>
+            <span class="mdc-notched-outline mdc-notched-outline--notched">
+                <span class="mdc-notched-outline__leading"></span>
+                <span class="mdc-notched-outline__trailing"></span>
+            </span>
+        </div>
+
+        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth" role="listbox">
+            <ul class="mdc-list">
+                {{ if eq (len .Selected) 0 }}
+                    <li class="mdc-list-item mdc-list-item--selected" role="option" aria-selected="true" data-value="">
+                        <span class="mdc-list-item__text">{{ .Placeholder }}</span>
+                    </li>
+                {{ end }}
+
+                {{ range .Options }}
+                    <li class="mdc-list-item" role="option" data-value="{{ . }}">
+                        <span class="mdc-list-item__text">{{ . }}</span>
+                    </li>
+                {{ end }}
+            </ul>
+        </div>
+    </div>
+</div>
