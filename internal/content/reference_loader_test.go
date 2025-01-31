@@ -81,6 +81,24 @@ func (s *ReferenceLoaderTestSuite) Test_buildReferences() {
 				"Upload": {"5aa77561-d8f3-42b8-8d9c-98c44b7916ff", "03a24c40-c4cd-484e-9d71-8c26fb37c68e"},
 			},
 		},
+		{
+			Type: &types.Product{
+				Name:        "Product Name",
+				Description: "<p>Product Description</p>",
+				Images: []string{
+					"1ee2a499-12cc-4bd0-9394-5f918b7785cd",
+					"35144bc4-e543-4423-9f18-e5d6f0d38176",
+					"60cbe180-3610-47de-a1eb-ac2cdb6bf4c5",
+				},
+			},
+			ExpectedReferenceMap: map[string][]string{
+				"Photo": {
+					"1ee2a499-12cc-4bd0-9394-5f918b7785cd",
+					"35144bc4-e543-4423-9f18-e5d6f0d38176",
+					"60cbe180-3610-47de-a1eb-ac2cdb6bf4c5",
+				},
+			},
+		},
 	}
 
 	for i := range cases {

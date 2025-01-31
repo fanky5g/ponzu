@@ -113,8 +113,14 @@ func buildReferenceMap(entity interface{}, collector map[string][]string) {
 			}
 
 			if referenceTag, ok := fieldTag.Lookup("reference"); ok {
-				if str, ok := fieldValue.Interface().(string); ok {
-					collector[referenceTag] = append(collector[referenceTag], str)
+				var stringValue string
+				if stringValue, ok = fieldValue.Interface().(string); ok {
+					collector[referenceTag] = append(collector[referenceTag], stringValue)
+				}
+
+				var stringArrayValue []string
+				if stringArrayValue, ok = fieldValue.Interface().([]string); ok {
+					collector[referenceTag] = append(collector[referenceTag], stringArrayValue...)
 				}
 			}
 		}

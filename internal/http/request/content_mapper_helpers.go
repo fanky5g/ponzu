@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -21,13 +22,16 @@ var (
 
 func MapPayloadToGenericEntity(entity interface{}, payload map[string][]string) (interface{}, error) {
 	addContentMetadata(payload)
-	transformArrayFields(payload)
+	err := transformArrayFields(payload)
+	if err != nil {
+		return nil, err
+	}
 
 	dec := schema.NewDecoder()
 
 	dec.SetAliasTag("json")
 	dec.IgnoreUnknownKeys(true)
-	err := dec.Decode(entity, payload)
+	err = dec.Decode(entity, payload)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +74,7 @@ func addContentMetadata(payload url.Values) {
 	}
 }
 
-func transformArrayFields(payload url.Values) {
+func transformArrayFields(payload url.Values) error {
 	// check for any multi-value fields (ex. checkbox fields)
 	// and correctly format for storage. Essentially, we need
 	// fieldX.0: value1, fieldX.1: value2 => fieldX: []string{value1, value2}
@@ -103,13 +107,27 @@ func transformArrayFields(payload url.Values) {
 
 	// add/set the key & value to the entity form in order
 	for f, ov := range fieldOrderValue {
-		for i := 0; i < len(ov); i++ {
-			position := fmt.Sprintf("%d", i)
-			fieldValue := ov[position]
+		positions := make([]int, len(ov))
+		i := 0
+		for k := range ov {
+			position, err := strconv.Atoi(k)
+			if err != nil {
+				// TODO: we should return error
+				return fmt.Errorf("expected integer key in fieldOrderValue. Got %v", k)
+			}
+
+			positions[i] = position
+			i = i + 1
+		}
+
+		sort.Ints(positions)
+
+		for _, position := range positions {
+			fieldValue := ov[fmt.Sprintf("%d", position)]
 
 			if payload.Get(f) == "" {
-				for i, fv := range fieldValue {
-					if i == 0 {
+				for j, fv := range fieldValue {
+					if j == 0 {
 						payload.Set(f, fv)
 					} else {
 						payload.Add(f, fv)
@@ -122,6 +140,8 @@ func transformArrayFields(payload url.Values) {
 			}
 		}
 	}
+
+	return nil
 }
 
 func cleanArrayFields(entity interface{}, payload url.Values) {
