@@ -21,7 +21,7 @@ func MultiSelectWithDataProvider(fieldName string, p interface{}, attrs map[stri
 	}
 
 	templateBuffer := &bytes.Buffer{}
-	var options []string
+	var options []SelectOption
 	if dataProvider != nil {
 		switch dataProvider.(type) {
 		case SelectInitialOptionsProvider:
@@ -40,13 +40,6 @@ func MultiSelectWithDataProvider(fieldName string, p interface{}, attrs map[stri
 			log.Fatalf("Unsupported Select Options provider: %T", dataProvider)
 			return nil
 		}
-	}
-
-	values := make([]string, len(options))
-	i := 0
-	for _, v := range options {
-		values[i] = v
-		i = i + 1
 	}
 
 	sel := MultiSelectData{

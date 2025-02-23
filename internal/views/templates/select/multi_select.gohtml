@@ -65,8 +65,8 @@
                 {{ end }}
 
                 {{ range .Options }}
-                    <li class="mdc-list-item" role="option" data-value="{{ . }}">
-                        <span class="mdc-list-item__text">{{ . }}</span>
+                    <li class="mdc-list-item" role="option" data-value="{{ .Value }}">
+                        <span class="mdc-list-item__text">{{ .Label }}</span>
                     </li>
                 {{ end }}
             </ul>

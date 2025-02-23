@@ -2,21 +2,15 @@ package content
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/item"
 	"go/format"
 	"strings"
 	"testing"
 
-	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/generator"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
 )
-
-type GenerateTestSuite struct {
-	suite.Suite
-	gt *contentGenerator
-}
 
 type testWriter struct{ buf []byte }
 
@@ -33,8 +27,7 @@ func (writer *testWriter) Write(filePath string, buf []byte) error {
 	return nil
 }
 
-func (s *GenerateTestSuite) SetupSuite() {
-	var err error
+func TestGenerate(t *testing.T) {
 	type author struct {
 		item.Item
 		Name string `json:"name"`
@@ -44,15 +37,8 @@ func (s *GenerateTestSuite) SetupSuite() {
 		Headline string `json:"headline"`
 		URL      string `json:"url"`
 	}
-	s.gt, err = setupGenerator(generator.Config{
-		Target: generator.Target{
-			Path: generator.Path{
-				Root: "",
-				Base: "",
-			},
-			Package: "entities",
-		},
-	}, content.Types{
+
+	contentTypes := content.Types{
 		Content: map[string]content.Builder{
 			"Author": func() interface{} {
 				return new(author)
@@ -121,13 +107,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 				Metadata: generator.Metadata{MethodReceiverName: "i"},
 				Blocks: []generator.Block{
 					{
-						Type:              generator.Field,
-						Name:              "Headline",
-						Label:             "Headline",
-						TypeName:          "string",
-						JSONName:          "headline",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "Headline",
+						Label:         "Headline",
+						TypeName:      "string",
+						JSONName:      "headline",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "Headline",
 							Type:        "string",
@@ -136,13 +121,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 						},
 					},
 					{
-						Type:              generator.Field,
-						Name:              "Link",
-						Label:             "Link",
-						TypeName:          "string",
-						JSONName:          "link",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "Link",
+						Label:         "Link",
+						TypeName:      "string",
+						JSONName:      "link",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "Link",
 							Type:        "string",
@@ -151,13 +135,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 						},
 					},
 					{
-						Type:              generator.Field,
-						Name:              "ButtonText",
-						Label:             "ButtonText",
-						TypeName:          "string",
-						JSONName:          "button_text",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "ButtonText",
+						Label:         "ButtonText",
+						TypeName:      "string",
+						JSONName:      "button_text",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "ButtonText",
 							Type:        "string",
@@ -166,13 +149,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 						},
 					},
 					{
-						Type:              generator.Field,
-						Name:              "Image",
-						Label:             "Image",
-						TypeName:          "string",
-						JSONName:          "image",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "Image",
+						Label:         "Image",
+						TypeName:      "string",
+						JSONName:      "image",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "Image",
 							Type:        "string",
@@ -189,13 +171,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 				Metadata: generator.Metadata{MethodReceiverName: "t"},
 				Blocks: []generator.Block{
 					{
-						Type:              generator.Field,
-						Name:              "Text",
-						Label:             "Text",
-						TypeName:          "string",
-						JSONName:          "text",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "Text",
+						Label:         "Text",
+						TypeName:      "string",
+						JSONName:      "text",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "Text",
 							Type:        "string:richtext",
@@ -212,13 +193,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 				Metadata: generator.Metadata{MethodReceiverName: "i"},
 				Blocks: []generator.Block{
 					{
-						Type:              generator.Field,
-						Name:              "Image",
-						Label:             "Image",
-						TypeName:          "string",
-						JSONName:          "image",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "Image",
+						Label:         "Image",
+						TypeName:      "string",
+						JSONName:      "image",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "Image",
 							Type:        "string",
@@ -227,13 +207,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 						},
 					},
 					{
-						Type:              generator.Field,
-						Name:              "ImagePosition",
-						Label:             "Image Position",
-						TypeName:          "string",
-						JSONName:          "image_position",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "ImagePosition",
+						Label:         "Image Position",
+						TypeName:      "string",
+						JSONName:      "image_position",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "ImagePosition",
 							Type:        "string",
@@ -242,13 +221,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 						},
 					},
 					{
-						Type:              generator.Field,
-						Name:              "Content",
-						Label:             "Content",
-						TypeName:          "string",
-						JSONName:          "content",
-						ReferenceName:     "",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "Content",
+						Label:         "Content",
+						TypeName:      "string",
+						JSONName:      "content",
+						ReferenceName: "",
 						Definition: generator.BlockDefinition{
 							Title:       "Content",
 							Type:        "string:richtext",
@@ -257,13 +235,12 @@ func (s *GenerateTestSuite) SetupSuite() {
 						},
 					},
 					{
-						Type:              generator.Field,
-						Name:              "Link",
-						Label:             "Link",
-						TypeName:          "Link",
-						JSONName:          "link",
-						ReferenceName:     "Link",
-						ReferenceJSONTags: []string{},
+						Type:          generator.Field,
+						Name:          "Link",
+						Label:         "Link",
+						TypeName:      "Link",
+						JSONName:      "link",
+						ReferenceName: "Link",
 						Definition: generator.BlockDefinition{
 							Title:       "Link",
 							Type:        "Link",
@@ -280,169 +257,173 @@ func (s *GenerateTestSuite) SetupSuite() {
 				return new(pageContentBlocks)
 			},
 		},
-	})
-	if err != nil {
-		s.T().Fatal(err)
 	}
-}
 
-func (s *GenerateTestSuite) TestGenerateFieldCollection() {
-	t := &generator.TypeDefinition{
-		Name:     "PageContentBlocks",
-		Label:    "Page Content Blocks",
-		Type:     generator.FieldCollection,
-		Metadata: generator.Metadata{MethodReceiverName: "p"},
-		Blocks: []generator.Block{
-			{
-				Type:     generator.ContentBlock,
-				TypeName: "ImageGallery",
-				Label:    "Image Gallery",
+	generatorConfig := generator.Config{
+		Target: generator.Target{
+			Path: generator.Path{
+				Root: "",
+				Base: "",
 			},
-			{
-				Type:     generator.ContentBlock,
-				TypeName: "ImageAndTextBlock",
-				Label:    "Image And Text Block",
-			},
-			{
-				Type:     generator.ContentBlock,
-				TypeName: "TextBlock",
-				Label:    "Text Block",
-			},
+			Package: "entities",
 		},
 	}
 
-	expectedBuffer, err := format.Source([]byte(`
-	package entities
-
-	import (
-		"encoding/json"
-		"fmt"
-		"github.com/fanky5g/ponzu/content"
-	)
-
-	type PageContentBlocks []content.FieldCollection
-
-	func (p *PageContentBlocks) Name() string {
-		return "Page Content Blocks"
+	gt, err := setupGenerator(generatorConfig, contentTypes)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	func (p *PageContentBlocks) Data() []content.FieldCollection {
-		if p == nil {
-			return nil
-		}
-
-		return *p
-	}
-
-	func (p *PageContentBlocks) AllowedTypes() map[string]content.Builder {
-		return map[string]content.Builder{
-			"ImageGallery": func() interface{} {
-				return new(ImageGallery)
+	tt := []struct {
+		name           string
+		typeDefinition *generator.TypeDefinition
+		expectedOutput string
+	}{
+		{
+			name: "FieldCollection",
+			typeDefinition: &generator.TypeDefinition{
+				Name:     "PageContentBlocks",
+				Label:    "Page Content Blocks",
+				Type:     generator.FieldCollection,
+				Metadata: generator.Metadata{MethodReceiverName: "p"},
+				Blocks: []generator.Block{
+					{
+						Type:     generator.ContentBlock,
+						TypeName: "ImageGallery",
+						Label:    "Image Gallery",
+					},
+					{
+						Type:     generator.ContentBlock,
+						TypeName: "ImageAndTextBlock",
+						Label:    "Image And Text Block",
+					},
+					{
+						Type:     generator.ContentBlock,
+						TypeName: "TextBlock",
+						Label:    "Text Block",
+					},
+				},
 			},
-			"ImageAndTextBlock": func() interface{} {
-				return new(ImageAndTextBlock)
-			},
-			"TextBlock": func() interface{} {
-				return new(TextBlock)
-			},
-		}
-	}
+			expectedOutput: `
+package entities
 
-	func (p *PageContentBlocks) Add(fieldCollection content.FieldCollection) {
-		*p = append(*p, fieldCollection)
-	}
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/fanky5g/ponzu/content"
+)
 
-	func (p *PageContentBlocks) Set(i int, fieldCollection content.FieldCollection) {
-		data := p.Data()
-		data[i] = fieldCollection
-		*p = data
-	}
+type PageContentBlocks []content.FieldCollection
 
-	func (p *PageContentBlocks) SetData(data []content.FieldCollection) {
-		*p = data
-	}
+func (p *PageContentBlocks) Name() string {
+	return "Page Content Blocks"
+}
 
-	func (p *PageContentBlocks) UnmarshalJSON(b []byte) error {
-		if p == nil {
-			*p = make([]content.FieldCollection, 0)
-		}
-
-		allowedTypes := p.AllowedTypes()
-
-		var value []content.FieldCollection
-		if err := json.Unmarshal(b, &value); err != nil {
-			return err
-		}
-
-		for i, t := range value {
-			builder, ok := allowedTypes[t.Type]
-			if !ok {
-				return fmt.Errorf("type %s not implemented", t.Type)
-			}
-
-			entity := builder()
-			byteRepresentation, err := json.Marshal(t.Value)
-			if err != nil {
-				return err
-			}
-
-			if err = json.Unmarshal(byteRepresentation, entity); err != nil {
-				return err
-			}
-
-			value[i].Value = entity
-		}
-
-		*p = value
+func (p *PageContentBlocks) Data() []content.FieldCollection {
+	if p == nil {
 		return nil
 	}
 
-	func init() {
-		FieldCollections["PageContentBlocks"] = func() interface{} {
-			return new(PageContentBlocks)
-		}
-	}
-	`))
+	return *p
+}
 
-	if err != nil {
-		s.T().Fatal(err)
-	}
-
-	w := new(testWriter)
-
-	err = s.gt.Generate(t, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), expectedBuffer, w.buf)
+func (p *PageContentBlocks) AllowedTypes() map[string]content.Builder {
+	return map[string]content.Builder{
+		"ImageGallery": func() interface{} {
+			return new(ImageGallery)
+		},
+		"ImageAndTextBlock": func() interface{} {
+			return new(ImageAndTextBlock)
+		},
+		"TextBlock": func() interface{} {
+			return new(TextBlock)
+		},
 	}
 }
 
-func (s *GenerateTestSuite) TestGenerateContentType() {
-	t := &generator.TypeDefinition{
-		Type:  generator.Content,
-		Name:  "Author",
-		Label: "Author",
-		Metadata: generator.Metadata{
-			MethodReceiverName: "a",
-		},
-		Blocks: []generator.Block{
-			{
-				Type:     generator.Field,
-				Name:     "Name",
-				Label:    "Name",
-				TypeName: "string",
-				JSONName: "name",
-			},
-			{
-				Type:     generator.Field,
-				Name:     "Age",
-				Label:    "Age",
-				TypeName: "int",
-				JSONName: "age",
-			},
-		},
+func (p *PageContentBlocks) Add(fieldCollection content.FieldCollection) {
+	*p = append(*p, fieldCollection)
+}
+
+func (p *PageContentBlocks) Set(i int, fieldCollection content.FieldCollection) {
+	data := p.Data()
+	data[i] = fieldCollection
+	*p = data
+}
+
+func (p *PageContentBlocks) SetData(data []content.FieldCollection) {
+	*p = data
+}
+
+func (p *PageContentBlocks) UnmarshalJSON(b []byte) error {
+	if p == nil {
+		*p = make([]content.FieldCollection, 0)
 	}
 
-	expectedBuffer, err := format.Source([]byte(`
+	allowedTypes := p.AllowedTypes()
+
+	var value []content.FieldCollection
+	if err := json.Unmarshal(b, &value); err != nil {
+		return err
+	}
+
+	for i, t := range value {
+		builder, ok := allowedTypes[t.Type]
+		if !ok {
+			return fmt.Errorf("type %s not implemented", t.Type)
+		}
+
+		entity := builder()
+		byteRepresentation, err := json.Marshal(t.Value)
+		if err != nil {
+			return err
+		}
+
+		if err = json.Unmarshal(byteRepresentation, entity); err != nil {
+			return err
+		}
+
+		value[i].Value = entity
+	}
+
+	*p = value
+	return nil
+}
+
+func init() {
+	FieldCollections["PageContentBlocks"] = func() interface{} {
+		return new(PageContentBlocks)
+	}
+}
+`,
+		},
+		{
+			name: "ContentType",
+			typeDefinition: &generator.TypeDefinition{
+				Type:  generator.Content,
+				Name:  "Author",
+				Label: "Author",
+				Metadata: generator.Metadata{
+					MethodReceiverName: "a",
+				},
+				Blocks: []generator.Block{
+					{
+						Type:     generator.Field,
+						Name:     "Name",
+						Label:    "Name",
+						TypeName: "string",
+						JSONName: "name",
+					},
+					{
+						Type:     generator.Field,
+						Name:     "Age",
+						Label:    "Age",
+						TypeName: "int",
+						JSONName: "age",
+					},
+				},
+			},
+			expectedOutput: `
 package entities
 
 import (
@@ -502,196 +483,78 @@ func (a *Author) GetTitle() string {
 
 func (a *Author) GetRepositoryToken() string {
 	return "author"
-}`))
-
-	if err != nil {
-		s.T().Fatal(err)
-	}
-
-	w := new(testWriter)
-
-	err = s.gt.Generate(t, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), expectedBuffer, w.buf)
-	}
-}
-
-func (s *GenerateTestSuite) TestGeneratePlainType() {
-	t := &generator.TypeDefinition{
-		Type:  generator.Plain,
-		Name:  "Author",
-		Label: "Author",
-		Metadata: generator.Metadata{
-			MethodReceiverName: "a",
+}`,
 		},
-		Blocks: []generator.Block{
-			{
-				Type:     generator.Field,
-				Name:     "Name",
-				Label:    "Name",
-				TypeName: "string",
-				JSONName: "name",
-				Definition: generator.BlockDefinition{
-					Title:       "Name",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
+		{
+			name: "PlainType",
+			// blog title:string author:@author category:string content:string
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Blog",
+				Label: "Blog",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Title",
+						Label:         "Title",
+						JSONName:      "title",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "title",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Author",
+						Label:         "Author",
+						JSONName:      "author",
+						TypeName:      "string",
+						ReferenceName: "Author",
+						Definition: generator.BlockDefinition{
+							Title:       "author",
+							Type:        "@author",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Category",
+						Label:         "Category",
+						JSONName:      "category",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "category",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Content",
+						Label:         "Content",
+						JSONName:      "content",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "content",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "b",
 				},
 			},
-			{
-				Type:     generator.Field,
-				Name:     "Age",
-				Label:    "Age",
-				TypeName: "int",
-				JSONName: "age",
-				Definition: generator.BlockDefinition{
-					Title:       "Age",
-					Type:        "int",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-		},
-	}
-
-	expectedBuffer, err := format.Source([]byte(`
-package entities
-
-import (
-	"github.com/fanky5g/ponzu/generator"
-)
-
-type Author struct {
-	Name string ` + "`json:\"name\"`" + `
-	Age  int    ` + "`json:\"age\"`" + `
-}
-
-func init() {
-	Definitions["Author"] = generator.TypeDefinition{
-		Type:  generator.Plain,
-		Name:  "Author",
-		Label: "Author",
-		Metadata: generator.Metadata{
-			MethodReceiverName: "a",
-		},
-		Blocks: []generator.Block{
-			{
-				Type:              generator.Field,
-				Name:              "Name",
-				Label:             "Name",
-				TypeName:          "string",
-				JSONName:          "name",
-				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
-				Definition: generator.BlockDefinition{
-					Title:       "Name",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:              generator.Field,
-				Name:              "Age",
-				Label:             "Age",
-				TypeName:          "int",
-				JSONName:          "age",
-				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
-				Definition: generator.BlockDefinition{
-					Title:       "Age",
-					Type:        "int",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-		},
-	}
-}
-	`))
-
-	if err != nil {
-		s.T().Fatal(err)
-	}
-
-	w := new(testWriter)
-
-	err = s.gt.Generate(t, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), expectedBuffer, w.buf)
-	}
-}
-
-func (s *GenerateTestSuite) TestGenerateWithReferenceField() {
-	typeDefinition := &generator.TypeDefinition{
-		Name:  "Blog",
-		Label: "Blog",
-		Blocks: []generator.Block{
-			{
-				Type:          generator.Field,
-				Name:          "Title",
-				Label:         "Title",
-				JSONName:      "title",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "title",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Author",
-				Label:         "Author",
-				JSONName:      "author",
-				TypeName:      "string",
-				ReferenceName: "Author",
-				Definition: generator.BlockDefinition{
-					Title:       "author",
-					Type:        "@author",
-					IsArray:     false,
-					IsReference: true,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Category",
-				Label:         "Category",
-				JSONName:      "category",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "category",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Content",
-				Label:         "Content",
-				JSONName:      "content",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "content",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-		},
-		Type: generator.Content,
-		Metadata: generator.Metadata{
-			MethodReceiverName: "b",
-		},
-	}
-
-	// blog title:string author:@author category:string content:string
-	expectedBuffer, err := format.Source([]byte(`
+			expectedOutput: `
 package entities
 
 import (
@@ -768,62 +631,196 @@ func (b *Blog) GetTitle() string {
 func (b *Blog) GetRepositoryToken() string {
         return "blog"
 }
-	`))
+	`,
+		},
+		{
+			name: "ContentTypeWithReferenceField",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Blog",
+				Label: "Blog",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Title",
+						Label:         "Title",
+						JSONName:      "title",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "title",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Author",
+						Label:         "Author",
+						JSONName:      "author",
+						TypeName:      "string",
+						ReferenceName: "Author",
+						Definition: generator.BlockDefinition{
+							Title:       "author",
+							Type:        "@author",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Category",
+						Label:         "Category",
+						JSONName:      "category",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "category",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Content",
+						Label:         "Content",
+						JSONName:      "content",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "content",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "b",
+				},
+			},
+			expectedOutput: `
+package entities
 
-	if err != nil {
-		s.T().Fatal(err)
-	}
+import (
+        "fmt"
+        "github.com/fanky5g/ponzu/content/editor"
+        "github.com/fanky5g/ponzu/content/item"
+)
 
-	w := new(testWriter)
+type Blog struct {
+        item.Item
 
-	err = s.gt.Generate(typeDefinition, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
-	}
+		Title string ` + "`json:\"title\"`" + `
+		Author string ` + "`json:\"author\" reference:\"Author\"`" + ` 
+		Category string ` + "`json:\"category\"`" + `
+		Content string ` + "`json:\"content\"`" + `
 }
 
-func (s *GenerateTestSuite) TestGenerateWithUploadReferenceField() {
-	typeDefinition := &generator.TypeDefinition{
-		Name:  "Author",
-		Label: "Author",
-		Blocks: []generator.Block{
-			{
-				Type:          generator.Field,
-				Name:          "Name",
-				Label:         "Name",
-				JSONName:      "name",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "name",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Image",
-				Label:         "Image",
-				JSONName:      "image",
-				TypeName:      "string",
-				ReferenceName: "Upload",
-				Definition: generator.BlockDefinition{
-					Title:       "image",
-					Type:        "@upload",
-					IsArray:     false,
-					IsReference: true,
-				},
-			},
-		},
-		Type: generator.Content,
-		Metadata: generator.Metadata{
-			MethodReceiverName: "a",
-		},
-	}
+// MarshalEditor writes a buffer of views to edit a Blog within the CMS
+// and implements editor.Editable
+func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
+        view, err := editor.Form(b,
+                // Take note that the first argument to these Input-like functions
+                // is the string version of each Blog field, and must follow
+                // this pattern for auto-decoding and auto-encoding reasons:
+                editor.Field{
+                        View: editor.Input("Title", b, map[string]string{
+                                "label":       "Title",
+                                "type":        "text",
+                                "placeholder": "Enter the Title here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.ReferenceSelect(publicPath, "Author", b, map[string]string{
+                                "label":       "Select Author",
+                        },
+						"Author",
+                    ),
+                },
+                editor.Field{
+                        View: editor.Input("Category", b, map[string]string{
+                                "label":       "Category",
+                                "type":        "text",
+                                "placeholder": "Enter the Category here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.Input("Content", b, map[string]string{
+                                "label":       "Content",
+                                "type":        "text",
+                                "placeholder": "Enter the Content here",
+                        }, nil),
+                },
+        )
 
-	// blog title:string author:@author category:string content:string
-	expectedBuffer, err := format.Source([]byte(`
+        if err != nil {
+                return nil, fmt.Errorf("failed to render Blog editor view: %s", err.Error())
+        }
+
+        return view, nil
+}
+
+func init() {
+        Content["Blog"] = func() interface{} { return new(Blog) }
+}
+
+func (b *Blog) EntityName() string {
+        return "Blog"
+}
+
+func (b *Blog) GetTitle() string {
+        return b.ID
+}
+
+func (b *Blog) GetRepositoryToken() string {
+        return "blog"
+}
+	`,
+		},
+		{
+			name: "UploadReferenceField",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Author",
+				Label: "Author",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Name",
+						Label:         "Name",
+						JSONName:      "name",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "name",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Image",
+						Label:         "Image",
+						JSONName:      "image",
+						TypeName:      "string",
+						ReferenceName: "Upload",
+						Definition: generator.BlockDefinition{
+							Title:       "image",
+							Type:        "@upload",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "a",
+				},
+			},
+			expectedOutput: `
 package entities
 
 import (
@@ -884,90 +881,77 @@ func (a *Author) GetTitle() string {
 func (a *Author) GetRepositoryToken() string {
         return "author"
 }
-	`))
-
-	if err != nil {
-		s.T().Fatal(err)
-	}
-
-	w := new(testWriter)
-
-	err = s.gt.Generate(typeDefinition, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
-	}
-}
-
-func (s *GenerateTestSuite) TestGenerateWithReferenceArrayField() {
-	typeDefinition := &generator.TypeDefinition{
-		Name:  "Blog",
-		Label: "Blog",
-		Blocks: []generator.Block{
-			{
-				Type:          generator.Field,
-				Name:          "Title",
-				Label:         "Title",
-				JSONName:      "title",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "title",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Authors",
-				Label:         "Authors",
-				JSONName:      "authors",
-				TypeName:      "[]string",
-				ReferenceName: "Author",
-				Definition: generator.BlockDefinition{
-					Title:       "authors",
-					Type:        "[]@author",
-					IsArray:     true,
-					IsReference: true,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Category",
-				Label:         "Category",
-				JSONName:      "category",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "category",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Content",
-				Label:         "Content",
-				JSONName:      "content",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "content",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
+	`,
 		},
-		Type: generator.Content,
-		Metadata: generator.Metadata{
-			MethodReceiverName: "b",
-		},
-	}
-
-	// blog title:string author:@author category:string content:string
-	expectedBuffer, err := format.Source([]byte(`
+		{
+			name: "ReferenceArrayField",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Blog",
+				Label: "Blog",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Title",
+						Label:         "Title",
+						JSONName:      "title",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "title",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Authors",
+						Label:         "Authors",
+						JSONName:      "authors",
+						TypeName:      "[]string",
+						ReferenceName: "Author",
+						Definition: generator.BlockDefinition{
+							Title:       "authors",
+							Type:        "[]@author",
+							IsArray:     true,
+							IsReference: true,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Category",
+						Label:         "Category",
+						JSONName:      "category",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "category",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Content",
+						Label:         "Content",
+						JSONName:      "content",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "content",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "b",
+				},
+			},
+			expectedOutput: `
 package entities
 
 import (
@@ -1001,7 +985,7 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                 },
                 editor.Field{
                         View: editor.ReferenceSelectRepeater(publicPath, "Authors", b, map[string]string{
-                                "label":       "Authors",
+                                "label":       "Select Authors",
                         },
 						"Author",
                     ),
@@ -1044,62 +1028,48 @@ func (b *Blog) GetTitle() string {
 func (b *Blog) GetRepositoryToken() string {
         return "blog"
 }
-	`))
-
-	if err != nil {
-		s.T().Fatal(err)
-	}
-
-	w := new(testWriter)
-
-	err = s.gt.Generate(typeDefinition, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
-	}
-
-}
-
-func (s *GenerateTestSuite) TestGenerateWithReferenceFieldAndFieldCollection() {
-	typeDefinition := &generator.TypeDefinition{
-		Name:  "Page",
-		Label: "Page",
-		Blocks: []generator.Block{
-			{
-				Type:          generator.Field,
-				Name:          "Author",
-				Label:         "Author",
-				JSONName:      "author",
-				TypeName:      "string",
-				ReferenceName: "Author",
-				Definition: generator.BlockDefinition{
-					Title:       "author",
-					Type:        "@author",
-					IsArray:     false,
-					IsReference: true,
+	`,
+		},
+		{
+			name: "ReferenceFieldAndFieldCollection",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Page",
+				Label: "Page",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Author",
+						Label:         "Author",
+						JSONName:      "author",
+						TypeName:      "string",
+						ReferenceName: "Author",
+						Definition: generator.BlockDefinition{
+							Title:       "author",
+							Type:        "@author",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "ContentBlocks",
+						Label:         "ContentBlocks",
+						TypeName:      "string",
+						ReferenceName: "PageContentBlocks",
+						JSONName:      "content_blocks",
+						Definition: generator.BlockDefinition{
+							Title:       "content_blocks",
+							Type:        "@page_content_blocks",
+							IsReference: true,
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "p",
 				},
 			},
-			{
-				Type:          generator.Field,
-				Name:          "ContentBlocks",
-				Label:         "ContentBlocks",
-				TypeName:      "string",
-				ReferenceName: "PageContentBlocks",
-				JSONName:      "content_blocks",
-				Definition: generator.BlockDefinition{
-					Title:       "content_blocks",
-					Type:        "@page_content_blocks",
-					IsReference: true,
-				},
-			},
-		},
-		Type: generator.Content,
-		Metadata: generator.Metadata{
-			MethodReceiverName: "p",
-		},
-	}
-
-	// blog title:string author:@author category:string content:string
-	expectedBuffer, err := format.Source([]byte(`
+			expectedOutput: `
 package entities
 
 import (
@@ -1263,76 +1233,63 @@ func (p *Page) GetTitle() string {
 func (p *Page) GetRepositoryToken() string {
         return "page"
 }
-	`))
-
-	if err != nil {
-		s.T().Fatal(err)
-	}
-
-	w := new(testWriter)
-
-	err = s.gt.Generate(typeDefinition, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
-	}
-
-}
-
-func (s *GenerateTestSuite) TestGeneratePlainTypeWithReferenceField() {
-	typeDefinition := &generator.TypeDefinition{
-		Name:  "Author",
-		Label: "Author",
-		Blocks: []generator.Block{
-			{
-				Type:          generator.Field,
-				Name:          "Name",
-				Label:         "Name",
-				JSONName:      "name",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "name",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Age",
-				Label:         "Age",
-				JSONName:      "age",
-				TypeName:      "int",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "age",
-					Type:        "int",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Image",
-				Label:         "Image",
-				JSONName:      "image",
-				TypeName:      "string",
-				ReferenceName: "Image",
-				Definition: generator.BlockDefinition{
-					Title:       "image",
-					Type:        "@image",
-					IsArray:     false,
-					IsReference: true,
-				},
-			},
+	`,
 		},
-		Type: generator.Plain,
-		Metadata: generator.Metadata{
-			MethodReceiverName: "a",
-		},
-	}
-
-	expectedBuffer, err := format.Source([]byte(`
+		{
+			name: "PlainTypeWithReferenceField",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Author",
+				Label: "Author",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Name",
+						Label:         "Name",
+						JSONName:      "name",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "name",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Age",
+						Label:         "Age",
+						JSONName:      "age",
+						TypeName:      "int",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "age",
+							Type:        "int",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Image",
+						Label:         "Image",
+						JSONName:      "image",
+						TypeName:      "string",
+						ReferenceName: "Image",
+						Definition: generator.BlockDefinition{
+							Title:       "image",
+							Type:        "@image",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+				},
+				Type: generator.Plain,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "a",
+				},
+			},
+			expectedOutput: `
 package entities
 
 import (
@@ -1361,12 +1318,12 @@ func init() {
 				TypeName:          "string",
 				JSONName:          "name",
 				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
 				Definition: generator.BlockDefinition{
 					Title:       "name",
 					Type:        "string",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 			{
@@ -1376,12 +1333,12 @@ func init() {
 				TypeName:          "int",
 				JSONName:          "age",
 				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
 				Definition: generator.BlockDefinition{
 					Title:       "age",
 					Type:        "int",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 			{
@@ -1391,87 +1348,75 @@ func init() {
 				TypeName:          "string",
 				JSONName:          "image",
 				ReferenceName:     "Image",
-				ReferenceJSONTags: []string{},
 				Definition: generator.BlockDefinition{
 					Title:       "image",
 					Type:        "@image",
 					IsArray:     false,
 					IsReference: true,
+					Tokens: []string{},
 				},
 			},
 		},
 	}
 }
-	`))
-
-	if err != nil {
-		s.T().Fatal(err)
-	}
-
-	w := new(testWriter)
-
-	err = s.gt.Generate(typeDefinition, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
-	}
-}
-
-func (s *GenerateTestSuite) TestGenerateContentWithPlainTypeHavingReferenceField() {
-	typeDefinition := &generator.TypeDefinition{
-		Name:  "Story",
-		Label: "Story",
-		Blocks: []generator.Block{
-			{
-				Type:          generator.Field,
-				Name:          "Title",
-				Label:         "Title",
-				JSONName:      "title",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "title",
-					Type:        "string",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:          generator.Field,
-				Name:          "Body",
-				Label:         "Body",
-				JSONName:      "body",
-				TypeName:      "string",
-				ReferenceName: "",
-				Definition: generator.BlockDefinition{
-					Title:       "body",
-					Type:        "string:richtext",
-					IsArray:     false,
-					IsReference: false,
-				},
-			},
-			{
-				Type:     generator.Field,
-				Name:     "Author",
-				Label:    "Author",
-				JSONName: "author",
-				// TODO: Split references and nested Types
-				TypeName:      "Creator",
-				ReferenceName: "Creator",
-				Definition: generator.BlockDefinition{
-					Title:       "author",
-					Type:        "Creator",
-					IsArray:     false,
-					IsReference: true,
-				},
-			},
+	`,
 		},
-		Type: generator.Content,
-		Metadata: generator.Metadata{
-			MethodReceiverName: "s",
-		},
-	}
-
-	expectedBuffer, err := format.Source([]byte(`
+		{
+			name: "ContentWithPlainTypeHavingReferenceField",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Story",
+				Label: "Story",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Title",
+						Label:         "Title",
+						JSONName:      "title",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "title",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Body",
+						Label:         "Body",
+						JSONName:      "body",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "body",
+							Type:        "string:richtext",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:     generator.Field,
+						Name:     "Author",
+						Label:    "Author",
+						JSONName: "author",
+						// TODO: Split references and nested Types
+						TypeName:      "Creator",
+						ReferenceName: "Creator",
+						Definition: generator.BlockDefinition{
+							Title:       "author",
+							Type:        "Creator",
+							IsArray:     false,
+							IsReference: true,
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "s",
+				},
+			},
+			expectedOutput: `
 package entities
 
 import (
@@ -1557,19 +1502,278 @@ func (s *Story) GetTitle() string {
 func (s *Story) GetRepositoryToken() string {
         return "story"
 }
-`))
-	if err != nil {
-		s.T().Fatal(err)
-	}
+`,
+		},
+		{
+			name: "PlainTypeWithSelectTokens",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Author",
+				Label: "Author",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Name",
+						Label:         "Name",
+						JSONName:      "name",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "name",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Age",
+						Label:         "Age",
+						JSONName:      "age",
+						TypeName:      "int",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "age",
+							Type:        "int",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:     generator.Field,
+						Name:     "Gender",
+						Label:    "Gender",
+						JSONName: "gender",
+						TypeName: "string",
+						Definition: generator.BlockDefinition{
+							Title:  "gender",
+							Type:   "string:select",
+							Tokens: []string{"male:Male", "female:Female", "divers:Divers"},
+						},
+					},
+				},
+				Type: generator.Plain,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "a",
+				},
+			},
+			expectedOutput: `
+package entities
 
-	w := new(testWriter)
+import (
+        "github.com/fanky5g/ponzu/generator"
+)
 
-	err = s.gt.Generate(typeDefinition, w)
-	if assert.NoError(s.T(), err) {
-		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
-	}
+type Author struct {
+	Name string ` + "`json:\"name\"`" + `
+	Age int ` + "`json:\"age\"`" + `
+	Gender string ` + "`json:\"gender\"`" + ` 
 }
 
-func TestGenerate(t *testing.T) {
-	suite.Run(t, new(GenerateTestSuite))
+func init() {
+	Definitions["Author"] = generator.TypeDefinition{
+		Type:  generator.Plain,
+		Name:  "Author",
+		Label: "Author",
+		Metadata: generator.Metadata{
+			MethodReceiverName: "a",
+		},
+		Blocks: []generator.Block{
+			{
+				Type:              generator.Field,
+				Name:              "Name",
+				Label:             "Name",
+				TypeName:          "string",
+				JSONName:          "name",
+				ReferenceName:     "",
+				Definition: generator.BlockDefinition{
+					Title:       "name",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+					Tokens: []string{},
+				},
+			},
+			{
+				Type:              generator.Field,
+				Name:              "Age",
+				Label:             "Age",
+				TypeName:          "int",
+				JSONName:          "age",
+				ReferenceName:     "",
+				Definition: generator.BlockDefinition{
+					Title:       "age",
+					Type:        "int",
+					IsArray:     false,
+					IsReference: false,
+					Tokens: []string{},
+				},
+			},
+			{
+				Type:              generator.Field,
+				Name:              "Gender",
+				Label:             "Gender",
+				TypeName:          "string",
+				JSONName:          "gender",
+				ReferenceName:     "",
+				Definition: generator.BlockDefinition{
+					Title:       "gender",
+					Type:        "string:select",
+					IsArray:     false,
+					IsReference: false,
+					Tokens: []string{
+						"male:Male",
+						"female:Female",
+						"divers:Divers",
+					},
+				},
+			},
+		},
+	}
+}
+	`,
+		},
+		{
+			name: "ContentTypeWithSelectTokens",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Author",
+				Label: "Author",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Name",
+						Label:         "Name",
+						JSONName:      "name",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "name",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Age",
+						Label:         "Age",
+						JSONName:      "age",
+						TypeName:      "int",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "age",
+							Type:        "int",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:     generator.Field,
+						Name:     "Gender",
+						Label:    "Gender",
+						JSONName: "gender",
+						TypeName: "string",
+						Definition: generator.BlockDefinition{
+							Title:  "gender",
+							Type:   "string:select",
+							Tokens: []string{"male:Male", "female:Female", "divers:Divers"},
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "a",
+				},
+			},
+			expectedOutput: `
+package entities
+
+import (
+        "fmt"
+        "github.com/fanky5g/ponzu/content/editor"
+        "github.com/fanky5g/ponzu/content/item"
+)
+
+type Author struct {
+        item.Item
+
+		Name   string ` + "`json:\"name\"`" + `
+		Age    int ` + "`json:\"age\"`" + `
+		Gender string ` + "`json:\"gender\"`" + `
+}
+
+// MarshalEditor writes a buffer of views to edit a Author within the CMS
+// and implements editor.Editable
+func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
+        view, err := editor.Form(a,
+                // Take note that the first argument to these Input-like functions
+                // is the string version of each Author field, and must follow
+                // this pattern for auto-decoding and auto-encoding reasons:
+                editor.Field{
+                        View: editor.Input("Name", a, map[string]string{
+                                "label":       "Name",
+                                "type":        "text",
+                                "placeholder": "Enter the Name here",
+                        }, nil),
+                },
+				editor.Field{
+                        View: editor.Input("Age", a, map[string]string{
+                                "label":       "Age",
+                                "type":        "text",
+                                "placeholder": "Enter the Age here",
+                        }, nil),
+                },
+                editor.Field{
+                        View: editor.Select("Gender", a, map[string]string{
+                                "label":       "Select Gender",
+                        }, []string{
+							"male:Male",
+							"female:Female",
+							"divers:Divers",
+						}),
+                },
+        )
+
+        if err != nil {
+                return nil, fmt.Errorf("failed to render Author editor view: %s", err.Error())
+        }
+
+        return view, nil
+}
+
+func init() {
+        Content["Author"] = func() interface{} { return new(Author) }
+}
+
+func (a *Author) EntityName() string {
+        return "Author"
+}
+
+func (a *Author) GetTitle() string {
+        return a.ID
+}
+
+func (a *Author) GetRepositoryToken() string {
+        return "author"
+}
+	`,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			var expectedBuffer []byte
+			expectedBuffer, err = format.Source([]byte(tc.expectedOutput))
+
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			w := new(testWriter)
+
+			err = gt.Generate(tc.typeDefinition, w)
+			if assert.NoError(t, err) {
+				assert.Equal(t, expectedBuffer, w.buf)
+			}
+		})
+	}
 }

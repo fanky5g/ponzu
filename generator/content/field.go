@@ -24,7 +24,7 @@ type Field struct {
 	IsNested          bool
 	IsFieldCollection bool
 	ReferenceName     string
-	ReferenceJSONTags []string
+	Tokens            []string
 
 	// Render Scope data
 	Parent   *Field
@@ -56,7 +56,7 @@ func (field *Field) Validate() error {
 
 	for _, typeName := range reservedTypeNames {
 		if field.Name == typeName {
-			return fmt.Errorf("Type name: %s is reserved", field.Name)
+			return fmt.Errorf("type name: %s is reserved", field.Name)
 		}
 	}
 
@@ -164,7 +164,7 @@ func mapBlockToField(contentTypes content.Types, block generator.Block) *Field {
 		IsNested:          isNested,
 		IsFieldCollection: isFieldCollection,
 		ReferenceName:     block.ReferenceName,
-		ReferenceJSONTags: block.ReferenceJSONTags,
+		Tokens:            block.Definition.Tokens,
 	}
 }
 
@@ -200,7 +200,7 @@ func GetFieldArgVar(field *Field) string {
 		return GetFieldArgVar(field.Parent)
 	}
 
-	if field != nil && field.IsFieldCollection {
+	if field.IsFieldCollection {
 		return "args"
 	}
 

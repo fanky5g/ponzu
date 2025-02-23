@@ -244,8 +244,7 @@ func (suite *ReflectionUtilsTestSuite) TestValueFromStructFieldNested2() {
 	}
 
 	assert.Equal(suite.T(), publishedDate, ValueFromStructField("Author.Books.0.Published", v, nil))
-	// legacy ponzu string array joins
-	assert.Equal(suite.T(), "tag 1__ponzutag 2", ValueFromStructField("Tags", v, nil))
+	assert.Equal(suite.T(), []string{"tag 1", "tag 2"}, ValueFromStructField("Tags", v, nil))
 	assert.Equal(suite.T(), books, ValueFromStructField("Author.Books", v, nil))
 }
 

@@ -13,7 +13,10 @@ const (
 )
 
 var (
-	referenceRegex = regexp.MustCompile("^(?:\\[\\])?@")
+	referenceRegex              = regexp.MustCompile("^(?:\\[])?@")
+	fieldWithTokensRegex        = regexp.MustCompile("(?m).*:.*@(?P<Tokens>.*)$")
+	fieldTokenSeparator         = "~"
+	fieldTokenSeparatorReplacer = ":"
 )
 
 type BlockDefinition struct {
@@ -21,18 +24,18 @@ type BlockDefinition struct {
 	Type        string
 	IsArray     bool
 	IsReference bool
+	Tokens      []string
 }
 
 // Block is the building block(s) of types
 type Block struct {
-	Type              BlockType
-	Name              string
-	Label             string
-	JSONName          string
-	TypeName          string
-	ReferenceName     string
-	ReferenceJSONTags []string
-	Definition        BlockDefinition
+	Type          BlockType
+	Name          string
+	Label         string
+	JSONName      string
+	TypeName      string
+	ReferenceName string
+	Definition    BlockDefinition
 }
 
 func newBlock(definition string, kind BlockType) Block {
@@ -46,12 +49,25 @@ func newBlock(definition string, kind BlockType) Block {
 		blockType = title
 	}
 
+	var tokens []string
+	if fieldWithTokensRegex.MatchString(blockType) {
+		matches := fieldWithTokensRegex.FindStringSubmatch(blockType)
+		if len(matches) > 0 {
+			index := fieldWithTokensRegex.SubexpIndex("Tokens")
+			if index != -1 {
+				tokens = parseFieldTokens(strings.Split(matches[index], ","))
+				blockType = strings.TrimSuffix(strings.Replace(blockType, matches[index], "", -1), "@")
+			}
+		}
+	}
+
 	isReference := referenceRegex.MatchString(blockType)
 	blockDefinition := BlockDefinition{
 		Title:       title,
 		Type:        blockType,
 		IsArray:     strings.HasPrefix(blockType, "[]"),
 		IsReference: referenceRegex.MatchString(blockType),
+		Tokens:      tokens,
 	}
 
 	block := Block{
@@ -69,7 +85,6 @@ func newBlock(definition string, kind BlockType) Block {
 
 	if isReference {
 		block.ReferenceName = getReferenceName(blockDefinition)
-		block.ReferenceJSONTags = getReferenceJSONTags(blockType)
 	}
 
 	return block
@@ -103,19 +118,11 @@ func getReferenceName(definition BlockDefinition) string {
 	return referenceName
 }
 
-// some possibilities are
-// @author,name,age
-// []@author,name,age
-// -------------------
-// [] = slice of author
-// @author = reference to Author struct
-// ,name,age = JSON tag names from Author struct fields to use as select option display
-func getReferenceJSONTags(fieldType string) []string {
-	if strings.Contains(fieldType, ",") {
-		referenceConf := strings.Split(fieldType, ",")
-		fieldType = referenceConf[0]
-		return referenceConf[1:]
+func parseFieldTokens(tokens []string) []string {
+	parsedTokens := make([]string, len(tokens))
+	for i, token := range tokens {
+		parsedTokens[i] = strings.NewReplacer(fieldTokenSeparator, fieldTokenSeparatorReplacer).Replace(token)
 	}
 
-	return nil
+	return parsedTokens
 }
