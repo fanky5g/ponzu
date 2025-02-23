@@ -162,6 +162,7 @@ func init() {
 					Type:        "string",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 			{
@@ -176,6 +177,7 @@ func init() {
 					Type:        "int",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 			{
@@ -190,6 +192,7 @@ func init() {
 					Type:        "Link",
 					IsArray:     false,
 					IsReference: true,
+					Tokens: []string{},
 				},
 			},
 		},

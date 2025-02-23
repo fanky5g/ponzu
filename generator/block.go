@@ -13,7 +13,10 @@ const (
 )
 
 var (
-	referenceRegex = regexp.MustCompile("^(?:\\[\\])?@")
+	referenceRegex              = regexp.MustCompile("^(?:\\[])?@")
+	fieldWithTokensRegex        = regexp.MustCompile("(?m).*:.*@(?P<Tokens>.*)$")
+	fieldTokenSeparator         = "~"
+	fieldTokenSeparatorReplacer = ":"
 )
 
 type BlockDefinition struct {
@@ -21,6 +24,7 @@ type BlockDefinition struct {
 	Type        string
 	IsArray     bool
 	IsReference bool
+	Tokens      []string
 }
 
 // Block is the building block(s) of types
@@ -45,12 +49,25 @@ func newBlock(definition string, kind BlockType) Block {
 		blockType = title
 	}
 
+	var tokens []string
+	if fieldWithTokensRegex.MatchString(blockType) {
+		matches := fieldWithTokensRegex.FindStringSubmatch(blockType)
+		if len(matches) > 0 {
+			index := fieldWithTokensRegex.SubexpIndex("Tokens")
+			if index != -1 {
+				tokens = parseFieldTokens(strings.Split(matches[index], ","))
+				blockType = strings.TrimSuffix(strings.Replace(blockType, matches[index], "", -1), "@")
+			}
+		}
+	}
+
 	isReference := referenceRegex.MatchString(blockType)
 	blockDefinition := BlockDefinition{
 		Title:       title,
 		Type:        blockType,
 		IsArray:     strings.HasPrefix(blockType, "[]"),
 		IsReference: referenceRegex.MatchString(blockType),
+		Tokens:      tokens,
 	}
 
 	block := Block{
@@ -99,4 +116,13 @@ func getReferenceName(definition BlockDefinition) string {
 
 	referenceName, _ := parseName(referenceType)
 	return referenceName
+}
+
+func parseFieldTokens(tokens []string) []string {
+	parsedTokens := make([]string, len(tokens))
+	for i, token := range tokens {
+		parsedTokens[i] = strings.NewReplacer(fieldTokenSeparator, fieldTokenSeparatorReplacer).Replace(token)
+	}
+
+	return parsedTokens
 }

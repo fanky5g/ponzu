@@ -578,6 +578,7 @@ func init() {
 					Type:        "string",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 			{
@@ -592,6 +593,7 @@ func init() {
 					Type:        "int",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 		},
@@ -1355,6 +1357,7 @@ func init() {
 					Type:        "string",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 			{
@@ -1369,6 +1372,7 @@ func init() {
 					Type:        "int",
 					IsArray:     false,
 					IsReference: false,
+					Tokens: []string{},
 				},
 			},
 			{
@@ -1383,6 +1387,147 @@ func init() {
 					Type:        "@image",
 					IsArray:     false,
 					IsReference: true,
+					Tokens: []string{},
+				},
+			},
+		},
+	}
+}
+	`))
+
+	if err != nil {
+		s.T().Fatal(err)
+	}
+
+	w := new(testWriter)
+
+	err = s.gt.Generate(typeDefinition, w)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), string(expectedBuffer), string(w.buf))
+	}
+}
+
+func (s *GenerateTestSuite) TestGeneratePlainTypeWithSelectTokens() {
+	typeDefinition := &generator.TypeDefinition{
+		Name:  "Author",
+		Label: "Author",
+		Blocks: []generator.Block{
+			{
+				Type:          generator.Field,
+				Name:          "Name",
+				Label:         "Name",
+				JSONName:      "name",
+				TypeName:      "string",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "name",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:          generator.Field,
+				Name:          "Age",
+				Label:         "Age",
+				JSONName:      "age",
+				TypeName:      "int",
+				ReferenceName: "",
+				Definition: generator.BlockDefinition{
+					Title:       "age",
+					Type:        "int",
+					IsArray:     false,
+					IsReference: false,
+				},
+			},
+			{
+				Type:     generator.Field,
+				Name:     "Gender",
+				Label:    "Gender",
+				JSONName: "gender",
+				TypeName: "string",
+				Definition: generator.BlockDefinition{
+					Title:  "gender",
+					Type:   "string:select",
+					Tokens: []string{"male:Male", "female:Female", "divers:Divers"},
+				},
+			},
+		},
+		Type: generator.Plain,
+		Metadata: generator.Metadata{
+			MethodReceiverName: "a",
+		},
+	}
+
+	expectedBuffer, err := format.Source([]byte(`
+package entities
+
+import (
+        "github.com/fanky5g/ponzu/generator"
+)
+
+type Author struct {
+	Name string ` + "`json:\"name\"`" + `
+	Age int ` + "`json:\"age\"`" + `
+	Gender string ` + "`json:\"gender\"`" + ` 
+}
+
+func init() {
+	Definitions["Author"] = generator.TypeDefinition{
+		Type:  generator.Plain,
+		Name:  "Author",
+		Label: "Author",
+		Metadata: generator.Metadata{
+			MethodReceiverName: "a",
+		},
+		Blocks: []generator.Block{
+			{
+				Type:              generator.Field,
+				Name:              "Name",
+				Label:             "Name",
+				TypeName:          "string",
+				JSONName:          "name",
+				ReferenceName:     "",
+				Definition: generator.BlockDefinition{
+					Title:       "name",
+					Type:        "string",
+					IsArray:     false,
+					IsReference: false,
+					Tokens: []string{},
+				},
+			},
+			{
+				Type:              generator.Field,
+				Name:              "Age",
+				Label:             "Age",
+				TypeName:          "int",
+				JSONName:          "age",
+				ReferenceName:     "",
+				Definition: generator.BlockDefinition{
+					Title:       "age",
+					Type:        "int",
+					IsArray:     false,
+					IsReference: false,
+					Tokens: []string{},
+				},
+			},
+			{
+				Type:              generator.Field,
+				Name:              "Gender",
+				Label:             "Gender",
+				TypeName:          "string",
+				JSONName:          "gender",
+				ReferenceName:     "",
+				Definition: generator.BlockDefinition{
+					Title:       "gender",
+					Type:        "string:select",
+					IsArray:     false,
+					IsReference: false,
+					Tokens: []string{
+						"male:Male",
+						"female:Female",
+						"divers:Divers",
+					},
 				},
 			},
 		},

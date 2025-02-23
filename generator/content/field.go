@@ -55,7 +55,7 @@ func (field *Field) Validate() error {
 
 	for _, typeName := range reservedTypeNames {
 		if field.Name == typeName {
-			return fmt.Errorf("Type name: %s is reserved", field.Name)
+			return fmt.Errorf("type name: %s is reserved", field.Name)
 		}
 	}
 
@@ -198,7 +198,7 @@ func GetFieldArgVar(field *Field) string {
 		return GetFieldArgVar(field.Parent)
 	}
 
-	if field != nil && field.IsFieldCollection {
+	if field.IsFieldCollection {
 		return "args"
 	}
 
