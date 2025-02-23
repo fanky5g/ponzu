@@ -143,11 +143,15 @@ func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (i
 
 func getBlockSelector(name string,
 	types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
-	options := make([]string, len(types))
+	options := make([]SelectOption, len(types))
 	i := 0
 	for k := range types {
-		options[i] = k
-		i += 1
+		options[i] = SelectOption{
+			Label: k,
+			Value: k,
+		}
+
+		i = i + 1
 	}
 
 	sel := struct {
@@ -155,7 +159,7 @@ func getBlockSelector(name string,
 		Label       string
 		Placeholder string
 		Value       string
-		Options     []string
+		Options     []SelectOption
 		Selector    string
 	}{
 		Placeholder: "Select a block...",
