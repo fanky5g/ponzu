@@ -35,10 +35,6 @@ func init() {
                     TypeName: "{{ .TypeName }}",
                     JSONName: "{{ .JSONName }}",
                     ReferenceName: "{{ .ReferenceName }}",
-                    ReferenceJSONTags: []string{
-                        {{ range .ReferenceJSONTags }}{{ . }}
-                        {{ end }}
-                    },
                     Definition: generator.BlockDefinition {
                         Title:       "{{ .Definition.Title }}",
                         Type:        "{{ .Definition.Type }}",

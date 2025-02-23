@@ -19,13 +19,12 @@ var (
 		},
 		Blocks: []generator.Block{
 			{
-				Type:              generator.Field,
-				Name:              "ExternalUrl",
-				Label:             "ExternalUrl",
-				TypeName:          "string",
-				JSONName:          "external_url",
-				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
+				Type:          generator.Field,
+				Name:          "ExternalUrl",
+				Label:         "ExternalUrl",
+				TypeName:      "string",
+				JSONName:      "external_url",
+				ReferenceName: "",
 				Definition: generator.BlockDefinition{
 					Title:       "ExternalUrl",
 					Type:        "string",
@@ -34,13 +33,12 @@ var (
 				},
 			},
 			{
-				Type:              generator.Field,
-				Name:              "Label",
-				Label:             "Label",
-				TypeName:          "l",
-				JSONName:          "label",
-				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
+				Type:          generator.Field,
+				Name:          "Label",
+				Label:         "Label",
+				TypeName:      "l",
+				JSONName:      "label",
+				ReferenceName: "",
 				Definition: generator.BlockDefinition{
 					Title:       "Label",
 					Type:        "string",
@@ -159,7 +157,6 @@ func init() {
 				TypeName:          "string",
 				JSONName:          "name",
 				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
 				Definition: generator.BlockDefinition{
 					Title:       "Name",
 					Type:        "string",
@@ -174,7 +171,6 @@ func init() {
 				TypeName:          "int",
 				JSONName:          "age",
 				ReferenceName:     "",
-				ReferenceJSONTags: []string{},
 				Definition: generator.BlockDefinition{
 					Title:       "Age",
 					Type:        "int",
@@ -189,7 +185,6 @@ func init() {
 				TypeName:          "Link",
 				JSONName:          "website",
 				ReferenceName:     "Link",
-				ReferenceJSONTags: []string{},
 				Definition: generator.BlockDefinition{
 					Title:       "Website",
 					Type:        "Link",
