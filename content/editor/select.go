@@ -3,6 +3,7 @@ package editor
 import (
 	"bytes"
 	"io"
+	"strings"
 
 	"github.com/fanky5g/ponzu/internal/views"
 	log "github.com/sirupsen/logrus"
@@ -10,12 +11,17 @@ import (
 
 type SelectType string
 
+type SelectOption struct {
+	Value string
+	Label string
+}
+
 type SelectData struct {
 	Name        string
 	Label       string
 	Placeholder string
 	Value       string
-	Options     []string
+	Options     []SelectOption
 	Selector    string
 }
 
@@ -54,14 +60,14 @@ type SelectClientOptionsProvider interface {
 }
 
 type SelectInitialOptionsProvider interface {
-	GetInitialOptions() ([]string, error)
+	GetInitialOptions() ([]SelectOption, error)
 }
 
 // Select returns the []byte of a <select> HTML element plus internal <options> with a label.
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func Select(fieldName string, p interface{}, attrs, options map[string]string) []byte {
+func Select(fieldName string, p interface{}, attrs map[string]string, options []string) []byte {
 	return SelectWithDataProvider(fieldName, p, attrs, makeGenericSelectDataProvider(options))
 }
 
@@ -76,7 +82,7 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 	}
 
 	var err error
-	options := make([]string, 0)
+	options := make([]SelectOption, 0)
 
 	templateBuffer := &bytes.Buffer{}
 	if dataProvider != nil {
@@ -98,13 +104,6 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 		}
 	}
 
-	values := make([]string, len(options))
-	i := 0
-	for _, v := range options {
-		values[i] = v
-		i = i + 1
-	}
-
 	sel := SelectData{
 		Label:       fieldName,
 		Placeholder: attrs["label"],
@@ -122,21 +121,28 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 }
 
 type selectInitialOptionsProvider struct {
-	options map[string]string
+	options []string
 }
 
-func (s *selectInitialOptionsProvider) GetInitialOptions() ([]string, error) {
-	options := make([]string, len(s.options))
-	i := 0
-	for k := range s.options {
-		options[i] = k
-		i = i + 1
+func (s *selectInitialOptionsProvider) GetInitialOptions() ([]SelectOption, error) {
+	options := make([]SelectOption, len(s.options))
+	for i := range s.options {
+		v := strings.Split(s.options[i], ":")
+		selectOption := SelectOption{
+			Value: v[0],
+		}
+
+		if len(v) > 1 {
+			selectOption.Label = v[1]
+		}
+
+		options[i] = selectOption
 	}
 
 	return options, nil
 }
 
-func makeGenericSelectDataProvider(options map[string]string) SelectInitialOptionsProvider {
+func makeGenericSelectDataProvider(options []string) SelectInitialOptionsProvider {
 	return &selectInitialOptionsProvider{
 		options: options,
 	}
