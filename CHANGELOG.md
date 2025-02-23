@@ -32,3 +32,7 @@
 
 - Localize ponzu-driver-postgres
 - Implement initial concept of workflow transitions
+
+### v0.7.0
+
+- Support generating select with initial options
