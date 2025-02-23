@@ -112,11 +112,10 @@
 .auth-sidebar {
     padding-top: 20px;
     width: 60px;
-    background: '';
     box-shadow: 0 2px 0 0 rgba(0,0,0,.1);
     border-radius: 4px 0 0 4px;
-    margin-top: -1;
-    margin-bottom: -1;
+    margin-top: -1px;
+    margin-bottom: -1px;
     text-align: center;
 }
 

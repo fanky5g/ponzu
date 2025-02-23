@@ -34,12 +34,12 @@
                 {{ end }}
 
                 {{ range .Options }}
-                {{ if eq $.Value . }}
-                <li class="mdc-list-item mdc-list-item--selected" role="option" aria-selected="true" data-value="{{ . }}">
+                {{ if eq $.Value .Value }}
+                <li class="mdc-list-item mdc-list-item--selected" role="option" aria-selected="true" data-value="{{ .Value }}">
                 {{ else }}
-                <li class="mdc-list-item" role="option" data-value="{{ . }}">
+                <li class="mdc-list-item" role="option" data-value="{{ .Value }}">
                 {{ end }}
-                    <span class="mdc-list-item__text">{{ . }}</span>
+                    <span class="mdc-list-item__text">{{ .Label }}</span>
                 </li>
                 {{ end }}
             </ul>

@@ -130,6 +130,7 @@ func (s *selectInitialOptionsProvider) GetInitialOptions() ([]SelectOption, erro
 		v := strings.Split(s.options[i], ":")
 		selectOption := SelectOption{
 			Value: v[0],
+			Label: v[0],
 		}
 
 		if len(v) > 1 {
