@@ -41,9 +41,10 @@ func ReferenceSelect(
 	fieldName string,
 	p interface{},
 	attrs map[string]string,
+	args *FieldArgs,
 	contentType string,
 ) []byte {
-	return SelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{
+	return SelectWithDataProvider(fieldName, p, attrs, args, &ReferenceSelectDataProvider{
 		ContentType:    contentType,
 		PublicPath:     publicPath,
 		OptionTemplate: SelectOptionTemplate,
@@ -62,6 +63,7 @@ func ReferenceSelectRepeater(
 	fieldName string,
 	p interface{},
 	attrs map[string]string,
+	args *FieldArgs,
 	contentType string,
 ) []byte {
 	return MultiSelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{

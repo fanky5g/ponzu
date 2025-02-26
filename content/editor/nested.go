@@ -1,8 +1,11 @@
 package editor
 
+import "fmt"
+
 func Nested(fieldName string, p interface{}, args *FieldArgs, fields ...Field) []byte {
 	name := fieldName
 
+	fmt.Println("Nested", fieldName)
 	if name == "" && args != nil {
 		name = args.TypeName
 	}

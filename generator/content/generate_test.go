@@ -591,6 +591,7 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                                 "label":       "Select Author",
                         },
 						"Author",
+						nil,
                     ),
                 },
                 editor.Field{
@@ -738,6 +739,7 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                                 "label":       "Select Author",
                         },
 						"Author",
+						nil,
                     ),
                 },
                 editor.Field{
@@ -855,6 +857,7 @@ func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
                                 "label":       "Select Image",
                         },
 						"Upload",
+						nil,
                     ),
                 },
         )
@@ -988,6 +991,7 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                                 "label":       "Select Authors",
                         },
 						"Author",
+						nil,
                     ),
                 },
                 editor.Field{
@@ -1097,6 +1101,7 @@ func (p *Page) MarshalEditor(publicPath string) ([]byte, error) {
                                 "label":       "Select Author",
                         },
 						"Author",
+						nil,
                     ),
                 },
 				editor.Field{
@@ -1474,6 +1479,7 @@ func (s *Story) MarshalEditor(publicPath string) ([]byte, error) {
 									"label": "Select Image",
 								},
 								"Image",
+								nil,
 							),  
  						},
 					),
@@ -1729,7 +1735,7 @@ func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
 							"male:Male",
 							"female:Female",
 							"divers:Divers",
-						}),
+						}, nil),
                 },
         )
 
