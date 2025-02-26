@@ -15,7 +15,7 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 	scope := TagNameFromStructField(fieldName, p, nil)
 
 	tmpl := `
-		<div class="col s12 __ponzu-repeat ` + scope + `">
+		<div class="control-block __ponzu-nested __ponzu-repeat ` + scope + `">
 			<label class="active">` + fieldName + `</label>
 	`
 

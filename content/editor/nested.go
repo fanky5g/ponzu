@@ -1,17 +1,14 @@
 package editor
 
-import "fmt"
-
 func Nested(fieldName string, p interface{}, args *FieldArgs, fields ...Field) []byte {
 	name := fieldName
 
-	fmt.Println("Nested", fieldName)
 	if name == "" && args != nil {
 		name = args.TypeName
 	}
 
 	tmpl := `
-		<fieldset class="control-block ` + name + `" name="` + name + `">
+		<fieldset class="control-block __ponzu-nested ` + name + `" name="` + name + `">
 			<label>` + name + `</label>
 	`
 

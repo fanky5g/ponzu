@@ -590,8 +590,8 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                         View: editor.ReferenceSelect(publicPath, "Author", b, map[string]string{
                                 "label":       "Select Author",
                         },
-						"Author",
 						nil,
+						"Author",
                     ),
                 },
                 editor.Field{
@@ -738,8 +738,8 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                         View: editor.ReferenceSelect(publicPath, "Author", b, map[string]string{
                                 "label":       "Select Author",
                         },
-						"Author",
 						nil,
+						"Author",
                     ),
                 },
                 editor.Field{
@@ -856,8 +856,8 @@ func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
                         View: editor.ReferenceSelect(publicPath, "Image", a, map[string]string{
                                 "label":       "Select Image",
                         },
-						"Upload",
 						nil,
+						"Upload",
                     ),
                 },
         )
@@ -990,8 +990,8 @@ func (b *Blog) MarshalEditor(publicPath string) ([]byte, error) {
                         View: editor.ReferenceSelectRepeater(publicPath, "Authors", b, map[string]string{
                                 "label":       "Select Authors",
                         },
-						"Author",
 						nil,
+						"Author",
                     ),
                 },
                 editor.Field{
@@ -1100,8 +1100,8 @@ func (p *Page) MarshalEditor(publicPath string) ([]byte, error) {
                         View: editor.ReferenceSelect(publicPath, "Author", p, map[string]string{
                                 "label":       "Select Author",
                         },
-						"Author",
 						nil,
+						"Author",
                     ),
                 },
 				editor.Field{
@@ -1478,8 +1478,8 @@ func (s *Story) MarshalEditor(publicPath string) ([]byte, error) {
 							View: editor.ReferenceSelect(publicPath, "Author.Image", s, map[string]string{
 									"label": "Select Image",
 								},
-								"Image",
 								nil,
+								"Image",
 							),  
  						},
 					),
