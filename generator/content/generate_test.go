@@ -251,6 +251,65 @@ func TestGenerate(t *testing.T) {
 				},
 			},
 			"Link": link,
+			"ButtonLink": {
+				Type:  generator.Plain,
+				Name:  "ButtonLink",
+				Label: "ButtonLink",
+				Metadata: generator.Metadata{
+					MethodReceiverName: "b",
+				},
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Type",
+						Label:         "Type",
+						TypeName:      "string",
+						JSONName:      "type",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "type",
+							Type:        "string:select",
+							IsArray:     false,
+							IsReference: false,
+							Tokens: []string{
+								"outlined:Outlined",
+								"text:Text",
+								"contained:Contained",
+							},
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Text",
+						Label:         "Text",
+						TypeName:      "string",
+						JSONName:      "text",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "text",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+							Tokens:      []string{},
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Link",
+						Label:         "Link",
+						TypeName:      "string",
+						JSONName:      "link",
+						ReferenceName: "Link",
+						Definition: generator.BlockDefinition{
+							Title:       "link",
+							Type:        "@link",
+							IsArray:     false,
+							IsReference: true,
+							Tokens:      []string{},
+						},
+					},
+				},
+			},
 		},
 		FieldCollections: map[string]content.Builder{
 			"PageContentBlocks": func() interface{} {
@@ -1762,6 +1821,142 @@ func (a *Author) GetRepositoryToken() string {
         return "author"
 }
 	`,
+		},
+		{
+			name: "ContentTypeWithNestedRepeatedField",
+			typeDefinition: &generator.TypeDefinition{
+				Name:  "Banner",
+				Label: "Banner",
+				Blocks: []generator.Block{
+					{
+						Type:          generator.Field,
+						Name:          "Text",
+						Label:         "Text",
+						JSONName:      "text",
+						TypeName:      "string",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "text",
+							Type:        "string",
+							IsArray:     false,
+							IsReference: false,
+						},
+					},
+					{
+						Type:          generator.Field,
+						Name:          "Cta",
+						Label:         "Cta",
+						JSONName:      "cta",
+						TypeName:      "[]string",
+						ReferenceName: "ButtonLink",
+						Definition: generator.BlockDefinition{
+							Title:       "cta",
+							Type:        "[]@button_link",
+							IsArray:     true,
+							IsReference: true,
+						},
+					},
+				},
+				Type: generator.Content,
+				Metadata: generator.Metadata{
+					MethodReceiverName: "a",
+				},
+			},
+			expectedOutput: `
+package entities
+
+import (
+	"fmt"
+	"github.com/fanky5g/ponzu/content/editor"
+	"github.com/fanky5g/ponzu/content/item"
+)
+
+type Banner struct {
+	item.Item
+
+	Text   string ` + "`json:\"text\"`" + `
+	Cta  []ButtonLink ` + "`json:\"cta\"`" + `
+}
+
+// MarshalEditor writes a buffer of views to edit a Banner within the CMS
+// and implements editor.Editable
+func (a *Banner) MarshalEditor(publicPath string) ([]byte, error) {
+	view, err := editor.Form(a,
+		// Take note that the first argument to these Input-like functions
+		// is the string version of each Banner field, and must follow
+		// this pattern for auto-decoding and auto-encoding reasons:
+		editor.Field{
+			View: editor.Input("Text", a, map[string]string{
+				"label":       "Text",
+				"type":        "text",
+				"placeholder": "Enter the Text here",
+			}, nil),
+		},
+		editor.Field{
+			View: editor.NestedRepeater("Cta", a, func(v interface{}, args *editor.FieldArgs) (string, []editor.Field) {
+				return "ButtonLink", []editor.Field{
+					{
+						View: editor.Select("Cta.Type", a, map[string]string{
+							"label": "Select Type",
+						}, []string{
+							"outlined:Outlined",
+							"text:Text",
+							"contained:Contained",
+						}, nil),
+					},
+					{
+						View: editor.Input("Cta.Text", a, map[string]string{
+							"label":       "Text",
+							"type":        "text",
+							"placeholder": "Enter the Text here",
+						}, nil),
+					},
+					{
+						View: editor.Nested("Cta.Link", a, nil,
+							editor.Field{
+								View: editor.Input("Cta.Link.ExternalUrl", a, map[string]string{
+									"label":       "ExternalUrl",
+									"type":        "text",
+									"placeholder": "Enter the ExternalUrl here",
+								}, nil),
+							},
+							editor.Field{
+								View: editor.Input("Cta.Link.Label", a, map[string]string{
+									"label":       "Label",
+									"type":        "text",
+									"placeholder": "Enter the Label here",
+								}, nil),
+							},
+						),
+					},
+				}
+			},
+			),
+		},
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to render Banner editor view: %s", err.Error())
+	}
+
+	return view, nil
+}
+
+func init() {
+	Content["Banner"] = func() interface{} { return new(Banner) }
+}
+
+func (a *Banner) EntityName() string {
+	return "Banner"
+}
+
+func (a *Banner) GetTitle() string {
+	return a.ID
+}
+
+func (a *Banner) GetRepositoryToken() string {
+	return "banner"
+}`,
 		},
 	}
 

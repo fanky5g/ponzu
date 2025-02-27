@@ -47,7 +47,7 @@ func writeTemplate(name string, data interface{}, w io.Writer) error {
 		var fmtBuf []byte
 		fmtBuf, err = format.Source(buf.Bytes())
 		if err != nil {
-			return fmt.Errorf("failed to format template: %s", err.Error())
+			return fmt.Errorf("failed to format template: %s.\n\n%s", err.Error(), buf)
 		}
 
 		_, err = io.Copy(w, bytes.NewBuffer(fmtBuf))
