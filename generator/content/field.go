@@ -188,8 +188,13 @@ func GetRootMethodReceiver(field *Field) string {
 }
 
 func GetPath(field *Field) string {
-	if field.Parent != nil && !field.Parent.IsFieldCollection {
-		return strings.Join([]string{GetPath(field.Parent), field.Name}, ".")
+	parent := field.Parent
+	if parent != nil {
+		parentIsFieldCollection := parent.IsFieldCollection
+		parentIsNestedRepeater := parent.IsNested && parent.IsArray
+		if !(parentIsFieldCollection || parentIsNestedRepeater) {
+			return strings.Join([]string{GetPath(parent), field.Name}, ".")
+		}
 	}
 
 	return field.Name

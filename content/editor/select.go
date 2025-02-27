@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"strings"
 
@@ -72,10 +73,14 @@ func Select(fieldName string, p interface{}, attrs map[string]string, options []
 }
 
 func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, args *FieldArgs, dataProvider interface{}) []byte {
+	fmt.Println("SelectWithDataProvider called with", fieldName, args)
 	value := ""
 
-	selector := TagNameFromStructField(fieldName, p, nil)
-	fieldVal := ValueFromStructField(fieldName, p, nil)
+	fmt.Println("Calling TagNameFromStructField for", fieldName, p, args)
+	selector := TagNameFromStructField(fieldName, p, args)
+	fmt.Println("Selector", selector)
+	fieldVal := ValueFromStructField(fieldName, p, args)
+	fmt.Println("Value", fieldVal)
 	var ok bool
 	if value, ok = fieldVal.(string); !ok {
 		log.Warnf("Expected field value to be string. Got %T", fieldVal)
