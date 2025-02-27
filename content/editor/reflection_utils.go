@@ -111,6 +111,7 @@ func TagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 }
 
 func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
+	fmt.Println("ValueByName called with", name, args)
 	if args != nil && args.Parent != "" {
 		name = strings.Join([]string{args.Parent, name}, ".")
 	}

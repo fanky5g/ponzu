@@ -13,6 +13,7 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 	}
 
 	scope := TagNameFromStructField(fieldName, p, nil)
+	fmt.Println(scope)
 
 	tmpl := `
 		<div class="control-block __ponzu-nested __ponzu-repeat ` + scope + `">
@@ -24,7 +25,9 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 		Parent: fmt.Sprintf("%s.%s", fieldName, positionalPlaceHolder),
 	}
 
+	fmt.Println("calling m", fieldArgs)
 	arrayTypeName, fields := m(p, fieldArgs)
+	fmt.Println("m returned")
 	fieldArgs.TypeName = arrayTypeName
 	emptyEntryTemplate := Nested("", p, fieldArgs, fields...)
 

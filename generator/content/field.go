@@ -24,6 +24,7 @@ type Field struct {
 	IsNested          bool
 	IsFieldCollection bool
 	ReferenceName     string
+	IsArray           bool
 	Tokens            []string
 
 	// Render Scope data
@@ -165,6 +166,7 @@ func mapBlockToField(contentTypes content.Types, block generator.Block) *Field {
 		IsFieldCollection: isFieldCollection,
 		ReferenceName:     block.ReferenceName,
 		Tokens:            block.Definition.Tokens,
+		IsArray:           block.Definition.IsArray,
 	}
 }
 
@@ -200,7 +202,7 @@ func GetFieldArgVar(field *Field) string {
 		return GetFieldArgVar(field.Parent)
 	}
 
-	if field.IsFieldCollection {
+	if field.IsFieldCollection || (field.IsNested && field.IsArray) {
 		return "args"
 	}
 
