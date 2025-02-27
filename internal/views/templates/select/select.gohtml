@@ -49,12 +49,21 @@
 
 <script>
 (function() {
-    window.addEventListener("load", () => {
+    const initializeSelect = () => {
         const selector = window.Ponzu.cleanQueryPath("{{ .Selector }}");
         const select = document.querySelector(`.mdc-select.${selector}`);
         if (select) {
             new mdc.select.MDCSelect(select);
         }
+    };
+
+    if (typeof window.Ponzu?.cleanQueryPath === "function") {
+        initializeSelect();
+        return;
+    }
+
+    window.addEventListener("load", () => {
+        initializeSelect();
     });
 })();
 </script>

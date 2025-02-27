@@ -7,15 +7,12 @@ import (
 )
 
 func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *FieldArgs) (string, []Field)) []byte {
-	fmt.Println("NestedRepeater", fieldName)
 	value := ValueByName(fieldName, p, nil)
-	fmt.Println("ValueByName returned", value)
 	if value.Kind() != reflect.Slice && value.Kind() != reflect.Array {
 		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", value.Type(), fieldName))
 	}
 
 	scope := TagNameFromStructField(fieldName, p, nil)
-	fmt.Println(scope)
 
 	tmpl := `
 		<div class="control-block __ponzu-nested __ponzu-repeat ` + scope + `">
@@ -27,9 +24,7 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 		Parent: fmt.Sprintf("%s.%s", fieldName, positionalPlaceHolder),
 	}
 
-	fmt.Println("calling m", fieldArgs)
 	arrayTypeName, fields := m(p, fieldArgs)
-	fmt.Println("m returned")
 	fieldArgs.TypeName = arrayTypeName
 	emptyEntryTemplate := Nested("", p, fieldArgs, fields...)
 
