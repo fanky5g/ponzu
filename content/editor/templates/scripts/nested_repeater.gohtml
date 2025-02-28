@@ -50,6 +50,7 @@
         const addRepeater = function (e) {
             e.preventDefault();
             createChild(n);
+            window.Ponzu.initializeEditorControls();
         };
 
         const delRepeater = function (e, elementIndex) {

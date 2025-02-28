@@ -57,8 +57,13 @@ func DOMInputSelfClose(e *Element) []byte {
 			return nil
 		}
 
+		var extraClassNames []string
+		if e.Data != "" {
+			extraClassNames = append(extraClassNames, "mdc-text-field--label-floating")
+		}
+
 		_, err = e.ViewBuf.WriteString(`
-            <label class="mdc-text-field mdc-text-field--filled">
+            <label class="mdc-text-field mdc-text-field--filled ` + strings.Join(extraClassNames, " ") + `">
               <span class="mdc-text-field__ripple"></span>
               <span class="mdc-floating-label" id="my-label-id">` + e.Label + `</span>
     `)
@@ -82,7 +87,7 @@ func DOMInputSelfClose(e *Element) []byte {
 	}
 
 	for attr, value := range e.Attrs {
-		_, err := e.ViewBuf.WriteString(attr + `="` + value + `" `)
+		_, err = e.ViewBuf.WriteString(attr + `="` + value + `" `)
 		if err != nil {
 			log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
 			return nil
