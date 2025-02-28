@@ -111,12 +111,7 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]fu
 }
 
 func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (interface{}, error) {
-	pType := reflect.TypeOf(p)
-	if pType.Kind() == reflect.Pointer {
-		pType = pType.Elem()
-	}
-
-	emptyType := reflect.New(pType).Interface()
+	emptyType := makeEmptyType(p)
 	value := ValueByName(fieldName, emptyType, nil)
 
 	iface := reflect.New(value.Type().Elem()).Interface()

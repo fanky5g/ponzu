@@ -6,7 +6,11 @@ import (
 	"reflect"
 )
 
-func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *FieldArgs) (string, []Field)) []byte {
+var positionalPlaceHolder = "%pos%"
+
+type NestedFieldGenerator func(v interface{}, f *FieldArgs) (string, []Field)
+
+func NestedRepeater(fieldName string, p interface{}, nestedFieldGenerator NestedFieldGenerator) []byte {
 	value := ValueByName(fieldName, p, nil)
 	if value.Kind() != reflect.Slice && value.Kind() != reflect.Array {
 		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", value.Type(), fieldName))
@@ -19,14 +23,11 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 			<label class="active">` + fieldName + `</label>
 	`
 
-	positionalPlaceHolder := "%pos%"
 	fieldArgs := &FieldArgs{
 		Parent: fmt.Sprintf("%s.%s", fieldName, positionalPlaceHolder),
 	}
 
-	arrayTypeName, fields := m(p, fieldArgs)
-	fieldArgs.TypeName = arrayTypeName
-	emptyEntryTemplate := Nested("", p, fieldArgs, fields...)
+	arrayTypeName, entryTemplate := generateNestedTemplate(nestedFieldGenerator, p, fieldArgs)
 
 	script := &bytes.Buffer{}
 	scriptTmpl := makeScript("nested_repeater")
@@ -38,7 +39,7 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 		CloneSelector         string
 		PositionalPlaceholder string
 	}{
-		Template:              string(emptyEntryTemplate),
+		Template:              entryTemplate,
 		NumItems:              value.Len(),
 		Scope:                 scope,
 		CloneSelector:         fmt.Sprintf(".%s", arrayTypeName),
@@ -49,7 +50,7 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 	}
 
 	for i := 0; i < value.Len(); i++ {
-		_, fields = m(p, &FieldArgs{
+		_, fields := nestedFieldGenerator(p, &FieldArgs{
 			Parent: fmt.Sprintf("%s.%d", fieldName, i),
 		})
 
@@ -59,4 +60,13 @@ func NestedRepeater(fieldName string, p interface{}, m func(v interface{}, f *Fi
 
 	tmpl += `</div>`
 	return append([]byte(tmpl), script.Bytes()...)
+}
+
+func generateNestedTemplate(nestedFieldGenerator NestedFieldGenerator, entity interface{}, fieldArgs *FieldArgs) (string, string) {
+	emptyType := makeEmptyType(entity)
+
+	arrayTypeName, fields := nestedFieldGenerator(emptyType, fieldArgs)
+	fieldArgs.TypeName = arrayTypeName
+
+	return arrayTypeName, string(Nested("", emptyType, fieldArgs, fields...))
 }

@@ -175,7 +175,8 @@ func getRootMethodReceiver(field *Field, callDepth int) string {
 		return getRootMethodReceiver(field.Parent, callDepth+1)
 	}
 
-	if field.IsFieldCollection && callDepth > 0 {
+	isNestedRepeater := field.IsNested && field.IsArray
+	if (field.IsFieldCollection || isNestedRepeater) && callDepth > 0 {
 		// Field Collection Editor render currently works with a hardcoded receiver v which is passed during rendering
 		return "v"
 	}
