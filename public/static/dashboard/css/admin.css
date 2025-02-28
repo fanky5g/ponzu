@@ -574,7 +574,8 @@ div.col.s6:has(select.block-select) {
 }
 
 .selector,
-.repeater-del {
+.repeater-del,
+.nested-repeater-controls {
   margin-top: 8px;
   display: flex;
   flex-direction: row;

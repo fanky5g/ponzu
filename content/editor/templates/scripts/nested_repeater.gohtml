@@ -13,7 +13,7 @@
             const child = template.replace(new RegExp('{{ .PositionalPlaceholder }}', 'g'), i);
             const el = $('<div/>').html(child).contents();
 
-            const parentControls = $('.__ponzu-repeat.{{ .Scope }} .parent.controls');
+            const parentControls = $('.__ponzu-repeat.{{ .Scope }} .parent.nested-repeater-controls');
             if (parentControls.length) {
                 el.insertBefore(parentControls);
             } else {
@@ -67,13 +67,14 @@
         };
 
         const createChildControls = function (elementIndex) {
-            const del = $('<button>-</button>');
-            del.addClass('repeater-del');
-            del.addClass('btn-flat waves-effect waves-red');
+            const del = $(`
+                <button class="mdc-icon-button material-symbols-rounded">
+                  <div class="mdc-icon-button__ripple"></div>
+                  remove
+                </button>
+            `);
 
-            const controls = $('<span></span>');
-            controls.addClass('controls');
-            controls.addClass('right');
+            const controls = $('<div class="repeater-del"></div>');
 
             // bind listeners to child's controls
             del.on('click', function (e) {
@@ -86,22 +87,19 @@
         };
 
         const createParentControls = function() {
-            const container = $('<div></div>');
-            container.addClass('controls');
-            container.addClass('parent');
-            container.addClass('col');
-            container.addClass('s12');
+            const container = $('<div class="parent nested-repeater-controls"></div>');
 
-            const add = $('<button>+</button>');
-            add.addClass('repeater-add');
-            add.addClass('btn-flat waves-effect waves-green');
+            const addButton = $(`
+                <button class="mdc-icon-button material-symbols-rounded">
+                  <div class="mdc-icon-button__ripple"></div>
+                  add_row_above
+                </button>
+            `);
 
-            const controls = $('<span></span>');
-            controls.addClass('right');
+            addButton.addClass('add-block');
 
-            add.on('click', addRepeater);
-            controls.append(add);
-            container.append(controls);
+            addButton.on('click', addRepeater);
+            container.append(addButton);
             $(scope).append(container);
         };
 
