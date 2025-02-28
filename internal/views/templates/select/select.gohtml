@@ -3,7 +3,7 @@
         <label>{{ .Label }}</label>
     {{ end }}
     <div class="mdc-select mdc-select--outlined mdc-select--no-label single-select {{ .Selector }}">
-        <input type="hidden" name="{{ .Name }}" value="{{ .Value }}" />
+        <input type="hidden" name="{{ .Selector }}" value="{{ .Value }}" />
         <div class="mdc-select__anchor" role="button" aria-haspopup="listbox" aria-labelledby="{{ .Name }}"
             tabindex="0">
             <span class="mdc-select__selected-text-container">
