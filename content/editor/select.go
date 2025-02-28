@@ -2,7 +2,6 @@ package editor
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"strings"
 
@@ -73,11 +72,8 @@ func Select(fieldName string, p interface{}, attrs map[string]string, options []
 }
 
 func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, args *FieldArgs, dataProvider interface{}) []byte {
-	fmt.Println("Generating tag name for", fieldName, args)
 	selector := TagNameFromStructField(fieldName, p, args)
-	fmt.Println("Generated Tag name", selector)
 	fieldVal := ValueFromStructField(fieldName, p, args)
-	fmt.Println("Generated value", fieldVal)
 
 	value, ok := fieldVal.(string)
 	if !ok {
