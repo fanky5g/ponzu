@@ -1896,7 +1896,7 @@ func (a *Banner) MarshalEditor(publicPath string) ([]byte, error) {
 			View: editor.NestedRepeater("Cta", a, func(v interface{}, args *editor.FieldArgs) (string, []editor.Field) {
 				return "ButtonLink", []editor.Field{
 					{
-						View: editor.Select("Type", a, map[string]string{
+						View: editor.Select("Type", v, map[string]string{
 							"label": "Select Type",
 						}, []string{
 							"outlined:Outlined",
@@ -1905,23 +1905,23 @@ func (a *Banner) MarshalEditor(publicPath string) ([]byte, error) {
 						}, args),
 					},
 					{
-						View: editor.Input("Text", a, map[string]string{
+						View: editor.Input("Text", v, map[string]string{
 							"label":       "Text",
 							"type":        "text",
 							"placeholder": "Enter the Text here",
 						}, args),
 					},
 					{
-						View: editor.Nested("Link", a, args,
+						View: editor.Nested("Link", v, args,
 							editor.Field{
-								View: editor.Input("Link.ExternalUrl", a, map[string]string{
+								View: editor.Input("Link.ExternalUrl", v, map[string]string{
 									"label":       "ExternalUrl",
 									"type":        "text",
 									"placeholder": "Enter the ExternalUrl here",
 								}, args),
 							},
 							editor.Field{
-								View: editor.Input("Link.Label", a, map[string]string{
+								View: editor.Input("Link.Label", v, map[string]string{
 									"label":       "Label",
 									"type":        "text",
 									"placeholder": "Enter the Label here",
