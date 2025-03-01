@@ -36,3 +36,7 @@
 ### v0.7.0
 
 - Support generating select with initial options
+
+### v0.7.1
+
+- BUGFIX: repeated nested type
