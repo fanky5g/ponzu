@@ -65,11 +65,14 @@
                 });
             };
 
+            const cleanQueryPath = (query) => query.replaceAll('.', '\\.');
+
             (function() {
                 window.Ponzu = {
                     publicPath,
                     loadScript,
                     loadScripts,
+                    cleanQueryPath,
                 };
             })();
         </script>

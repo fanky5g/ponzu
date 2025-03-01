@@ -1,6 +1,6 @@
 <script type="text/javascript">
 (function() {
-    window.addEventListener("load", () => {
+    const initializeReferenceLoader = () => {
         const optionTemplate = "{{ .OptionTemplate }}";
         const contentType = "{{ .ContentType }}";
         const selector = "{{ .Selector }}";
@@ -28,6 +28,15 @@
         }
 
         callback();
+    };
+
+    if (typeof window.Ponzu !== "undefined") {
+        initializeReferenceLoader();
+        return;
+    }
+
+    window.addEventListener("load", () => {
+        initializeReferenceLoader();
     });
 })();
 </script>

@@ -3,7 +3,7 @@
         <label>{{ .Label }}</label>
     {{ end }}
     <div class="mdc-select mdc-select--outlined mdc-select--no-label single-select {{ .Selector }}">
-        <input type="hidden" name="{{ .Name }}" value="{{ .Value }}" />
+        <input type="hidden" name="{{ .Selector }}" value="{{ .Value }}" />
         <div class="mdc-select__anchor" role="button" aria-haspopup="listbox" aria-labelledby="{{ .Name }}"
             tabindex="0">
             <span class="mdc-select__selected-text-container">
@@ -49,9 +49,21 @@
 
 <script>
 (function() {
-    const select = document.querySelector('.mdc-select.{{ .Selector }}');
-    if (select) {
-        new mdc.select.MDCSelect(select);
+    const initializeSelect = () => {
+        const selector = window.Ponzu.cleanQueryPath("{{ .Selector }}");
+        const select = document.querySelector(`.mdc-select.${selector}`);
+        if (select) {
+            new mdc.select.MDCSelect(select);
+        }
+    };
+
+    if (typeof window.Ponzu?.cleanQueryPath === "function") {
+        initializeSelect();
+        return;
     }
+
+    window.addEventListener("load", () => {
+        initializeSelect();
+    });
 })();
 </script>

@@ -19,7 +19,7 @@ func (writer *testWriter) Write(filePath string, buf []byte) error {
 	if strings.HasSuffix(strings.TrimSuffix(filePath, ".tmpl"), ".go") {
 		writer.buf, err = format.Source(buf)
 		if err != nil {
-			return fmt.Errorf("failed to format template: %s", err.Error())
+			return fmt.Errorf("failed to format template: %s.\n\n%s", err.Error(), buf)
 		}
 	}
 

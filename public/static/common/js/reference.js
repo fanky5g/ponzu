@@ -156,7 +156,7 @@
   };
 
   const createSingleSelect = (contentType, selector, rowTemplate, loadOptions = async () => {}) => {
-    const select = document.querySelector(`.mdc-select.single-select.${selector}`);
+    const select = document.querySelector(`.mdc-select.single-select.${window.Ponzu.cleanQueryPath(selector)}`);
     const initialValue = select.querySelector('input[type="hidden"]')?.value;
     let mdcSelect = new mdc.select.MDCSelect(select);
     const mdcMenu = mdcSelect.menu;
@@ -215,7 +215,7 @@
     const parentSelector = `.__ponzu-repeat.${selector}`;
     const childSelector = `.mdc-chip`;
 
-    const select = document.querySelector(`.mdc-select.multi-select.${selector}`);
+    const select = document.querySelector(`.mdc-select.multi-select.${window.Ponzu.cleanQueryPath(selector)}`);
     const chipContainer = select.querySelector('div.mdc-chip-set');
     const selectedOptions = [];
 

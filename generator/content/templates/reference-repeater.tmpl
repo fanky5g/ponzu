@@ -1,5 +1,6 @@
 View: editor.ReferenceSelectRepeater(publicPath, "[[ $ | Path ]]", [[ $ | RootMethodReceiver ]], map[string]string{
         "label": "Select [[ .Label ]]",
     }, 
-    "[[ .ReferenceName ]]", 
+    [[ $ | FieldArg ]],
+    "[[ .ReferenceName ]]",
 ),

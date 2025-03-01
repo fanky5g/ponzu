@@ -24,6 +24,7 @@ type Field struct {
 	IsNested          bool
 	IsFieldCollection bool
 	ReferenceName     string
+	IsArray           bool
 	Tokens            []string
 
 	// Render Scope data
@@ -165,6 +166,7 @@ func mapBlockToField(contentTypes content.Types, block generator.Block) *Field {
 		IsFieldCollection: isFieldCollection,
 		ReferenceName:     block.ReferenceName,
 		Tokens:            block.Definition.Tokens,
+		IsArray:           block.Definition.IsArray,
 	}
 }
 
@@ -173,7 +175,8 @@ func getRootMethodReceiver(field *Field, callDepth int) string {
 		return getRootMethodReceiver(field.Parent, callDepth+1)
 	}
 
-	if field.IsFieldCollection && callDepth > 0 {
+	isNestedRepeater := field.IsNested && field.IsArray
+	if (field.IsFieldCollection || isNestedRepeater) && callDepth > 0 {
 		// Field Collection Editor render currently works with a hardcoded receiver v which is passed during rendering
 		return "v"
 	}
@@ -186,8 +189,13 @@ func GetRootMethodReceiver(field *Field) string {
 }
 
 func GetPath(field *Field) string {
-	if field.Parent != nil && !field.Parent.IsFieldCollection {
-		return strings.Join([]string{GetPath(field.Parent), field.Name}, ".")
+	parent := field.Parent
+	if parent != nil {
+		parentIsFieldCollection := parent.IsFieldCollection
+		parentIsNestedRepeater := parent.IsNested && parent.IsArray
+		if !(parentIsFieldCollection || parentIsNestedRepeater) {
+			return strings.Join([]string{GetPath(parent), field.Name}, ".")
+		}
 	}
 
 	return field.Name
@@ -200,7 +208,7 @@ func GetFieldArgVar(field *Field) string {
 		return GetFieldArgVar(field.Parent)
 	}
 
-	if field.IsFieldCollection {
+	if field.IsFieldCollection || (field.IsNested && field.IsArray) {
 		return "args"
 	}
 

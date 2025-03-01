@@ -3,4 +3,4 @@ View: editor.Select("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, map[string]s
 }, []string{
     {{ range .Tokens }} "{{ . }}",
     {{ end }}
-}),
+}, {{ $ | FieldArg }}),

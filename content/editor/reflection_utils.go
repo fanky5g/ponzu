@@ -190,10 +190,6 @@ func ValueFromStructField(name string, post interface{}, args *FieldArgs) interf
 				s[i] = field.Index(i).Interface().(string)
 			}
 
-			// TODO(B.B): commented: prior implementation of string array.
-			// this is re-implemented for supporting Reference multi-select and so we need to re-implement
-			// input_repeater and possibly select_repeater.
-			//return strings.Join(s, "__ponzu")
 			return s
 		}
 
@@ -202,4 +198,13 @@ func ValueFromStructField(name string, post interface{}, args *FieldArgs) interf
 	default:
 		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", field.Type(), name))
 	}
+}
+
+func makeEmptyType(p interface{}) interface{} {
+	pType := reflect.TypeOf(p)
+	if pType.Kind() == reflect.Pointer {
+		pType = pType.Elem()
+	}
+
+	return reflect.New(pType).Interface()
 }

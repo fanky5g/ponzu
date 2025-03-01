@@ -67,17 +67,16 @@ type SelectInitialOptionsProvider interface {
 // IMPORTANT:
 // The `fieldName` argument will cause a panic if it is not exactly the string
 // form of the struct field that this editor input is representing
-func Select(fieldName string, p interface{}, attrs map[string]string, options []string) []byte {
-	return SelectWithDataProvider(fieldName, p, attrs, makeGenericSelectDataProvider(options))
+func Select(fieldName string, p interface{}, attrs map[string]string, options []string, args *FieldArgs) []byte {
+	return SelectWithDataProvider(fieldName, p, attrs, args, makeGenericSelectDataProvider(options))
 }
 
-func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, dataProvider interface{}) []byte {
-	value := ""
+func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, args *FieldArgs, dataProvider interface{}) []byte {
+	selector := TagNameFromStructField(fieldName, p, args)
+	fieldVal := ValueFromStructField(fieldName, p, args)
 
-	selector := TagNameFromStructField(fieldName, p, nil)
-	fieldVal := ValueFromStructField(fieldName, p, nil)
-	var ok bool
-	if value, ok = fieldVal.(string); !ok {
+	value, ok := fieldVal.(string)
+	if !ok {
 		log.Warnf("Expected field value to be string. Got %T", fieldVal)
 	}
 

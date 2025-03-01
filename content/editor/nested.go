@@ -8,7 +8,7 @@ func Nested(fieldName string, p interface{}, args *FieldArgs, fields ...Field) [
 	}
 
 	tmpl := `
-		<fieldset class="control-block ` + name + `" name="` + name + `">
+		<fieldset class="control-block __ponzu-nested ` + name + `" name="` + name + `">
 			<label>` + name + `</label>
 	`
 
