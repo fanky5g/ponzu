@@ -404,9 +404,9 @@ func (p *PageContentBlocks) Add(fieldCollection content.FieldCollection) {
 	*p = append(*p, fieldCollection)
 }
 
-func (p *PageContentBlocks) Set(i int, fieldCollection content.FieldCollection) {
+func (p *PageContentBlocks) Set(index int, fieldCollection content.FieldCollection) {
 	data := p.Data()
-	data[i] = fieldCollection
+	data[index] = fieldCollection
 	*p = data
 }
 
@@ -414,7 +414,7 @@ func (p *PageContentBlocks) SetData(data []content.FieldCollection) {
 	*p = data
 }
 
-func (p *PageContentBlocks) UnmarshalJSON(b []byte) error {
+func (p *PageContentBlocks) UnmarshalJSON(data []byte) error {
 	if p == nil {
 		*p = make([]content.FieldCollection, 0)
 	}
@@ -422,18 +422,18 @@ func (p *PageContentBlocks) UnmarshalJSON(b []byte) error {
 	allowedTypes := p.AllowedTypes()
 
 	var value []content.FieldCollection
-	if err := json.Unmarshal(b, &value); err != nil {
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
 
-	for i, t := range value {
-		builder, ok := allowedTypes[t.Type]
+	for index, fc := range value {
+		builder, ok := allowedTypes[fc.Type]
 		if !ok {
-			return fmt.Errorf("type %s not implemented", t.Type)
+			return fmt.Errorf("type %s not implemented", fc.Type)
 		}
 
 		entity := builder()
-		byteRepresentation, err := json.Marshal(t.Value)
+		byteRepresentation, err := json.Marshal(fc.Value)
 		if err != nil {
 			return err
 		}
@@ -442,7 +442,7 @@ func (p *PageContentBlocks) UnmarshalJSON(b []byte) error {
 			return err
 		}
 
-		value[i].Value = entity
+		value[index].Value = entity
 	}
 
 	*p = value
