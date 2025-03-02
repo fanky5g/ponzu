@@ -13,11 +13,11 @@ func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Nam
 }
 
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Data() []content.FieldCollection {
-	if p == nil {
+	if {{ .Definition.Metadata.MethodReceiverName }} == nil {
 		return nil
 	}
 
-	return *p
+	return *{{ .Definition.Metadata.MethodReceiverName }}
 }
 
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) AllowedTypes() map[string]content.Builder {
@@ -31,25 +31,25 @@ func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) All
 }
 
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Add(fieldCollection content.FieldCollection) {
-	*p = append(*p, fieldCollection)
+	*{{ .Definition.Metadata.MethodReceiverName }} = append(*{{ .Definition.Metadata.MethodReceiverName }}, fieldCollection)
 }
 
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Set(i int, fieldCollection content.FieldCollection) {
-	data := p.Data()
+	data := {{ .Definition.Metadata.MethodReceiverName }}.Data()
 	data[i] = fieldCollection
-	*p = data
+	*{{ .Definition.Metadata.MethodReceiverName }} = data
 }
 
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) SetData(data []content.FieldCollection) {
-	*p = data
+	*{{ .Definition.Metadata.MethodReceiverName }} = data
 }
 
 func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) UnmarshalJSON(b []byte) error {
-	if p == nil {
-		*p = make([]content.FieldCollection, 0)
+	if {{ .Definition.Metadata.MethodReceiverName }} == nil {
+		*{{ .Definition.Metadata.MethodReceiverName }} = make([]content.FieldCollection, 0)
 	}
 
-	allowedTypes := p.AllowedTypes()
+	allowedTypes := {{ .Definition.Metadata.MethodReceiverName }}.AllowedTypes()
 
 	var value []content.FieldCollection
 	if err := json.Unmarshal(b, &value); err != nil {
@@ -75,7 +75,7 @@ func ({{ .Definition.Metadata.MethodReceiverName }} *{{ .Definition.Name }}) Unm
 		value[i].Value = entity
 	}
 
-	*p = value
+	*{{ .Definition.Metadata.MethodReceiverName }} = value
 	return nil
 }
 
