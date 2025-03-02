@@ -40,3 +40,7 @@
 ### v0.7.1
 
 - BUGFIX: repeated nested type
+
+### v0.7.2
+
+- BUGFIX: fix field collections usage of static method receiver variable
