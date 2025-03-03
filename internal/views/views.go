@@ -1,48 +1,28 @@
 package views
 
 import (
+	"embed"
 	"html/template"
 	"io"
-	"io/fs"
 	"path/filepath"
 	"runtime"
 )
 
 var (
-	t    *template.Template
-	Path string
+	t *template.Template
+	//go:embed all:*.gohtml
+	templates embed.FS
+	Path      string
 )
 
 func init() {
 	_, b, _, _ := runtime.Caller(0)
 	Path = filepath.Join(filepath.Dir(b), "../../internal/views")
-	t = template.New("views").Funcs(GlobFuncs)
 
-	traverseErr := filepath.WalkDir(Path, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() {
-			pattern := filepath.Join(path, "*.gohtml")
-			matches, err := filepath.Glob(pattern)
-			if err != nil {
-				return err
-			}
-
-			if len(matches) > 0 {
-				t, err = t.ParseGlob(pattern)
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		return nil
-	})
-
-	if traverseErr != nil {
-		panic(traverseErr)
+	var err error
+	t, err = template.New("views").Funcs(GlobFuncs).ParseFS(templates, "*.gohtml")
+	if err != nil {
+		panic(err)
 	}
 }
 
