@@ -2,7 +2,7 @@ package editor
 
 import (
 	"bytes"
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -53,7 +53,7 @@ func MultiSelectWithDataProvider(fieldName string, p interface{}, attrs map[stri
 		Selected: selected,
 	}
 
-	if err := views.ExecuteTemplate(templateBuffer, "multi_select.gohtml", sel); err != nil {
+	if err := templates.ExecuteTemplate(templateBuffer, "views/select/multi_select.gohtml", sel); err != nil {
 		log.Fatalf("Failed to render multi-select: %v", err)
 	}
 

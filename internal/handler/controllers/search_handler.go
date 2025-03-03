@@ -67,6 +67,6 @@ func NewSearchHandler(r router.Router) http.HandlerFunc {
 
 		}
 
-		r.Renderer().TableView(res, "templates/datatable", params)
+		r.Renderer().TableView(res, "datatable", params)
 	}
 }

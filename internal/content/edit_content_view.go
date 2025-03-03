@@ -1,12 +1,9 @@
 package content
 
 import (
-	"bytes"
 	"errors"
-	"html/template"
-	"strings"
-
 	"fmt"
+	"html/template"
 
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/editor"
@@ -19,30 +16,6 @@ import (
 
 var (
 	ErrInvalidContentType = errors.New("invalid content type")
-	TemplateFuncs         = template.FuncMap{
-		"WorkflowActionName": func(transition workflow.Workflow, currentWorkflow workflow.Workflow, entity interface{}) (string, error) {
-			action := string(transition.GetState())
-
-			if actionDescriptor, ok := transition.(workflow.ActionDescriptor); ok {
-				actionTemplate, err := actionDescriptor.GetAction(currentWorkflow)
-				if err != nil {
-					return "", err
-				}
-
-				w := &bytes.Buffer{}
-				if err = actionTemplate.Execute(w, entity); err != nil {
-					return "", err
-				}
-
-				action = w.String()
-			}
-
-			return action, nil
-		},
-		"WorkflowStateToLower": func(state workflow.State) string {
-			return strings.ToLower(string(state))
-		},
-	}
 )
 
 type (

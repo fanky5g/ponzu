@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -112,7 +112,7 @@ func SelectWithDataProvider(fieldName string, p interface{}, attrs map[string]st
 		Value:       value,
 	}
 
-	if err = views.ExecuteTemplate(templateBuffer, "select.gohtml", sel); err != nil {
+	if err = templates.ExecuteTemplate(templateBuffer, "views/select/select.gohtml", sel); err != nil {
 		log.Fatalf("Failed to render select: %v", err)
 	}
 

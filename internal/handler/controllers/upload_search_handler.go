@@ -24,7 +24,7 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 			return
 		}
 
-		search, err := request.MapSearchRequest(searchRequest)
+		s, err := request.MapSearchRequest(searchRequest)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to map search request dto")
 			r.Renderer().BadRequest(res)
@@ -36,7 +36,7 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 			return searchService.Search(pt, searchRequest.Query, searchRequest.Count, searchRequest.Offset)
 		}
 
-		params, err := table.New(constants.UploadEntityName, pt, search, uploadResultLoader)
+		params, err := table.New(constants.UploadEntityName, pt, s, uploadResultLoader)
 		if err != nil {
 			log.WithField("Error", err).Warning("Failed to build table params")
 			r.Renderer().InternalServerError(res)
@@ -44,6 +44,6 @@ func NewUploadSearchHandler(r router.Router) http.HandlerFunc {
 
 		}
 
-		r.Renderer().TableView(res, "templates/uploadsdatatable", params)
+		r.Renderer().TableView(res, "uploadsdatatable", params)
 	}
 }
