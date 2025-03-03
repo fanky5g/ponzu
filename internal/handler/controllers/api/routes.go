@@ -1,12 +1,12 @@
 package api
 
 import (
-	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/storage"
 	"net/http"
 )
 
-func RegisterRoutes(r router.Router, uploadsFileSystem driver.StaticFileSystemInterface) {
+func RegisterRoutes(r router.Router, uploadsFileSystem storage.Client) {
 	r.APIRoute("/api/auth", NewAuthHandler)
 	r.APIAuthorizedRoute("/api/content/", NewContentHandler)
 	r.APIAuthorizedRoute("/api/search", NewSearchContentHandler)

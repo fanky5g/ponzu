@@ -4,17 +4,13 @@ import (
 	"github.com/fanky5g/ponzu/internal/dashboard"
 	"net/http"
 
-	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/api"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
+	"github.com/fanky5g/ponzu/internal/storage"
 )
 
-func RegisterRoutes(
-	r router.Router,
-	staticFileSystem driver.StaticFileSystemInterface,
-	uploadsStaticFileSystem driver.StaticFileSystemInterface,
-) error {
+func RegisterRoutes(r router.Router, assetStorage http.FileSystem, uploadStorage storage.Client) error {
 	dashboardHandler, err := dashboard.NewHandler(r)
 	if err != nil {
 		return err
@@ -46,8 +42,8 @@ func RegisterRoutes(
 		return err
 	}
 
-	api.RegisterRoutes(r, uploadsStaticFileSystem)
+	api.RegisterRoutes(r, uploadStorage)
 
-	r.HandleWithCacheControl("/static/", http.StripPrefix("/static", http.FileServer(staticFileSystem)))
+	r.HandleWithCacheControl("/static/", http.StripPrefix("/static", http.FileServer(assetStorage)))
 	return nil
 }
