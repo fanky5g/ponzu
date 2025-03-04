@@ -2,11 +2,11 @@ package server
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/storage"
 	"net/http"
 
 	conf "github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/handler/controllers"
@@ -36,8 +36,8 @@ func (server *server) ServeMux() *http.ServeMux {
 
 func New(
 	contentTypes content.Types,
-	assetStorageClient driver.StorageClientInterface,
-	storageClient driver.StorageClientInterface,
+	assetStorage http.FileSystem,
+	uploadStorage storage.Client,
 	svcs services.Services,
 ) (Server, error) {
 	appConf, err := conf.Get()
@@ -79,7 +79,7 @@ func New(
 		return nil, err
 	}
 
-	err = controllers.RegisterRoutes(rtr, assetStorageClient, storageClient)
+	err = controllers.RegisterRoutes(rtr, assetStorage, uploadStorage)
 	if err != nil {
 		return nil, err
 	}

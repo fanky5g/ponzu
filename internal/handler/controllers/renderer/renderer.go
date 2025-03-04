@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"net/http"
-	"path/filepath"
 	"strings"
 
 	"github.com/fanky5g/ponzu/content"
@@ -14,7 +12,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/resources/viewparams/table"
 	"github.com/fanky5g/ponzu/internal/handler/controllers/router/context"
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 	"github.com/fanky5g/ponzu/tokens"
 	log "github.com/sirupsen/logrus"
 )
@@ -187,45 +185,35 @@ func (r *renderer) renderInAppFrame(template string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (r *renderer) Template(templates ...string) *template.Template {
-	templatePaths := make([]string, len(templates))
-	for i, templateName := range templates {
-		templatePaths[i] = fmt.Sprintf("%s/%s", views.Path, templateName)
+func (r *renderer) Template(names ...string) *template.Template {
+	templatePaths := make([]string, len(names))
+	for i, templateName := range names {
+		templatePaths[i] = fmt.Sprintf("views/%s", templateName)
 	}
 
-	return template.Must(template.New(strings.Join(templates, "_")).
-		Funcs(views.GlobFuncs).
-		Parse(views.Html(templatePaths...)))
+	return template.Must(template.New(strings.Join(names, "_")).
+		Funcs(templates.GlobFuncs).
+		Parse(templates.Html(templatePaths...)))
 }
 
-func (r *renderer) TemplateString(templates ...string) string {
-	templatePaths := make([]string, len(templates))
-	for i, templateName := range templates {
-		templatePaths[i] = fmt.Sprintf("%s/%s", views.Path, templateName)
+func (r *renderer) TemplateString(names ...string) string {
+	templatePaths := make([]string, len(names))
+	for i, templateName := range names {
+		templatePaths[i] = fmt.Sprintf("views/%s", templateName)
 	}
 
-	return views.Html(templatePaths...)
+	return templates.Html(templatePaths...)
 }
 
-// Dir recursively walks directory and returns all go template files.
-func (r *renderer) TemplateFromDir(name string) *template.Template {
-	goTemplates := make([]string, 0)
-	rootPath := filepath.Join(views.Path, name)
-	if err := filepath.WalkDir(rootPath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if !d.IsDir() && strings.HasSuffix(path, ".gohtml") {
-			goTemplates = append(goTemplates, filepath.Join(name, d.Name()))
-		}
-
-		return nil
-	}); err != nil {
+// TemplateFromDir recursively walks directory and returns all go template files.
+func (r *renderer) TemplateFromDir(dirName string) *template.Template {
+	pattern := fmt.Sprintf("views/%s/*.gohtml", dirName)
+	t, err := templates.Glob(dirName, pattern)
+	if err != nil {
 		panic(err)
 	}
 
-	return r.Template(goTemplates...)
+	return t
 }
 
 func New(ctx context.Context) (Renderer, error) {

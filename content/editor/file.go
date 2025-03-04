@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 )
 
 // File returns the []byte of a <input type="file"> HTML element with a label.
@@ -34,7 +34,7 @@ func File(fieldName string, p interface{}, attrs map[string]string) []byte {
 		Attributes:   attrs,
 		PublicPath:   publicPath,
 	}
-	if err := views.ExecuteTemplate(w, "file.gohtml", file); err != nil {
+	if err := templates.ExecuteTemplate(w, "views/input/file.gohtml", file); err != nil {
 		panic(err)
 	}
 

@@ -17,7 +17,7 @@ func (r *renderer) TableView(
 	buf := &bytes.Buffer{}
 	tableViewTmpl := r.TemplateFromDir(templateName)
 
-	if err := tableViewTmpl.Execute(buf, data); err != nil {
+	if err := tableViewTmpl.ExecuteTemplate(buf, "table.gohtml", data); err != nil {
 		log.WithField("Error", err).Warning("Failed to render table")
 		r.InternalServerError(w)
 		return

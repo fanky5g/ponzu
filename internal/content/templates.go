@@ -1,11 +1,8 @@
 package content
 
 import (
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 	"html/template"
-	"maps"
-	"path/filepath"
-	"runtime"
 	"sync"
 )
 
@@ -18,10 +15,7 @@ func getEditUploadTemplate(layoutTmpl *template.Template) (*template.Template, e
 	var err error
 
 	editUploadTemplateCreator.Do(func() {
-		_, b, _, _ := runtime.Caller(0)
-		workingDirectory := filepath.Dir(b)
-
-		editUploadTemplate, err = layoutTmpl.Parse(views.Html(filepath.Join(workingDirectory, "templates/edit_upload_view.gohtml")))
+		editUploadTemplate, err = layoutTmpl.Parse(templates.Html("views/edit_upload_view.gohtml"))
 	})
 
 	return editUploadTemplate, err
@@ -29,18 +23,11 @@ func getEditUploadTemplate(layoutTmpl *template.Template) (*template.Template, e
 
 // TODO(B.B) use dashboard layout template
 func getEditPageTemplate() (*template.Template, error) {
-	_, b, _, _ := runtime.Caller(0)
-	workingDirectory := filepath.Dir(b)
-	sharedTemplatesRoot := filepath.Join(workingDirectory, "../dashboard")
-
-	funcs := views.GlobFuncs
-	maps.Copy(funcs, TemplateFuncs)
-
-	return template.New("edit").Funcs(funcs).Parse(
-		views.Html(
-			filepath.Join(sharedTemplatesRoot, "dashboard.gohtml"),
-			filepath.Join(sharedTemplatesRoot, "app-frame.gohtml"),
-			filepath.Join(workingDirectory, "templates/edit_content_view.gohtml"),
+	return template.New("edit").Funcs(templates.GlobFuncs).Parse(
+		templates.Html(
+			"views/dashboard.gohtml",
+			"views/app-frame.gohtml",
+			"views/edit_content_view.gohtml",
 		),
 	)
 }

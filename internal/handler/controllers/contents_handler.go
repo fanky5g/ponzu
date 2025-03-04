@@ -64,6 +64,6 @@ func NewContentsHandler(r router.Router) http.HandlerFunc {
 
 		}
 
-		r.Renderer().TableView(res, "templates/datatable", tableParams)
+		r.Renderer().TableView(res, "datatable", tableParams)
 	}
 }

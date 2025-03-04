@@ -2,14 +2,14 @@ package application
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/storage"
+	"github.com/fanky5g/ponzu/internal/storage/assets"
 
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	gcsStorage "github.com/fanky5g/ponzu-driver-gcs"
-	localStorage "github.com/fanky5g/ponzu-driver-local-storage"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	databasePkg "github.com/fanky5g/ponzu/database"
-	"github.com/fanky5g/ponzu/driver"
 	contentService "github.com/fanky5g/ponzu/internal/content"
 	"github.com/fanky5g/ponzu/internal/content/dataexporter"
 	"github.com/fanky5g/ponzu/internal/content/dataexporter/formatter"
@@ -19,6 +19,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/search"
 	pgSearch "github.com/fanky5g/ponzu/internal/search/postgres"
 	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/storage/localstorage"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -68,11 +69,6 @@ func New(conf Config) (Application, error) {
 		return nil, err
 	}
 
-	assetStorageClient, err := localStorage.New(config.AssetStaticDir())
-	if err != nil {
-		return nil, fmt.Errorf("failed to create asset storage file system: %v", err)
-	}
-
 	searchClient, err := getSearchDriver(db)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get search client")
@@ -111,7 +107,7 @@ func New(conf Config) (Application, error) {
 	}
 	svcs[tokens.ContentServiceToken] = contentSvc
 
-	svr, err := server.New(conf.ContentTypes, assetStorageClient, uploadStorageClient, svcs)
+	svr, err := server.New(conf.ContentTypes, assets.AssetStorage, uploadStorageClient, svcs)
 	if err != nil {
 		return nil, err
 	}
@@ -119,12 +115,12 @@ func New(conf Config) (Application, error) {
 	return &application{server: svr}, nil
 }
 
-func getUploadStorageClient(driver string) (driver.StorageClientInterface, error) {
+func getUploadStorageClient(driver string) (storage.Client, error) {
 	switch driver {
 	case "":
 		return nil, ErrStorageDriverMissing
 	case "local":
-		uploadStorageClient, err := localStorage.New("")
+		uploadStorageClient, err := localstorage.New("")
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize storage client: %v", err)
 		}

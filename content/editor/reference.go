@@ -3,7 +3,7 @@ package editor
 import (
 	"io"
 
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 )
 
 type ReferenceSelectDataProvider struct {
@@ -15,7 +15,7 @@ type ReferenceSelectDataProvider struct {
 }
 
 func (provider *ReferenceSelectDataProvider) RenderClientOptionsProvider(w io.Writer, selector string) error {
-	return views.ExecuteTemplate(w, "reference_options_loader.gohtml", struct {
+	return templates.ExecuteTemplate(w, "views/select/reference_options_loader.gohtml", struct {
 		PublicPath             string
 		ContentType            string
 		Selector               string

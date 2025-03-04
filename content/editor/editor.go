@@ -6,19 +6,9 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"path/filepath"
-	"runtime"
 
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 )
-
-var pathToTemplates string
-
-func init() {
-	_, b, _, _ := runtime.Caller(0)
-	rootPath := filepath.Join(filepath.Dir(b), "../..")
-	pathToTemplates = fmt.Sprintf("%s/content/editor/templates", rootPath)
-}
 
 // Editable ensures data is editable
 type Editable interface {
@@ -46,11 +36,10 @@ type FieldArgs struct {
 }
 
 func makeScript(name string) *template.Template {
-	templateString := views.Html(fmt.Sprintf("%s/scripts/%s", pathToTemplates, name))
+	t, err := templates.Template(fmt.Sprintf("scripts/%s", name))
+	if err != nil {
+		panic(err)
+	}
 
-	return template.Must(template.New(name).Parse(templateString))
-}
-
-func makeHtml(name string) string {
-	return views.Html(fmt.Sprintf("%s/html/%s", pathToTemplates, name))
+	return t
 }

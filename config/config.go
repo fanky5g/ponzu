@@ -65,7 +65,9 @@ func Get() (*Config, error) {
 	viper.AddConfigPath(cwd)
 	err = viper.ReadInConfig()
 	if err != nil && errors.As(err, &viper.ConfigFileNotFoundError{}) {
-		log.Info("config file not found. will default to provided flags")
+		log.WithFields(log.Fields{
+			"WorkingDirectory": cwd,
+		}).Warning("config file not found. will default to provided flags")
 		err = nil
 	}
 

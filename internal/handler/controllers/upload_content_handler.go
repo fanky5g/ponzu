@@ -50,6 +50,6 @@ func NewUploadContentsHandler(r router.Router) http.HandlerFunc {
 
 		}
 
-		r.Renderer().TableView(res, "templates/uploadsdatatable", params)
+		r.Renderer().TableView(res, "uploadsdatatable", params)
 	}
 }

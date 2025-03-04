@@ -7,7 +7,7 @@ import (
 	"reflect"
 
 	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/internal/views"
+	"github.com/fanky5g/ponzu/internal/templates"
 )
 
 func FieldCollection(fieldName, label string, p interface{}, types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
@@ -165,7 +165,7 @@ func getBlockSelector(name string,
 	}
 
 	w := &bytes.Buffer{}
-	if err := views.ExecuteTemplate(w, "select.gohtml", sel); err != nil {
+	if err := templates.ExecuteTemplate(w, "views/select/select.gohtml", sel); err != nil {
 		panic(err)
 	}
 

@@ -2,6 +2,7 @@ package content
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/storage"
 	"mime/multipart"
 	"net/http"
 	"strings"
@@ -10,7 +11,6 @@ import (
 	"github.com/fanky5g/ponzu/content/entities"
 	contentEntities "github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/driver"
 	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/search"
@@ -21,7 +21,7 @@ import (
 var UploadType = "Upload"
 
 type UploadService struct {
-	client       driver.StorageClientInterface
+	client       storage.Client
 	repository   database.Repository
 	searchClient search.SearchInterface
 }
@@ -29,7 +29,7 @@ type UploadService struct {
 func NewUploadService(
 	db database.Database,
 	searchClient search.SearchInterface,
-	client driver.StorageClientInterface) (*UploadService, error) {
+	client storage.Client) (*UploadService, error) {
 	s := &UploadService{
 		client:       client,
 		searchClient: searchClient,
