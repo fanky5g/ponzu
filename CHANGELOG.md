@@ -44,3 +44,6 @@
 ### v0.7.2
 
 - BUGFIX: fix field collections usage of static method receiver variable
+
+### v0.7.3
+- Bundle assets and templates with binary
