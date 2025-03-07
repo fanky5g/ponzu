@@ -10,13 +10,14 @@ var positionalPlaceHolder = "%pos%"
 
 type NestedFieldGenerator func(v interface{}, f *FieldArgs) (string, []Field)
 
-func NestedRepeater(fieldName string, p interface{}, nestedFieldGenerator NestedFieldGenerator) []byte {
-	value := ValueByName(fieldName, p, nil)
+func NestedRepeater(fieldName string, p interface{}, args *FieldArgs, nestedFieldGenerator NestedFieldGenerator) []byte {
+	value := ValueByName(fieldName, p, args)
+
 	if value.Kind() != reflect.Slice && value.Kind() != reflect.Array {
 		panic(fmt.Sprintf("Ponzu: Type '%s' for field '%s' not supported.", value.Type(), fieldName))
 	}
 
-	scope := TagNameFromStructField(fieldName, p, nil)
+	scope := TagNameFromStructField(fieldName, p, args)
 
 	tmpl := `
 		<div class="control-block __ponzu-nested __ponzu-repeat ` + scope + `">
@@ -27,7 +28,15 @@ func NestedRepeater(fieldName string, p interface{}, nestedFieldGenerator Nested
 		Parent: fmt.Sprintf("%s.%s", fieldName, positionalPlaceHolder),
 	}
 
-	arrayTypeName, entryTemplate := generateNestedTemplate(nestedFieldGenerator, p, fieldArgs)
+	emptyType := makeEmptyType(p)
+	if args != nil && args.Parent != "" {
+		fieldArgs.Parent = fmt.Sprintf("%s.%s", args.Parent, fieldArgs.Parent)
+		// we want to keep type representation intact
+		// e.g. in cases where NestedRepeater is a child of FieldCollection
+		emptyType = p
+	}
+
+	arrayTypeName, entryTemplate := generateNestedTemplate(nestedFieldGenerator, emptyType, fieldArgs)
 
 	script := &bytes.Buffer{}
 	scriptTmpl := makeScript("nested_repeater")
@@ -62,9 +71,7 @@ func NestedRepeater(fieldName string, p interface{}, nestedFieldGenerator Nested
 	return append([]byte(tmpl), script.Bytes()...)
 }
 
-func generateNestedTemplate(nestedFieldGenerator NestedFieldGenerator, entity interface{}, fieldArgs *FieldArgs) (string, string) {
-	emptyType := makeEmptyType(entity)
-
+func generateNestedTemplate(nestedFieldGenerator NestedFieldGenerator, emptyType interface{}, fieldArgs *FieldArgs) (string, string) {
 	arrayTypeName, fields := nestedFieldGenerator(emptyType, fieldArgs)
 	fieldArgs.TypeName = arrayTypeName
 

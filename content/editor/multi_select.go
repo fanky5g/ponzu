@@ -6,9 +6,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func MultiSelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, dataProvider interface{}) []byte {
-	selector := TagNameFromStructField(fieldName, p, nil)
-	fieldVal := ValueFromStructField(fieldName, p, nil)
+func MultiSelectWithDataProvider(fieldName string, p interface{}, attrs map[string]string, args *FieldArgs, dataProvider interface{}) []byte {
+	selector := TagNameFromStructField(fieldName, p, args)
+	fieldVal := ValueFromStructField(fieldName, p, args)
 
 	var selected []string
 	if fieldVal != nil {

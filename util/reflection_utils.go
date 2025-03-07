@@ -6,16 +6,16 @@ import (
 )
 
 func SizeOfV(v reflect.Value) int {
+	if v.IsZero() || v.IsNil() {
+		return 0
+	}
+
 	if v.Kind() == reflect.Pointer {
 		v = v.Elem()
 	}
 
 	if !v.IsValid() {
-		panic(fmt.Sprintf("cannot compute size of invalid value %v", v))
-	}
-
-	if v.IsNil() || v.IsZero() {
-		return 0
+		panic(fmt.Sprintf("cannot compute size of invalid value: %+v", v))
 	}
 
 	return v.Len()

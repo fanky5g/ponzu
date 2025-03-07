@@ -1,4 +1,4 @@
-View: editor.NestedRepeater("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, func(v interface{}, args *editor.FieldArgs) (string, []editor.Field)   {
+View: editor.NestedRepeater("{{ $ | Path }}", {{ $ | RootMethodReceiver }}, {{ $ | FieldArg }}, func(v interface{}, args *editor.FieldArgs) (string, []editor.Field)   {
         return "{{ .ReferenceName }}", []editor.Field {
             {{ range .Children }} {
                 {{ .View }}

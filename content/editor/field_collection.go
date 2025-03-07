@@ -10,7 +10,9 @@ import (
 	"github.com/fanky5g/ponzu/internal/templates"
 )
 
-func FieldCollection(fieldName, label string, p interface{}, types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
+type FieldCollectionConstructor func(interface{}, *FieldArgs, ...Field) []byte
+
+func FieldCollection(fieldName, label string, p interface{}, types map[string]FieldCollectionConstructor) []byte {
 	scope := TagNameFromStructField(fieldName, p, nil)
 	tmpl := `
 		<div class="control-block __ponzu-field-collection ` + scope + `">
@@ -23,7 +25,6 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]fu
 		panic(fmt.Sprintf("Ponzu: '%s' is not a valid FieldCollections type", value.Type()))
 	}
 
-	positionalPlaceHolder := "%pos%"
 	parentFieldPath := fmt.Sprintf("%s.%s.Value", fieldName, positionalPlaceHolder)
 
 	typeTemplateMap := make(map[string]string)
@@ -34,24 +35,27 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]fu
 			panic(err)
 		}
 
-		fieldCollectionTemplate := types[typeName](
-			emptyType,
-			&FieldArgs{
-				Parent:   parentFieldPath,
-				TypeName: typeName,
-			},
-			Field{
-				View: []byte(
-					fmt.Sprintf(
-						`<input name="%s" type="hidden" value="%s" />`,
-						fmt.Sprintf("%s.%s.type", scope, positionalPlaceHolder),
-						typeName,
+		var fc FieldCollectionConstructor
+		if fc, ok = types[typeName]; ok {
+			fieldCollectionTemplate := fc(
+				emptyType,
+				&FieldArgs{
+					Parent:   parentFieldPath,
+					TypeName: typeName,
+				},
+				Field{
+					View: []byte(
+						fmt.Sprintf(
+							`<input name="%s" type="hidden" value="%s" />`,
+							fmt.Sprintf("%s.%s.type", scope, positionalPlaceHolder),
+							typeName,
+						),
 					),
-				),
-			},
-		)
+				},
+			)
 
-		typeTemplateMap[typeName] = string(fieldCollectionTemplate)
+			typeTemplateMap[typeName] = string(fieldCollectionTemplate)
+		}
 	}
 
 	templatesBytes, err := json.Marshal(typeTemplateMap)
@@ -137,7 +141,7 @@ func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (i
 }
 
 func getBlockSelector(name string,
-	types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
+	types map[string]FieldCollectionConstructor) []byte {
 	options := make([]SelectOption, len(types))
 	i := 0
 	for k := range types {
