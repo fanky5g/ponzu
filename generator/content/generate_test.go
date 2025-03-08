@@ -1902,30 +1902,30 @@ func (a *Banner) MarshalEditor(publicPath string) ([]byte, error) {
 							"outlined:Outlined",
 							"text:Text",
 							"contained:Contained",
-						}, nil),
+						}, args),
 					},
 					{
 						View: editor.Input("Text", v, map[string]string{
 							"label":       "Text",
 							"type":        "text",
 							"placeholder": "Enter the Text here",
-						}, nil),
+						}, args),
 					},
 					{
-						View: editor.Nested("Link", v, nil,
+						View: editor.Nested("Link", v, args,
 							editor.Field{
 								View: editor.Input("Link.ExternalUrl", v, map[string]string{
 									"label":       "ExternalUrl",
 									"type":        "text",
 									"placeholder": "Enter the ExternalUrl here",
-								}, nil),
+								}, args),
 							},
 							editor.Field{
 								View: editor.Input("Link.Label", v, map[string]string{
 									"label":       "Label",
 									"type":        "text",
 									"placeholder": "Enter the Label here",
-								}, nil),
+								}, args),
 							},
 						),
 					},

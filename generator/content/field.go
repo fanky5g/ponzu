@@ -204,12 +204,13 @@ func GetPath(field *Field) string {
 // GetFieldArgVar is currently only used with field collections. It returns one of two values nil or args.
 // If the root parent is a FieldCollection it returns args which is filled during template rendering
 func GetFieldArgVar(field *Field) string {
-	if field.Parent != nil {
-		return GetFieldArgVar(field.Parent)
-	}
+	parent := field.Parent
+	if parent != nil {
+		if parent.IsFieldCollection || (parent.IsNested && parent.IsArray) {
+			return "args"
+		}
 
-	if field.IsFieldCollection {
-		return "args"
+		return GetFieldArgVar(field.Parent)
 	}
 
 	return "nil"
