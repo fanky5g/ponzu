@@ -208,7 +208,7 @@ func GetFieldArgVar(field *Field) string {
 		return GetFieldArgVar(field.Parent)
 	}
 
-	if field.IsFieldCollection || (field.IsNested && field.IsArray) {
+	if field.IsFieldCollection {
 		return "args"
 	}
 
