@@ -3,6 +3,7 @@ package request
 import (
 	"github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/content/item"
+	"github.com/fanky5g/ponzu/internal/test/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/url"
@@ -350,6 +351,80 @@ func (suite *ContentMapperHelpersTestSuite) TestMapPayloadToGenericEntityFieldCo
 	entity, err := MapPayloadToGenericEntity(&page{}, payload)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), expectedEntity, entity)
+	}
+}
+
+func TestMapPayloadToGenericEntity(t *testing.T) {
+	tt := []struct {
+		name         string
+		Payload      url.Values
+		ExpectedPage *types.Page
+	}{
+		{
+			name: "DeleteContentBlocksEntryInPosition",
+			Payload: url.Values{
+				"id":        {"7219db7f-6fa5-470b-bc82-911fc6ac70c2"},
+				"title":     {"HomePage"},
+				"url":       {"https://ponzu.domain"},
+				"slug":      {"homepage"},
+				"type":      {"Page"},
+				"timestamp": {"1707647434000"},
+				"updated":   {"1707647434000"},
+				".__ponzu-repeat.content_blocks.0.value.cta.length":  {"1"},
+				".__ponzu-repeat.content_blocks.0.value.cta.removed": {"0"},
+				"content_blocks.0.type":                              {"Banner"},
+				"content_blocks.0.value.background.alt":              {"Men's Suit Watch"},
+				"content_blocks.0.value.background.file":             {"8f1ce16b-0736-4153-b79f-971ab80997e8"},
+				"content_blocks.0.value.background.position":         {"right"},
+				"content_blocks.0.value.cta.1.link.href":             {"https://link-to-another-button"},
+				"content_blocks.0.value.cta.1.link.type":             {"external"},
+				"content_blocks.0.value.cta.1.text":                  {"Another Button"},
+				"content_blocks.0.value.cta.1.type":                  {"text"},
+				"content_blocks.0.value.text":                        {"Banner Text"},
+			},
+			ExpectedPage: &types.Page{
+				Item: item.Item{
+					ID:        "7219db7f-6fa5-470b-bc82-911fc6ac70c2",
+					Slug:      "homepage",
+					Timestamp: 1707647434000,
+					Updated:   1707647434000,
+				},
+				Title: "HomePage",
+				URL:   "https://ponzu.domain",
+				ContentBlocks: &types.PageContentBlocks{
+					{
+						Type: "Banner",
+						Value: &types.Banner{
+							Background: types.BackgroundImage{
+								File:     "8f1ce16b-0736-4153-b79f-971ab80997e8",
+								Alt:      "Men's Suit Watch",
+								Position: "right",
+							},
+							Text: "Banner Text",
+							Cta: []types.ButtonLink{
+								{
+									Type: "text",
+									Text: "Another Button",
+									Link: types.LinkWithType{
+										Href: "https://link-to-another-button",
+										Type: "external",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			entity, err := MapPayloadToGenericEntity(&types.Page{}, tc.Payload)
+			if assert.NoError(t, err) {
+				assert.Equal(t, tc.ExpectedPage, entity)
+			}
+		})
 	}
 }
 

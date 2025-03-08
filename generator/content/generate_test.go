@@ -1893,7 +1893,7 @@ func (a *Banner) MarshalEditor(publicPath string) ([]byte, error) {
 			}, nil),
 		},
 		editor.Field{
-			View: editor.NestedRepeater("Cta", a, args, func(v interface{}, args *editor.FieldArgs) (string, []editor.Field) {
+			View: editor.NestedRepeater(publicPath, "Cta", a, args, func(v interface{}, args *editor.FieldArgs) (string, []editor.Field) {
 				return "ButtonLink", []editor.Field{
 					{
 						View: editor.Select("Type", v, map[string]string{

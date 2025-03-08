@@ -4,13 +4,19 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"regexp"
+	"strings"
 )
 
-var positionalPlaceHolder = "%pos%"
+var (
+	positionalPlaceHolder         = "%pos%"
+	positionalPlaceholderRegexp   = regexp.MustCompile("^%pos%$")
+	parentIsFieldCollectionRegexp = regexp.MustCompile("\\d.Value$")
+)
 
 type NestedFieldGenerator func(v interface{}, f *FieldArgs) (string, []Field)
 
-func NestedRepeater(fieldName string, p interface{}, args *FieldArgs, nestedFieldGenerator NestedFieldGenerator) []byte {
+func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs, nestedFieldGenerator NestedFieldGenerator) []byte {
 	value := ValueByName(fieldName, p, args)
 
 	if value.Kind() != reflect.Slice && value.Kind() != reflect.Array {
@@ -29,11 +35,25 @@ func NestedRepeater(fieldName string, p interface{}, args *FieldArgs, nestedFiel
 	}
 
 	emptyType := makeEmptyType(p)
+	if value.IsZero() {
+		emptyType = p
+	}
+
 	if args != nil && args.Parent != "" {
 		fieldArgs.Parent = fmt.Sprintf("%s.%s", args.Parent, fieldArgs.Parent)
-		// we want to keep type representation intact
-		// e.g. in cases where NestedRepeater is a child of FieldCollection
-		emptyType = p
+
+		if parentIsFieldCollectionRegexp.MatchString(args.Parent) {
+			var err error
+			fieldCollectionFieldName := strings.TrimSuffix(
+				string(parentIsFieldCollectionRegexp.ReplaceAll([]byte(args.Parent), []byte(""))),
+				".",
+			)
+
+			emptyType, err = makeTypeWithEmptyAllowedTypes(p, fieldCollectionFieldName, args.TypeName)
+			if err != nil {
+				panic(err)
+			}
+		}
 	}
 
 	arrayTypeName, entryTemplate := generateNestedTemplate(nestedFieldGenerator, emptyType, fieldArgs)
@@ -47,6 +67,7 @@ func NestedRepeater(fieldName string, p interface{}, args *FieldArgs, nestedFiel
 		InputSelector         string
 		CloneSelector         string
 		PositionalPlaceholder string
+		PublicPath            string
 	}{
 		Template:              entryTemplate,
 		NumItems:              value.Len(),
@@ -54,14 +75,21 @@ func NestedRepeater(fieldName string, p interface{}, args *FieldArgs, nestedFiel
 		CloneSelector:         fmt.Sprintf(".%s", arrayTypeName),
 		InputSelector:         "input",
 		PositionalPlaceholder: positionalPlaceHolder,
+		PublicPath:            publicPath,
 	}); err != nil {
 		panic(err)
 	}
 
 	for i := 0; i < value.Len(); i++ {
-		_, fields := nestedFieldGenerator(p, &FieldArgs{
+		entryArgs := &FieldArgs{
 			Parent: fmt.Sprintf("%s.%d", fieldName, i),
-		})
+		}
+
+		if args != nil && args.Parent != "" {
+			entryArgs.Parent = fmt.Sprintf("%s.%s", args.Parent, entryArgs.Parent)
+		}
+
+		_, fields := nestedFieldGenerator(p, entryArgs)
 
 		fieldTemplate := Nested("", p, fieldArgs, fields...)
 		tmpl += string(fieldTemplate)

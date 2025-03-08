@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/util"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 )
-
-var positionalPlaceholderRegexp = regexp.MustCompile("^%.*%$")
 
 func TagNameFromStructField(name string, post interface{}, args *FieldArgs) string {
 	if name == "" {
