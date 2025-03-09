@@ -6,6 +6,7 @@
         const scope = $('.__ponzu-field-collection.{{ .Scope }}');
         let activeBlock = "";
         const templatesString = "{{ .FieldCollectionTemplates }}";
+        const addButtonSelector = 'div.selector > button.add-block';
         let templates = {};
 
         const getChildren = function() {
@@ -38,7 +39,7 @@
         const onSelect = function(event) {
             activeBlock = event.detail.value;
 
-            const addButton = scope.find('button.add-block');
+            const addButton = scope.find(addButtonSelector);
             addButton.prop('disabled', false);
         };
 
@@ -48,7 +49,7 @@
                 select.val('');
             }
 
-            const addButton = scope.find('button.add-block');
+            const addButton = scope.find(addButtonSelector);
             addButton.prop('disabled', true);
         }
 

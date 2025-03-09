@@ -31,8 +31,9 @@ type Field struct {
 }
 
 type FieldArgs struct {
-	Parent   string
-	TypeName string
+	Parent                 string
+	TypeName               string
+	PositionalPlaceHolders []string
 }
 
 func makeScript(name string) *template.Template {

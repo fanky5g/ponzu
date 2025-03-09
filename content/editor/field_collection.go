@@ -25,12 +25,13 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]Fi
 		panic(fmt.Sprintf("Ponzu: '%s' is not a valid FieldCollections type", value.Type()))
 	}
 
+	positionalPlaceHolder := makePositionalPlaceholder(fieldName)
 	parentFieldPath := fmt.Sprintf("%s.%s.Value", fieldName, positionalPlaceHolder)
 
 	typeTemplateMap := make(map[string]string)
 	for typeName := range fieldCollections.AllowedTypes() {
 		var emptyType interface{}
-		emptyType, err := makeTypeWithEmptyAllowedTypes(p, fieldName, typeName)
+		emptyType, err := makeValidTypeAtPosition(p, fieldName, typeName, 0)
 		if err != nil {
 			panic(err)
 		}
@@ -40,8 +41,9 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]Fi
 			fieldCollectionTemplate := fc(
 				emptyType,
 				&FieldArgs{
-					Parent:   parentFieldPath,
-					TypeName: typeName,
+					Parent:                 parentFieldPath,
+					TypeName:               typeName,
+					PositionalPlaceHolders: []string{positionalPlaceHolder},
 				},
 				Field{
 					View: []byte(
@@ -70,8 +72,9 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]Fi
 		fieldCollectionTemplate := types[typeName](
 			p,
 			&FieldArgs{
-				Parent:   fmt.Sprintf("%s.%d.Value", fieldName, i),
-				TypeName: typeName,
+				Parent:                 fmt.Sprintf("%s.%d.Value", fieldName, i),
+				TypeName:               typeName,
+				PositionalPlaceHolders: []string{positionalPlaceHolder},
 			},
 			Field{
 				View: []byte(
@@ -114,7 +117,7 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]Fi
 	return append([]byte(tmpl), script.Bytes()...)
 }
 
-func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (interface{}, error) {
+func makeValidTypeAtPosition(p interface{}, fieldName, typeName string, position int) (interface{}, error) {
 	emptyType := makeEmptyType(p)
 	value := ValueByName(fieldName, emptyType, nil)
 
@@ -128,6 +131,11 @@ func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (i
 	t, ok := allowedTypes[typeName]
 	if !ok {
 		return nil, fmt.Errorf("invalid type %s", typeName)
+	}
+
+	// pad field collections before position with empty values
+	for i := 0; i < position; i++ {
+		fieldCollections.Add(content.FieldCollection{})
 	}
 
 	fieldCollections.Add(content.FieldCollection{

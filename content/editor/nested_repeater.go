@@ -4,14 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
-	"regexp"
+	"strconv"
 	"strings"
-)
-
-var (
-	positionalPlaceHolder         = "%pos%"
-	positionalPlaceholderRegexp   = regexp.MustCompile("^%pos%$")
-	parentIsFieldCollectionRegexp = regexp.MustCompile("\\d.Value$")
 )
 
 type NestedFieldGenerator func(v interface{}, f *FieldArgs) (string, []Field)
@@ -30,8 +24,11 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 			<label class="active">` + fieldName + `</label>
 	`
 
+	positionalPlaceHolder := makePositionalPlaceholder(fieldName)
+	parent := fmt.Sprintf("%s.%s", fieldName, positionalPlaceHolder)
 	fieldArgs := &FieldArgs{
-		Parent: fmt.Sprintf("%s.%s", fieldName, positionalPlaceHolder),
+		Parent:                 parent,
+		PositionalPlaceHolders: []string{positionalPlaceHolder},
 	}
 
 	emptyType := makeEmptyType(p)
@@ -41,15 +38,30 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 
 	if args != nil && args.Parent != "" {
 		fieldArgs.Parent = fmt.Sprintf("%s.%s", args.Parent, fieldArgs.Parent)
+		fieldArgs.PositionalPlaceHolders = append(
+			fieldArgs.PositionalPlaceHolders,
+			args.PositionalPlaceHolders...,
+		)
 
-		if parentIsFieldCollectionRegexp.MatchString(args.Parent) {
+		matches := parentIsFieldCollectionRegexp.FindStringSubmatch(args.Parent)
+		if len(matches) > 0 {
+			matchIndex := parentIsFieldCollectionRegexp.SubexpIndex("Position")
+			if matchIndex == -1 {
+				panic("Parent path is invalid")
+			}
+
 			var err error
+			position, err := strconv.Atoi(matches[matchIndex])
+			if err != nil {
+				panic(err)
+			}
+
 			fieldCollectionFieldName := strings.TrimSuffix(
 				string(parentIsFieldCollectionRegexp.ReplaceAll([]byte(args.Parent), []byte(""))),
 				".",
 			)
 
-			emptyType, err = makeTypeWithEmptyAllowedTypes(p, fieldCollectionFieldName, args.TypeName)
+			emptyType, err = makeValidTypeAtPosition(p, fieldCollectionFieldName, args.TypeName, position)
 			if err != nil {
 				panic(err)
 			}
@@ -82,11 +94,16 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 
 	for i := 0; i < value.Len(); i++ {
 		entryArgs := &FieldArgs{
-			Parent: fmt.Sprintf("%s.%d", fieldName, i),
+			Parent:                 fmt.Sprintf("%s.%d", fieldName, i),
+			PositionalPlaceHolders: []string{positionalPlaceHolder},
 		}
 
 		if args != nil && args.Parent != "" {
 			entryArgs.Parent = fmt.Sprintf("%s.%s", args.Parent, entryArgs.Parent)
+			entryArgs.PositionalPlaceHolders = append(
+				entryArgs.PositionalPlaceHolders,
+				args.PositionalPlaceHolders...,
+			)
 		}
 
 		_, fields := nestedFieldGenerator(p, entryArgs)

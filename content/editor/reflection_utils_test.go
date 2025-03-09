@@ -153,24 +153,28 @@ func (suite *ReflectionUtilsTestSuite) TestTagNameFromStructFieldWithPositionalA
 		Author []Author `json:"author"`
 	}
 
-	expectedTagName := "author.1.books.%pos%.published"
+	expectedTagName := "author.1.books.%author%.published"
 	assert.Equal(
 		suite.T(),
 		expectedTagName,
-		TagNameFromStructField("Author.1.Books.%pos%.Published", &Review{
-			Title: "Title",
-			Author: []Author{
-				{
-					Name: "Author",
-					Books: []Book{
-						{
-							Name:      "Book",
-							Published: "Date",
+		TagNameFromStructField(
+			"Author.1.Books.%author%.Published",
+			&Review{
+				Title: "Title",
+				Author: []Author{
+					{
+						Name: "Author",
+						Books: []Book{
+							{
+								Name:      "Book",
+								Published: "Date",
+							},
 						},
 					},
 				},
 			},
-		}, nil),
+			&FieldArgs{PositionalPlaceHolders: []string{"%author%"}},
+		),
 	)
 }
 
