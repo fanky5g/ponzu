@@ -39,13 +39,17 @@
                 }
 
                 const script = document.createElement('script');
-                script.onload = callback;
+                script.onload = () => {
+                    this.loadedScripts = {
+                        ...(this.loadedScripts || {}),
+                        [path]: true,
+                    };
+
+                    callback();
+                }
+
                 script.src = path;
                 document.head.appendChild(script);
-                this.loadedScripts = {
-                    ...(this.loadedScripts || {}),
-                    [path]: true,
-                };
             };
 
             const loadScripts = (paths, callback = () => {}) => {
