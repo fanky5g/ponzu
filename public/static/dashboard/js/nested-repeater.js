@@ -23,18 +23,17 @@ window.Ponzu.initializeNestedRepeater = (selector, cloneSelector, positionalPlac
 
     const createChild = function(i) {
         const childTemplate = template.replace(new RegExp(positionalPlaceholder, 'g'), i);
-        const child = parser.parseFromString(childTemplate, "text/html");
-        const childNode = child.body.firstChild;
 
+        const childNode = $('<div/>').html(childTemplate).contents();
         const parentControls = nestedRepeaterControl.querySelector('.parent.nested-repeater-controls');
         if (parentControls) {
-            nestedRepeaterControl.insertBefore(childNode, parentControls);
+            childNode.insertBefore($(parentControls));
         } else {
-            nestedRepeaterControl.appendChild(childNode);
+            $(nestedRepeaterControl).append(childNode);
         }
 
         const controls = createChildControls(i);
-        childNode.appendChild(controls);
+        $(childNode).append(controls);
         n++; size++;
         setHiddenInputValue("length", size);
 
