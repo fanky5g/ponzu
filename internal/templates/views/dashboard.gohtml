@@ -70,6 +70,7 @@
             };
 
             const cleanQueryPath = (query) => query.replaceAll('.', '\\.');
+            const normalizeQueryPath = (query) => query.replaceAll('\\.', '.');
 
             (function() {
                 window.Ponzu = {
@@ -77,6 +78,7 @@
                     loadScript,
                     loadScripts,
                     cleanQueryPath,
+                    normalizeQueryPath,
                 };
             })();
         </script>

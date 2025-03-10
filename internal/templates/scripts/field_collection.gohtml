@@ -3,7 +3,8 @@
         let n = {{ .NumItems }};
         let size = {{ .NumItems }};
 
-        const scope = $('.__ponzu-field-collection.{{ .Scope }}');
+        const controlSelector = '.__ponzu-field-collection.{{ .Scope }}';
+        const scope = $(controlSelector);
         let activeBlock = "";
         const templatesString = "{{ .FieldCollectionTemplates }}";
         const addButtonSelector = 'div.selector > button.add-block';
@@ -133,6 +134,7 @@
             n++; size++;
             setHiddenInputValue("length", size);
             resetSelectBlock();
+            window.Ponzu.initializeEditorControls(controlSelector);
         }
 
         const createSelectorControls = function() {

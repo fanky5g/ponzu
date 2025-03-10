@@ -22,8 +22,9 @@
 
     window.Ponzu.RepeatController = function(fieldName, parentSelector, childSelector, numberOfItems = 0) {
         let size = numberOfItems, n = numberOfItems;
-        const itemLengthInputName = `${parentSelector}.length`;
-        const removedItemsInputName = `${parentSelector}.removed`;
+        const normalizedParentSelector = window.Ponzu.normalizeQueryPath(parentSelector);
+        const itemLengthInputName = `${normalizedParentSelector}.length`;
+        const removedItemsInputName = `${normalizedParentSelector}.removed`;
 
         const parent = document.querySelector(parentSelector);
         setHiddenInputValue(parent, itemLengthInputName, numberOfItems);

@@ -115,7 +115,6 @@ func transformArrayFields(payload url.Values) error {
 		for k := range ov {
 			position, err := strconv.Atoi(k)
 			if err != nil {
-				// TODO: we should return error
 				return fmt.Errorf("expected integer key in fieldOrderValue. Got %v", k)
 			}
 
