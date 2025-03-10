@@ -48,22 +48,22 @@
 </div>
 
 <script>
-(function() {
-    const initializeSelect = () => {
-        const selector = window.Ponzu.cleanQueryPath("{{ .Selector }}");
-        const select = document.querySelector(`.mdc-select.${selector}`);
-        if (select) {
-            new mdc.select.MDCSelect(select);
+    (function() {
+        const initializeSelect = () => {
+            const selector = window.Ponzu.cleanQueryPath("{{ .Selector }}");
+            const select = document.querySelector(`.mdc-select.${selector}`);
+            if (select) {
+                new mdc.select.MDCSelect(select);
+            }
+        };
+
+        if (typeof window.Ponzu?.cleanQueryPath === "function") {
+            initializeSelect();
+            return;
         }
-    };
 
-    if (typeof window.Ponzu?.cleanQueryPath === "function") {
-        initializeSelect();
-        return;
-    }
-
-    window.addEventListener("load", () => {
-        initializeSelect();
-    });
-})();
+        window.addEventListener("load", () => {
+            initializeSelect();
+        });
+    })();
 </script>

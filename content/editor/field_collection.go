@@ -10,7 +10,9 @@ import (
 	"github.com/fanky5g/ponzu/internal/templates"
 )
 
-func FieldCollection(fieldName, label string, p interface{}, types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
+type FieldCollectionConstructor func(interface{}, *FieldArgs, ...Field) []byte
+
+func FieldCollection(fieldName, label string, p interface{}, types map[string]FieldCollectionConstructor) []byte {
 	scope := TagNameFromStructField(fieldName, p, nil)
 	tmpl := `
 		<div class="control-block __ponzu-field-collection ` + scope + `">
@@ -23,35 +25,39 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]fu
 		panic(fmt.Sprintf("Ponzu: '%s' is not a valid FieldCollections type", value.Type()))
 	}
 
-	positionalPlaceHolder := "%pos%"
+	positionalPlaceHolder := makePositionalPlaceholder(fieldName)
 	parentFieldPath := fmt.Sprintf("%s.%s.Value", fieldName, positionalPlaceHolder)
 
 	typeTemplateMap := make(map[string]string)
 	for typeName := range fieldCollections.AllowedTypes() {
 		var emptyType interface{}
-		emptyType, err := makeTypeWithEmptyAllowedTypes(p, fieldName, typeName)
+		emptyType, err := makeValidTypeAtPosition(p, fieldName, typeName, 0)
 		if err != nil {
 			panic(err)
 		}
 
-		fieldCollectionTemplate := types[typeName](
-			emptyType,
-			&FieldArgs{
-				Parent:   parentFieldPath,
-				TypeName: typeName,
-			},
-			Field{
-				View: []byte(
-					fmt.Sprintf(
-						`<input name="%s" type="hidden" value="%s" />`,
-						fmt.Sprintf("%s.%s.type", scope, positionalPlaceHolder),
-						typeName,
+		var fc FieldCollectionConstructor
+		if fc, ok = types[typeName]; ok {
+			fieldCollectionTemplate := fc(
+				emptyType,
+				&FieldArgs{
+					Parent:                 parentFieldPath,
+					TypeName:               typeName,
+					PositionalPlaceHolders: []string{positionalPlaceHolder},
+				},
+				Field{
+					View: []byte(
+						fmt.Sprintf(
+							`<input name="%s" type="hidden" value="%s" />`,
+							fmt.Sprintf("%s.%s.type", scope, positionalPlaceHolder),
+							typeName,
+						),
 					),
-				),
-			},
-		)
+				},
+			)
 
-		typeTemplateMap[typeName] = string(fieldCollectionTemplate)
+			typeTemplateMap[typeName] = string(fieldCollectionTemplate)
+		}
 	}
 
 	templatesBytes, err := json.Marshal(typeTemplateMap)
@@ -66,8 +72,9 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]fu
 		fieldCollectionTemplate := types[typeName](
 			p,
 			&FieldArgs{
-				Parent:   fmt.Sprintf("%s.%d.Value", fieldName, i),
-				TypeName: typeName,
+				Parent:                 fmt.Sprintf("%s.%d.Value", fieldName, i),
+				TypeName:               typeName,
+				PositionalPlaceHolders: []string{positionalPlaceHolder},
 			},
 			Field{
 				View: []byte(
@@ -110,7 +117,7 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]fu
 	return append([]byte(tmpl), script.Bytes()...)
 }
 
-func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (interface{}, error) {
+func makeValidTypeAtPosition(p interface{}, fieldName, typeName string, position int) (interface{}, error) {
 	emptyType := makeEmptyType(p)
 	value := ValueByName(fieldName, emptyType, nil)
 
@@ -126,6 +133,11 @@ func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (i
 		return nil, fmt.Errorf("invalid type %s", typeName)
 	}
 
+	// pad field collections before position with empty values
+	for i := 0; i < position; i++ {
+		fieldCollections.Add(content.FieldCollection{})
+	}
+
 	fieldCollections.Add(content.FieldCollection{
 		Type:  typeName,
 		Value: t(),
@@ -137,7 +149,7 @@ func makeTypeWithEmptyAllowedTypes(p interface{}, fieldName, typeName string) (i
 }
 
 func getBlockSelector(name string,
-	types map[string]func(interface{}, *FieldArgs, ...Field) []byte) []byte {
+	types map[string]FieldCollectionConstructor) []byte {
 	options := make([]SelectOption, len(types))
 	i := 0
 	for k := range types {

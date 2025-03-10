@@ -1,9 +1,19 @@
 (function() {
-    const initializeEditorControls = () => {
+    const initializeSelectControls = (parentSelector) => {
+        const selectControlSelector = [parentSelector, 'div.mdc-select'].filter(Boolean).join(' ');
+        const selectControls = document.querySelectorAll(selectControlSelector);
+
+        selectControls.forEach(selectControl => {
+            new mdc.select.MDCSelect(selectControl);
+        });
+    };
+
+    const initializeEditorControls = (parentSelector) => {
         const contentActiveClassName = "editor-content--active";
         const tabBar = document.querySelector(
             '.form-view-root .mdc-tab-bar[role="tablist"]',
         );
+
         const contentViews = document.querySelectorAll(
             ".form-view-content .editor-content",
         );
@@ -43,6 +53,7 @@
         const inputElements = document.querySelectorAll(
             ".form-view-root .mdc-text-field",
         );
+
         for (let i = 0; i < inputElements.length; i++) {
             new mdc.textField.MDCTextField(inputElements[i]);
         }
@@ -55,6 +66,9 @@
         for (let i = 0; i < checkboxElements.length; i++) {
             new mdc.checkbox.MDCCheckbox(checkboxElements[i]);
         }
+
+        // initialize select controls
+        initializeSelectControls(parentSelector);
     };
 
     if (typeof window.Ponzu !== "undefined") {

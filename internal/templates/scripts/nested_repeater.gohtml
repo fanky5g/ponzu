@@ -1,126 +1,41 @@
 <script>
-    $(function() {
-        const template = '{{ .Template }}';
-        let n = {{ .NumItems }};
-        let size = {{ .NumItems }};
+    (function() {
+        const initializeNestedRepeater = () => {
+            const selector = "{{ .Scope }}";
+            const cloneSelector = "{{ .CloneSelector }}";
+            const positionalPlaceholder = "{{ .PositionalPlaceholder }}";
+            const template = "{{ .Template }}";
+            const numItems = {{ .NumItems }};
 
-        const scope = $('.__ponzu-repeat.{{ .Scope }}');
-        const getChildren = function() {
-            return scope.find('{{ .CloneSelector }}');
-        };
+            const callback = () => {
+                window.Ponzu.initializeNestedRepeater(
+                    selector,
+                    cloneSelector,
+                    positionalPlaceholder,
+                    template,
+                    numItems,
+                );
+            };
 
-        const createChild = function(i) {
-            const child = template.replace(new RegExp('{{ .PositionalPlaceholder }}', 'g'), i);
-            const el = $('<div/>').html(child).contents();
+            const scriptDependencies = [
+                "{{ .PublicPath }}/static/dashboard/js/nested-repeater.js",
+            ];
 
-            const parentControls = $('.__ponzu-repeat.{{ .Scope }} .parent.nested-repeater-controls');
-            if (parentControls.length) {
-                el.insertBefore(parentControls);
-            } else {
-                scope.append(el);
+            if (typeof window.Ponzu.initializeNestedRepeater !== "function") {
+                window.Ponzu.loadScripts(scriptDependencies, callback);
+                return;
             }
 
-            const controls = createChildControls(i);
-            $(el).append(controls);
-
-            n++; size++;
-            setHiddenInputValue("length", size);
+            callback();
         };
 
-        const setHiddenInputValue = function (name, value) {
-            const selectorName= '.__ponzu-repeat.{{ .Scope }}.' + name;
-            let input = scope.find(`input[name="${selectorName}"]`).first();
-            if (!input.length) {
-                input = $(`<input name="${selectorName}" type="hidden" value="" />`);
-                $(scope).append(input);
-            }
-
-            input.val(value);
+        if (typeof window.Ponzu !== "undefined") {
+            initializeNestedRepeater();
+            return;
         }
 
-        const deleteChild = function (el) {
-            // pass label onto next input-like element if del 0 index
-            const wrapper = $(el).parent().closest('{{ .CloneSelector }}');
-            wrapper.remove();
-
-            size = size - 1;
-            setHiddenInputValue("length", size);
-        };
-
-        const addRepeater = function (e) {
-            e.preventDefault();
-            createChild(n);
-            window.Ponzu.initializeEditorControls();
-        };
-
-        const delRepeater = function (e, elementIndex) {
-            e.preventDefault();
-            let removedElementsInput = scope.find('input[name=".__ponzu-repeat.{{ .Scope }}.removed"]').first();
-            if (!removedElementsInput.length) {
-                removedElementsInput = $('<input name=".__ponzu-repeat.{{ .Scope }}.removed" type="hidden" value="" />');
-                $(scope).append(removedElementsInput);
-            }
-
-            deleteChild(e.target);
-
-            const currentValue = removedElementsInput.val();
-            removedElementsInput.val([currentValue, elementIndex].filter(el => el.toString().trim() !== "").join(','));
-        };
-
-        const createChildControls = function (elementIndex) {
-            const del = $(`
-                <button class="mdc-icon-button material-symbols-rounded">
-                  <div class="mdc-icon-button__ripple"></div>
-                  remove
-                </button>
-            `);
-
-            const controls = $('<div class="repeater-del"></div>');
-
-            // bind listeners to child's controls
-            del.on('click', function (e) {
-                delRepeater(e, elementIndex);
-            });
-
-            controls.append(del);
-
-            return controls;
-        };
-
-        const createParentControls = function() {
-            const container = $('<div class="parent nested-repeater-controls"></div>');
-
-            const addButton = $(`
-                <button class="mdc-icon-button material-symbols-rounded">
-                  <div class="mdc-icon-button__ripple"></div>
-                  add_row_above
-                </button>
-            `);
-
-            addButton.addClass('add-block');
-
-            addButton.on('click', addRepeater);
-            container.append(addButton);
-            $(scope).append(container);
-        };
-
-        function initialize() {
-            const children = getChildren();
-
-            for (let i = 0; i < children.length; i++) {
-                const el = children[i];
-
-                const controls = createChildControls(i);
-                $(el).append(controls);
-            }
-
-            if (!n) {
-                createChild(0);
-            }
-
-            createParentControls();
-        }
-
-        initialize();
-    });
+        window.addEventListener("load", () => {
+            initializeNestedRepeater();
+        });
+    })();
 </script>

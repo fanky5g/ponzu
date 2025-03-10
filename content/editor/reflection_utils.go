@@ -9,14 +9,16 @@ import (
 	"strings"
 )
 
-var positionalPlaceholderRegexp = regexp.MustCompile("^%.*%$")
-
 func TagNameFromStructField(name string, post interface{}, args *FieldArgs) string {
+	return tagNameFromStructField(name, post, args, 0)
+}
+
+func tagNameFromStructField(name string, post interface{}, args *FieldArgs, callDepth uint8) string {
 	if name == "" {
 		return name
 	}
 
-	if args != nil && args.Parent != "" {
+	if callDepth == 0 && args != nil && args.Parent != "" {
 		name = strings.Join([]string{args.Parent, name}, ".")
 	}
 
@@ -42,12 +44,12 @@ func TagNameFromStructField(name string, post interface{}, args *FieldArgs) stri
 					value = util.MakeType(arrayEntityType)
 				}
 
-				nestedName := TagNameFromStructField(strings.Join(parts[1:], "."), value, nil)
+				nestedName := tagNameFromStructField(strings.Join(parts[1:], "."), value, args, callDepth+1)
 				return strings.Join([]string{fieldName, nestedName}, ".")
 			}
 
 			return fieldName
-		} else if positionalPlaceholderRegexp.MatchString(fieldName) {
+		} else if isPositionalPlaceholder(fieldName, args) {
 			if len(parts) > 1 {
 				var value interface{}
 				size := util.SizeOfV(v)
@@ -57,7 +59,7 @@ func TagNameFromStructField(name string, post interface{}, args *FieldArgs) stri
 					value = util.MakeType(t)
 				}
 
-				nestedName := TagNameFromStructField(strings.Join(parts[1:], "."), value, nil)
+				nestedName := tagNameFromStructField(strings.Join(parts[1:], "."), value, args, callDepth+1)
 				return strings.Join([]string{fieldName, nestedName}, ".")
 			}
 
@@ -76,10 +78,11 @@ func TagNameFromStructField(name string, post interface{}, args *FieldArgs) stri
 
 	nestedName := ""
 	if len(parts) > 1 {
-		nestedName = TagNameFromStructField(
+		nestedName = tagNameFromStructField(
 			strings.Join(parts[1:], "."),
 			ValueByName(fieldName, post, nil).Interface(),
-			nil,
+			args,
+			callDepth+1,
 		)
 	}
 
@@ -111,7 +114,11 @@ func TagNameFromStructFieldMulti(name string, i int, post interface{}) string {
 }
 
 func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
-	if args != nil && args.Parent != "" {
+	return valueByName(name, post, args, 0)
+}
+
+func valueByName(name string, post interface{}, args *FieldArgs, callDepth uint8) reflect.Value {
+	if callDepth == 0 && args != nil && args.Parent != "" {
 		name = strings.Join([]string{args.Parent, name}, ".")
 	}
 
@@ -131,7 +138,7 @@ func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
 			} else {
 				return v
 			}
-		} else if positionalPlaceholderRegexp.MatchString(fieldName) {
+		} else if isPositionalPlaceholder(fieldName, args) {
 			if v.Len() == 0 {
 				arrayEntityType := reflect.TypeOf(v.Interface()).Elem()
 				v = reflect.New(arrayEntityType).Elem()
@@ -152,10 +159,23 @@ func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
 
 	value := v.FieldByName(fieldName)
 	if len(parts) > 1 {
-		return ValueByName(strings.Join(parts[1:], "."), value.Interface(), nil)
+		return valueByName(strings.Join(parts[1:], "."), value.Interface(), args, callDepth+1)
 	}
 
 	return value
+}
+
+func isPositionalPlaceholder(fieldName string, args *FieldArgs) bool {
+	if args != nil {
+		for _, positionalPlaceholder := range args.PositionalPlaceHolders {
+			positionalPlaceholderRegexp := regexp.MustCompile(fmt.Sprintf("^%s$", positionalPlaceholder))
+			if positionalPlaceholderRegexp.MatchString(fieldName) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // ValueFromStructField returns the value of a field in a struct

@@ -3,9 +3,11 @@
         let n = {{ .NumItems }};
         let size = {{ .NumItems }};
 
-        const scope = $('.__ponzu-field-collection.{{ .Scope }}');
+        const controlSelector = '.__ponzu-field-collection.{{ .Scope }}';
+        const scope = $(controlSelector);
         let activeBlock = "";
         const templatesString = "{{ .FieldCollectionTemplates }}";
+        const addButtonSelector = 'div.selector > button.add-block';
         let templates = {};
 
         const getChildren = function() {
@@ -38,7 +40,7 @@
         const onSelect = function(event) {
             activeBlock = event.detail.value;
 
-            const addButton = scope.find('button.add-block');
+            const addButton = scope.find(addButtonSelector);
             addButton.prop('disabled', false);
         };
 
@@ -48,7 +50,7 @@
                 select.val('');
             }
 
-            const addButton = scope.find('button.add-block');
+            const addButton = scope.find(addButtonSelector);
             addButton.prop('disabled', true);
         }
 
@@ -132,6 +134,7 @@
             n++; size++;
             setHiddenInputValue("length", size);
             resetSelectBlock();
+            window.Ponzu.initializeEditorControls(controlSelector);
         }
 
         const createSelectorControls = function() {

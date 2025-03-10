@@ -212,7 +212,7 @@
   };
 
   const createMultiSelect = async (contentType, selector, rowTemplate, selectedItemTemplate, loadOptions = async () => {}) => {
-    const parentSelector = `.__ponzu-repeat.${selector}`;
+    const parentSelector = `.__ponzu-repeat.${window.Ponzu.cleanQueryPath(selector)}`;
     const childSelector = `.mdc-chip`;
 
     const select = document.querySelector(`.mdc-select.multi-select.${window.Ponzu.cleanQueryPath(selector)}`);

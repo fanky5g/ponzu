@@ -369,7 +369,7 @@ func (p *Page) MarshalEditor(publicPath string) ([]byte, error) {
 				"ContentBlocks",
 				"Content Blocks",
 				p,
-				map[string]func(interface{}, *editor.FieldArgs, ...editor.Field) []byte{
+				map[string]editor.FieldCollectionConstructor{
 					"ImageAndTextBlock": func(
 						v interface{},
 						args *editor.FieldArgs,

@@ -66,7 +66,7 @@ func ReferenceSelectRepeater(
 	args *FieldArgs,
 	contentType string,
 ) []byte {
-	return MultiSelectWithDataProvider(fieldName, p, attrs, &ReferenceSelectDataProvider{
+	return MultiSelectWithDataProvider(fieldName, p, attrs, args, &ReferenceSelectDataProvider{
 		ContentType:            contentType,
 		PublicPath:             publicPath,
 		OptionTemplate:         SelectOptionTemplate,

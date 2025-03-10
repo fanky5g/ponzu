@@ -65,6 +65,9 @@ func (p *PageContentBlocks) AllowedTypes() map[string]content.Builder {
 		"TextBlock": func() interface{} {
 			return new(TextBlock)
 		},
+		"Banner": func() interface{} {
+			return new(Banner)
+		},
 	}
 }
 

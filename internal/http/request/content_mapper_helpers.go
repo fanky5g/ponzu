@@ -1,6 +1,7 @@
 package request
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -41,7 +42,9 @@ func MapPayloadToGenericEntity(entity interface{}, payload map[string][]string) 
 		return nil, err
 	}
 
-	cleanArrayFields(entity, payload)
+	if err = cleanArrayFields(entity, payload); err != nil {
+		return nil, err
+	}
 
 	return entity, nil
 }
@@ -112,7 +115,6 @@ func transformArrayFields(payload url.Values) error {
 		for k := range ov {
 			position, err := strconv.Atoi(k)
 			if err != nil {
-				// TODO: we should return error
 				return fmt.Errorf("expected integer key in fieldOrderValue. Got %v", k)
 			}
 
@@ -144,7 +146,7 @@ func transformArrayFields(payload url.Values) error {
 	return nil
 }
 
-func cleanArrayFields(entity interface{}, payload url.Values) {
+func cleanArrayFields(entity interface{}, payload url.Values) error {
 	repeatLengthIdentifier := make(map[string]int)
 	repeatRemovedItemsIdentifier := make(map[string][]int)
 
@@ -194,38 +196,39 @@ func cleanArrayFields(entity interface{}, payload url.Values) {
 	}
 
 	for jsonFieldName, length := range repeatLengthIdentifier {
-		fieldName := fieldNameByJSONTag(entity, jsonFieldName)
-		if fieldName == "" {
-			continue
-		}
+		if err := walkNestedStruct(entity, jsonFieldName, func(v reflect.Value) error {
+			field := v
+			fieldCollections, isFieldCollections := (field.Interface()).(content.FieldCollections)
+			if isFieldCollections {
+				field = reflect.ValueOf(fieldCollections.Data())
+			}
 
-		v := reflect.Indirect(reflect.ValueOf(entity))
-		field := v.FieldByName(fieldName)
+			if !field.IsValid() || util.SizeOfV(field) == length {
+				return nil
+			}
 
-		fieldCollections, isFieldCollections := (field.Interface()).(content.FieldCollections)
-		if isFieldCollections {
-			field = reflect.ValueOf(fieldCollections.Data())
-		}
-
-		if !field.IsValid() || util.SizeOfV(field) == length {
-			continue
-		}
-
-		cleanedArray := reflect.MakeSlice(field.Type(), 0, length)
-		if removedItems, ok := repeatRemovedItemsIdentifier[jsonFieldName]; ok {
-			for i := 0; i < field.Len(); i++ {
-				if !contains(removedItems, i) {
-					cleanedArray = reflect.Append(cleanedArray, field.Index(i))
+			cleanedArray := reflect.MakeSlice(field.Type(), 0, length)
+			if removedItems, ok := repeatRemovedItemsIdentifier[jsonFieldName]; ok {
+				for i := 0; i < field.Len(); i++ {
+					if !contains(removedItems, i) {
+						cleanedArray = reflect.Append(cleanedArray, field.Index(i))
+					}
 				}
 			}
-		}
 
-		if isFieldCollections {
-			fieldCollections.SetData(cleanedArray.Interface().([]content.FieldCollection))
-		} else {
-			field.Set(cleanedArray)
+			if isFieldCollections {
+				fieldCollections.SetData(cleanedArray.Interface().([]content.FieldCollection))
+			} else {
+				field.Set(cleanedArray)
+			}
+
+			return nil
+		}); err != nil {
+			return err
 		}
 	}
+
+	return nil
 }
 
 func buildFieldCollections(entity interface{}, payload map[string][]string, dec *schema.Decoder) error {
@@ -313,4 +316,53 @@ func contains(slice []int, val int) bool {
 		}
 	}
 	return false
+}
+
+func walkNestedStruct(p interface{}, jsonPath string, action func(value reflect.Value) error) error {
+	if jsonPath == "" || action == nil {
+		return nil
+	}
+
+	parts := strings.Split(jsonPath, ".")
+	jsonTag := parts[0]
+	v := reflect.ValueOf(p)
+	t := v.Type()
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	var value reflect.Value
+	if t.Kind() == reflect.Slice || t.Kind() == reflect.Array {
+		i, err := strconv.Atoi(jsonTag)
+		if err != nil {
+			return err
+		}
+
+		size := util.SizeOfV(v)
+		if i >= size {
+			return errors.New("array index out of range")
+		}
+
+		if len(parts) > 1 {
+			return walkNestedStruct(util.IndexAt(v, i), strings.Join(parts[1:], "."), action)
+		}
+
+		value = reflect.ValueOf(util.IndexAt(v, i))
+	} else {
+		fieldName := fieldNameByJSONTag(p, jsonTag)
+		if fieldName == "" {
+			return errors.New("field not found in path")
+		}
+
+		value = reflect.Indirect(v).FieldByName(fieldName)
+		if !value.IsValid() {
+			return errors.New("invalid value for field " + fieldName)
+		}
+
+		if len(parts) > 1 {
+			return walkNestedStruct(value.Interface(), strings.Join(parts[1:], "."), action)
+		}
+	}
+
+	return action(value)
 }
