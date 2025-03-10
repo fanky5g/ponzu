@@ -47,3 +47,6 @@
 
 ### v0.7.3
 - Bundle assets and templates with binary
+
+### v0.8.0
+- Support nested repeaters as direct children in Field Collections.
