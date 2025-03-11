@@ -54,3 +54,6 @@
 ### v.0.8.1
 - Localize ponzu-driver-gcs
 - Fix broken gcs file URLs
+
+### v0.8.2
+- Fix blank public path behavior.

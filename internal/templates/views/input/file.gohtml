@@ -27,7 +27,7 @@
             return '';
         }
 
-        return `/${paths.join('/')}`;
+        return `/${paths.filter(Boolean).join('/')}`;
     }
 
     (function() {
