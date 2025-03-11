@@ -2,8 +2,6 @@ package entities
 
 import (
 	"fmt"
-	"path/filepath"
-
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/constants"
@@ -34,7 +32,6 @@ func (*Upload) GetRepositoryToken() string {
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (f *Upload) MarshalEditor(publicPath string) ([]byte, error) {
 	isEmptyFile := f.Path == ""
-	f.Path = filepath.Join(publicPath, f.Path)
 	formLabel := "Edit Upload"
 	if isEmptyFile {
 		formLabel = "Upload New File"
@@ -42,7 +39,7 @@ func (f *Upload) MarshalEditor(publicPath string) ([]byte, error) {
 
 	view, err := editor.Form(f,
 		editor.Field{
-			View: editor.File("Path", f, map[string]string{
+			View: editor.File(publicPath, "Path", f, map[string]string{
 				"label":       formLabel,
 				"placeholder": "Upload the file here",
 				"PublicPath":  publicPath,
