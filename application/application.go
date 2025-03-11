@@ -6,7 +6,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/storage/assets"
 
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
-	gcsStorage "github.com/fanky5g/ponzu-driver-gcs"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	databasePkg "github.com/fanky5g/ponzu/database"
@@ -19,6 +18,7 @@ import (
 	"github.com/fanky5g/ponzu/internal/search"
 	pgSearch "github.com/fanky5g/ponzu/internal/search/postgres"
 	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/storage/gcs"
 	"github.com/fanky5g/ponzu/internal/storage/localstorage"
 	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
@@ -127,7 +127,7 @@ func getUploadStorageClient(driver string) (storage.Client, error) {
 
 		return uploadStorageClient, nil
 	case "gcs":
-		gcsStorageClient, err := gcsStorage.New()
+		gcsStorageClient, err := gcs.New()
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to initialize gcs storage driver")
 		}

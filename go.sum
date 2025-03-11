@@ -80,10 +80,6 @@ github.com/facebookgo/stack v0.0.0-20160209184415-751773369052/go.mod h1:UbMTZqL
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4/go.mod h1:5tD+neXqOorC30/tWg0LCSkrqj/AR6gu8yY8/fpw1q0=
 github.com/fanky5g/ponzu-driver-bleve v1.0.3 h1:viZRBrwsdpBpv5PikZcd+keVzoqCakBN6B5cX8RuBwo=
 github.com/fanky5g/ponzu-driver-bleve v1.0.3/go.mod h1:Ol1SxyWClx6klUxoNR9KtASo3BkNZlLRTW1wBb7W7S0=
-github.com/fanky5g/ponzu-driver-gcs v1.1.0 h1:fw7KPC5QLqwXfpCCVJJpRY3H/F1x5aIVpd54ePc4gvU=
-github.com/fanky5g/ponzu-driver-gcs v1.1.0/go.mod h1:ulncwIY72V0EyqmR1VxDSqv+xWluD1lqGx47CVAHGyo=
-github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1 h1:5gxKJPAxxYOSJWDFzEfN70+i/4bjdggLKun0676NkWY=
-github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1/go.mod h1:eiHquC6KnDVZR79ELBbVqRque9F6oNfZO3M3ysA0OVs=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
