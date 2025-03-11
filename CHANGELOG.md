@@ -50,3 +50,7 @@
 
 ### v0.8.0
 - Support nested repeaters as direct children in Field Collections.
+
+### v.0.8.1
+- Localize ponzu-driver-gcs
+- Fix broken gcs file URLs
