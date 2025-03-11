@@ -16,6 +16,20 @@
 </div>
 
 <script>
+    function joinPaths() {
+        const paths = [];
+        for (let i = 0; i < arguments.length; i++) {
+            const argument = arguments[i];
+            paths.push(argument.replace(/^\//, '').replace(/\/$/, ''));
+        }
+
+        if (!paths.length) {
+            return '';
+        }
+
+        return `/${paths.join('/')}`;
+    }
+
     (function() {
         const uploadTriggerButton = document.querySelector('#upload-trigger');
         const fileInput = document.querySelector('input[type="file"].storage');
@@ -46,11 +60,10 @@
             viewLinkText = document.createTextNode('Open in New Tab'),
             iconLaunch = document.createElement('i'),
             iconLaunchText = document.createTextNode('launch')
-            relativePath = {{ .RelativePath }}
-            path = {{ .Path }};
+            path = joinPaths('{{ .PublicPath }}', '{{ .URL }}');
             video.setAttribute
             preview.hide();
-            viewLink.setAttribute('href', '{{ .RelativePath }}');
+            viewLink.setAttribute('href', path);
             viewLink.setAttribute('target', '_blank');
             viewLink.appendChild(viewLinkText);
             viewLink.style.display = 'block';
@@ -77,20 +90,20 @@
                 case '.webp':
                 case '.gif':
                 case '.png':
-                    $(img).attr('src', relativePath); 
+                    $(img).attr('src', path);
                     clip.append(img);
                     break;
                 case '.mp4':
                 case '.webm':
                     $(video)
-                        .attr('src', relativePath) 
+                        .attr('src', path)
                         .attr('type', 'video/'+ext.substring(1))
                         .attr('controls', true)
                         .css('width', '100%');
                     clip.append(video);
                     break;
                 default:
-                    $(img).attr('src', '{{ .PublicPath }}/static/img/ponzu-file.png');
+                    $(img).attr('src', joinPaths('{{ .PublicPath }}', '/static/img/ponzu-file.png'));
                     $(unknown)
                         .css({
                             position: 'absolute', 
@@ -109,8 +122,8 @@
                     clip.append(unknown);
                     clip.css('maxWidth', '200px');
             }
-            preview.show();
 
+            preview.show();
             $(reset).addClass('reset {{ .Name }} btn waves-effect waves-light grey');
             $(reset).html('<i class="material-icons tiny">clear<i>');
             $(reset).on('click', function(e) {

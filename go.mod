@@ -3,9 +3,8 @@ module github.com/fanky5g/ponzu
 go 1.23.4
 
 require (
+	cloud.google.com/go/storage v1.43.0
 	github.com/fanky5g/ponzu-driver-bleve v1.0.3
-	github.com/fanky5g/ponzu-driver-gcs v1.1.0
-	github.com/fanky5g/ponzu-driver-local-storage v0.0.0-20240327121757-ebbe7fbe98d1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/schema v1.3.0
 	github.com/jackc/pgtype v1.14.4
@@ -22,6 +21,7 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	golang.org/x/crypto v0.31.0
 	golang.org/x/text v0.21.0
+	google.golang.org/api v0.189.0
 )
 
 require (
@@ -30,7 +30,6 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.3 // indirect
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/iam v1.1.12 // indirect
-	cloud.google.com/go/storage v1.43.0 // indirect
 	github.com/RoaringBitmap/roaring v1.9.4 // indirect
 	github.com/bits-and-blooms/bitset v1.13.0 // indirect
 	github.com/blevesearch/bleve v1.0.14 // indirect
@@ -91,7 +90,6 @@ require (
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/api v0.189.0 // indirect
 	google.golang.org/genproto v0.0.0-20240730163845-b1a4ccb954bf // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240730163845-b1a4ccb954bf // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240730163845-b1a4ccb954bf // indirect

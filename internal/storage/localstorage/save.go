@@ -20,8 +20,6 @@ func (c *Client) Save(fileName string, file io.ReadCloser) (string, int64, error
 	ts := int64(time.Nanosecond) * time.Now().UnixNano() / int64(time.Millisecond)
 	tm := time.Unix(ts/1000, ts%1000)
 
-	urlPathPrefix := "api"
-	uploadDirName := "uploads"
 	uploadDir := filepath.Join(c.storageDir, fmt.Sprintf("%d", tm.Year()), fmt.Sprintf("%02d", tm.Month()))
 	err := os.MkdirAll(uploadDir, os.ModeDir|os.ModePerm)
 	if err != nil {
@@ -48,6 +46,6 @@ func (c *Client) Save(fileName string, file io.ReadCloser) (string, int64, error
 	}
 
 	// add name:urlPath to req.PostForm to be inserted into db
-	urlPath := fmt.Sprintf("/%s/%s/%d/%02d/%s", urlPathPrefix, uploadDirName, tm.Year(), tm.Month(), fileName)
+	urlPath := fmt.Sprintf("%d/%02d/%s", tm.Year(), tm.Month(), fileName)
 	return urlPath, size, nil
 }
