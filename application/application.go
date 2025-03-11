@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fanky5g/ponzu/internal/storage"
 	"github.com/fanky5g/ponzu/internal/storage/assets"
+	"net/http"
 
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	"github.com/fanky5g/ponzu/config"
@@ -39,6 +40,7 @@ type DatabaseConfig struct {
 type Config struct {
 	ContentTypes content.Types
 	Database     DatabaseConfig
+	ServeMux     *http.ServeMux
 }
 
 type application struct {
@@ -107,7 +109,13 @@ func New(conf Config) (Application, error) {
 	}
 	svcs[tokens.ContentServiceToken] = contentSvc
 
-	svr, err := server.New(conf.ContentTypes, assets.AssetStorage, uploadStorageClient, svcs)
+	svr, err := server.New(
+		conf.ContentTypes,
+		assets.AssetStorage,
+		uploadStorageClient,
+		svcs,
+		conf.ServeMux,
+	)
 	if err != nil {
 		return nil, err
 	}

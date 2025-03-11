@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
@@ -77,7 +78,7 @@ func Get() (*Config, error) {
 
 	return &Config{
 		Paths: Paths{
-			PublicPath: viper.GetString("public_path"),
+			PublicPath: strings.TrimSuffix(viper.GetString("public_path"), "/"),
 			DataDir:    viper.GetString("data_dir"),
 		},
 		ServeConfig: ServeConfig{

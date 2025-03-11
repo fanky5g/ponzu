@@ -39,6 +39,7 @@ func New(
 	assetStorage http.FileSystem,
 	uploadStorage storage.Client,
 	svcs services.Services,
+	rootMux *http.ServeMux,
 ) (Server, error) {
 	appConf, err := conf.Get()
 	if err != nil {
@@ -79,6 +80,11 @@ func New(
 		return nil, err
 	}
 
+	rootMux.Handle(
+		fmt.Sprintf("%s/", appConf.Paths.PublicPath),
+		http.StripPrefix(appConf.Paths.PublicPath, mux),
+	)
+
 	err = controllers.RegisterRoutes(rtr, assetStorage, uploadStorage)
 	if err != nil {
 		return nil, err
@@ -88,6 +94,6 @@ func New(
 		tlsService:       svcs.Get(tokens.TLSServiceToken).(tls.Service),
 		configService:    configService,
 		analyticsService: analyticsService,
-		mux:              mux,
+		mux:              rootMux,
 	}, nil
 }
