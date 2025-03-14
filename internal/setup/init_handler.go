@@ -12,6 +12,10 @@ import (
 	"strings"
 )
 
+type ViewModel struct {
+	PublicPath string
+}
+
 func NewInitPageHandler(publicPath string, userService *auth.UserService, layout layouts.Template) http.HandlerFunc {
 	tmpl, templateErr := layout.Child("views/init_admin.gohtml")
 	if templateErr != nil {
@@ -40,7 +44,7 @@ func NewInitPageHandler(publicPath string, userService *auth.UserService, layout
 		response.Respond(
 			res,
 			req,
-			response.NewHTMLResponse(http.StatusOK, tmpl, "/"),
+			response.NewHTMLResponse(http.StatusOK, tmpl, ViewModel{PublicPath: publicPath}),
 		)
 	}
 }

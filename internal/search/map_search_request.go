@@ -2,7 +2,7 @@ package search
 
 import (
 	"encoding/json"
-	request2 "github.com/fanky5g/ponzu/internal/http/request"
+	"github.com/fanky5g/ponzu/internal/http/request"
 	"net/http"
 	"net/url"
 	"strings"
@@ -11,7 +11,7 @@ import (
 )
 
 func GetSearchRequestDto(req *http.Request) (*RequestDto, error) {
-	switch request2.GetContentType(req) {
+	switch request.GetContentType(req) {
 	case "multipart/form-data":
 		if err := req.ParseMultipartForm(1024 * 1024 * 4); err != nil {
 			return nil, err

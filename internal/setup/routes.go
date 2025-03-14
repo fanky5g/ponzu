@@ -17,10 +17,10 @@ func RegisterRoutes(
 	authService *auth.Service,
 	userService *auth.UserService,
 	publicPath string,
-	rootTemplate layouts.Template,
+	rootLayout layouts.Template,
 ) {
 	r.Route("GET /init", func() http.HandlerFunc {
-		return NewInitPageHandler(publicPath, userService, rootTemplate)
+		return NewInitPageHandler(publicPath, userService, rootLayout)
 	})
 
 	r.Route("POST /init", func() http.HandlerFunc {
