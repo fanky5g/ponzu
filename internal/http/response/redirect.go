@@ -26,7 +26,7 @@ func (r *redirect) Render(w http.ResponseWriter, req *http.Request) error {
 		location += "?" + u.RawQuery
 	}
 
-	http.Redirect(w, req, location, http.StatusFound)
+	http.Redirect(w, req, location, http.StatusTemporaryRedirect)
 	return nil
 }
 
