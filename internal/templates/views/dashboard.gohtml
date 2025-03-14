@@ -13,6 +13,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
         <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/material-components-web.min.css" />
         <link rel="stylesheet" href="{{ .PublicPath }}/static/editor/quill.snow.css" />
+        <link rel="stylesheet" href="{{ .PublicPath }}/static/css/root.css" />
         <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/admin.css" />
 
         {{ template "stylesheets.gohtml" . }}
@@ -23,7 +24,7 @@
     </head>
     <body>
         {{ template "app-frame.gohtml" . }}
-        
+
         <script type="text/javascript" src="{{ .PublicPath }}/static/common/js/admin.js"></script>
         <script type="text/javascript">
             const publicPath = "{{ .PublicPath }}";

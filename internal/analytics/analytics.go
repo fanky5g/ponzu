@@ -1,23 +1,26 @@
 package analytics
 
-import "github.com/fanky5g/ponzu/tokens"
+const (
+	MetricsRepositoryToken  = "analytics_metrics"
+	RequestsRepositoryToken = "analytics_http_request_metadata"
+)
 
-type AnalyticsMetric struct {
+type Metric struct {
 	MetricID string `json:"metric_id"`
 	Date     string `json:"date"`
 	Total    int    `json:"total"`
 	Unique   int    `json:"unique"`
 }
 
-func (*AnalyticsMetric) GetRepositoryToken() string {
-	return tokens.AnalyticsMetricsRepositoryToken
+func (*Metric) GetRepositoryToken() string {
+	return MetricsRepositoryToken
 }
 
-func (*AnalyticsMetric) EntityName() string {
+func (*Metric) EntityName() string {
 	return "AnalyticsMetric"
 }
 
-type AnalyticsHTTPRequestMetadata struct {
+type HTTPRequestMetadata struct {
 	RequestID  string `json:"request_id"`
 	URL        string `json:"url"`
 	Method     string `json:"http_method"`
@@ -28,10 +31,10 @@ type AnalyticsHTTPRequestMetadata struct {
 	External   bool   `json:"external_content"`
 }
 
-func (*AnalyticsHTTPRequestMetadata) GetRepositoryToken() string {
-	return tokens.AnalyticsRequestsRepositoryToken
+func (*HTTPRequestMetadata) GetRepositoryToken() string {
+	return RequestsRepositoryToken
 }
 
-func (*AnalyticsHTTPRequestMetadata) EntityName() string {
+func (*HTTPRequestMetadata) EntityName() string {
 	return "AnalyticsHTTPRequestMetadata"
 }

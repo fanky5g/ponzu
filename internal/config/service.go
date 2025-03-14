@@ -57,7 +57,7 @@ func (s *Service) SetConfig(config *Config) error {
 		return err
 	}
 
-	s.cache.Set(ConfigCacheKey, config)
+	s.cache.Set(CacheKey, config)
 	return nil
 }
 
@@ -81,15 +81,15 @@ func (s *Service) warmConfigCache() error {
 	}
 
 	if cfg != nil {
-		s.cache.Set(ConfigCacheKey, cfg)
+		s.cache.Set(CacheKey, cfg)
 	}
 
 	return nil
 }
 
-func New(config database.Repository, cache cache.Cache) (*Service, error) {
+func New(db database.Database, cache cache.Cache) (*Service, error) {
 	s := &Service{
-		config: config,
+		config: db.GetRepositoryByToken(RepositoryToken),
 		cache:  cache,
 	}
 

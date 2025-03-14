@@ -5,9 +5,10 @@ import (
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/internal/constants"
-	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 )
+
+const UploadRepositoryToken = "uploads"
 
 // Upload represents the file uploaded to the system
 type Upload struct {
@@ -26,7 +27,7 @@ func (*Upload) EntityName() string {
 func (f *Upload) GetTitle() string { return f.Name }
 
 func (*Upload) GetRepositoryToken() string {
-	return tokens.UploadRepositoryToken
+	return UploadRepositoryToken
 }
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
@@ -37,7 +38,7 @@ func (f *Upload) MarshalEditor(publicPath string) ([]byte, error) {
 		formLabel = "Upload New File"
 	}
 
-	view, err := editor.Form(f,
+	return editor.Form(f,
 		editor.Field{
 			View: editor.File(publicPath, "Path", f, map[string]string{
 				"label":       formLabel,
@@ -82,8 +83,6 @@ func (f *Upload) MarshalEditor(publicPath string) ([]byte, error) {
 			}(),
 		},
 	)
-
-	return view, err
 }
 
 func (f *Upload) Push() []string {

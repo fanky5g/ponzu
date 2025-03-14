@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"strings"
 )
 
@@ -33,6 +34,10 @@ func Template(name string) (*template.Template, error) {
 
 func Glob(name, pattern string) (*template.Template, error) {
 	return template.New(name).Funcs(GlobFuncs).ParseFS(templates, pattern)
+}
+
+func GlobNames(pattern string) ([]string, error) {
+	return fs.Glob(templates, pattern)
 }
 
 func Html(names ...string) string {

@@ -1,120 +1,129 @@
-<link rel="stylesheet" href="{{ .PublicPath }}/static/css/login.css" />
-<div class="init login-root">
-  <div class="login-container">
-    <div class="login-content">
-      <div class="login-background"></div>
-      <div class="box box-modal">
-        <div class="auth-sidebar">
-          <a href="/">
+{{ define "scripts.gohtml" }}
+    <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/editor.js"></script>
+{{ end }}
+
+{{ define "stylesheets.gohtml" }}
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/css/login.css" />
+{{ end }}
+
+{{ define "page.gohtml" }}
+  <div class="init login-root">
+    <div class="login-container">
+      <div class="login-content">
+        <div class="login-background"></div>
+        <div class="box box-modal">
+          <div class="auth-sidebar">
+            <a href="/">
             <span class="header-icon">
               <img src="{{ .PublicPath }}/static/img/logo.png" alt="logo" />
             </span>
-          </a>
-        </div>
-        <section class="org-login">
-          <div class="box-content with-padding">
-            <section>
-              <h5 class="form-title">Welcome!</h5>
-              <blockquote>You need to initialize your system by filling out the form below. All of
-                this information can be updated later on, but you will not be able to start
-                without first completing this step.
-              </blockquote>
-              <br/></br/>
-              <form
-                method="post"
-                action="{{ .PublicPath }}/init"
-                no-validate
-                autocomplete="off">
-                <h5 class="form-title">Configuration</h5>
-
-                <div class="form-group">
-                  <label class="control-label required-field">
-                  Site Name<span class="asterisk-field">*</span>
-                  </label>
-                  <div class="controls">
-                    <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
-                      <span class="mdc-text-field__ripple"></span>
-                      <input
-                        class="mdc-text-field__input"
-                        type="text"
-                        name="name"
-                        placeholder="Enter the name of your site (internal use only)"
-                        aria-label="Site Name"
-                      />
-                      <span class="mdc-line-ripple"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="control-label required-field">Domain</label>
-                  <div class="controls">
-                    <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
-                      <span class="mdc-text-field__ripple"></span>
-                      <input
-                        class="mdc-text-field__input"
-                        type="text"
-                        name="domain"
-                        placeholder="Used for acquiring SSL certificate (e.g. www.example.com or  example.com)"
-                        aria-label="Domain"
-                      />
-                      <span class="mdc-line-ripple"></span>
-                    </label>
-                  </div>
-                </div>
-                <br />
-
-                <h5 class="form-title">Admin Details</h5>
-                <div class="form-group">
-                  <label class="control-label required-field">
-                    Email<span class="asterisk-field">*</span>
-                  </label>
-                  <div class="controls">
-                    <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
-                      <span class="mdc-text-field__ripple"></span>
-                      <input
-                        class="mdc-text-field__input"
-                        type="email"
-                        name="email"
-                        placeholder="Enter your email address e.g. you@example.com"
-                        aria-label="Email"
-                      />
-                      <span class="mdc-line-ripple"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="control-label required-field">
-                    Password<span class="asterisk-field">*</span>
-                  </label>
-                  <div class="controls">
-                    <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
-                      <span class="mdc-text-field__ripple"></span>
-                      <input
-                        class="mdc-text-field__input"
-                        type="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        aria-label="Password"
-                      />
-                      <span class="mdc-line-ripple"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <fieldset class="form-actions">
-                  <div class="btn-wrapper">
-                    <button type="submit" class="mdc-button mdc-button--raised">
-                      <span class="mdc-button__label">Start</span>
-                    </button>
-                  </div>
-                </fieldset>
-              </form>
-            </section>
+            </a>
           </div>
-        </section>
+          <section class="org-login">
+            <div class="box-content with-padding">
+              <section>
+                <h5 class="form-title">Welcome!</h5>
+                <blockquote>You need to initialize your system by filling out the form below. All of
+                  this information can be updated later on, but you will not be able to start
+                  without first completing this step.
+                </blockquote>
+                <br/></br/>
+                <form
+                        method="post"
+                        action="{{ .PublicPath }}/init"
+                        novalidate
+                        autocomplete="off">
+                  <h5 class="form-title">Configuration</h5>
+
+                  <div class="form-group">
+                    <label class="control-label required-field">
+                      Site Name<span class="asterisk-field">*</span>
+                    </label>
+                    <div class="controls">
+                      <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
+                        <span class="mdc-text-field__ripple"></span>
+                        <input
+                                class="mdc-text-field__input"
+                                type="text"
+                                name="name"
+                                placeholder="Enter the name of your site (internal use only)"
+                                aria-label="Site Name"
+                        />
+                        <span class="mdc-line-ripple"></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="control-label required-field">Domain</label>
+                    <div class="controls">
+                      <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
+                        <span class="mdc-text-field__ripple"></span>
+                        <input
+                                class="mdc-text-field__input"
+                                type="text"
+                                name="domain"
+                                placeholder="Used for acquiring SSL certificate (e.g. www.example.com or  example.com)"
+                                aria-label="Domain"
+                        />
+                        <span class="mdc-line-ripple"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <br />
+
+                  <h5 class="form-title">Admin Details</h5>
+                  <div class="form-group">
+                    <label class="control-label required-field">
+                      Email<span class="asterisk-field">*</span>
+                    </label>
+                    <div class="controls">
+                      <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
+                        <span class="mdc-text-field__ripple"></span>
+                        <input
+                                class="mdc-text-field__input"
+                                type="email"
+                                name="email"
+                                placeholder="Enter your email address e.g. you@example.com"
+                                aria-label="Email"
+                        />
+                        <span class="mdc-line-ripple"></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="control-label required-field">
+                      Password<span class="asterisk-field">*</span>
+                    </label>
+                    <div class="controls">
+                      <label class="mdc-text-field mdc-text-field--filled mdc-text-field--no-label">
+                        <span class="mdc-text-field__ripple"></span>
+                        <input
+                                class="mdc-text-field__input"
+                                type="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                aria-label="Password"
+                        />
+                        <span class="mdc-line-ripple"></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <fieldset class="form-actions">
+                    <div class="btn-wrapper">
+                      <button type="submit" class="mdc-button mdc-button--raised">
+                        <span class="mdc-button__label">Start</span>
+                      </button>
+                    </div>
+                  </fieldset>
+                </form>
+              </section>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   </div>
-</div>
+{{ end }}

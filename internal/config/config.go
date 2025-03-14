@@ -3,8 +3,9 @@ package config
 import (
 	"github.com/fanky5g/ponzu/content/editor"
 	"github.com/fanky5g/ponzu/content/item"
-	"github.com/fanky5g/ponzu/tokens"
 )
+
+const RepositoryToken = "config"
 
 // Config represents the configurable options of the system
 type Config struct {
@@ -29,7 +30,7 @@ type Config struct {
 func (c *Config) GetTitle() string { return c.Name }
 
 func (*Config) GetRepositoryToken() string {
-	return tokens.ConfigRepositoryToken
+	return RepositoryToken
 }
 
 func (*Config) EntityName() string {
@@ -42,7 +43,7 @@ func (*Config) Time() int64 {
 
 // MarshalEditor writes a buffer of templates to edit a Post and partially implements editor.Editable
 func (c *Config) MarshalEditor(publicPath string) ([]byte, error) {
-	view, err := editor.Form(c,
+	return editor.Form(c,
 		editor.Field{
 			View: editor.Input("Name", c, map[string]string{
 				"label":       "Site Name",
@@ -133,47 +134,8 @@ func (c *Config) MarshalEditor(publicPath string) ([]byte, error) {
 			}, nil),
 		},
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	// Page Name: System Configuration
-	openingTag := []byte(`<form class="form-view-root" action="` + publicPath + `/configure" method="post">`)
-	closingTag := []byte(`</form>`)
-	script := []byte(`
-	<script>
-		$(function() {
-			// hide default fields & labels unnecessary for the config
-			var fields = $('.default-fields');
-			fields.css('position', 'relative');
-			fields.find('input:not([type=submit])').remove();
-			fields.find('label').remove();
-			fields.find('button').css({
-				position: 'absolute',
-				top: '-10px',
-				right: '0px'
-			});
-
-			var contentOnly = $('.entities-only.__ponzu');
-			contentOnly.hide();
-			contentOnly.find('input, textarea, select').attr('name', '');
-
-			// adjust layout of td so save button is in same location as usual
-			fields.find('td').css('float', 'right');
-
-			// stop some fixed config settings from being modified
-			fields.find('input[name=client_secret]').attr('name', '');
-		});
-	</script>
-	`)
-
-	view = append(openingTag, view...)
-	view = append(view, closingTag...)
-	view = append(view, script...)
-
-	return view, nil
 }
 
-var ConfigBuilder = func() interface{} {
+var Builder = func() interface{} {
 	return new(Config)
 }

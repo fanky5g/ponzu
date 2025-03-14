@@ -14,7 +14,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/constants"
 	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/search"
-	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
 )
 
@@ -33,7 +32,7 @@ func NewUploadService(
 	s := &UploadService{
 		client:       client,
 		searchClient: searchClient,
-		repository:   db.GetRepositoryByToken(tokens.UploadRepositoryToken),
+		repository:   db.GetRepositoryByToken(contentEntities.UploadRepositoryToken),
 	}
 
 	return s, nil

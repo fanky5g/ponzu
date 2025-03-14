@@ -1,13 +1,17 @@
 package auth
 
 import (
-	"github.com/fanky5g/ponzu/tokens"
 	"time"
 )
 
-type CredentialType string
+const (
+	CredentialHashRepositoryToken = "credential_hashes"
+	RecoveryKeyRepositoryToken    = "recovery_keys"
+)
 
 var CredentialTypePassword CredentialType = "password"
+
+type CredentialType string
 
 type PasswordHash struct {
 	Hash string `json:"hash"`
@@ -26,14 +30,14 @@ type CredentialHash struct {
 }
 
 func (*CredentialHash) GetRepositoryToken() string {
-	return tokens.CredentialHashRepositoryToken
+	return CredentialHashRepositoryToken
 }
 
 func (*CredentialHash) EntityName() string {
 	return "CredentialHash"
 }
 
-type AuthToken struct {
+type Token struct {
 	Expires time.Time
 	Token   string
 }
@@ -44,7 +48,7 @@ type RecoveryKey struct {
 }
 
 func (*RecoveryKey) GetRepositoryToken() string {
-	return tokens.RecoveryKeyRepositoryToken
+	return RecoveryKeyRepositoryToken
 }
 
 func (*RecoveryKey) EntityName() string {

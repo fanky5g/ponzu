@@ -2,30 +2,35 @@ package server
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/analytics"
+	"github.com/fanky5g/ponzu/internal/auth"
+	"github.com/fanky5g/ponzu/internal/content"
+	"github.com/fanky5g/ponzu/internal/content/dataexporter"
+	"github.com/fanky5g/ponzu/internal/content/dataexporter/formatter"
+	"github.com/fanky5g/ponzu/internal/http/middleware"
+	"github.com/fanky5g/ponzu/internal/http/router"
+	"github.com/fanky5g/ponzu/internal/layouts/dashboard"
+	"github.com/fanky5g/ponzu/internal/layouts/root"
+	"github.com/fanky5g/ponzu/internal/memorycache"
+	"github.com/fanky5g/ponzu/internal/search"
+	"github.com/fanky5g/ponzu/internal/setup"
+
 	"github.com/fanky5g/ponzu/internal/storage"
+	"github.com/pkg/errors"
 	"net/http"
 
 	conf "github.com/fanky5g/ponzu/config"
-	"github.com/fanky5g/ponzu/content"
+	contentPkg "github.com/fanky5g/ponzu/content"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/database"
-	"github.com/fanky5g/ponzu/internal/handler/controllers"
-	"github.com/fanky5g/ponzu/internal/handler/controllers/router"
-	"github.com/fanky5g/ponzu/internal/services"
-	"github.com/fanky5g/ponzu/internal/services/analytics"
-	"github.com/fanky5g/ponzu/internal/services/tls"
-	"github.com/fanky5g/ponzu/tokens"
 )
 
 type Server interface {
-	Serve() error
 	ServeMux() *http.ServeMux
 }
 
 type server struct {
-	tlsService       tls.Service
 	configService    *config.Service
-	analyticsService analytics.Service
 	mux              *http.ServeMux
 	configRepository database.Repository
 }
@@ -35,10 +40,11 @@ func (server *server) ServeMux() *http.ServeMux {
 }
 
 func New(
-	contentTypes content.Types,
+	contentTypes map[string]contentPkg.Builder,
+	db database.Database,
 	assetStorage http.FileSystem,
 	uploadStorage storage.Client,
-	svcs services.Services,
+	searchClient search.SearchInterface,
 	rootMux *http.ServeMux,
 ) (Server, error) {
 	appConf, err := conf.Get()
@@ -46,8 +52,20 @@ func New(
 		return nil, err
 	}
 
-	configService := svcs.Get(tokens.ConfigServiceToken).(*config.Service)
-	analyticsService := svcs.Get(tokens.AnalyticsServiceToken).(analytics.Service)
+	memcache, err := memorycache.New()
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to initialize memory cache")
+	}
+
+	configCache, err := config.NewCache(memcache)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create config cache service")
+	}
+
+	configService, err := config.New(db, memcache)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create config service")
+	}
 
 	cfg, err := configService.Get()
 	if err != nil {
@@ -74,26 +92,105 @@ func New(
 		}
 	}
 
-	mux := http.NewServeMux()
-	rtr, err := router.New(mux, appConf.Paths, svcs, contentTypes)
+	rowFormatter, err := formatter.NewJSONRowFormatter()
 	if err != nil {
 		return nil, err
 	}
+
+	contentExporter, err := dataexporter.New(rowFormatter)
+	if err != nil {
+		return nil, err
+	}
+
+	storageService, err := content.NewUploadService(db, searchClient, uploadStorage)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to initialize storage service")
+	}
+
+	contentService, err := content.New(db, contentTypes, searchClient, contentExporter, storageService)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to initialize content service")
+	}
+
+	uploadService, err := content.NewUploadService(db, searchClient, uploadStorage)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to initialize upload service")
+	}
+
+	searchService, err := search.New(searchClient, db)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to initialize search service")
+	}
+
+	clientSecret, err := configService.GetStringValue("client_secret")
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to get client secret")
+	}
+
+	authService, err := auth.New(clientSecret, db)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create auth service")
+	}
+
+	userService, err := auth.NewUserService(db)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create user service")
+	}
+
+	analyticsService, err := analytics.New(db)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to initialize analytics services")
+	}
+
+	middlewares, err := middleware.New(appConf.Paths, authService, configCache, analyticsService)
+
+	mux := http.NewServeMux()
+	rtr, err := router.New(mux, middlewares)
+	if err != nil {
+		return nil, err
+	}
+
+	dashboardLayout, err := dashboard.New(configCache, appConf.Paths.PublicPath, contentTypes)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create dashboard layout")
+	}
+
+	rootLayout, err := root.New(configCache, appConf.Paths.PublicPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create dashboard layout")
+	}
+
+	setup.RegisterRoutes(rtr, configService, authService, userService, appConf.Paths.PublicPath, rootLayout)
+	analytics.RegisterRoutes(rtr, analyticsService, dashboardLayout)
+	auth.RegisterRoutes(rtr, authService, userService, appConf.Paths.PublicPath, rootLayout, dashboardLayout)
+	config.RegisterRoutes(rtr, appConf.Paths.PublicPath, configService, dashboardLayout)
+
+	if err = content.RegisterRoutes(
+		rtr,
+		appConf.Paths.PublicPath,
+		contentTypes,
+		contentService,
+		uploadService,
+		searchService,
+		dashboardLayout,
+	); err != nil {
+		return nil, err
+	}
+
+	rtr.HandleWithCacheControl("GET /static/", http.StripPrefix("/static", http.FileServer(assetStorage)))
+	//
+	rtr.HandleWithCacheControl(
+		"/api/uploads/",
+		http.StripPrefix("/api/uploads/", http.FileServer(uploadStorage)),
+	)
 
 	rootMux.Handle(
 		fmt.Sprintf("%s/", appConf.Paths.PublicPath),
 		http.StripPrefix(appConf.Paths.PublicPath, mux),
 	)
 
-	err = controllers.RegisterRoutes(rtr, assetStorage, uploadStorage)
-	if err != nil {
-		return nil, err
-	}
-
 	return &server{
-		tlsService:       svcs.Get(tokens.TLSServiceToken).(tls.Service),
-		configService:    configService,
-		analyticsService: analyticsService,
-		mux:              rootMux,
+		configService: configService,
+		mux:           rootMux,
 	}, nil
 }

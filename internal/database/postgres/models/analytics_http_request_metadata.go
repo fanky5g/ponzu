@@ -10,7 +10,7 @@ import (
 )
 
 type AnalyticsHTTPRequestMetadataDocument struct {
-	*analytics.AnalyticsHTTPRequestMetadata
+	*analytics.HTTPRequestMetadata
 }
 
 func (document *AnalyticsHTTPRequestMetadataDocument) Value() (interface{}, error) {
@@ -36,11 +36,11 @@ func (*AnalyticsHTTPRequestMetadataModel) Name() string {
 }
 
 func (*AnalyticsHTTPRequestMetadataModel) NewEntity() interface{} {
-	return new(analytics.AnalyticsHTTPRequestMetadata)
+	return new(analytics.HTTPRequestMetadata)
 }
 
 func (model *AnalyticsHTTPRequestMetadataModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &AnalyticsHTTPRequestMetadataDocument{
-		AnalyticsHTTPRequestMetadata: entity.(*analytics.AnalyticsHTTPRequestMetadata),
+		HTTPRequestMetadata: entity.(*analytics.HTTPRequestMetadata),
 	}
 }
