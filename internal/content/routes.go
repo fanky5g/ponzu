@@ -79,12 +79,12 @@ func RegisterRoutes(
 		return NewUploadSearchHandler(publicPath, searchService, uploadsTable)
 	})
 
-	r.AuthorizedRoute("/contents", func() http.HandlerFunc {
+	r.AuthorizedRoute("GET /contents", func() http.HandlerFunc {
 		return NewContentsHandler(publicPath, contentService, contentTypes, dataTable)
 	})
 
-	r.AuthorizedRoute("/contents/search", func() http.HandlerFunc {
-		return NewSearchContentHandler(contentTypes, searchService)
+	r.AuthorizedRoute("GET /contents/search", func() http.HandlerFunc {
+		return NewContentSearchHandler(publicPath, searchService, contentTypes, dataTable)
 	})
 
 	r.AuthorizedRoute("GET /contents/export", func() http.HandlerFunc {
@@ -103,8 +103,8 @@ func RegisterRoutes(
 		return NewAPIContentHandler(contentService, uploadService, contentTypes)
 	})
 
-	r.APIAuthorizedRoute("/api/search", func() http.HandlerFunc {
-		return NewSearchContentHandler(contentTypes, searchService)
+	r.APIAuthorizedRoute("POST /api/search", func() http.HandlerFunc {
+		return NewAPISearchContentHandler(contentTypes, searchService)
 	})
 
 	return nil

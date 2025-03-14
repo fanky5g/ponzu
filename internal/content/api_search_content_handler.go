@@ -12,7 +12,7 @@ import (
 
 var ErrMissingSearchQuery = errors.New("query cannot be empty")
 
-func NewSearchContentHandler(contentTypes map[string]content.Builder, searchService *search.Service) http.HandlerFunc {
+func NewAPISearchContentHandler(contentTypes map[string]content.Builder, searchService *search.Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		t := req.URL.Query().Get("type")
 		if t == "" {
