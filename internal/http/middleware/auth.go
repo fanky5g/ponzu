@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/fanky5g/ponzu/internal/http/response"
 	"net/http"
 
 	conf "github.com/fanky5g/ponzu/config"
@@ -43,7 +44,7 @@ func NewAuthMiddleware(paths conf.Paths, tokenValidator TokenValidatorInterface)
 				return
 			}
 
-			util.Redirect(req, res, paths, "/login", http.StatusFound)
+			response.Respond(res, req, response.NewRedirectResponse(paths.PublicPath, "/login"))
 		}
 	}
 }

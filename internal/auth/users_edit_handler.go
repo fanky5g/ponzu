@@ -86,7 +86,7 @@ func NewConfigUsersEditHandler(publicPath string, authService *Service, userServ
 		response.Respond(
 			res,
 			req,
-			response.NewRedirectResponse(publicPath, strings.TrimSuffix(req.URL.RequestURI(), "/edit")),
+			response.NewRedirectResponse(publicPath, "/configure/users"),
 		)
 	}
 }

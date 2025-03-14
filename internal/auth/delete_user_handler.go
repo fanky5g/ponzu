@@ -45,7 +45,7 @@ func NewDeleteUserHandler(publicPath string, authService *Service, userService *
 			req,
 			response.NewRedirectResponse(
 				publicPath,
-				strings.TrimSuffix(req.URL.RequestURI(), "/delete"),
+				"/configure/users",
 			))
 	}
 }
