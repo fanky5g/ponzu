@@ -91,7 +91,7 @@ func RegisterRoutes(
 		return NewExportHandler(contentService)
 	})
 
-	r.AuthorizedRoute("GET /edit/delete", func() http.HandlerFunc {
+	r.AuthorizedRoute("POST /edit/delete", func() http.HandlerFunc {
 		return NewDeleteHandler(publicPath, contentService)
 	})
 
