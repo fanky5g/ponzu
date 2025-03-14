@@ -44,7 +44,7 @@ func NewLoginHandler(publicPath string, authService *Service, userService *UserS
 			response.Respond(
 				res,
 				req,
-				response.NewRedirectResponse(publicPath, "/admin"),
+				response.NewRedirectResponse(publicPath, "/"),
 			)
 			return
 		}
