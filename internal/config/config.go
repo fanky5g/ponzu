@@ -18,7 +18,6 @@ type Config struct {
 	HTTPSPort               string `json:"https_port"`
 	AdminEmail              string `json:"admin_email"`
 	ClientSecret            string `json:"client_secret"`
-	Etag                    string `json:"etag"`
 	DisableCORS             bool   `json:"cors_disabled"`
 	DisableGZIP             bool   `json:"gzip_disabled"`
 	DisableHTTPCache        bool   `json:"cache_disabled"`
@@ -84,17 +83,6 @@ func (c *Config) MarshalEditor(publicPath string) ([]byte, error) {
 		},
 		editor.Field{
 			View: editor.Input("ClientSecret", c, map[string]string{
-				"type": "hidden",
-			}, nil),
-		},
-		editor.Field{
-			View: editor.Input("Etag", c, map[string]string{
-				"label":    "Etag Header (used to cache resources)",
-				"disabled": "true",
-			}, nil),
-		},
-		editor.Field{
-			View: editor.Input("Etag", c, map[string]string{
 				"type": "hidden",
 			}, nil),
 		},

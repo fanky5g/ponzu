@@ -14,7 +14,6 @@ var (
 	CacheDisabledJSONKey = "cache_disabled"
 	AppNameJSONKey       = "name"
 	CacheMaxAgeJSONKey   = "cache_max_age"
-	ETagJSONKey          = "etag"
 	CorsDisabledJSONKey  = "cors_disabled"
 	GzipDisabledJSONKey  = "gzip_disabled"
 	DomainJSONKey        = "domain"
@@ -36,10 +35,6 @@ func (c *Cache) GetHTTPCacheDisabled() (bool, error) {
 
 func (c *Cache) GetCacheControlMaxAge() (int64, error) {
 	return c.getConfigInt(CacheMaxAgeJSONKey)
-}
-
-func (c *Cache) GetETag() (string, error) {
-	return c.getConfigString(ETagJSONKey)
 }
 
 func (c *Cache) GetGZipDisabled() (bool, error) {

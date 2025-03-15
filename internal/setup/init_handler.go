@@ -2,14 +2,15 @@ package setup
 
 import (
 	"encoding/base64"
+	"fmt"
 	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/http/response"
 	"github.com/fanky5g/ponzu/internal/layouts"
-	"github.com/fanky5g/ponzu/util"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type ViewModel struct {
@@ -65,12 +66,9 @@ func NewInitHandler(publicPath string, configService *config.Service, authServic
 		}
 
 		if cfg.ClientSecret == "" {
-			name := []byte(req.FormValue("name") + util.NewEtag())
-			cfg.ClientSecret = base64.StdEncoding.EncodeToString(name)
+			clientSecret := fmt.Sprintf("%s%d", req.FormValue("name"), time.Now().Unix())
+			cfg.ClientSecret = base64.StdEncoding.EncodeToString([]byte(clientSecret))
 		}
-
-		// generate an Etag to use for response caching
-		cfg.Etag = util.NewEtag()
 
 		// create and save controllers user
 		email := strings.ToLower(req.FormValue("email"))

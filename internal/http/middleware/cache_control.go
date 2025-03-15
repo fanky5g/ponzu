@@ -4,7 +4,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strings"
 )
 
 const (
@@ -15,7 +14,6 @@ const (
 type CacheControlConfigInterface interface {
 	GetHTTPCacheDisabled() (bool, error)
 	GetCacheControlMaxAge() (int64, error)
-	GetETag() (string, error)
 }
 
 var CacheControlMiddleware Token = "CacheControlMiddleware"
@@ -25,7 +23,7 @@ func NewCacheControlMiddleware(cacheControlConfig CacheControlConfigInterface) M
 		return func(res http.ResponseWriter, req *http.Request) {
 			httpCacheDisabled, err := cacheControlConfig.GetHTTPCacheDisabled()
 			if err != nil {
-				log.WithField("Error", err).Warning("Failed to get get config")
+				log.WithField("Error", err).Warning("Failed to get config")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -36,14 +34,7 @@ func NewCacheControlMiddleware(cacheControlConfig CacheControlConfigInterface) M
 			} else {
 				cacheMaxAge, err := cacheControlConfig.GetCacheControlMaxAge()
 				if err != nil {
-					log.WithField("Error", err).Warning("Failed to get get config")
-					res.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				etag, err := cacheControlConfig.GetETag()
-				if err != nil {
-					log.WithField("Error", err).Warning("Failed to get get config")
+					log.WithField("Error", err).Warning("Failed to get config")
 					res.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -53,15 +44,7 @@ func NewCacheControlMiddleware(cacheControlConfig CacheControlConfigInterface) M
 				}
 
 				policy := fmt.Sprintf("max-age=%d, public", cacheMaxAge)
-				res.Header().Add("ETag", etag)
 				res.Header().Add("Cache-Control", policy)
-
-				if match := req.Header.Get("If-None-Match"); match != "" {
-					if strings.Contains(match, etag) {
-						res.WriteHeader(http.StatusNotModified)
-						return
-					}
-				}
 
 				next.ServeHTTP(res, req)
 			}
