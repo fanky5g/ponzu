@@ -1,8 +1,10 @@
 package response
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type redirect struct {
@@ -11,19 +13,9 @@ type redirect struct {
 }
 
 func (r *redirect) Render(w http.ResponseWriter, req *http.Request) error {
-	u, err := url.Parse(r.target)
+	location, err := getRedirectLocation(r.publicPath, r.target)
 	if err != nil {
 		return err
-	}
-
-	p, err := url.JoinPath(r.publicPath, u.Path)
-	if err != nil {
-		return err
-	}
-
-	location := req.URL.Scheme + req.URL.Host + p
-	if u.RawQuery != "" {
-		location += "?" + u.RawQuery
 	}
 
 	http.Redirect(w, req, location, http.StatusFound)
@@ -34,4 +26,33 @@ func NewRedirectResponse(publicPath, target string) *Response {
 	return &Response{
 		Renderer: &redirect{publicPath: publicPath, target: target},
 	}
+}
+
+func getRedirectLocation(
+	publicPath,
+	target string,
+) (string, error) {
+	if !strings.HasPrefix(publicPath, "/") {
+		publicPath = fmt.Sprintf("/%s", publicPath)
+	}
+
+	if !strings.HasPrefix(target, "/") {
+		target = fmt.Sprintf("/%s", target)
+	}
+
+	u, err := url.Parse(target)
+	if err != nil {
+		return "", err
+	}
+
+	location, err := url.JoinPath(publicPath, u.Path)
+	if err != nil {
+		return "", err
+	}
+
+	if u.RawQuery != "" {
+		location += "?" + u.RawQuery
+	}
+
+	return location, nil
 }

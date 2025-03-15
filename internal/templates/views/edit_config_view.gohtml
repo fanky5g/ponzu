@@ -1,0 +1,35 @@
+{{ define "scripts.gohtml" }}
+    <script type="text/javascript" src="{{ .PublicPath }}/static/dashboard/js/editor.js"></script>
+{{ end }}
+
+{{ define "stylesheets.gohtml" }}
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/toolbar.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/content-editor.css" />
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/content-editor-toolbar.css" />
+{{ end }}
+
+{{ define "edit-config-toolbar.gohtml" }}
+<div class="mdc-top-app-bar content-editor-toolbar"> 
+  <div class="mdc-top-app-bar__row">
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+      <div class="actions">
+        <div class="actions-inner">
+            <button type="submit" class="mdc-button mdc-button--raised save-content">
+              <span class="mdc-button__label">Save</span>
+            </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{{ end }}
+
+{{ define "page.gohtml" }}
+    <div class="content-editor configure">
+        <form class="form-view-root" method="post" action="{{ .PublicPath }}/configure" enctype="multipart/form-data">
+            {{ template "edit-config-toolbar.gohtml" . }}
+            <div class="mdc-top-app-bar--fixed-adjust"></div>
+            {{ .Form }}
+        </form>
+    </div>
+{{ end }}

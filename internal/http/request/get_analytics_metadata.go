@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-func GetAnalyticsRequestMetadata(req *http.Request) analytics.AnalyticsHTTPRequestMetadata {
+func GetAnalyticsRequestMetadata(req *http.Request) analytics.HTTPRequestMetadata {
 	external := strings.Contains(req.URL.Path, "/external/")
 	ts := int64(time.Nanosecond) * time.Now().UnixNano() / int64(time.Millisecond)
 
-	return analytics.AnalyticsHTTPRequestMetadata{
+	return analytics.HTTPRequestMetadata{
 		URL:        req.URL.String(),
 		Method:     req.Method,
 		Origin:     req.Header.Get("Origin"),

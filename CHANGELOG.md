@@ -57,3 +57,9 @@
 
 ### v0.8.2
 - Fix blank public path behavior.
+
+## v0.8.3
+- Fix: missing save button in configuration page
+- Fix: setup not saving app name
+- Fix: empty public path handling
+- Fix: GCS storage handling of opening files

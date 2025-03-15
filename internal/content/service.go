@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/fanky5g/ponzu/content"
-	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/internal/constants"
@@ -13,7 +12,6 @@ import (
 	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/datasource"
 	"github.com/fanky5g/ponzu/internal/search"
-	"github.com/fanky5g/ponzu/tokens"
 	"github.com/fanky5g/ponzu/util"
 	"github.com/pkg/errors"
 )
@@ -34,7 +32,7 @@ func New(
 	dataExporter dataexporter.DataExporter,
 	uploadService *UploadService,
 ) (*Service, error) {
-	slugRepository := db.GetRepositoryByToken(tokens.SlugRepositoryToken)
+	slugRepository := db.GetRepositoryByToken(SlugRepositoryToken)
 
 	contentRepositories := make(map[string]database.Repository)
 	for entityName, ctor := range types {
@@ -122,7 +120,7 @@ func (s *Service) CreateContent(entityType string, entity interface{}) (string, 
 	}
 
 	identifiable = insert.(item.Identifiable)
-	if _, err = s.slugRepository.Insert(&entities.Slug{
+	if _, err = s.slugRepository.Insert(&Slug{
 		EntityType: entityType,
 		EntityId:   identifiable.ItemID(),
 		Slug:       sluggable.ItemSlug(),
@@ -211,11 +209,11 @@ func (s *Service) GetContentBySlug(slug string) (interface{}, error) {
 		return nil, nil
 	}
 
-	ss := match.(*entities.Slug)
+	ss := match.(*Slug)
 	return s.repository(ss.EntityType).FindOneById(ss.EntityId)
 }
 
-func (s *Service) GetSlug(entityType, entityId string) (*entities.Slug, error) {
+func (s *Service) GetSlug(entityType, entityId string) (*Slug, error) {
 	slug, err := s.slugRepository.FindOneBy(map[string]interface{}{
 		"entity_type": entityType,
 		"entity_id":   entityId,
@@ -229,7 +227,7 @@ func (s *Service) GetSlug(entityType, entityId string) (*entities.Slug, error) {
 		return nil, nil
 	}
 
-	return slug.(*entities.Slug), nil
+	return slug.(*Slug), nil
 }
 
 func (s *Service) GetAll(entityType string) ([]interface{}, error) {

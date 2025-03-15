@@ -1,16 +1,23 @@
-{{ $length := len .Items }}
-{{ $hasItems := gt $length 0 }}
+{{ define "scripts.gohtml" }}
+    <script type="text/javascript" src="{{ .PublicPath }}/static/common/js/table.js"></script>
+{{ end }}
 
-<link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/table.css" />
-<div class="mdc-data-table table flex">
-    {{ template "table-toolbar" . }}
+{{ define "stylesheets.gohtml" }}
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/dashboard/css/table.css" />
+{{ end }}
 
-    {{ if $hasItems }}
-        {{ template "table-content" . }}
-        {{ template "table-pagination" . }}
-    {{ else}}
-        <p class="empty-text">No {{ .TypeName }} found</p>
-    {{ end }}
-</div>
-<script type="text/javascript" src="{{ .PublicPath }}/static/common/js/table.js"></script>
+{{ define "page.gohtml" }}
+    {{ $length := len .Items }}
+    {{ $hasItems := gt $length 0 }}
 
+    <div class="mdc-data-table table flex">
+        {{ template "table-toolbar" . }}
+
+        {{ if $hasItems }}
+            {{ template "table-content" . }}
+            {{ template "table-pagination" . }}
+        {{ else}}
+            <p class="empty-text">No {{ .TypeName }} found</p>
+        {{ end }}
+    </div>
+{{ end }}

@@ -3,14 +3,14 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/content"
 	"strings"
 
-	"github.com/fanky5g/ponzu/content/entities"
 	"github.com/fanky5g/ponzu/database"
 )
 
 type SlugDocument struct {
-	*entities.Slug
+	*content.Slug
 }
 
 func (document *SlugDocument) Value() (interface{}, error) {
@@ -36,11 +36,11 @@ func (*SlugModel) Name() string {
 }
 
 func (*SlugModel) NewEntity() interface{} {
-	return new(entities.Slug)
+	return new(content.Slug)
 }
 
 func (model *SlugModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &SlugDocument{
-		Slug: entity.(*entities.Slug),
+		Slug: entity.(*content.Slug),
 	}
 }

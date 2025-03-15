@@ -1,6 +1,6 @@
 package auth
 
-import "github.com/fanky5g/ponzu/tokens"
+const UserRepositoryToken = "users"
 
 type User struct {
 	ID    string `json:"-"`
@@ -12,7 +12,7 @@ func (*User) EntityName() string {
 }
 
 func (*User) GetRepositoryToken() string {
-	return tokens.UserRepositoryToken
+	return UserRepositoryToken
 }
 
 func (user *User) ItemID() string {

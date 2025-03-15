@@ -1,0 +1,21 @@
+{{ define "stylesheets.gohtml" }}
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/css/errors.css" />
+{{ end }}
+{{ define "scripts.gohtml" }}{{ end }}
+
+{{ define "page.gohtml" }}
+    <div class="error-page-root">
+        <h4 class="align-center">Ooops, something went wrong!</h4>
+        <div class="error-image-container">
+            <img
+              alt="We're investigating this issue."
+              class="error-image"
+              src="{{ .PublicPath }}/static/img/bug.svg"
+            />
+        </div>
+        <div class="error-content">
+            <div class="card-title align-center"><b>500</b> Error: Internal Service Error</div>
+            <blockquote class="align-center">Sorry, something unexpectedly went wrong.</blockquote>
+        </div>
+    </div>
+{{ end }}

@@ -10,7 +10,7 @@ import (
 )
 
 type AnalyticsMetricDocument struct {
-	*analytics.AnalyticsMetric
+	*analytics.Metric
 }
 
 func (document *AnalyticsMetricDocument) Value() (interface{}, error) {
@@ -36,11 +36,11 @@ func (*AnalyticsMetricModel) Name() string {
 }
 
 func (*AnalyticsMetricModel) NewEntity() interface{} {
-	return new(analytics.AnalyticsMetric)
+	return new(analytics.Metric)
 }
 
 func (model *AnalyticsMetricModel) ToDocument(entity interface{}) database.DocumentInterface {
 	return &AnalyticsMetricDocument{
-		AnalyticsMetric: entity.(*analytics.AnalyticsMetric),
+		Metric: entity.(*analytics.Metric),
 	}
 }

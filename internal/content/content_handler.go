@@ -4,30 +4,30 @@ import (
 	"errors"
 	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/exceptions"
-	"github.com/fanky5g/ponzu/internal/config"
 	"github.com/fanky5g/ponzu/internal/http/request"
 	"github.com/fanky5g/ponzu/internal/http/response"
+	"github.com/fanky5g/ponzu/internal/layouts"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-func NewEditContentFormHandler(contentService *Service, cfg config.ConfigCache, publicPath string) http.HandlerFunc {
-	tmpl, err := getEditPageTemplate()
-	if err != nil {
-		log.Fatalf("Failed to build page template: %v", err)
+func NewEditContentFormHandler(contentService *Service, publicPath string, layout layouts.Template) http.HandlerFunc {
+	tmpl, templateErr := layout.Child("views/edit_content_view.gohtml")
+	if templateErr != nil {
+		log.Fatalf("Failed to build page template: %v", templateErr)
 	}
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		contentQuery, err := MapContentQueryFromRequest(req)
 		if err != nil {
-			// TODO: handle error
+			log.WithField("Error", err).Info("Error mapping request body")
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		entity, err := contentService.Type(contentQuery.Type)
 		if err != nil {
-			// TODO: handle error
+			log.WithField("Error", err).Warning("Error fetching content type")
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -35,7 +35,7 @@ func NewEditContentFormHandler(contentService *Service, cfg config.ConfigCache, 
 		if contentQuery.ID != "" {
 			entity, err = contentService.GetContent(contentQuery.Type, contentQuery.ID)
 			if err != nil {
-				// TODO: handle error
+				log.WithField("Error", err).Warning("Error getting content by ID")
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -48,13 +48,11 @@ func NewEditContentFormHandler(contentService *Service, cfg config.ConfigCache, 
 
 		editContentForm, err := NewEditContentFormViewModel(
 			entity,
-			cfg,
 			publicPath,
-			contentService.ContentTypes(),
 			nil,
 		)
 		if err != nil {
-			// TODO: handle error
+			log.WithField("Error", err).Warning("Error building ContentFormViewModel")
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -94,7 +92,6 @@ func NewSaveContentHandler(contentService *Service, publicPath string) http.Hand
 			contentQuery.ID, err = contentService.CreateContent(contentQuery.Type, entity)
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to create content")
-				// TODO: handle error
 				res.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -104,7 +101,6 @@ func NewSaveContentHandler(contentService *Service, publicPath string) http.Hand
 			if err != nil {
 				log.WithField("Error", err).Warning("Failed to update content")
 				res.WriteHeader(http.StatusInternalServerError)
-				// TODO: handle error
 				return
 			}
 		}
@@ -120,10 +116,10 @@ func NewSaveContentHandler(contentService *Service, publicPath string) http.Hand
 	}
 }
 
-func NewContentWorkflowTransitionHandler(contentService *Service, cfg config.ConfigCache, publicPath string) http.HandlerFunc {
-	tmpl, err := getEditPageTemplate()
-	if err != nil {
-		log.Fatalf("Failed to build page template: %v", err)
+func NewContentWorkflowTransitionHandler(contentService *Service, publicPath string, layout layouts.Template) http.HandlerFunc {
+	tmpl, templateErr := layout.Child("views/edit_content_view.gohtml")
+	if templateErr != nil {
+		log.Fatalf("Failed to build page template: %v", templateErr)
 	}
 
 	return func(res http.ResponseWriter, req *http.Request) {
@@ -145,9 +141,7 @@ func NewContentWorkflowTransitionHandler(contentService *Service, cfg config.Con
 
 		editContentForm, err := NewEditContentFormViewModel(
 			entity,
-			cfg,
 			publicPath,
-			contentService.ContentTypes(),
 			workflowTransitionErr,
 		)
 		if err != nil {

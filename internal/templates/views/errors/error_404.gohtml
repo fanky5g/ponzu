@@ -1,0 +1,13 @@
+{{ define "stylesheets.gohtml" }}
+    <link rel="stylesheet" href="{{ .PublicPath }}/static/css/errors.css" />
+{{ end }}
+{{ define "scripts.gohtml" }}{{ end }}
+
+{{ define "page.gohtml" }}
+    <div class="error-page-root">
+        <div class="error-content">
+            <div class="card-title align-center"><b>404</b> Error: Not Found</div>
+            <blockquote class="align-center">Sorry, the page you requested could not be found.</blockquote>
+        </div>
+    </div>
+{{ end }}

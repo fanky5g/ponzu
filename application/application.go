@@ -2,28 +2,21 @@ package application
 
 import (
 	"fmt"
-	"github.com/fanky5g/ponzu/internal/storage"
-	"github.com/fanky5g/ponzu/internal/storage/assets"
-	"net/http"
-
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
 	databasePkg "github.com/fanky5g/ponzu/database"
-	contentService "github.com/fanky5g/ponzu/internal/content"
-	"github.com/fanky5g/ponzu/internal/content/dataexporter"
-	"github.com/fanky5g/ponzu/internal/content/dataexporter/formatter"
 	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/database/postgres"
 	"github.com/fanky5g/ponzu/internal/http/server"
 	"github.com/fanky5g/ponzu/internal/search"
 	pgSearch "github.com/fanky5g/ponzu/internal/search/postgres"
-	"github.com/fanky5g/ponzu/internal/services"
+	"github.com/fanky5g/ponzu/internal/storage"
+	"github.com/fanky5g/ponzu/internal/storage/assets"
 	"github.com/fanky5g/ponzu/internal/storage/gcs"
 	"github.com/fanky5g/ponzu/internal/storage/localstorage"
-	"github.com/fanky5g/ponzu/tokens"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 var (
@@ -76,46 +69,15 @@ func New(conf Config) (Application, error) {
 		return nil, errors.Wrap(err, "Failed to get search client")
 	}
 
-	svcs, err := services.New(db, searchClient, conf.ContentTypes.Content)
-	if err != nil {
-		return nil, err
-	}
-
-	rowFormatter, err := formatter.NewJSONRowFormatter()
-	if err != nil {
-		return nil, err
-	}
-
-	contentExporter, err := dataexporter.New(rowFormatter)
-	if err != nil {
-		return nil, err
-	}
-
-	storageService, err := contentService.NewUploadService(db, searchClient, uploadStorageClient)
-	if err != nil {
-		log.Fatalf("Failed to initialize storage services: %v", err)
-	}
-	svcs[tokens.UploadServiceToken] = storageService
-
-	contentSvc, err := contentService.New(
-		db,
-		conf.ContentTypes.Content,
-		searchClient,
-		contentExporter,
-		storageService,
-	)
-	if err != nil {
-		log.Fatalf("Failed to initialize entities service: %v", err)
-	}
-	svcs[tokens.ContentServiceToken] = contentSvc
-
 	svr, err := server.New(
-		conf.ContentTypes,
+		conf.ContentTypes.Content,
+		db,
 		assets.AssetStorage,
 		uploadStorageClient,
-		svcs,
+		searchClient,
 		conf.ServeMux,
 	)
+
 	if err != nil {
 		return nil, err
 	}

@@ -2,11 +2,11 @@ package content
 
 import (
 	"errors"
+	"github.com/fanky5g/ponzu/internal/search"
 	"net/http"
 
 	"github.com/fanky5g/ponzu/content/item"
 	"github.com/fanky5g/ponzu/exceptions"
-	"github.com/fanky5g/ponzu/internal/http/request"
 )
 
 var ErrUnsupportedMethod = errors.New("http method unsupported")
@@ -64,12 +64,12 @@ func (m *Mapper) MapReqToListReferencesInputResource(req *http.Request) (*ListRe
 		return nil, errors.New("invalid reference type")
 	}
 
-	searchRequestDto, err := request.GetSearchRequestDto(req)
+	searchRequestDto, err := search.GetSearchRequestDto(req)
 	if err != nil {
 		return nil, err
 	}
 
-	searchRequest, err := request.MapSearchRequest(searchRequestDto)
+	searchRequest, err := search.MapSearchRequest(searchRequestDto)
 	if err != nil {
 		return nil, err
 	}

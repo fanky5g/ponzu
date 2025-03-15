@@ -1,20 +1,24 @@
 package response
 
 import (
-	"html/template"
+	"io"
 	"net/http"
 )
 
+type TemplateExecutorInterface interface {
+	Execute(w io.Writer, data interface{}) error
+}
+
 type templateRenderer struct {
 	data interface{}
-	tmpl *template.Template
+	tmpl TemplateExecutorInterface
 }
 
 func (renderer *templateRenderer) Render(w http.ResponseWriter, r *http.Request) error {
 	return renderer.tmpl.Execute(w, renderer.data)
 }
 
-func NewHTMLResponse(statusCode int, tmpl *template.Template, data interface{}) *Response {
+func NewHTMLResponse(statusCode int, tmpl TemplateExecutorInterface, data interface{}) *Response {
 	return &Response{
 		StatusCode: statusCode,
 		Headers: map[string]string{
