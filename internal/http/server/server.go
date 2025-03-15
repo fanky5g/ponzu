@@ -180,7 +180,7 @@ func New(
 	}
 
 	rtr.HandleWithCacheControl("GET /static/", http.StripPrefix("/static", http.FileServer(assetStorage)))
-	rtr.HandleWithCacheControl(
+	rtr.Handle(
 		"GET /api/uploads/",
 		http.StripPrefix("/api/uploads/", http.FileServer(uploadStorage)),
 	)
