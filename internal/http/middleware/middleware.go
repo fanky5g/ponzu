@@ -39,7 +39,7 @@ func New(
 	middlewares[AnalyticsRecorderMiddleware] = NewAnalyticsRecorderMiddleware(analyticsRecorder)
 	middlewares[AuthMiddleware] = NewAuthMiddleware(paths, tokenValidator)
 	middlewares[GzipMiddleware] = NewGzipMiddleware(configProvider)
-	middlewares[CorsMiddleware] = NewCORSMiddleware(configProvider, cacheControlMiddleware)
+	middlewares[CorsMiddleware] = NewCORSMiddleware(configProvider)
 
 	return middlewares, nil
 }

@@ -63,3 +63,6 @@
 - Fix: setup not saving app name
 - Fix: empty public path handling
 - Fix: GCS storage handling of opening files
+
+## v0.8.4
+- Fix: remove cache control usage in CORS middleware

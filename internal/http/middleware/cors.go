@@ -63,36 +63,34 @@ func responseWithCORS(
 	return res, true
 }
 
-func NewCORSMiddleware(corsConfig CorsConfigInterface, cacheControlMiddleware Middleware) Middleware {
+func NewCORSMiddleware(corsConfig CorsConfigInterface) Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
-		return cacheControlMiddleware(
-			func(res http.ResponseWriter, req *http.Request) {
-				corsDisabled, err := corsConfig.GetCorsDisabled()
-				if err != nil {
-					log.WithField("Error", err).Warning("Failed to get get config")
-					res.WriteHeader(http.StatusInternalServerError)
-					return
-				}
+		return func(res http.ResponseWriter, req *http.Request) {
+			corsDisabled, err := corsConfig.GetCorsDisabled()
+			if err != nil {
+				log.WithField("Error", err).Warning("Failed to get get config")
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 
-				domain, err := corsConfig.GetDomain()
-				if err != nil {
-					log.WithField("Error", err).Warning("Failed to get get config")
-					res.WriteHeader(http.StatusInternalServerError)
-					return
-				}
+			domain, err := corsConfig.GetDomain()
+			if err != nil {
+				log.WithField("Error", err).Warning("Failed to get get config")
+				res.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 
-				res, cors := responseWithCORS(corsDisabled, domain, res, req)
-				if !cors {
-					return
-				}
+			res, cors := responseWithCORS(corsDisabled, domain, res, req)
+			if !cors {
+				return
+			}
 
-				if req.Method == http.MethodOptions {
-					sendPreflight(res)
-					return
-				}
+			if req.Method == http.MethodOptions {
+				sendPreflight(res)
+				return
+			}
 
-				next.ServeHTTP(res, req)
-			},
-		)
+			next.ServeHTTP(res, req)
+		}
 	}
 }
