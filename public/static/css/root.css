@@ -92,3 +92,12 @@ blockquote {
     flex-shrink: 1;
     min-width: 0;
 }
+
+.align-center {
+    align-self: center;
+}
+
+.card-title {
+    font-size: 14px;
+    margin-bottom: 8px;
+}

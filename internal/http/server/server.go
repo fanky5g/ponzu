@@ -8,7 +8,9 @@ import (
 	"github.com/fanky5g/ponzu/internal/content/dataexporter"
 	"github.com/fanky5g/ponzu/internal/content/dataexporter/formatter"
 	"github.com/fanky5g/ponzu/internal/http/middleware"
+	"github.com/fanky5g/ponzu/internal/http/response"
 	"github.com/fanky5g/ponzu/internal/http/router"
+	"github.com/fanky5g/ponzu/internal/layouts"
 	"github.com/fanky5g/ponzu/internal/layouts/dashboard"
 	"github.com/fanky5g/ponzu/internal/layouts/root"
 	"github.com/fanky5g/ponzu/internal/memorycache"
@@ -178,11 +180,32 @@ func New(
 	}
 
 	rtr.HandleWithCacheControl("GET /static/", http.StripPrefix("/static", http.FileServer(assetStorage)))
-	//
 	rtr.HandleWithCacheControl(
-		"/api/uploads/",
+		"GET /api/uploads/",
 		http.StripPrefix("/api/uploads/", http.FileServer(uploadStorage)),
 	)
+
+	// Catch-All Route - 404 page
+	var error404 layouts.Template
+	error404, err = rootLayout.Child("views/errors/error_404.gohtml")
+	if err != nil {
+		return nil, err
+	}
+
+	rtr.Route("GET /", func() http.HandlerFunc {
+		return func(res http.ResponseWriter, req *http.Request) {
+			response.Respond(
+				res,
+				req,
+				response.NewHTMLResponse(
+					http.StatusNotFound,
+					error404,
+					nil,
+				),
+			)
+		}
+	})
+	// End Catch-All Route
 
 	rootMux.Handle(
 		fmt.Sprintf("%s/", appConf.Paths.PublicPath),

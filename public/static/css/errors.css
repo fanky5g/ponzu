@@ -1,0 +1,27 @@
+.error-page-root {
+    padding: 10vh 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    background: #fff;
+}
+
+.error-page-root .error-image-container {
+    margin-top: 48px;
+    display: flex;
+    justify-content: center;
+}
+
+.error-page-root .error-image {
+    max-width: 100%;
+    width: 560px;
+    max-height: 300px;
+    height: auto;
+}
+
+.error-page-root .error-content {
+    margin-top: 48px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}

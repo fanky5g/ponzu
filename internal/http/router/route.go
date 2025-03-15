@@ -3,7 +3,7 @@ package router
 import (
 	"context"
 	"github.com/fanky5g/ponzu/internal/constants"
-	middleware2 "github.com/fanky5g/ponzu/internal/http/middleware"
+	"github.com/fanky5g/ponzu/internal/http/middleware"
 	"net/http"
 )
 
@@ -12,16 +12,16 @@ func (r *Router) Route(pattern string, handler func() http.HandlerFunc) {
 }
 
 func (r *Router) APIRoute(pattern string, handler func() http.HandlerFunc) {
-	AnalyticsRecorderMiddleware := r.middlewares.Get(middleware2.AnalyticsRecorderMiddleware)
-	CORSMiddleware := r.middlewares.Get(middleware2.CorsMiddleware)
-	GzipMiddleware := r.middlewares.Get(middleware2.GzipMiddleware)
+	AnalyticsRecorderMiddleware := r.middlewares.Get(middleware.AnalyticsRecorderMiddleware)
+	CORSMiddleware := r.middlewares.Get(middleware.CorsMiddleware)
+	GzipMiddleware := r.middlewares.Get(middleware.GzipMiddleware)
 	TagRoute := r.RouteTag(constants.APIRoute)
 
 	r.mux.HandleFunc(pattern, TagRoute(AnalyticsRecorderMiddleware(CORSMiddleware(GzipMiddleware(handler())))))
 }
 
 func (r *Router) APIAuthorizedRoute(pattern string, handler func() http.HandlerFunc) {
-	Auth := r.middlewares.Get(middleware2.AuthMiddleware)
+	Auth := r.middlewares.Get(middleware.AuthMiddleware)
 
 	r.APIRoute(pattern, func() http.HandlerFunc {
 		return Auth(handler())
@@ -29,7 +29,7 @@ func (r *Router) APIAuthorizedRoute(pattern string, handler func() http.HandlerF
 }
 
 func (r *Router) AuthorizedRoute(pattern string, handler func() http.HandlerFunc) {
-	Auth := r.middlewares.Get(middleware2.AuthMiddleware)
+	Auth := r.middlewares.Get(middleware.AuthMiddleware)
 	r.mux.HandleFunc(pattern, Auth(handler()))
 }
 
@@ -38,7 +38,7 @@ func (r *Router) Handle(pattern string, handler http.Handler) {
 }
 
 func (r *Router) HandleWithCacheControl(pattern string, handler http.Handler) {
-	CacheControlMiddleware := middleware2.ToHttpHandler(r.middlewares.Get(middleware2.CacheControlMiddleware))
+	CacheControlMiddleware := middleware.ToHttpHandler(r.middlewares.Get(middleware.CacheControlMiddleware))
 	r.Handle(pattern, CacheControlMiddleware(handler))
 }
 
