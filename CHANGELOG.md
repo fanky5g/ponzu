@@ -69,3 +69,7 @@
 
 ## v0.9.0
 - Support loading ponzu config file from .config directory from working directory
+
+## v0.9.1
+- Remove .config support in cwd
+- Add loading ponzu.props from ${USER_HOME}/.config/ponzu
