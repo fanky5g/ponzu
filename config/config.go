@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"os"
+	"path"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -64,6 +65,7 @@ func Get() (*Config, error) {
 	viper.SetConfigName("ponzu")
 	viper.SetConfigType("props")
 	viper.AddConfigPath(cwd)
+	viper.AddConfigPath(path.Join(cwd, ".config"))
 	err = viper.ReadInConfig()
 	if err != nil && errors.As(err, &viper.ConfigFileNotFoundError{}) {
 		log.WithFields(log.Fields{

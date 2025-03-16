@@ -66,3 +66,6 @@
 
 ## v0.8.4
 - Fix: remove cache control usage in CORS middleware
+
+## v0.9.0
+- Support loading ponzu config file from .config directory from working directory
