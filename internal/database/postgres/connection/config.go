@@ -6,6 +6,7 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"os"
+	"path"
 )
 
 type Config struct {
@@ -30,6 +31,13 @@ func getConfig() (*Config, error) {
 		return nil, err
 	}
 
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	ponzuHomeConfig := path.Join(homeDir, ".config", "ponzu")
+
 	flags := flag.NewFlagSet("config", flag.ExitOnError)
 	defineFlags(flags)
 
@@ -40,6 +48,7 @@ func getConfig() (*Config, error) {
 	viper.SetConfigName("ponzu") // ponzu config file
 	viper.SetConfigType("props")
 	viper.AddConfigPath(cwd)
+	viper.AddConfigPath(ponzuHomeConfig)
 
 	viper.AutomaticEnv()
 
