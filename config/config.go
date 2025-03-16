@@ -55,6 +55,13 @@ func Get() (*Config, error) {
 		return nil, err
 	}
 
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	ponzuHomeConfig := path.Join(homeDir, ".config", "ponzu")
+
 	flags := flag.NewFlagSet("config", flag.ExitOnError)
 	defineFlags(flags, cwd)
 
@@ -65,12 +72,13 @@ func Get() (*Config, error) {
 	viper.SetConfigName("ponzu")
 	viper.SetConfigType("props")
 	viper.AddConfigPath(cwd)
-	viper.AddConfigPath(path.Join(cwd, ".config"))
+	viper.AddConfigPath(ponzuHomeConfig)
+
+	log.Debugf("Searching for ponzu.props in: %s", strings.Join([]string{cwd, ponzuHomeConfig}, ", "))
+
 	err = viper.ReadInConfig()
 	if err != nil && errors.As(err, &viper.ConfigFileNotFoundError{}) {
-		log.WithFields(log.Fields{
-			"WorkingDirectory": cwd,
-		}).Warning("config file not found. will default to provided flags")
+		log.Warning("config file not found. will default to provided flags")
 		err = nil
 	}
 
