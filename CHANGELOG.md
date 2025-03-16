@@ -73,3 +73,7 @@
 ## v0.9.1
 - Remove .config support in cwd
 - Add loading ponzu.props from ${USER_HOME}/.config/ponzu
+
+## v0.10.0
+- DataBase config. Support ponzu.props from ${USER_HOME}/.config/ponzu
+- Use more dynamic connection string support. Set postgres ssl_mode to disable by default.

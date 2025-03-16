@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"os"
 	"sync"
 )
 
@@ -22,8 +23,8 @@ func Get(ctx context.Context) (*pgxpool.Pool, error) {
 			return
 		}
 
-		dsn := fmt.Sprintf(
-			"postgres://%s:%s@%s:%d/%s",
+		dbURI := fmt.Sprintf(
+			"user=%s password=%s host=%s port=%d dbname=%s sslmode=disable",
 			cfg.User,
 			cfg.Password,
 			cfg.Host,
@@ -31,7 +32,13 @@ func Get(ctx context.Context) (*pgxpool.Pool, error) {
 			cfg.Name,
 		)
 
-		conn, err = pgxpool.New(ctx, dsn)
+		config, err := pgxpool.ParseConfig(dbURI)
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "Unable to parse database connection: %v\n", err)
+			return
+		}
+
+		conn, err = pgxpool.NewWithConfig(ctx, config)
 		if err != nil {
 			err = fmt.Errorf("failed to connect to database: %v", err)
 			return
