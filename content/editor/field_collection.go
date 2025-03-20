@@ -31,7 +31,7 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]Fi
 	typeTemplateMap := make(map[string]string)
 	for typeName := range fieldCollections.AllowedTypes() {
 		var emptyType interface{}
-		emptyType, err := makeValidTypeAtPosition(p, fieldName, typeName, 0)
+		emptyType, err := makeFieldCollectionAtPosition(p, fieldName, typeName, 0)
 		if err != nil {
 			panic(err)
 		}
@@ -117,7 +117,22 @@ func FieldCollection(fieldName, label string, p interface{}, types map[string]Fi
 	return append([]byte(tmpl), script.Bytes()...)
 }
 
-func makeValidTypeAtPosition(p interface{}, fieldName, typeName string, position int) (interface{}, error) {
+func getFieldCollectionTypeAtIndex(fieldCollectionFieldName string, p interface{}, position int) (string, error) {
+	value := ValueByName(fieldCollectionFieldName, p, nil)
+	fieldCollections, ok := (value.Interface()).(content.FieldCollections)
+	if !ok {
+		return "", fmt.Errorf("ponzu: '%s' is not a valid FieldCollections type", value.Type())
+	}
+
+	data := fieldCollections.Data()
+	if len(data) < position {
+		return "", fmt.Errorf("index %d not in %s", position, fieldCollectionFieldName)
+	}
+
+	return data[position].Type, nil
+}
+
+func makeFieldCollectionAtPosition(p interface{}, fieldName, typeName string, position int) (interface{}, error) {
 	emptyType := makeEmptyType(p)
 	value := ValueByName(fieldName, emptyType, nil)
 
@@ -125,6 +140,14 @@ func makeValidTypeAtPosition(p interface{}, fieldName, typeName string, position
 	fieldCollections, ok := (iface).(content.FieldCollections)
 	if !ok {
 		return nil, fmt.Errorf("ponzu: '%s' is not a valid FieldCollections type", value.Type())
+	}
+
+	var err error
+	if typeName == "" {
+		typeName, err = getFieldCollectionTypeAtIndex(fieldName, p, position)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	allowedTypes := fieldCollections.AllowedTypes()
@@ -144,7 +167,6 @@ func makeValidTypeAtPosition(p interface{}, fieldName, typeName string, position
 	})
 
 	value.Set(reflect.ValueOf(iface))
-
 	return emptyType, nil
 }
 
