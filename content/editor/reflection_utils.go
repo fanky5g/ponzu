@@ -136,10 +136,6 @@ func valueByName(name string, post interface{}, args *FieldArgs, callDepth uint8
 			v = getIndexAtPositionOrMakeNew(v, 0)
 		}
 
-		//else {
-		//	v = v.Elem()
-		//}
-
 		if len(parts) > 1 {
 			fieldName = parts[1]
 			parts = parts[1:]
