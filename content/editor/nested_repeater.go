@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
-	"strings"
 )
 
 type NestedFieldGenerator func(v interface{}, f *FieldArgs) (string, []Field)
@@ -43,25 +42,25 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 			args.PositionalPlaceHolders...,
 		)
 
-		matches := parentIsFieldCollectionRegexp.FindStringSubmatch(args.Parent)
+		matches := ancestorIsFieldCollectionRegexp.FindStringSubmatch(args.Parent)
 		if len(matches) > 0 {
-			matchIndex := parentIsFieldCollectionRegexp.SubexpIndex("Position")
-			if matchIndex == -1 {
+			positionMatchIndex := ancestorIsFieldCollectionRegexp.SubexpIndex("Position")
+			if positionMatchIndex == -1 {
+				panic("Parent path is invalid")
+			}
+
+			fieldCollectionNameIndex := ancestorIsFieldCollectionRegexp.SubexpIndex("FieldCollectionName")
+			if fieldCollectionNameIndex == -1 {
 				panic("Parent path is invalid")
 			}
 
 			var err error
-			position, err := strconv.Atoi(matches[matchIndex])
+			position, err := strconv.Atoi(matches[positionMatchIndex])
 			if err != nil {
 				panic(err)
 			}
 
-			fieldCollectionFieldName := strings.TrimSuffix(
-				string(parentIsFieldCollectionRegexp.ReplaceAll([]byte(args.Parent), []byte(""))),
-				".",
-			)
-
-			emptyType, err = makeValidTypeAtPosition(p, fieldCollectionFieldName, args.TypeName, position)
+			emptyType, err = makeFieldCollectionAtPosition(p, matches[fieldCollectionNameIndex], args.TypeName, position)
 			if err != nil {
 				panic(err)
 			}

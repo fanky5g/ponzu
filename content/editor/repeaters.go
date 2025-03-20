@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var parentIsFieldCollectionRegexp = regexp.MustCompile("(?P<Position>\\d).Value$")
+var ancestorIsFieldCollectionRegexp = regexp.MustCompile("(?P<FieldCollectionName>.*).(?P<Position>\\d).Value")
 
 func makePositionalPlaceholder(tagName string) string {
 	return fmt.Sprintf("%%%s%%", strings.NewReplacer(".", "_").Replace(tagName))

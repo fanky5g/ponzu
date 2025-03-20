@@ -131,29 +131,16 @@ func valueByName(name string, post interface{}, args *FieldArgs, callDepth uint8
 
 	if v.Kind() == reflect.Slice || v.Kind() == reflect.Array {
 		if index, err := strconv.Atoi(fieldName); err == nil {
-			v = v.Index(index)
-			if len(parts) > 1 {
-				fieldName = parts[1]
-				parts = parts[1:]
-			} else {
-				return v
-			}
+			v = getIndexAtPositionOrMakeNew(v, index)
 		} else if isPositionalPlaceholder(fieldName, args) {
-			if v.Len() == 0 {
-				arrayEntityType := reflect.TypeOf(v.Interface()).Elem()
-				v = reflect.New(arrayEntityType).Elem()
-			} else {
-				v = v.Index(0)
-			}
+			v = getIndexAtPositionOrMakeNew(v, 0)
+		}
 
-			if len(parts) > 1 {
-				fieldName = parts[1]
-				parts = parts[1:]
-			} else {
-				return v
-			}
+		if len(parts) > 1 {
+			fieldName = parts[1]
+			parts = parts[1:]
 		} else {
-			v = v.Elem()
+			return v
 		}
 	}
 
@@ -163,19 +150,6 @@ func valueByName(name string, post interface{}, args *FieldArgs, callDepth uint8
 	}
 
 	return value
-}
-
-func isPositionalPlaceholder(fieldName string, args *FieldArgs) bool {
-	if args != nil {
-		for _, positionalPlaceholder := range args.PositionalPlaceHolders {
-			positionalPlaceholderRegexp := regexp.MustCompile(fmt.Sprintf("^%s$", positionalPlaceholder))
-			if positionalPlaceholderRegexp.MatchString(fieldName) {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 // ValueFromStructField returns the value of a field in a struct
@@ -227,4 +201,25 @@ func makeEmptyType(p interface{}) interface{} {
 	}
 
 	return reflect.New(pType).Interface()
+}
+
+func getIndexAtPositionOrMakeNew(v reflect.Value, idx int) reflect.Value {
+	if util.SizeOfV(v) > 0 {
+		return v.Index(idx)
+	}
+
+	return reflect.New(reflect.TypeOf(v.Interface()).Elem()).Elem()
+}
+
+func isPositionalPlaceholder(fieldName string, args *FieldArgs) bool {
+	if args != nil {
+		for _, positionalPlaceholder := range args.PositionalPlaceHolders {
+			positionalPlaceholderRegexp := regexp.MustCompile(fmt.Sprintf("^%s$", positionalPlaceholder))
+			if positionalPlaceholderRegexp.MatchString(fieldName) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

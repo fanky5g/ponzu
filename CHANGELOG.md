@@ -77,3 +77,6 @@
 ## v0.10.0
 - DataBase config. Support ponzu.props from ${USER_HOME}/.config/ponzu
 - Use more dynamic connection string support. Set postgres ssl_mode to disable by default.
+
+## v0.10.1
+- Fix(Support) Nesting NestedRepeaters (Only tested to one level deep). [Considered as bug since feature was not planned.]
