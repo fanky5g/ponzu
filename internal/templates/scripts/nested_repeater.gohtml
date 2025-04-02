@@ -6,9 +6,11 @@
             const positionalPlaceholder = "{{ .PositionalPlaceholder }}";
             const template = "{{ .Template }}";
             const numItems = {{ .NumItems }};
+            const entityName = "{{ .EntityName }}";
 
             const callback = () => {
                 window.Ponzu.initializeNestedRepeater(
+                    entityName,
                     selector,
                     cloneSelector,
                     positionalPlaceholder,

@@ -1,4 +1,11 @@
-window.Ponzu.initializeNestedRepeater = (selector, cloneSelector, positionalPlaceholder, template, numItems) => {
+window.Ponzu.initializeNestedRepeater = (
+    entityName,
+    selector,
+    cloneSelector,
+    positionalPlaceholder,
+    template,
+    numItems,
+) => {
     let n = numItems;
     let size = numItems;
     const parser = new DOMParser();
@@ -21,7 +28,27 @@ window.Ponzu.initializeNestedRepeater = (selector, cloneSelector, positionalPlac
         input.value = value;
     };
 
+    const insertEmptyListHelperText = () => {
+        const emptyListHelperText = parser.parseFromString(
+            `<label class="empty-text">No ${entityName} added.</label>`,
+            "text/html",
+        ).body.firstChild;
+
+        const parentControls = nestedRepeaterControl.querySelector('.parent.nested-repeater-controls');
+        if (parentControls) {
+            $(emptyListHelperText).insertBefore($(parentControls));
+        } else {
+            $(nestedRepeaterControl).append(emptyListHelperText);
+        }
+    };
+
+    const removeEmptyListHelperText = () => {
+        nestedRepeaterControl.querySelector('label.empty-text')?.remove();
+    };
+
     const createChild = function(i) {
+        removeEmptyListHelperText();
+
         const childTemplate = template.replace(new RegExp(positionalPlaceholder, 'g'), i);
 
         const childNode = $('<div/>').html(childTemplate).contents();
@@ -46,6 +73,9 @@ window.Ponzu.initializeNestedRepeater = (selector, cloneSelector, positionalPlac
 
         size = size - 1;
         setHiddenInputValue("length", size);
+        if (!size) {
+            insertEmptyListHelperText();
+        }
     };
 
     const addRepeater = function (e) {
@@ -119,7 +149,7 @@ window.Ponzu.initializeNestedRepeater = (selector, cloneSelector, positionalPlac
     });
 
     if (!n) {
-        createChild(0);
+        insertEmptyListHelperText();
     }
 
     createParentControls();
