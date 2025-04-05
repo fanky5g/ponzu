@@ -5,6 +5,7 @@ import (
 	bleveSearch "github.com/fanky5g/ponzu-driver-bleve"
 	"github.com/fanky5g/ponzu/config"
 	"github.com/fanky5g/ponzu/content"
+	"github.com/fanky5g/ponzu/content/workflow"
 	databasePkg "github.com/fanky5g/ponzu/database"
 	"github.com/fanky5g/ponzu/internal/database"
 	"github.com/fanky5g/ponzu/internal/database/postgres"
@@ -31,9 +32,10 @@ type DatabaseConfig struct {
 }
 
 type Config struct {
-	ContentTypes content.Types
-	Database     DatabaseConfig
-	ServeMux     *http.ServeMux
+	ContentTypes               content.Types
+	Database                   DatabaseConfig
+	ServeMux                   *http.ServeMux
+	WorkflowStateChangeHandler workflow.StateChangeTrigger
 }
 
 type application struct {
@@ -76,6 +78,7 @@ func New(conf Config) (Application, error) {
 		uploadStorageClient,
 		searchClient,
 		conf.ServeMux,
+		conf.WorkflowStateChangeHandler,
 	)
 
 	if err != nil {

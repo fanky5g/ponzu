@@ -52,7 +52,7 @@ func NewLoginHandler(publicPath string, authService *Service, userService *UserS
 		response.Respond(
 			res,
 			req,
-			response.NewHTMLResponse(http.StatusOK, tmpl, nil),
+			response.NewHTMLResponse(http.StatusOK, tmpl, &ViewModel{PublicPath: publicPath}),
 		)
 	}
 }

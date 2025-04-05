@@ -63,7 +63,9 @@ func (suite *WorkflowTestSuite) SetupSuite() {
 	var err error
 	suite.service, err = New(
 		&mocks.DB{Mock: suite.m},
-		contentTypes, &mocks.SearchClient{Mock: suite.m},
+		contentTypes,
+		&mocks.SearchClient{Mock: suite.m},
+		nil,
 		nil,
 		nil,
 	)
@@ -101,7 +103,7 @@ func (suite *WorkflowTestSuite) TestTransitionWorkflowState() {
 	}
 }
 
-func (suite *WorkflowTestSuite) TestTransitionWorkflowStateCallsWorkflowStateChangeTrigger() {
+func (suite *WorkflowTestSuite) TestEntityWorkflowStateChangeTriggerCalled() {
 	entityType := "Story"
 	entityId := "1"
 
@@ -127,6 +129,58 @@ func (suite *WorkflowTestSuite) TestTransitionWorkflowStateCallsWorkflowStateCha
 	suite.m.On("OnWorkflowStateChange", workflow.DraftState, mock.Anything).Once().Return(nil)
 
 	result, err := suite.service.TransitionWorkflowState(entityType, entityId, workflow.PreviewState)
+	if assert.NoError(suite.T(), err) {
+		assert.Equal(suite.T(), update, result)
+	}
+}
+
+func (suite *WorkflowTestSuite) TestWorkflowStateChangeTriggerCalled() {
+	entityType := "Story"
+	entityId := "1"
+
+	entity := &story{
+		item.Item{
+			ID:            entityId,
+			WorkflowState: workflow.DraftState,
+		},
+	}
+
+	m := new(mock.Mock)
+	s, err := New(
+		&mocks.DB{Mock: m},
+		map[string]content.Builder{
+			"Story": func() interface{} {
+				return new(story)
+			},
+		},
+		&mocks.SearchClient{Mock: m},
+		nil,
+		nil,
+		&mocks.WorkflowStateChangeHandler{Mock: m},
+	)
+	if err != nil {
+		suite.T().Fatal(err)
+		return
+	}
+
+	update := &story{
+		item.Item{
+			ID:            entityId,
+			WorkflowState: workflow.PreviewState,
+		},
+	}
+
+	m.On("FindOneById", entityId).Once().Return(entity, nil)
+	m.On("UpdateById", entityId, update).Once().Return(update, nil)
+	m.On("Update", entityId, update).Once().Return(nil)
+	m.On(
+		"OnWorkflowStateChange",
+		update,
+		workflow.DraftState,
+		mock.Anything,
+	).Once().Return(nil)
+
+	result, err := s.TransitionWorkflowState(entityType, entityId, workflow.PreviewState)
 	if assert.NoError(suite.T(), err) {
 		assert.Equal(suite.T(), update, result)
 	}

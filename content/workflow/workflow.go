@@ -20,8 +20,12 @@ type EntityLoader interface {
 	GetEntity(entityName, entityId string) (interface{}, error)
 }
 
-type StateChangeTrigger interface {
+type EntityStateChangeTrigger interface {
 	OnWorkflowStateChange(prevState State, entityLoader EntityLoader) error
+}
+
+type StateChangeTrigger interface {
+	OnWorkflowStateChange(entity LifecycleSupportedEntity, prevState State, entityLoader EntityLoader) error
 }
 
 type ActionDescriptor interface {

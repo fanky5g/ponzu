@@ -6,7 +6,6 @@ import (
 	"net/http"
 )
 
-// POST
 func NewAPIAuthHandler(authService *Service) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		accountId, credential, err := MapAuthRequest(req)
