@@ -26,3 +26,20 @@
   border-color: #ff0000;
   color: #ff0000;
 }
+
+.form-view-root.new-content .content-editor-toolbar .content-title {
+  display: none;
+}
+
+.form-view-root.new-content .content-editor-toolbar .delete-content {
+  display: none;
+}
+
+.content-editor .form-view-root:not(.new-content) .mdc-top-app-bar--fixed-adjust {
+  padding-top: 112px;
+}
+
+.content-editor.upload .mdc-top-app-bar--fixed-adjust,
+.content-editor.configure .mdc-top-app-bar--fixed-adjust {
+  padding-top: 56px !important;
+}

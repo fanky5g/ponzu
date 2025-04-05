@@ -615,3 +615,10 @@ form.form-view-root + form.form-view-root {
   margin: 8px 0;
   font-weight: normal;
 }
+
+.actions {
+  min-width: 1px;
+  display: flex;
+  align-items: center;
+  color: rgba(0, 0, 0, .87)!important;
+}
