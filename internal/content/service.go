@@ -17,12 +17,13 @@ import (
 )
 
 type Service struct {
-	repositories   map[string]database.Repository
-	slugRepository database.Repository
-	searchClient   search.SearchInterface
-	types          map[string]content.Builder
-	dataExporter   dataexporter.DataExporter
-	uploadService  *UploadService
+	repositories               map[string]database.Repository
+	slugRepository             database.Repository
+	searchClient               search.SearchInterface
+	types                      map[string]content.Builder
+	dataExporter               dataexporter.DataExporter
+	uploadService              *UploadService
+	workflowStateChangeHandler workflow.StateChangeTrigger
 }
 
 func New(
@@ -31,6 +32,7 @@ func New(
 	searchClient search.SearchInterface,
 	dataExporter dataexporter.DataExporter,
 	uploadService *UploadService,
+	workflowStateChangeHandler workflow.StateChangeTrigger,
 ) (*Service, error) {
 	slugRepository := db.GetRepositoryByToken(SlugRepositoryToken)
 
@@ -50,12 +52,13 @@ func New(
 	}
 
 	s := &Service{
-		repositories:   contentRepositories,
-		slugRepository: slugRepository,
-		searchClient:   searchClient,
-		types:          types,
-		dataExporter:   dataExporter,
-		uploadService:  uploadService,
+		repositories:               contentRepositories,
+		slugRepository:             slugRepository,
+		searchClient:               searchClient,
+		types:                      types,
+		dataExporter:               dataExporter,
+		uploadService:              uploadService,
+		workflowStateChangeHandler: workflowStateChangeHandler,
 	}
 
 	return s, nil

@@ -86,3 +86,6 @@
 
 ## v0.11.1
 - Remove delete button in content editor view during content creation
+
+## v0.12.0
+- Support new config field "WorkflowStateChangeHandler" of type "workflow.StateChangeTrigger" called when entity's workflow state changes

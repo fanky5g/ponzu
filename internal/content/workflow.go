@@ -38,15 +38,10 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 		return nil, updateContentErr
 	}
 
-	trigger, ok := updated.(workflow.StateChangeTrigger)
-	if !ok {
-		return updated, nil
-	}
-
-	if workflowStateChangeTriggerErr := trigger.OnWorkflowStateChange(
+	if workflowStateChangeErr := s.notifyWorkflowStateChangeListeners(
 		currentState,
-		newReferenceLoader(updated, s),
-	); workflowStateChangeTriggerErr != nil {
+		updated.(workflow.LifecycleSupportedEntity),
+	); workflowStateChangeErr != nil {
 		// TODO(B.B): remove after introducing (unit of work concept - transactions).
 		updatedWorkflow, getContentWorkflowErr := getContentWorkflow(updated)
 		if getContentWorkflowErr != nil {
@@ -64,13 +59,35 @@ func (s *Service) TransitionWorkflowState(entityType, entityId string, targetSta
 				return nil, revertErr
 			}
 
-			return reverted, workflowStateChangeTriggerErr
+			return reverted, workflowStateChangeErr
 		}
 
-		return updated, workflowStateChangeTriggerErr
+		return updated, workflowStateChangeErr
 	}
 
 	return updated, updateContentErr
+}
+
+func (s *Service) notifyWorkflowStateChangeListeners(prevState workflow.State, entity workflow.LifecycleSupportedEntity) error {
+	referenceLoader := newReferenceLoader(entity, s)
+	if entityWorkflowStateChangeTrigger, ok := entity.(workflow.EntityStateChangeTrigger); ok {
+		if workflowStateChangeTriggerErr := entityWorkflowStateChangeTrigger.OnWorkflowStateChange(
+			prevState,
+			referenceLoader,
+		); workflowStateChangeTriggerErr != nil {
+			return workflowStateChangeTriggerErr
+		}
+	}
+
+	if s.workflowStateChangeHandler != nil {
+		return s.workflowStateChangeHandler.OnWorkflowStateChange(
+			entity,
+			prevState,
+			referenceLoader,
+		)
+	}
+
+	return nil
 }
 
 func (s *Service) transitionWorkflowState(entity workflow.LifecycleSupportedEntity, targetState workflow.State) error {

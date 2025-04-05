@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/content/workflow"
 	"github.com/fanky5g/ponzu/internal/analytics"
 	"github.com/fanky5g/ponzu/internal/auth"
 	"github.com/fanky5g/ponzu/internal/content"
@@ -48,6 +49,7 @@ func New(
 	uploadStorage storage.Client,
 	searchClient search.SearchInterface,
 	rootMux *http.ServeMux,
+	workflowTransitionHandler workflow.StateChangeTrigger,
 ) (Server, error) {
 	appConf, err := conf.Get()
 	if err != nil {
@@ -109,7 +111,14 @@ func New(
 		return nil, errors.Wrap(err, "Failed to initialize storage service")
 	}
 
-	contentService, err := content.New(db, contentTypes, searchClient, contentExporter, storageService)
+	contentService, err := content.New(
+		db,
+		contentTypes,
+		searchClient,
+		contentExporter,
+		storageService,
+		workflowTransitionHandler,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to initialize content service")
 	}
