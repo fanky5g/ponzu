@@ -79,4 +79,7 @@
 - Use more dynamic connection string support. Set postgres ssl_mode to disable by default.
 
 ## v0.10.1
-- Fix(Support) Nesting NestedRepeaters (Only tested to one level deep). [Considered as bug since feature was not planned.]
+- Support Nesting NestedRepeaters (Only tested to one level deep).
+
+## v0.11.0
+- Add helper text to nested repeater when empty

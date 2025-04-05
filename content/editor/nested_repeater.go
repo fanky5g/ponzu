@@ -79,6 +79,7 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 		CloneSelector         string
 		PositionalPlaceholder string
 		PublicPath            string
+		EntityName            string
 	}{
 		Template:              entryTemplate,
 		NumItems:              value.Len(),
@@ -87,6 +88,7 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 		InputSelector:         "input",
 		PositionalPlaceholder: positionalPlaceHolder,
 		PublicPath:            publicPath,
+		EntityName:            fieldName,
 	}); err != nil {
 		panic(err)
 	}

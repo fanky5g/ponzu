@@ -609,3 +609,9 @@ form.form-view-root + form.form-view-root {
 .mdc-select .mdc-chip-set {
   flex-grow: 1;
 }
+
+.__ponzu-nested label.empty-text {
+  font-size: 13px;
+  margin: 8px 0;
+  font-weight: normal;
+}
