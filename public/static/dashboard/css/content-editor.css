@@ -1,12 +1,3 @@
-.content-editor .mdc-top-app-bar--fixed-adjust {
-  padding-top: 112px;
-}
-
-.content-editor.upload .mdc-top-app-bar--fixed-adjust,
-.content-editor.configure .mdc-top-app-bar--fixed-adjust {
-  padding-top: 56px !important;
-}
-
 .content-editor .form-view-root {
   padding: 0;
 }

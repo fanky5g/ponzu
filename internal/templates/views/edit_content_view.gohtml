@@ -56,7 +56,7 @@
 
 {{ define "edit-content-toolbar.gohtml" }}
 <div class="mdc-top-app-bar content-editor-toolbar"> 
-  <div class="mdc-top-app-bar__row">
+  <div class="mdc-top-app-bar__row content-title">
     <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
       <span class="mdc-top-app-bar__title title">{{ .Title }}</span>
     </section>
@@ -89,7 +89,7 @@
 
 {{ define "page.gohtml" }}
     <div class="content-editor">
-        <form class="form-view-root" method="post" action="{{ .PublicPath }}/edit" enctype="multipart/form-data">
+        <form class="form-view-root{{ if eq .ID "" }} new-content{{ end }}" method="post" action="{{ .PublicPath }}/edit" enctype="multipart/form-data">
             {{ template "edit-content-toolbar.gohtml" . }}
             <div class="mdc-top-app-bar--fixed-adjust"></div>
 

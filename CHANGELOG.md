@@ -83,3 +83,6 @@
 
 ## v0.11.0
 - Add helper text to nested repeater when empty
+
+## v0.11.1
+- Remove delete button in content editor view during content creation
