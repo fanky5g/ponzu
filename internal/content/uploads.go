@@ -57,7 +57,7 @@ func (s *UploadService) GetUploads(entityIds ...string) ([]*contentEntities.Uplo
 		return nil, err
 	}
 
-	out := make([]*contentEntities.Upload, 0, len(matches))
+	out := make([]*contentEntities.Upload, len(matches))
 	for i, match := range matches {
 		out[i] = match.(*contentEntities.Upload)
 	}
