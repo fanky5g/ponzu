@@ -1,5 +1,10 @@
+## v0.12.2
+- Fix: `GCS` write object content-type
+
+
 ## v0.12.1
 - Fix: Upload service GetUploads usage of slice with capacity instead of array
+
 
 ## v0.12.0
 - Support new config field "WorkflowStateChangeHandler" of type "workflow.StateChangeTrigger" called when entity's workflow state changes
