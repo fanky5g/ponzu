@@ -135,7 +135,7 @@ func NewContentWorkflowTransitionHandler(contentService *Service, publicPath str
 			contentTransitionInput.ID,
 			workflow.State(contentTransitionInput.TargetState),
 		)
-		if err != nil {
+		if workflowTransitionErr != nil {
 			exceptions.Log(err)
 		}
 

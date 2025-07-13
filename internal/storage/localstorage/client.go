@@ -2,10 +2,14 @@ package localstorage
 
 import (
 	"fmt"
+	"github.com/fanky5g/ponzu/internal/storage"
+	log "github.com/sirupsen/logrus"
 	"io"
-	"log"
+	"mime"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -48,4 +52,23 @@ func (c *Client) Save(fileName string, file io.ReadCloser) (string, int64, error
 	// add name:urlPath to req.PostForm to be inserted into db
 	urlPath := fmt.Sprintf("%d/%02d/%s", tm.Year(), tm.Month(), fileName)
 	return urlPath, size, nil
+}
+
+func (c *Client) Open(name string) (http.File, error) {
+	return c.fs.Open(name)
+}
+
+func (c *Client) Attributes(name string) (*storage.FileAttributes, error) {
+	if _, err := c.fs.Open(name); err != nil {
+		return nil, err
+	}
+
+	return &storage.FileAttributes{ContentType: mime.TypeByExtension(filepath.Ext(name))}, nil
+}
+
+func (c *Client) Delete(path string) error {
+	// split and rebuild path in OS friendly way
+	// use path to delete the physical file from disk
+	pathSplit := strings.Split(strings.TrimPrefix(path, "/api/"), "/")
+	return os.Remove(filepath.Join(pathSplit...))
 }

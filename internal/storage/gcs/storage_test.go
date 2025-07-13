@@ -122,6 +122,32 @@ func (s *StorageTestSuite) TestSave() {
 	}
 }
 
+func (s *StorageTestSuite) TestSaveWritesContentType() {
+	f, err := os.Open("testdata/vector.svg")
+	if err != nil {
+		s.T().Fatal(err)
+		return
+	}
+
+	defer func() {
+		if err = f.Close(); err != nil {
+			log.WithField("Error", err).Error("Error closing opened file")
+		}
+	}()
+
+	name := fmt.Sprintf("%s/vector.svg", s.bucket)
+	fileName, written, err := s.c.Save(name, f)
+	if assert.NoError(s.T(), err) {
+		assert.True(s.T(), written > 0)
+		assert.Equal(s.T(), fileName, name)
+	}
+
+	vectorAttributes, err := s.c.Attributes(name)
+	if assert.NoError(s.T(), err) {
+		assert.Equal(s.T(), "image/svg+xml", vectorAttributes.ContentType)
+	}
+}
+
 func (s *StorageTestSuite) TestDelete() {
 	name, _, err := s.writeTestFile()
 	if err != nil {

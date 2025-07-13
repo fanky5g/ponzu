@@ -3,9 +3,12 @@ package gcs
 import (
 	"cloud.google.com/go/storage"
 	"context"
+	internalStorage "github.com/fanky5g/ponzu/internal/storage"
 	log "github.com/sirupsen/logrus"
 	"io"
+	"mime"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -17,12 +20,11 @@ type Client struct {
 // so we don't have to stream the file (at a performance and data streaming cost). The format for the name of the file is
 // bucket/path/to/file.ext
 func (c *Client) Open(name string) (http.File, error) {
-	bucket, key, err := parsePath(name)
+	object, err := c.objectHandle(name)
 	if err != nil {
 		return nil, err
 	}
 
-	object := c.s.Bucket(bucket).Object(key)
 	o, err := object.NewReader(context.Background())
 	if err != nil {
 		return nil, err
@@ -43,6 +45,8 @@ func (c *Client) Save(name string, file io.ReadCloser) (string, int64, error) {
 
 	object := c.s.Bucket(bucket).Object(key)
 	w := object.NewWriter(context.Background())
+	w.ObjectAttrs.ContentType = mime.TypeByExtension(path.Ext(name))
+
 	defer func() {
 		if err = w.Close(); err != nil {
 			log.WithField("Error", err).Error("Error closing writer")
@@ -57,6 +61,20 @@ func (c *Client) Save(name string, file io.ReadCloser) (string, int64, error) {
 	return strings.Join([]string{bucket, key}, "/"), written, nil
 }
 
+func (c *Client) Attributes(name string) (*internalStorage.FileAttributes, error) {
+	object, err := c.objectHandle(name)
+	if err != nil {
+		return nil, err
+	}
+
+	objectAttrs, err := object.Attrs(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &internalStorage.FileAttributes{ContentType: objectAttrs.ContentType}, nil
+}
+
 func (c *Client) Delete(name string) error {
 	bucket, key, err := parsePath(name)
 	if err != nil {
@@ -64,4 +82,13 @@ func (c *Client) Delete(name string) error {
 	}
 
 	return c.s.Bucket(bucket).Object(key).Delete(context.Background())
+}
+
+func (c *Client) objectHandle(name string) (*storage.ObjectHandle, error) {
+	bucket, key, err := parsePath(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.s.Bucket(bucket).Object(key), nil
 }
