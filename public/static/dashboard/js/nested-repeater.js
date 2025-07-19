@@ -34,7 +34,7 @@ window.Ponzu.initializeNestedRepeater = (
             "text/html",
         ).body.firstChild;
 
-        const parentControls = nestedRepeaterControl.querySelector('.parent.nested-repeater-controls');
+        const parentControls = nestedRepeaterControl.querySelector(':scope > .parent.nested-repeater-controls');
         if (parentControls) {
             $(emptyListHelperText).insertBefore($(parentControls));
         } else {
@@ -52,7 +52,7 @@ window.Ponzu.initializeNestedRepeater = (
         const childTemplate = template.replace(new RegExp(positionalPlaceholder, 'g'), i);
 
         const childNode = $('<div/>').html(childTemplate).contents();
-        const parentControls = nestedRepeaterControl.querySelector('.parent.nested-repeater-controls');
+        const parentControls = nestedRepeaterControl.querySelector(':scope > .parent.nested-repeater-controls');
         if (parentControls) {
             childNode.insertBefore($(parentControls));
         } else {
