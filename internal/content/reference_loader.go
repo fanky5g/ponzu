@@ -36,19 +36,8 @@ func (l *ReferenceLoader) populateReferences() error {
 	// TODO(B.B): will benefit from parallel execution
 	for entityName, entityIds := range l.references {
 		for chunk := range slices.Chunk(entityIds, ReferenceLoaderChunkSize) {
-			data, err := l.loader.GetReferences(entityName, chunk...)
-			if err != nil {
+			if err := l.loadReferences(entityName, chunk...); err != nil {
 				return err
-			}
-
-			for i := range data {
-				reference := data[i]
-				identifiable, ok := reference.(item.Identifiable)
-				if !ok {
-					return fmt.Errorf("reference %s is not an Identifiable", reference)
-				}
-
-				l.data[l.key(entityName, identifiable.ItemID())] = reference
 			}
 		}
 	}
@@ -64,11 +53,33 @@ func (l *ReferenceLoader) GetEntity(entityName, entityId string) (interface{}, e
 		}
 	}
 
-	if entity, ok := l.data[l.key(entityName, entityId)]; ok {
-		return entity, nil
+	// load and cache entity which is not in reference map
+	if _, ok := l.data[l.key(entityName, entityId)]; !ok {
+		if err := l.loadReferences(entityName, entityId); err != nil {
+			return nil, err
+		}
 	}
 
-	return nil, nil
+	return l.data[l.key(entityName, entityId)], nil
+}
+
+func (l *ReferenceLoader) loadReferences(entityName string, entityIds ...string) error {
+	data, err := l.loader.GetReferences(entityName, entityIds...)
+	if err != nil {
+		return err
+	}
+
+	for i := range data {
+		reference := data[i]
+		identifiable, ok := reference.(item.Identifiable)
+		if !ok {
+			return fmt.Errorf("reference %s is not an Identifiable", reference)
+		}
+
+		l.data[l.key(entityName, identifiable.ItemID())] = reference
+	}
+
+	return nil
 }
 
 func (l *ReferenceLoader) key(entityName, entityId string) string {
