@@ -1,3 +1,6 @@
+## v0.13.1
+- Fix Nested Repeater injecting child in wrong place with ':scope' selector without polyfill
+
 ## v0.13.0
 - Reference loader, load uncached objects
 
