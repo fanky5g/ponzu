@@ -1,3 +1,7 @@
+## v0.13.0
+- Reference loader, load uncached objects
+
+
 ## v0.12.2
 - Fix: `GCS` write object content-type
 
