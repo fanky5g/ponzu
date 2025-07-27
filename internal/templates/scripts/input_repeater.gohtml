@@ -1,6 +1,6 @@
-<script>
+<script type="text/javascript">
     (function() {
-        const initializeNestedRepeater = () => {
+        const initializeInputRepeater = () => {
             const selector = "{{ .Scope }}";
             const cloneSelector = "{{ .CloneSelector }}";
             const positionalPlaceholder = "{{ .PositionalPlaceholder }}";
@@ -16,7 +16,6 @@
                     positionalPlaceholder,
                     template,
                     numItems,
-                    'nested',
                 );
             };
 
@@ -33,12 +32,12 @@
         };
 
         if (typeof window.Ponzu !== "undefined") {
-            initializeNestedRepeater();
+            initializeInputRepeater();
             return;
         }
 
         window.addEventListener("load", () => {
-            initializeNestedRepeater();
+            initializeInputRepeater();
         });
     })();
 </script>

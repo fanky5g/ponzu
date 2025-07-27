@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bytes"
+	"fmt"
 	"html"
 	"log"
 	"strings"
@@ -49,9 +50,11 @@ func DOMInputSelfClose(e *Element) []byte {
 		}
 	}
 
+	extendAttributeValue(e.Attrs, "controlClass", "control-block")
+
 	var err error
 	if isValidSelfClosingTag {
-		_, err = e.ViewBuf.WriteString(`<fieldset class="control-block">`)
+		_, err = e.ViewBuf.WriteString(fmt.Sprintf(`<fieldset class="%s">`, e.Attrs["controlClass"]))
 		if err != nil {
 			log.Println("Error writing HTML string to buffer: DOMElementSelfClose")
 			return nil
@@ -228,29 +231,37 @@ func DOMElementWithChildrenSelect(e *Element, children []*Element) []byte {
 }
 
 func addClassName(attrs map[string]string, className string) {
-	if attrs == nil || strings.TrimSpace(className) == "" {
+	extendAttributeValue(attrs, "class", className)
+}
+
+func extendAttributeValue(attrs map[string]string, key, value string) {
+	if attrs == nil {
+		attrs = make(map[string]string)
+	}
+
+	if strings.TrimSpace(value) == "" {
 		return
 	}
 
-	if _, ok := attrs["class"]; !ok {
-		attrs["class"] = ""
+	if _, ok := attrs[key]; !ok {
+		attrs[key] = ""
 	}
 
-	classNames := strings.FieldsFunc(attrs["class"], func(r rune) bool {
+	values := strings.FieldsFunc(attrs[key], func(r rune) bool {
 		return r == ' '
 	})
 
-	hasClassName := false
-	for _, class := range classNames {
-		if strings.TrimSpace(class) == className {
-			hasClassName = true
+	hasValue := false
+	for _, v := range values {
+		if strings.TrimSpace(v) == value {
+			hasValue = true
 			break
 		}
 	}
 
-	if !hasClassName {
-		classNames = append(classNames, className)
+	if !hasValue {
+		values = append(values, value)
 	}
 
-	attrs["class"] = strings.Join(classNames, " ")
+	attrs[key] = strings.Join(values, " ")
 }

@@ -17,7 +17,6 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 	}
 
 	scope := TagNameFromStructField(fieldName, p, args)
-
 	tmpl := `
 		<div class="control-block __ponzu-nested __ponzu-repeat ` + scope + `">
 			<label class="active">` + fieldName + `</label>
@@ -75,7 +74,6 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 		Template              string
 		NumItems              int
 		Scope                 string
-		InputSelector         string
 		CloneSelector         string
 		PositionalPlaceholder string
 		PublicPath            string
@@ -85,7 +83,6 @@ func NestedRepeater(publicPath, fieldName string, p interface{}, args *FieldArgs
 		NumItems:              value.Len(),
 		Scope:                 scope,
 		CloneSelector:         fmt.Sprintf(".%s", arrayTypeName),
-		InputSelector:         "input",
 		PositionalPlaceholder: positionalPlaceHolder,
 		PublicPath:            publicPath,
 		EntityName:            fieldName,

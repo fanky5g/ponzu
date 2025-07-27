@@ -14,12 +14,9 @@ func TagNameFromStructField(name string, post interface{}, args *FieldArgs) stri
 }
 
 func tagNameFromStructField(name string, post interface{}, args *FieldArgs, callDepth uint8) string {
+	name = location(name, args, callDepth)
 	if name == "" {
-		return name
-	}
-
-	if callDepth == 0 && args != nil && args.Parent != "" {
-		name = strings.Join([]string{args.Parent, name}, ".")
+		return ""
 	}
 
 	parts := strings.Split(name, ".")
@@ -118,12 +115,10 @@ func ValueByName(name string, post interface{}, args *FieldArgs) reflect.Value {
 }
 
 func valueByName(name string, post interface{}, args *FieldArgs, callDepth uint8) reflect.Value {
-	if callDepth == 0 && args != nil && args.Parent != "" {
-		name = strings.Join([]string{args.Parent, name}, ".")
-	}
-
+	name = location(name, args, callDepth)
 	parts := strings.Split(name, ".")
 	fieldName := parts[0]
+
 	v := reflect.ValueOf(post)
 	if v.Kind() == reflect.Pointer {
 		v = v.Elem()
@@ -142,6 +137,10 @@ func valueByName(name string, post interface{}, args *FieldArgs, callDepth uint8
 		} else {
 			return v
 		}
+	}
+
+	if fieldName == "" {
+		return v
 	}
 
 	value := v.FieldByName(fieldName)
@@ -222,4 +221,17 @@ func isPositionalPlaceholder(fieldName string, args *FieldArgs) bool {
 	}
 
 	return false
+}
+
+func location(name string, args *FieldArgs, callDepth uint8) string {
+	if callDepth == 0 && args != nil && args.Parent != "" {
+		parts := []string{args.Parent}
+		if name != "" {
+			parts = append(parts, name)
+		}
+
+		return strings.Join(parts, ".")
+	}
+
+	return name
 }
