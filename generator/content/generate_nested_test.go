@@ -434,11 +434,11 @@ func (r *Review) MarshalEditor(publicPath string) ([]byte, error) {
 			}, nil),
 		},
 		editor.Field{
-			View: editor.InputRepeater("Tags", r, map[string]string{
+			View: editor.InputRepeater(publicPath, "Tags", r, map[string]string{
 				"label":       "Tags",
 				"type":        "text",
 				"placeholder": "Enter the Tags here",
-			}),
+			}, nil),
 		},
 		editor.Field{
 			View: editor.Nested("Author", r, nil,

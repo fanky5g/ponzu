@@ -484,7 +484,7 @@ fieldset.control-block {
 
 .selector,
 .repeater-del,
-.nested-repeater-controls {
+[class$="-repeater-controls"] {
   margin-top: 8px;
   display: flex;
   flex-direction: row;

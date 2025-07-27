@@ -480,6 +480,21 @@ func init() {
 						TypeName: "int",
 						JSONName: "age",
 					},
+					{
+						Type:          generator.Field,
+						Name:          "Aliases",
+						Label:         "Aliases",
+						TypeName:      "[]string",
+						JSONName:      "aliases",
+						ReferenceName: "",
+						Definition: generator.BlockDefinition{
+							Title:       "aliases",
+							Type:        "[]string",
+							IsArray:     true,
+							IsReference: false,
+							Tokens:      []string{},
+						},
+					},
 				},
 			},
 			expectedOutput: `
@@ -494,8 +509,9 @@ import (
 type Author struct {
 	item.Item
 
-	Name string ` + "`json:\"name\"`" + `
-	Age  int    ` + "`json:\"age\"`" + `
+	Name     string      ` + "`json:\"name\"`" + `
+	Age      int    	 ` + "`json:\"age\"`" + `
+	Aliases  []string    ` + "`json:\"aliases\"`" + `
 }
 
 // MarshalEditor writes a buffer of views to edit a Author within the CMS
@@ -517,6 +533,13 @@ func (a *Author) MarshalEditor(publicPath string) ([]byte, error) {
 				"label":       "Age",
 				"type":        "text",
 				"placeholder": "Enter the Age here",
+			}, nil),
+		},
+		editor.Field{
+			View: editor.InputRepeater(publicPath, "Aliases", a, map[string]string{
+				"label":       "Aliases",
+				"type":        "text",
+				"placeholder": "Enter the Aliases here",
 			}, nil),
 		},
 	)

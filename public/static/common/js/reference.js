@@ -225,7 +225,6 @@
     const repeatController = window.Ponzu.RepeatController(
         selector,
         parentSelector,
-        childSelector,
         chipContainer.querySelectorAll(childSelector).length,
     );
 
